@@ -70,3 +70,6 @@ export * from './use-cases/tasks/update-task-status';
 
 // Staff use cases
 export * from './use-cases/staff/list-staff-members';
+export * from './use-cases/staff/get-dashboard-stats';
+export * from './use-cases/staff/get-analytics';
+export * from './use-cases/staff/get-task-dashboard';
