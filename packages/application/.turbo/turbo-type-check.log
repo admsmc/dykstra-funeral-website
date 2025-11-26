@@ -2,14 +2,3 @@
 > @dykstra/application@0.1.0 type-check /Users/andrewmathers/projects/dykstra-funeral-website/packages/application
 > tsc --noEmit
 
-src/use-cases/invitations/create-invitation.ts(46,3): error TS2322: Type 'Effect<{ invitation: { id: string; businessKey: string; email: string; name: string; status: InvitationStatus; expiresAt: Date; }; }, ValidationError | NotFoundError | PersistenceError | EmailError | InvitationConflictError, CaseRepository | ... 1 more ... | InvitationRepository>' is not assignable to type 'Effect<CreateInvitationResult, ValidationError | InvitationConflictError, CaseRepository | EmailPort | InvitationRepository>'.
-  Type 'ValidationError | NotFoundError | PersistenceError | EmailError | InvitationConflictError' is not assignable to type 'ValidationError | InvitationConflictError'.
-    Type 'NotFoundError' is not assignable to type 'ValidationError | InvitationConflictError'.
-      Type 'NotFoundError' is not assignable to type 'ValidationError'.
-        Types of property '_tag' are incompatible.
-          Type '"NotFoundError"' is not assignable to type '"ValidationError"'.
-src/use-cases/invitations/resend-invitation.ts(18,3): error TS2322: Type 'Effect<{ success: true; message: string; }, ValidationError | EmailError | InvitationNotFoundError, EmailPort | InvitationRepository>' is not assignable to type 'Effect<{ success: true; message: string; }, ValidationError | InvitationNotFoundError, EmailPort | InvitationRepository>'.
-  Type 'ValidationError | EmailError | InvitationNotFoundError' is not assignable to type 'ValidationError | InvitationNotFoundError'.
-    Type 'EmailError' is not assignable to type 'ValidationError | InvitationNotFoundError'.
-      Property 'businessKey' is missing in type 'EmailError' but required in type 'InvitationNotFoundError'.
- ELIFECYCLE  Command failed with exit code 2.

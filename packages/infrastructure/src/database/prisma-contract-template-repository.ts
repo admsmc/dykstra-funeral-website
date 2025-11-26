@@ -1,27 +1,27 @@
 import { Effect } from 'effect';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from './prisma-client';
 import type {
   ContractTemplateRepository,
-  ContractTemplate,
   ContractTemplateWithCreator,
   TemplateNotFoundError,
   CatalogServiceType,
 } from '@dykstra/application';
 
-export class PrismaContractTemplateRepository implements ContractTemplateRepository {
-  constructor(private prisma: PrismaClient) {}
-
-  find(filters: {
+/**
+ * Prisma implementation of Contract Template Repository
+ */
+export const PrismaContractTemplateRepository: ContractTemplateRepository = {
+  find: (filters: {
     serviceType?: CatalogServiceType;
     activeOnly?: boolean;
-  }): Effect.Effect<ContractTemplateWithCreator[], never, never> {
-    return Effect.tryPromise({
+  }) =>
+    Effect.tryPromise({
       try: async () => {
         const where: any = {};
         if (filters.serviceType) where.serviceType = filters.serviceType;
         if (filters.activeOnly) where.isActive = true;
 
-        const templates = await this.prisma.contractTemplate.findMany({
+        const templates = await prisma.contractTemplate.findMany({
           where,
           include: {
             creator: {
@@ -31,7 +31,7 @@ export class PrismaContractTemplateRepository implements ContractTemplateReposit
           orderBy: [{ isDefault: 'desc' }, { name: 'asc' }],
         });
 
-        return templates.map((t) => ({
+        return templates.map((t: any) => ({
           id: t.id,
           name: t.name,
           description: t.description,
@@ -47,15 +47,14 @@ export class PrismaContractTemplateRepository implements ContractTemplateReposit
         }));
       },
       catch: (error) => new Error(`Failed to fetch templates: ${error}`),
-    }).pipe(Effect.orDie);
-  }
+    }).pipe(Effect.orDie),
 
-  findDefault(
+  findDefault: (
     serviceType: CatalogServiceType
-  ): Effect.Effect<ContractTemplateWithCreator | null, never, never> {
-    return Effect.tryPromise({
+  ) =>
+    Effect.tryPromise({
       try: async () => {
-        const t = await this.prisma.contractTemplate.findFirst({
+        const t = await prisma.contractTemplate.findFirst({
           where: { serviceType, isDefault: true, isActive: true },
           include: {
             creator: {
@@ -82,13 +81,12 @@ export class PrismaContractTemplateRepository implements ContractTemplateReposit
         };
       },
       catch: (error) => new Error(`Failed to fetch default template: ${error}`),
-    }).pipe(Effect.orDie);
-  }
+    }).pipe(Effect.orDie),
 
-  findById(id: string): Effect.Effect<ContractTemplate | null, never, never> {
-    return Effect.tryPromise({
+  findById: (id: string) =>
+    Effect.tryPromise({
       try: async () => {
-        const t = await this.prisma.contractTemplate.findUnique({ where: { id } });
+        const t = await prisma.contractTemplate.findUnique({ where: { id } });
         if (!t) return null;
         return {
           id: t.id,
@@ -105,10 +103,9 @@ export class PrismaContractTemplateRepository implements ContractTemplateReposit
         };
       },
       catch: (error) => new Error(`Failed to fetch template: ${error}`),
-    }).pipe(Effect.orDie);
-  }
+    }).pipe(Effect.orDie),
 
-  create(data: {
+  create: (data: {
     name: string;
     description: string | null;
     serviceType: CatalogServiceType | null;
@@ -116,10 +113,10 @@ export class PrismaContractTemplateRepository implements ContractTemplateReposit
     variables: string[];
     isDefault: boolean;
     createdBy: string;
-  }): Effect.Effect<ContractTemplateWithCreator, never, never> {
-    return Effect.tryPromise({
+  }) =>
+    Effect.tryPromise({
       try: async () => {
-        const t = await this.prisma.contractTemplate.create({
+        const t = await prisma.contractTemplate.create({
           data: {
             name: data.name,
             description: data.description,
@@ -152,10 +149,9 @@ export class PrismaContractTemplateRepository implements ContractTemplateReposit
         };
       },
       catch: (error) => new Error(`Failed to create template: ${error}`),
-    }).pipe(Effect.orDie);
-  }
+    }).pipe(Effect.orDie),
 
-  update(
+  update: (
     id: string,
     data: {
       name?: string;
@@ -165,10 +161,10 @@ export class PrismaContractTemplateRepository implements ContractTemplateReposit
       isDefault?: boolean;
       isActive?: boolean;
     }
-  ): Effect.Effect<ContractTemplateWithCreator, TemplateNotFoundError, never> {
-    return Effect.tryPromise({
+  ) =>
+    Effect.tryPromise({
       try: async () => {
-        const t = await this.prisma.contractTemplate.update({
+        const t = await prisma.contractTemplate.update({
           where: { id },
           data,
           include: {
@@ -195,50 +191,47 @@ export class PrismaContractTemplateRepository implements ContractTemplateReposit
       },
       catch: (error: any) => {
         if (error?.code === 'P2025') {
-          return new TemplateNotFoundError(id);
+          return { _tag: 'TemplateNotFoundError', id } as unknown as TemplateNotFoundError;
         }
         throw new Error(`Failed to update template: ${error}`);
       },
     }).pipe(
-      Effect.flatMap((result) =>
-        result instanceof TemplateNotFoundError
-          ? Effect.fail(result)
-          : Effect.succeed(result)
+      Effect.flatMap((result: any) =>
+        typeof result === 'object' && result !== null && '_tag' in result && result._tag === 'TemplateNotFoundError'
+          ? Effect.fail(result as TemplateNotFoundError)
+          : Effect.succeed(result as ContractTemplateWithCreator)
       )
-    );
-  }
+    ),
 
-  delete(id: string): Effect.Effect<void, TemplateNotFoundError, never> {
-    return Effect.tryPromise({
+  delete: (id: string) =>
+    Effect.tryPromise({
       try: async () => {
-        await this.prisma.contractTemplate.delete({ where: { id } });
+        await prisma.contractTemplate.delete({ where: { id } });
       },
       catch: (error: any) => {
         if (error?.code === 'P2025') {
-          return new TemplateNotFoundError(id);
+          return { _tag: 'TemplateNotFoundError', id } as unknown as TemplateNotFoundError;
         }
         throw new Error(`Failed to delete template: ${error}`);
       },
     }).pipe(
-      Effect.flatMap((result) =>
-        result instanceof TemplateNotFoundError
-          ? Effect.fail(result)
+      Effect.flatMap((result: any) =>
+        typeof result === 'object' && result !== null && '_tag' in result && result._tag === 'TemplateNotFoundError'
+          ? Effect.fail(result as TemplateNotFoundError)
           : Effect.succeed(undefined)
       )
-    );
-  }
+    ),
 
-  unsetDefaultsForServiceType(
+  unsetDefaultsForServiceType: (
     serviceType: CatalogServiceType
-  ): Effect.Effect<void, never, never> {
-    return Effect.tryPromise({
+  ) =>
+    Effect.tryPromise({
       try: async () => {
-        await this.prisma.contractTemplate.updateMany({
+        await prisma.contractTemplate.updateMany({
           where: { serviceType, isDefault: true },
           data: { isDefault: false },
         });
       },
       catch: (error) => new Error(`Failed to unset defaults: ${error}`),
-    }).pipe(Effect.orDie);
-  }
-}
+    }).pipe(Effect.orDie),
+};

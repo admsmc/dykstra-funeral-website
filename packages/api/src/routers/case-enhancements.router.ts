@@ -36,7 +36,7 @@ export const caseEnhancementsRouter = router({
     .input(
       z.object({
         businessKey: z.string(),
-        newStatus: z.enum(['INQUIRY', 'ACTIVE', 'COMPLETED', 'ARCHIVED']),
+        newStatus: z.enum(['inquiry', 'active', 'completed', 'archived']),
       })
     )
     .mutation(async ({ input }) => {

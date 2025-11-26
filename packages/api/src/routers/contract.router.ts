@@ -46,11 +46,11 @@ const ServiceTypeEnum = z.enum([
 ]);
 
 const ContractStatusEnum = z.enum([
-  'DRAFT',
-  'PENDING_REVIEW',
-  'PENDING_SIGNATURES',
-  'FULLY_SIGNED',
-  'CANCELLED',
+  'draft',
+  'pending_review',
+  'pending_signatures',
+  'fully_signed',
+  'cancelled',
 ]);
 
 export const contractRouter = router({
@@ -201,7 +201,6 @@ export const contractRouter = router({
         tax: z.number(),
         totalAmount: z.number(),
         termsAndConditions: z.string(),
-        status: ContractStatusEnum.default('DRAFT'),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -215,7 +214,6 @@ export const contractRouter = router({
           tax: input.tax,
           totalAmount: input.totalAmount,
           termsAndConditions: input.termsAndConditions,
-          status: input.status,
           createdBy: ctx.user.id,
         })
       );

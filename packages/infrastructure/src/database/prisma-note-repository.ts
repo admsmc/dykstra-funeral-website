@@ -1,20 +1,20 @@
 import { Effect } from 'effect';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from './prisma-client';
 import type {
   NoteRepository,
   Note,
-  NoteWithCreator,
-  NoteHistoryVersion,
   NoteNotFoundError,
 } from '@dykstra/application';
 
-export class PrismaNoteRepository implements NoteRepository {
-  constructor(private prisma: PrismaClient) {}
-
-  findCurrentByCase(caseId: string): Effect.Effect<NoteWithCreator[], never, never> {
-    return Effect.tryPromise({
+/**
+ * Prisma implementation of Note Repository
+ * Handles SCD2 (Slowly Changing Dimension Type 2) pattern
+ */
+export const PrismaNoteRepository: NoteRepository = {
+  findCurrentByCase: (caseId: string) =>
+    Effect.tryPromise({
       try: async () => {
-        const notes = await this.prisma.internalNote.findMany({
+        const notes = await prisma.internalNote.findMany({
           where: {
             caseId,
             isCurrent: true,
@@ -32,7 +32,7 @@ export class PrismaNoteRepository implements NoteRepository {
           },
         });
 
-        return notes.map((note) => ({
+        return notes.map((note: any) => ({
           id: note.id,
           businessKey: note.businessKey,
           version: note.version,
@@ -51,13 +51,12 @@ export class PrismaNoteRepository implements NoteRepository {
         }));
       },
       catch: (error) => new Error(`Failed to fetch notes: ${error}`),
-    }).pipe(Effect.orDie);
-  }
+    }).pipe(Effect.orDie),
 
-  findHistory(businessKey: string): Effect.Effect<NoteHistoryVersion[], never, never> {
-    return Effect.tryPromise({
+  findHistory: (businessKey: string) =>
+    Effect.tryPromise({
       try: async () => {
-        const history = await this.prisma.internalNote.findMany({
+        const history = await prisma.internalNote.findMany({
           where: {
             businessKey,
           },
@@ -73,7 +72,7 @@ export class PrismaNoteRepository implements NoteRepository {
           },
         });
 
-        return history.map((note) => ({
+        return history.map((note: any) => ({
           id: note.id,
           version: note.version,
           content: note.content,
@@ -84,13 +83,12 @@ export class PrismaNoteRepository implements NoteRepository {
         }));
       },
       catch: (error) => new Error(`Failed to fetch note history: ${error}`),
-    }).pipe(Effect.orDie);
-  }
+    }).pipe(Effect.orDie),
 
-  findCurrentByBusinessKey(businessKey: string): Effect.Effect<Note | null, never, never> {
-    return Effect.tryPromise({
+  findCurrentByBusinessKey: (businessKey: string) =>
+    Effect.tryPromise({
       try: async () => {
-        const note = await this.prisma.internalNote.findFirst({
+        const note = await prisma.internalNote.findFirst({
           where: {
             businessKey,
             isCurrent: true,
@@ -114,18 +112,17 @@ export class PrismaNoteRepository implements NoteRepository {
         };
       },
       catch: (error) => new Error(`Failed to find note: ${error}`),
-    }).pipe(Effect.orDie);
-  }
+    }).pipe(Effect.orDie),
 
-  create(data: {
+  create: (data: {
     businessKey: string;
     caseId: string;
     content: string;
     createdBy: string;
-  }): Effect.Effect<NoteWithCreator, never, never> {
-    return Effect.tryPromise({
+  }) =>
+    Effect.tryPromise({
       try: async () => {
-        const note = await this.prisma.internalNote.create({
+        const note = await prisma.internalNote.create({
           data: {
             businessKey: data.businessKey,
             version: 1,
@@ -164,18 +161,17 @@ export class PrismaNoteRepository implements NoteRepository {
         };
       },
       catch: (error) => new Error(`Failed to create note: ${error}`),
-    }).pipe(Effect.orDie);
-  }
+    }).pipe(Effect.orDie),
 
-  createNewVersion(data: {
+  createNewVersion: (data: {
     businessKey: string;
     content: string;
     createdBy: string;
     previousVersion: Note;
-  }): Effect.Effect<NoteWithCreator, never, never> {
-    return Effect.tryPromise({
+  }) =>
+    Effect.tryPromise({
       try: async () => {
-        return await this.prisma.$transaction(async (tx) => {
+        return await prisma.$transaction(async (tx: any) => {
           // 1. Close current version (SCD2 temporal closure)
           const now = new Date();
           await tx.internalNote.update({
@@ -228,13 +224,12 @@ export class PrismaNoteRepository implements NoteRepository {
         });
       },
       catch: (error) => new Error(`Failed to update note: ${error}`),
-    }).pipe(Effect.orDie);
-  }
+    }).pipe(Effect.orDie),
 
-  softDelete(businessKey: string): Effect.Effect<void, NoteNotFoundError, never> {
-    return Effect.tryPromise({
+  softDelete: (businessKey: string) =>
+    Effect.tryPromise({
       try: async () => {
-        await this.prisma.$transaction(async (tx) => {
+        await prisma.$transaction(async (tx: any) => {
           // Find current version
           const currentNote = await tx.internalNote.findFirst({
             where: {
@@ -244,7 +239,7 @@ export class PrismaNoteRepository implements NoteRepository {
           });
 
           if (!currentNote) {
-            throw new NoteNotFoundError(businessKey);
+            throw { _tag: 'NoteNotFoundError', businessKey } as NoteNotFoundError;
           }
 
           // Soft delete: mark as not current and set validTo
@@ -258,17 +253,16 @@ export class PrismaNoteRepository implements NoteRepository {
         });
       },
       catch: (error) => {
-        if (error instanceof NoteNotFoundError) {
-          return error;
+        if (typeof error === 'object' && error !== null && '_tag' in error && error._tag === 'NoteNotFoundError') {
+          return error as NoteNotFoundError;
         }
         throw new Error(`Failed to delete note: ${error}`);
       },
     }).pipe(
-      Effect.flatMap((result) =>
-        result instanceof NoteNotFoundError
-          ? Effect.fail(result)
+      Effect.flatMap((result: any) =>
+        typeof result === 'object' && result !== null && '_tag' in result && result._tag === 'NoteNotFoundError'
+          ? Effect.fail(result as NoteNotFoundError)
           : Effect.succeed(undefined)
       )
-    );
-  }
-}
+    ),
+};

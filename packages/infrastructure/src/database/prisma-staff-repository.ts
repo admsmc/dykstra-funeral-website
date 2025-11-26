@@ -1,17 +1,17 @@
 import { Effect } from 'effect';
-import { PrismaClient } from '@prisma/client';
-import {
+import { prisma } from './prisma-client';
+import type {
   StaffRepository,
-  StaffMember,
-} from '@dykstra/application/use-cases/staff/list-staff-members';
+} from '@dykstra/application';
 
-export class PrismaStaffRepository implements StaffRepository {
-  constructor(private prisma: PrismaClient) {}
-
-  findAll(): Effect.Effect<StaffMember[], never, never> {
-    return Effect.tryPromise({
+/**
+ * Prisma implementation of Staff Repository
+ */
+export const PrismaStaffRepository: StaffRepository = {
+  findAll: () =>
+    Effect.tryPromise({
       try: async () => {
-        const staff = await this.prisma.user.findMany({
+        const staff = await prisma.user.findMany({
           where: {
             role: {
               in: ['STAFF', 'DIRECTOR', 'FUNERAL_DIRECTOR', 'ADMIN'],
@@ -28,7 +28,7 @@ export class PrismaStaffRepository implements StaffRepository {
           },
         });
 
-        return staff.map((user) => ({
+        return staff.map((user: any) => ({
           id: user.id,
           name: user.name,
           email: user.email,
@@ -36,6 +36,5 @@ export class PrismaStaffRepository implements StaffRepository {
         }));
       },
       catch: (error) => new Error(`Failed to fetch staff members: ${error}`),
-    }).pipe(Effect.orDie);
-  }
-}
+    }).pipe(Effect.orDie),
+};

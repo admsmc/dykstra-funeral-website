@@ -2,7 +2,6 @@ import { Effect } from 'effect';
 import { prisma } from './prisma-client';
 import type {
   InvitationRepository,
-  Invitation,
   InvitationWithRelations,
   InvitationStatus,
   InvitationNotFoundError,
@@ -62,7 +61,7 @@ export const PrismaInvitationRepository: InvitationRepository = {
       },
     }),
 
-  findByCase: (caseId: string, status?: InvitationStatus): Effect.Effect<InvitationWithRelations[]> =>
+  findByCase: (caseId: string, status?: InvitationStatus) =>
     Effect.tryPromise({
       try: async () => {
         const invitations = await prisma.familyInvitation.findMany({
@@ -99,8 +98,10 @@ export const PrismaInvitationRepository: InvitationRepository = {
 
         return invitations as unknown as InvitationWithRelations[];
       },
-      catch: () => [],
-    }),
+      catch: (error) => {
+        throw new Error(`Failed to fetch invitations: ${error}`);
+      },
+    }).pipe(Effect.orDie),
 
   findHistory: (businessKey: string): Effect.Effect<InvitationWithRelations[], InvitationNotFoundError> =>
     Effect.tryPromise({
@@ -140,7 +141,7 @@ export const PrismaInvitationRepository: InvitationRepository = {
       },
     }),
 
-  hasActiveInvitation: (caseId: string, email: string): Effect.Effect<boolean> =>
+  hasActiveInvitation: (caseId: string, email: string) =>
     Effect.tryPromise({
       try: async () => {
         const existing = await prisma.familyInvitation.findFirst({
@@ -153,8 +154,10 @@ export const PrismaInvitationRepository: InvitationRepository = {
         });
         return !!existing;
       },
-      catch: () => false,
-    }),
+      catch: (error) => {
+        throw new Error(`Failed to check invitation: ${error}`);
+      },
+    }).pipe(Effect.orDie),
 
   create: (invitation): Effect.Effect<InvitationWithRelations, InvitationConflictError> =>
     Effect.tryPromise({
@@ -218,7 +221,7 @@ export const PrismaInvitationRepository: InvitationRepository = {
   createNewVersion: (businessKey, updates): Effect.Effect<InvitationWithRelations, InvitationNotFoundError> =>
     Effect.tryPromise({
       try: async () => {
-        return await prisma.$transaction(async (tx) => {
+        return await prisma.$transaction(async (tx: any) => {
           // Find current version
           const current = await tx.familyInvitation.findFirst({
             where: {

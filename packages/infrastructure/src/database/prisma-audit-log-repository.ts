@@ -1,22 +1,21 @@
 import { Effect } from 'effect';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from './prisma-client';
 import type {
   AuditLogRepository,
-  AuditLogEntry,
-  AuditLogEntryWithUser,
 } from '@dykstra/application';
 
-export class PrismaAuditLogRepository implements AuditLogRepository {
-  constructor(private prisma: PrismaClient) {}
-
-  findByEntity(data: {
+/**
+ * Prisma implementation of Audit Log Repository
+ */
+export const PrismaAuditLogRepository: AuditLogRepository = {
+  findByEntity: (data: {
     entityId: string;
     entityType?: string;
     limit?: number;
-  }): Effect.Effect<AuditLogEntryWithUser[], never, never> {
-    return Effect.tryPromise({
+  }) =>
+    Effect.tryPromise({
       try: async () => {
-        const logs = await this.prisma.auditLog.findMany({
+        const logs = await prisma.auditLog.findMany({
           where: {
             entityId: data.entityId,
             ...(data.entityType ? { entityType: data.entityType } : {}),
@@ -35,7 +34,7 @@ export class PrismaAuditLogRepository implements AuditLogRepository {
           take: data.limit || 50,
         });
 
-        return logs.map((log) => ({
+        return logs.map((log: any) => ({
           id: log.id,
           action: log.action,
           entityType: log.entityType,
@@ -51,16 +50,15 @@ export class PrismaAuditLogRepository implements AuditLogRepository {
         }));
       },
       catch: (error) => new Error(`Failed to fetch audit logs: ${error}`),
-    }).pipe(Effect.orDie);
-  }
+    }).pipe(Effect.orDie),
 
-  findByUser(data: {
+  findByUser: (data: {
     userId: string;
     limit?: number;
-  }): Effect.Effect<AuditLogEntryWithUser[], never, never> {
-    return Effect.tryPromise({
+  }) =>
+    Effect.tryPromise({
       try: async () => {
-        const logs = await this.prisma.auditLog.findMany({
+        const logs = await prisma.auditLog.findMany({
           where: {
             userId: data.userId,
           },
@@ -78,7 +76,7 @@ export class PrismaAuditLogRepository implements AuditLogRepository {
           take: data.limit || 50,
         });
 
-        return logs.map((log) => ({
+        return logs.map((log: any) => ({
           id: log.id,
           action: log.action,
           entityType: log.entityType,
@@ -94,20 +92,19 @@ export class PrismaAuditLogRepository implements AuditLogRepository {
         }));
       },
       catch: (error) => new Error(`Failed to fetch audit logs: ${error}`),
-    }).pipe(Effect.orDie);
-  }
+    }).pipe(Effect.orDie),
 
-  create(data: {
+  create: (data: {
     action: string;
     entityType: string;
     entityId: string;
     metadata?: Record<string, unknown>;
     userId: string;
     ipAddress?: string;
-  }): Effect.Effect<AuditLogEntry, never, never> {
-    return Effect.tryPromise({
+  }) =>
+    Effect.tryPromise({
       try: async () => {
-        const log = await this.prisma.auditLog.create({
+        const log = await prisma.auditLog.create({
           data: {
             action: data.action,
             entityType: data.entityType,
@@ -130,6 +127,5 @@ export class PrismaAuditLogRepository implements AuditLogRepository {
         };
       },
       catch: (error) => new Error(`Failed to create audit log: ${error}`),
-    }).pipe(Effect.orDie);
-  }
-}
+    }).pipe(Effect.orDie),
+};

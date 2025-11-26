@@ -1,20 +1,20 @@
 import { Effect } from 'effect';
-import { PrismaClient } from '@prisma/client';
-import {
+import { prisma } from './prisma-client';
+import type {
   TaskRepository,
   Task,
-  TaskWithUsers,
   TaskStatus,
   TaskNotFoundError,
-} from '@dykstra/application/ports/task-repository';
+} from '@dykstra/application';
 
-export class PrismaTaskRepository implements TaskRepository {
-  constructor(private prisma: PrismaClient) {}
-
-  findByCase(caseId: string): Effect.Effect<TaskWithUsers[], never, never> {
-    return Effect.tryPromise({
+/**
+ * Prisma implementation of Task Repository
+ */
+export const PrismaTaskRepository: TaskRepository = {
+  findByCase: (caseId: string) =>
+    Effect.tryPromise({
       try: async () => {
-        const tasks = await this.prisma.task.findMany({
+        const tasks = await prisma.task.findMany({
           where: { caseId },
           include: {
             creator: {
@@ -31,7 +31,7 @@ export class PrismaTaskRepository implements TaskRepository {
           orderBy: [{ status: 'asc' }, { dueDate: 'asc' }],
         });
 
-        return tasks.map((task) => ({
+        return tasks.map((task: any) => ({
           id: task.id,
           caseId: task.caseId,
           title: task.title,
@@ -54,13 +54,12 @@ export class PrismaTaskRepository implements TaskRepository {
         }));
       },
       catch: (error) => new Error(`Failed to fetch tasks: ${error}`),
-    }).pipe(Effect.orDie);
-  }
+    }).pipe(Effect.orDie),
 
-  findById(taskId: string): Effect.Effect<Task | null, never, never> {
-    return Effect.tryPromise({
+  findById: (taskId: string) =>
+    Effect.tryPromise({
       try: async () => {
-        const task = await this.prisma.task.findUnique({
+        const task = await prisma.task.findUnique({
           where: { id: taskId },
         });
 
@@ -81,20 +80,19 @@ export class PrismaTaskRepository implements TaskRepository {
         };
       },
       catch: (error) => new Error(`Failed to find task: ${error}`),
-    }).pipe(Effect.orDie);
-  }
+    }).pipe(Effect.orDie),
 
-  create(data: {
+  create: (data: {
     caseId: string;
     title: string;
     description: string | null;
     assignedTo: string | null;
     dueDate: Date | null;
     createdBy: string;
-  }): Effect.Effect<TaskWithUsers, never, never> {
-    return Effect.tryPromise({
+  }) =>
+    Effect.tryPromise({
       try: async () => {
-        const task = await this.prisma.task.create({
+        const task = await prisma.task.create({
           data: {
             caseId: data.caseId,
             title: data.title,
@@ -141,16 +139,15 @@ export class PrismaTaskRepository implements TaskRepository {
         };
       },
       catch: (error) => new Error(`Failed to create task: ${error}`),
-    }).pipe(Effect.orDie);
-  }
+    }).pipe(Effect.orDie),
 
-  updateStatus(data: {
+  updateStatus: (data: {
     taskId: string;
     status: TaskStatus;
-  }): Effect.Effect<Task, TaskNotFoundError, never> {
-    return Effect.tryPromise({
+  }) =>
+    Effect.tryPromise({
       try: async () => {
-        const task = await this.prisma.task.update({
+        const task = await prisma.task.update({
           where: { id: data.taskId },
           data: {
             status: data.status,
@@ -174,16 +171,15 @@ export class PrismaTaskRepository implements TaskRepository {
       },
       catch: (error: any) => {
         if (error?.code === 'P2025') {
-          return new TaskNotFoundError(data.taskId);
+          return { _tag: 'TaskNotFoundError', taskId: data.taskId } as TaskNotFoundError;
         }
         throw new Error(`Failed to update task: ${error}`);
       },
     }).pipe(
-      Effect.flatMap((result) =>
-        result instanceof TaskNotFoundError
-          ? Effect.fail(result)
-          : Effect.succeed(result)
+      Effect.flatMap((result: any) =>
+        typeof result === 'object' && result !== null && '_tag' in result && result._tag === 'TaskNotFoundError'
+          ? Effect.fail(result as TaskNotFoundError)
+          : Effect.succeed(result as Task)
       )
-    );
-  }
-}
+    ),
+};

@@ -1,23 +1,22 @@
 import { Effect } from 'effect';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from './prisma-client';
 import type {
   ProductCatalogRepository,
   ServiceCatalogRepository,
-  Product,
-  Service,
   ProductCategory,
   CatalogServiceType,
 } from '@dykstra/application';
 
-export class PrismaProductCatalogRepository implements ProductCatalogRepository {
-  constructor(private prisma: PrismaClient) {}
-
-  find(filters: {
+/**
+ * Prisma implementation of Product Catalog Repository
+ */
+export const PrismaProductCatalogRepository: ProductCatalogRepository = {
+  find: (filters: {
     category?: ProductCategory;
     search?: string;
     availableOnly?: boolean;
-  }): Effect.Effect<Product[], never, never> {
-    return Effect.tryPromise({
+  }) =>
+    Effect.tryPromise({
       try: async () => {
         const where: any = {};
 
@@ -37,12 +36,12 @@ export class PrismaProductCatalogRepository implements ProductCatalogRepository 
           ];
         }
 
-        const products = await this.prisma.productCatalog.findMany({
+        const products = await prisma.productCatalog.findMany({
           where,
           orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
         });
 
-        return products.map((p) => ({
+        return products.map((p: any) => ({
           id: p.id,
           name: p.name,
           description: p.description,
@@ -56,13 +55,12 @@ export class PrismaProductCatalogRepository implements ProductCatalogRepository 
         }));
       },
       catch: (error) => new Error(`Failed to fetch products: ${error}`),
-    }).pipe(Effect.orDie);
-  }
+    }).pipe(Effect.orDie),
 
-  findById(id: string): Effect.Effect<Product | null, never, never> {
-    return Effect.tryPromise({
+  findById: (id: string) =>
+    Effect.tryPromise({
       try: async () => {
-        const p = await this.prisma.productCatalog.findUnique({ where: { id } });
+        const p = await prisma.productCatalog.findUnique({ where: { id } });
         if (!p) return null;
         return {
           id: p.id,
@@ -78,18 +76,18 @@ export class PrismaProductCatalogRepository implements ProductCatalogRepository 
         };
       },
       catch: (error) => new Error(`Failed to fetch product: ${error}`),
-    }).pipe(Effect.orDie);
-  }
-}
+    }).pipe(Effect.orDie),
+};
 
-export class PrismaServiceCatalogRepository implements ServiceCatalogRepository {
-  constructor(private prisma: PrismaClient) {}
-
-  find(filters: {
+/**
+ * Prisma implementation of Service Catalog Repository
+ */
+export const PrismaServiceCatalogRepository: ServiceCatalogRepository = {
+  find: (filters: {
     serviceType?: CatalogServiceType;
     availableOnly?: boolean;
-  }): Effect.Effect<Service[], never, never> {
-    return Effect.tryPromise({
+  }) =>
+    Effect.tryPromise({
       try: async () => {
         const where: any = {};
 
@@ -101,12 +99,12 @@ export class PrismaServiceCatalogRepository implements ServiceCatalogRepository 
           where.isAvailable = true;
         }
 
-        const services = await this.prisma.serviceCatalog.findMany({
+        const services = await prisma.serviceCatalog.findMany({
           where,
           orderBy: [{ isRequired: 'desc' }, { displayOrder: 'asc' }, { name: 'asc' }],
         });
 
-        return services.map((s) => ({
+        return services.map((s: any) => ({
           id: s.id,
           name: s.name,
           description: s.description,
@@ -120,13 +118,12 @@ export class PrismaServiceCatalogRepository implements ServiceCatalogRepository 
         }));
       },
       catch: (error) => new Error(`Failed to fetch services: ${error}`),
-    }).pipe(Effect.orDie);
-  }
+    }).pipe(Effect.orDie),
 
-  findById(id: string): Effect.Effect<Service | null, never, never> {
-    return Effect.tryPromise({
+  findById: (id: string) =>
+    Effect.tryPromise({
       try: async () => {
-        const s = await this.prisma.serviceCatalog.findUnique({ where: { id } });
+        const s = await prisma.serviceCatalog.findUnique({ where: { id } });
         if (!s) return null;
         return {
           id: s.id,
@@ -142,6 +139,5 @@ export class PrismaServiceCatalogRepository implements ServiceCatalogRepository 
         };
       },
       catch: (error) => new Error(`Failed to fetch service: ${error}`),
-    }).pipe(Effect.orDie);
-  }
-}
+    }).pipe(Effect.orDie),
+};
