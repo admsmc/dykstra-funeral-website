@@ -3,6 +3,8 @@
 import { trpc } from "@/lib/trpc-client";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
+import { useState } from "react";
+import RefundModal from "../_components/RefundModal";
 import {
   ArrowLeft,
   DollarSign,
@@ -32,9 +34,10 @@ export default function PaymentDetailPage() {
   const params = useParams();
   const router = useRouter();
   const paymentId = params.id as string;
+  const [isRefundModalOpen, setIsRefundModalOpen] = useState(false);
 
   // Fetch payment with history
-  const { data, isLoading, error } = trpc.payment.getById.useQuery({
+  const { data, isLoading, error, refetch } = trpc.payment.getById.useQuery({
     paymentId,
     includeHistory: true,
   });
@@ -171,7 +174,7 @@ export default function PaymentDetailPage() {
             {payment.status === "succeeded" && (
               <button
                 className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
-                onClick={() => alert("Process refund")}
+                onClick={() => setIsRefundModalOpen(true)}
               >
                 <RefreshCw className="w-4 h-4" />
                 Refund
@@ -366,6 +369,24 @@ export default function PaymentDetailPage() {
               ))}
           </div>
         </div>
+      )}
+
+      {/* Refund Modal */}
+      {payment && (
+        <RefundModal
+          isOpen={isRefundModalOpen}
+          onClose={() => setIsRefundModalOpen(false)}
+          onSuccess={() => {
+            refetch();
+            // Could also navigate back to list or show success message
+          }}
+          payment={{
+            businessKey: payment.businessKey,
+            amount: payment.amount.amount,
+            method: payment.method,
+            status: payment.status,
+          }}
+        />
       )}
     </div>
   );

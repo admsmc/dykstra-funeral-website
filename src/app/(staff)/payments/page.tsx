@@ -4,6 +4,7 @@ import { trpc } from "@/lib/trpc-client";
 import Link from "next/link";
 import { useState, useMemo } from "react";
 import ManualPaymentModal from "./_components/ManualPaymentModal";
+import RefundModal from "./_components/RefundModal";
 import {
   useReactTable,
   getCoreRowModel,
@@ -38,6 +39,7 @@ export default function StaffPaymentsPage() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [methodFilter, setMethodFilter] = useState<string>("all");
   const [isManualPaymentModalOpen, setIsManualPaymentModalOpen] = useState(false);
+  const [refundPayment, setRefundPayment] = useState<PaymentRow | null>(null);
 
   // Fetch payment statistics
   const { data: stats, isLoading: statsLoading } = trpc.payment.getStats.useQuery({
@@ -212,7 +214,7 @@ export default function StaffPaymentsPage() {
             {row.original.status === "succeeded" && (
               <button
                 className="text-sm text-red-600 hover:underline"
-                onClick={() => alert(`Refund ${row.original.businessKey}`)}
+                onClick={() => setRefundPayment(row.original)}
               >
                 Refund
               </button>
@@ -409,6 +411,24 @@ export default function StaffPaymentsPage() {
           // Could also show success toast here
         }}
       />
+
+      {/* Refund Modal */}
+      {refundPayment && (
+        <RefundModal
+          isOpen={!!refundPayment}
+          onClose={() => setRefundPayment(null)}
+          onSuccess={() => {
+            refetchPayments();
+            setRefundPayment(null);
+          }}
+          payment={{
+            businessKey: refundPayment.businessKey,
+            amount: refundPayment.amount.amount,
+            method: refundPayment.method,
+            status: refundPayment.status,
+          }}
+        />
+      )}
     </div>
   );
 }
