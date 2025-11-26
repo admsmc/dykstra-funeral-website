@@ -31,3 +31,39 @@ body {
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-playfair), serif;
 }
+
+/* Toast notifications (Sonner) */
+[data-sonner-toaster] {
+  --normal-bg: #ffffff;
+  --normal-border: #e5e7eb;
+  --normal-text: var(--charcoal);
+  --success-bg: #f0fdf4;
+  --success-border: var(--sage);
+  --success-text: #166534;
+  --error-bg: #fef2f2;
+  --error-border: #ef4444;
+  --error-text: #991b1b;
+  --warning-bg: #fffbeb;
+  --warning-border: #f59e0b;
+  --warning-text: #92400e;
+  --info-bg: #eff6ff;
+  --info-border: var(--navy);
+  --info-text: #1e40af;
+}
+
+[data-sonner-toast] {
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

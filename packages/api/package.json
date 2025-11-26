@@ -1,0 +1,28 @@
+{
+  "name": "@dykstra/api",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "type-check": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@dykstra/application": "workspace:*",
+    "@dykstra/domain": "workspace:*",
+    "@dykstra/infrastructure": "workspace:*",
+    "@dykstra/shared": "workspace:*",
+    "@trpc/server": "^11.0.0",
+    "effect": "^3.15.2",
+    "superjson": "^2.2.2",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "typescript": "^5",
+    "vitest": "^2.1.8"
+  }
+}

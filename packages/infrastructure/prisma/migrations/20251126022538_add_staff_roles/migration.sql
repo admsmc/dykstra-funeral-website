@@ -1,0 +1,5 @@
+-- AlterEnum
+-- Add new staff roles: STAFF, DIRECTOR, ADMIN
+ALTER TYPE "UserRole" ADD VALUE 'STAFF';
+ALTER TYPE "UserRole" ADD VALUE 'DIRECTOR';
+ALTER TYPE "UserRole" ADD VALUE 'ADMIN';

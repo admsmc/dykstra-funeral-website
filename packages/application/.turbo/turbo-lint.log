@@ -1,0 +1,52 @@
+
+> @dykstra/application@0.1.0 lint /Users/andrewmathers/projects/dykstra-funeral-website/packages/application
+> eslint .
+
+Pages directory cannot be found at /Users/andrewmathers/projects/dykstra-funeral-website/packages/application/pages or /Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/pages. If using a custom path, please configure with the `no-html-link-for-pages` rule in your eslint config file.
+
+/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/commands/add-tribute.ts
+  2:41  warning  'MemorialId' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/commands/create-payment-plan.ts
+  90:9  error  'currentDate' is never reassigned. Use 'const' instead  prefer-const
+
+/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/commands/process-payment.ts
+  115:72  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  146:72  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/commands/save-arrangements.ts
+  35:11  warning  'eventPublisher' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/commands/sign-contract.ts
+  63:75  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/commands/sign-guestbook.ts
+  2:48  warning  'MemorialId' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/commands/upload-photo.ts
+  4:42  warning  'FileUpload' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/queries/get-case-timeline.ts
+   42:43  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   59:45  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  103:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  104:26  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  123:37  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  140:38  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  159:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  160:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/queries/get-payment-history.ts
+  34:25  warning  '_' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/use-cases/user/get-user-profile.ts
+  87:35  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  91:35  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/use-cases/user/update-user-profile.ts
+  73:23  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  86:38  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 21 problems (16 errors, 5 warnings)
+  1 error and 0 warnings potentially fixable with the `--fix` option.
+

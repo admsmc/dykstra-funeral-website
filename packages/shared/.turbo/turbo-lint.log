@@ -1,0 +1,5 @@
+
+> @dykstra/shared@0.1.0 lint /Users/andrewmathers/projects/dykstra-funeral-website/packages/shared
+> eslint .
+
+Pages directory cannot be found at /Users/andrewmathers/projects/dykstra-funeral-website/packages/shared/pages or /Users/andrewmathers/projects/dykstra-funeral-website/packages/shared/src/pages. If using a custom path, please configure with the `no-html-link-for-pages` rule in your eslint config file.

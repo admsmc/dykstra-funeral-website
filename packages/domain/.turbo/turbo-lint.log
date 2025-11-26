@@ -1,0 +1,28 @@
+
+> @dykstra/domain@0.1.0 lint /Users/andrewmathers/projects/dykstra-funeral-website/packages/domain
+> eslint .
+
+Pages directory cannot be found at /Users/andrewmathers/projects/dykstra-funeral-website/packages/domain/pages or /Users/andrewmathers/projects/dykstra-funeral-website/packages/domain/src/pages. If using a custom path, please configure with the `no-html-link-for-pages` rule in your eslint config file.
+
+/Users/andrewmathers/projects/dykstra-funeral-website/packages/domain/src/entities/case.ts
+  36:2  error  Parsing error: ',' expected
+
+/Users/andrewmathers/projects/dykstra-funeral-website/packages/domain/src/entities/contract.ts
+   30:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   31:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   58:24  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   59:24  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  213:47  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  213:73  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/andrewmathers/projects/dykstra-funeral-website/packages/domain/src/value-objects/arrangements.ts
+    1:24  warning  'Option' is defined but never used                @typescript-eslint/no-unused-vars
+   79:25  error    Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
+   80:34  warning  '_' is defined but never used                     @typescript-eslint/no-unused-vars
+  102:32  error    Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
+  119:13  error    Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
+  292:9   error    'total' is never reassigned. Use 'const' instead  prefer-const
+
+✖ 13 problems (11 errors, 2 warnings)
+  1 error and 0 warnings potentially fixable with the `--fix` option.
+

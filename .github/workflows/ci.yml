@@ -1,0 +1,133 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+      
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      
+      - name: Run linters
+        run: pnpm lint
+      
+      - name: Check formatting
+        run: pnpm format:check
+
+  type-check:
+    name: Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+      
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      
+      - name: Type check all packages
+        run: pnpm type-check
+
+  architecture-boundaries:
+    name: Architecture Boundary Checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Check domain layer has no external dependencies
+        run: |
+          if grep -r "import.*from.*infrastructure\|application\|api" packages/domain/src/ 2>/dev/null; then
+            echo "❌ Domain layer must not import from infrastructure, application, or api layers"
+            exit 1
+          fi
+          echo "✅ Domain layer boundaries respected"
+      
+      - name: Check application layer only depends on domain
+        run: |
+          if grep -r "import.*from.*infrastructure\|api" packages/application/src/ 2>/dev/null; then
+            echo "❌ Application layer must not import from infrastructure or api layers"
+            exit 1
+          fi
+          echo "✅ Application layer boundaries respected"
+      
+      - name: Check no direct database imports in web-portal
+        run: |
+          if grep -r "@prisma/client" packages/web-portal/src/ 2>/dev/null; then
+            echo "❌ Web portal must not import Prisma client directly"
+            exit 1
+          fi
+          if grep -r "import.*from.*infrastructure" packages/web-portal/src/ 2>/dev/null; then
+            echo "❌ Web portal must not import from infrastructure layer"
+            exit 1
+          fi
+          echo "✅ Web portal boundaries respected"
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+      
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      
+      - name: Run unit tests
+        run: pnpm test
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [lint, type-check, architecture-boundaries, test]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+      
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      
+      - name: Build all packages
+        run: pnpm build

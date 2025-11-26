@@ -1,0 +1,759 @@
+// Prisma schema for Dykstra Funeral Home Family Portal
+// Provider: PostgreSQL
+// ORM: Prisma
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Funeral Home (Multi-tenant support)
+model FuneralHome {
+  id        String   @id @default(cuid())
+  name      String
+  address   String?
+  city      String?
+  state     String?
+  zip       String?
+  phone     String?
+  email     String?
+  website   String?
+  settings  Json?    @default("{}")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cases Case[]
+  users User[]
+  productCatalog ProductCatalog[]
+  serviceCatalog ServiceCatalog[]
+  contractTemplates ContractTemplate[]
+
+  @@map("funeral_homes")
+}
+
+// Users (family members, staff, admins)
+model User {
+  id             String   @id @default(cuid())
+  funeralHomeId  String?
+  email          String   @unique
+  name           String
+  phone          String?
+  role           UserRole
+  passwordHash   String?  // Nullable for magic link auth
+  emailVerified  DateTime?
+  preferences    Json?    @default("{}") // Notification preferences and other user settings
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  funeralHome      FuneralHome?       @relation(fields: [funeralHomeId], references: [id])
+  caseMemberships  CaseMember[]
+  createdCases     Case[]             @relation("CreatedCases")
+  createdContracts Contract[]
+  signatures       Signature[]
+  payments         Payment[]
+  uploadedPhotos   Photo[]
+  uploadedVideos   Video[]
+  createdTasks      Task[]              @relation("CreatedTasks")
+  assignedTasks     Task[]              @relation("AssignedTasks")
+  auditLogs         AuditLog[]
+  internalNotes     InternalNote[]
+  sentInvitations   FamilyInvitation[]
+  contractTemplates ContractTemplate[]
+
+  @@index([email])
+  @@index([funeralHomeId])
+  @@map("users")
+}
+
+enum UserRole {
+  FAMILY_PRIMARY
+  FAMILY_MEMBER
+  STAFF           // Staff member (read-only access to cases)
+  DIRECTOR        // Funeral director (full case management)
+  ADMIN           // System administrator (full access)
+  FUNERAL_DIRECTOR // Deprecated: use DIRECTOR instead
+}
+
+// Case (funeral case / arrangement)
+// SCD Type 2: Tracks complete history of case changes for audit/legal compliance
+model Case {
+  id                  String       @id @default(cuid()) // Row ID (technical key)
+  businessKey         String                              // Immutable business identifier
+  version             Int          @default(1)            // Version number (increments on each change)
+  validFrom           DateTime     @default(now())        // When this version became effective
+  validTo             DateTime?                           // When this version was superseded (null = current)
+  isCurrent           Boolean      @default(true)         // Fast lookup for current version
+  
+  funeralHomeId       String
+  decedentName        String
+  decedentDateOfBirth DateTime?
+  decedentDateOfDeath DateTime?
+  type                CaseType
+  status              CaseStatus
+  serviceType         ServiceType?
+  serviceDate         DateTime?
+  arrangements        Json?        @default("{}")
+  createdAt           DateTime     @default(now())        // When this case was originally created
+  updatedAt           DateTime     @updatedAt             // When this version was created
+  createdBy           String
+
+  funeralHome   FuneralHome    @relation(fields: [funeralHomeId], references: [id])
+  creator       User           @relation("CreatedCases", fields: [createdBy], references: [id])
+  members       CaseMember[]
+  contracts     Contract[]
+  payments      Payment[]
+  memorials        Memorial[]
+  documents        Document[]
+  tasks            Task[]
+  internalNotes    InternalNote[]
+  familyInvitations FamilyInvitation[]
+
+  @@unique([businessKey, version])           // Each version is unique
+  @@index([businessKey, isCurrent])          // Fast current version lookup
+  @@index([validFrom, validTo])              // Temporal queries
+  @@index([funeralHomeId])
+  @@index([status])
+  @@index([serviceDate])
+  @@map("cases")
+}
+
+enum CaseType {
+  AT_NEED
+  PRE_NEED
+  INQUIRY
+}
+
+enum CaseStatus {
+  INQUIRY
+  ACTIVE
+  COMPLETED
+  ARCHIVED
+}
+
+enum ServiceType {
+  TRADITIONAL_BURIAL
+  TRADITIONAL_CREMATION
+  MEMORIAL_SERVICE
+  DIRECT_BURIAL
+  DIRECT_CREMATION
+  CELEBRATION_OF_LIFE
+}
+
+// Case members (family members associated with a case)
+model CaseMember {
+  id          String  @id @default(cuid())
+  caseId      String
+  userId      String
+  role        CaseMemberRole
+  permissions Json    @default("{}")
+  invitedAt   DateTime @default(now())
+  acceptedAt  DateTime?
+
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([caseId, userId])
+  @@index([caseId])
+  @@index([userId])
+  @@map("case_members")
+}
+
+enum CaseMemberRole {
+  PRIMARY_CONTACT
+  FAMILY_MEMBER
+}
+
+// Contract
+// SCD Type 2: Immutable once signed - critical for legal compliance and ESIGN Act
+model Contract {
+  id                  String         @id @default(cuid()) // Row ID (technical key)
+  businessKey         String                               // Immutable business identifier
+  temporalVersion     Int            @default(1)           // SCD2 version (renamed from version)
+  validFrom           DateTime       @default(now())       // When this version became effective
+  validTo             DateTime?                            // When this version was superseded (null = current)
+  isCurrent           Boolean        @default(true)        // Fast lookup for current version
+  
+  caseId              String
+  contractVersion     Int            @default(1)           // Business version (e.g. v1.0, v2.0)
+  status              ContractStatus
+  services            Json           @default("[]")
+  products            Json           @default("[]")
+  subtotal            Decimal        @db.Decimal(10, 2)
+  tax                 Decimal        @default(0) @db.Decimal(10, 2)
+  totalAmount         Decimal        @db.Decimal(10, 2)
+  termsAndConditions  String         @db.Text
+  createdAt           DateTime       @default(now())       // When this contract was originally created
+  updatedAt           DateTime       @updatedAt            // When this version was created
+  createdBy           String
+
+  case       Case        @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  creator    User        @relation(fields: [createdBy], references: [id])
+  signatures Signature[]
+
+  @@unique([businessKey, temporalVersion])   // Each temporal version is unique
+  @@index([businessKey, isCurrent])          // Fast current version lookup
+  @@index([validFrom, validTo])              // Temporal queries
+  @@index([caseId])
+  @@index([status])
+  @@map("contracts")
+}
+
+enum ContractStatus {
+  DRAFT
+  PENDING_REVIEW
+  PENDING_SIGNATURES
+  FULLY_SIGNED
+  CANCELLED
+}
+
+// Signature (ESIGN Act compliant)
+// SCD Type 2: Signatures are immutable by law - must never be modified or deleted
+model Signature {
+  id              String   @id @default(cuid())     // Row ID (technical key)
+  businessKey     String                             // Immutable business identifier
+  version         Int      @default(1)               // Version number (should always be 1 for signatures)
+  validFrom       DateTime @default(now())           // When signature was created
+  validTo         DateTime?                          // Should always be null (signatures never expire)
+  isCurrent       Boolean  @default(true)            // Should always be true (signatures immutable)
+  
+  contractId      String
+  signerId        String
+  signerName      String
+  signerEmail     String
+  signedAt        DateTime @default(now())           // Legal timestamp of signature
+  ipAddress       String                             // ESIGN Act requirement
+  userAgent       String   @db.Text                  // ESIGN Act requirement
+  signatureData   String   @db.Text                  // Base64 signature image (immutable)
+  consentText     String   @db.Text                  // Exact consent text shown to signer
+  consentAccepted Boolean  @default(false)           // ESIGN Act requirement
+
+  contract Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  signer   User     @relation(fields: [signerId], references: [id])
+
+  @@unique([businessKey, version])                   // Enforce single version
+  @@index([businessKey, isCurrent])                  // Fast lookup
+  @@index([validFrom])                               // Temporal queries
+  @@index([contractId])
+  @@index([signerId])
+  @@map("signatures")
+}
+
+// Payment
+// SCD Type 2: Payment history must be immutable for accounting/audit compliance
+model Payment {
+  id                     String        @id @default(cuid()) // Row ID (technical key)
+  businessKey            String                              // Immutable business identifier
+  version                Int           @default(1)           // Version number (tracks status changes)
+  validFrom              DateTime      @default(now())       // When this version became effective
+  validTo                DateTime?                           // When this version was superseded (null = current)
+  isCurrent              Boolean       @default(true)        // Fast lookup for current version
+  
+  caseId                 String
+  amount                 Decimal       @db.Decimal(10, 2)    // Immutable after creation
+  method                 PaymentMethod                       // Immutable after creation
+  status                 PaymentStatus                       // Can change (pending→succeeded/failed)
+  stripePaymentIntentId  String?
+  stripePaymentMethodId  String?
+  receiptUrl             String?
+  failureReason          String?       @db.Text
+  notes                  String?       @db.Text
+  createdAt              DateTime      @default(now())       // When this payment was originally created
+  updatedAt              DateTime      @updatedAt            // When this version was created
+  createdBy              String
+
+  case    Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  creator User @relation(fields: [createdBy], references: [id])
+
+  @@unique([businessKey, version])               // Each version is unique
+  @@index([businessKey, isCurrent])              // Fast current version lookup
+  @@index([validFrom, validTo])                  // Temporal queries
+  @@index([caseId])
+  @@index([status])
+  @@map("payments")
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  DEBIT_CARD
+  ACH
+  CHECK
+  CASH
+  INSURANCE_ASSIGNMENT
+  PAYMENT_PLAN
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  SUCCEEDED
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
+// Payment Plan (for installment payments)
+model PaymentPlan {
+  id                  String            @id @default(cuid())
+  caseId              String
+  totalAmount         Decimal           @db.Decimal(10, 2)
+  downPayment         Decimal           @db.Decimal(10, 2)
+  remainingBalance    Decimal           @db.Decimal(10, 2)
+  numberOfInstallments Int
+  installmentAmount   Decimal           @db.Decimal(10, 2)
+  frequency           PaymentFrequency
+  startDate           DateTime
+  nextPaymentDue      DateTime?
+  status              PaymentPlanStatus @default(ACTIVE)
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  createdBy           String
+
+  installments PaymentPlanInstallment[]
+
+  @@index([caseId])
+  @@index([status])
+  @@map("payment_plans")
+}
+
+// Payment Plan Installment
+model PaymentPlanInstallment {
+  id              String                    @id @default(cuid())
+  paymentPlanId   String
+  installmentNumber Int
+  amount          Decimal                   @db.Decimal(10, 2)
+  dueDate         DateTime
+  status          PaymentPlanInstallmentStatus @default(PENDING)
+  paidDate        DateTime?
+  paymentId       String?                   // Link to actual Payment record
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
+
+  paymentPlan PaymentPlan @relation(fields: [paymentPlanId], references: [id], onDelete: Cascade)
+
+  @@index([paymentPlanId])
+  @@index([status])
+  @@map("payment_plan_installments")
+}
+
+enum PaymentFrequency {
+  WEEKLY
+  BI_WEEKLY
+  MONTHLY
+  QUARTERLY
+}
+
+enum PaymentPlanStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+  DEFAULTED
+}
+
+enum PaymentPlanInstallmentStatus {
+  PENDING
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+// Insurance Assignment (for insurance claim tracking)
+model InsuranceAssignment {
+  id                String                    @id @default(cuid())
+  caseId            String
+  insuranceCompany  String
+  policyNumber      String
+  policyHolderName  String
+  assignedAmount    Decimal                   @db.Decimal(10, 2)
+  claimNumber       String?
+  status            InsuranceAssignmentStatus @default(PENDING)
+  submittedDate     DateTime?
+  approvedDate      DateTime?
+  paidDate          DateTime?
+  notes             String?                   @db.Text
+  createdAt         DateTime                  @default(now())
+  updatedAt         DateTime                  @updatedAt
+  createdBy         String
+
+  @@index([caseId])
+  @@index([status])
+  @@map("insurance_assignments")
+}
+
+enum InsuranceAssignmentStatus {
+  PENDING
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  PARTIALLY_APPROVED
+  DENIED
+  PAID
+  CANCELLED
+}
+
+// Memorial page
+model Memorial {
+  id                 String   @id @default(cuid())
+  caseId             String   @unique
+  slug               String   @unique
+  isPublic           Boolean  @default(true)
+  allowPhotoUploads  Boolean  @default(true)
+  allowTributes      Boolean  @default(true)
+  allowGuestbook     Boolean  @default(true)
+  theme              String   @default("default")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  case            Case             @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  photos          Photo[]
+  videos          Video[]
+  tributes        Tribute[]
+  guestbookEntries GuestbookEntry[]
+
+  @@index([slug])
+  @@map("memorials")
+}
+
+// Photo
+// SCD Type 2: Photo metadata changes (caption edits) are tracked with version history
+model Photo {
+  id            String    @id @default(cuid())   // Row ID (technical key)
+  businessKey   String                            // Immutable business identifier
+  version       Int       @default(1)             // Version number (increments on caption edit)
+  validFrom     DateTime  @default(now())         // When this version became effective
+  validTo       DateTime?                          // When this version was superseded (null = current)
+  isCurrent     Boolean   @default(true)          // Fast lookup for current version
+  
+  memorialId    String
+  caseId        String
+  url           String
+  storageKey    String                             // S3/Vercel Blob key for deletion
+  thumbnailUrl  String?
+  caption       String?   @db.Text
+  uploadedBy    String
+  uploadedAt    DateTime  @default(now())         // When photo was originally uploaded
+  width         Int?
+  height        Int?
+  fileSize      Int
+  mimeType      String
+  createdAt     DateTime  @default(now())         // When this photo was originally created
+  updatedAt     DateTime  @updatedAt              // When this version was created
+
+  memorial Memorial @relation(fields: [memorialId], references: [id], onDelete: Cascade)
+  uploader User     @relation(fields: [uploadedBy], references: [id])
+
+  @@unique([businessKey, version])                // Each version is unique
+  @@index([businessKey, isCurrent])               // Fast current version lookup
+  @@index([validFrom, validTo])                   // Temporal queries
+  @@index([memorialId, isCurrent])                // Fast memorial photos lookup
+  @@index([caseId, isCurrent])                    // Fast case photos lookup (for display on case page)
+  @@index([uploadedBy])
+  @@map("photos")
+}
+
+// Video
+model Video {
+  id             String   @id @default(cuid())
+  memorialId     String
+  url            String
+  thumbnailUrl   String?
+  title          String?
+  description    String?  @db.Text
+  uploadedBy     String
+  uploadedByName String
+  uploadedAt     DateTime @default(now())
+  duration       Int?     // in seconds
+  fileSize       Int
+  mimeType       String
+
+  memorial Memorial @relation(fields: [memorialId], references: [id], onDelete: Cascade)
+  uploader User     @relation(fields: [uploadedBy], references: [id])
+
+  @@index([memorialId])
+  @@map("videos")
+}
+
+// Tribute message
+model Tribute {
+  id          String   @id @default(cuid())
+  memorialId  String
+  authorName  String
+  authorEmail String?
+  message     String   @db.Text
+  isPublic    Boolean  @default(true)
+  isApproved  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  memorial Memorial @relation(fields: [memorialId], references: [id], onDelete: Cascade)
+
+  @@index([memorialId])
+  @@index([isApproved])
+  @@map("tributes")
+}
+
+// Guestbook entry
+model GuestbookEntry {
+  id         String   @id @default(cuid())
+  memorialId String
+  name       String
+  email      String?
+  message    String   @db.Text
+  city       String?
+  state      String?  @db.Char(2)
+  createdAt  DateTime @default(now())
+
+  memorial Memorial @relation(fields: [memorialId], references: [id], onDelete: Cascade)
+
+  @@index([memorialId])
+  @@map("guestbook_entries")
+}
+
+// Document
+model Document {
+  id        String         @id @default(cuid())
+  caseId    String
+  type      DocumentType
+  name      String
+  url       String
+  fileSize  Int
+  mimeType  String
+  status    DocumentStatus @default(ACTIVE)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@index([caseId])
+  @@map("documents")
+}
+
+enum DocumentType {
+  CONTRACT
+  DEATH_CERTIFICATE
+  SERVICE_PROGRAM
+  INSURANCE_DOCUMENT
+  RECEIPT
+  OTHER
+}
+
+enum DocumentStatus {
+  ACTIVE
+  ARCHIVED
+  DELETED
+}
+
+// Task
+model Task {
+  id          String     @id @default(cuid())
+  caseId      String
+  title       String
+  description String?    @db.Text
+  status      TaskStatus @default(PENDING)
+  assignedTo  String?
+  dueDate     DateTime?
+  completedAt DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  createdBy   String
+
+  case     Case  @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  creator  User  @relation("CreatedTasks", fields: [createdBy], references: [id])
+  assignee User? @relation("AssignedTasks", fields: [assignedTo], references: [id])
+
+  @@index([caseId])
+  @@index([status])
+  @@index([assignedTo])
+  @@map("tasks")
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+// Family Invitation (invite family members to portal)
+// SCD Type 2: Tracks invitation status changes for audit
+model FamilyInvitation {
+  id          String              @id @default(cuid()) // Row ID
+  businessKey String                                    // Immutable identifier
+  version     Int                 @default(1)           // Version number
+  validFrom   DateTime            @default(now())       // When this version became effective
+  validTo     DateTime?                                 // When superseded
+  isCurrent   Boolean             @default(true)        // Current version flag
+  
+  caseId      String
+  email       String
+  name        String
+  phone       String?
+  relationship String?                                   // Relationship to decedent
+  role        CaseMemberRole      @default(FAMILY_MEMBER)
+  permissions Json                @default("{}")
+  
+  status      InvitationStatus    @default(PENDING)
+  token       String              @unique               // Secure magic link token
+  expiresAt   DateTime                                  // Token expiration
+  acceptedAt  DateTime?
+  revokedAt   DateTime?
+  
+  sentBy      String
+  createdAt   DateTime            @default(now())       // Original invitation time
+  updatedAt   DateTime            @updatedAt
+
+  case   Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  sender User @relation(fields: [sentBy], references: [id])
+
+  @@unique([businessKey, version])
+  @@index([businessKey, isCurrent])
+  @@index([validFrom, validTo])
+  @@index([caseId, isCurrent])
+  @@index([email])
+  @@index([token])
+  @@index([status])
+  @@map("family_invitations")
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  REVOKED
+}
+
+// Internal Note (staff-only case notes)
+// SCD Type 2: Tracks edit history of notes for audit trail
+model InternalNote {
+  id          String    @id @default(cuid()) // Row ID (technical key)
+  businessKey String                          // Immutable business identifier
+  version     Int       @default(1)           // Version number (increments on edit)
+  validFrom   DateTime  @default(now())       // When this version became effective
+  validTo     DateTime?                        // When this version was superseded (null = current)
+  isCurrent   Boolean   @default(true)        // Fast lookup for current version
+  
+  caseId      String
+  content     String    @db.Text
+  createdBy   String
+  createdAt   DateTime  @default(now())       // When note was originally created
+  updatedAt   DateTime  @updatedAt            // When this version was created
+
+  case    Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  creator User @relation(fields: [createdBy], references: [id])
+
+  @@unique([businessKey, version])           // Each version is unique
+  @@index([businessKey, isCurrent])          // Fast current version lookup
+  @@index([validFrom, validTo])              // Temporal queries
+  @@index([caseId, isCurrent])               // Fast case notes lookup
+  @@index([createdBy])
+  @@map("internal_notes")
+}
+
+// Audit Log (immutable for compliance)
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String
+  action      String   // e.g. "case.create", "contract.sign", "payment.process"
+  entityType  String   // e.g. "Case", "Contract", "Payment"
+  entityId    String?  // ID of affected entity
+  metadata    Json     @default("{}")
+  ipAddress   String?
+  userAgent   String?  @db.Text
+  timestamp   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([action])
+  @@index([entityType, entityId])
+  @@index([timestamp])
+  @@map("audit_logs")
+}
+
+// Product Catalog (caskets, urns, merchandise)
+model ProductCatalog {
+  id              String          @id @default(cuid())
+  funeralHomeId   String?
+  sku             String          @unique
+  name            String
+  description     String          @db.Text
+  category        ProductCategory
+  price           Decimal         @db.Decimal(10, 2)
+  imageUrl        String?
+  isAvailable     Boolean         @default(true)
+  metadata        Json            @default("{}")
+  displayOrder    Int             @default(0)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  funeralHome FuneralHome? @relation(fields: [funeralHomeId], references: [id])
+
+  @@index([funeralHomeId])
+  @@index([category])
+  @@index([isAvailable])
+  @@map("product_catalog")
+}
+
+enum ProductCategory {
+  CASKET
+  URN
+  VAULT
+  FLOWERS
+  MEMORIAL_CARDS
+  GUEST_BOOK
+  JEWELRY
+  KEEPSAKE
+  MISCELLANEOUS
+}
+
+// Service Catalog (embalming, viewing, cremation, etc)
+model ServiceCatalog {
+  id              String      @id @default(cuid())
+  funeralHomeId   String?
+  code            String      @unique
+  name            String
+  description     String      @db.Text
+  serviceType     ServiceType
+  price           Decimal     @db.Decimal(10, 2)
+  isRequired      Boolean     @default(false)
+  isAvailable     Boolean     @default(true)
+  displayOrder    Int         @default(0)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  funeralHome FuneralHome? @relation(fields: [funeralHomeId], references: [id])
+
+  @@index([funeralHomeId])
+  @@index([serviceType])
+  @@index([isAvailable])
+  @@map("service_catalog")
+}
+
+// Contract Template (with variable substitution)
+model ContractTemplate {
+  id                String      @id @default(cuid())
+  funeralHomeId     String?
+  name              String
+  description       String?
+  serviceType       ServiceType?
+  content           String      @db.Text
+  variables         Json        @default("[]")
+  isDefault         Boolean     @default(false)
+  version           Int         @default(1)
+  isActive          Boolean     @default(true)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  createdBy         String
+
+  funeralHome FuneralHome? @relation(fields: [funeralHomeId], references: [id])
+  creator     User         @relation(fields: [createdBy], references: [id])
+
+  @@index([funeralHomeId])
+  @@index([serviceType])
+  @@index([isDefault])
+  @@index([isActive])
+  @@map("contract_templates")
+}
