@@ -7,6 +7,7 @@ import {
   getPaymentHistory,
   getPaymentReceipt,
   listPayments,
+  getPaymentById,
   recordManualPayment,
   processRefund,
   getPaymentStats,
@@ -206,6 +207,25 @@ export const paymentRouter = router({
           dateTo: input.dateTo,
           limit: input.limit,
           offset: input.offset,
+        })
+      );
+    }),
+
+  /**
+   * Get payment by ID with version history (staff only)
+   */
+  getById: staffProcedure
+    .input(
+      z.object({
+        paymentId: z.string(),
+        includeHistory: z.boolean().default(true),
+      })
+    )
+    .query(async ({ input }) => {
+      return await runEffect(
+        getPaymentById({
+          paymentId: input.paymentId,
+          includeHistory: input.includeHistory,
         })
       );
     }),
