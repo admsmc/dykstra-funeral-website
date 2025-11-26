@@ -47,10 +47,10 @@ export const saveTemplate = (data: {
 > =>
   Effect.gen(function* () {
     if (!data.name?.trim()) {
-      return yield* Effect.fail(new ValidationError('Template name required'));
+      return yield* Effect.fail(new ValidationError({ message: 'Template name required', field: 'name' }));
     }
     if (!data.content?.trim()) {
-      return yield* Effect.fail(new ValidationError('Template content required'));
+      return yield* Effect.fail(new ValidationError({ message: 'Template content required', field: 'content' }));
     }
     const repo = yield* ContractTemplateRepository;
     if (data.isDefault && data.serviceType) {

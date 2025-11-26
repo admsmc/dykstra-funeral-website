@@ -30,13 +30,13 @@ export const createTask = (command: CreateTaskCommand): Effect.Effect<
     // Validate title
     if (!command.title || command.title.trim().length === 0) {
       return yield* Effect.fail(
-        new ValidationError('Task title cannot be empty')
+        new ValidationError({ message: 'Task title cannot be empty', field: 'title' })
       );
     }
 
     if (command.title.length > 255) {
       return yield* Effect.fail(
-        new ValidationError('Task title cannot exceed 255 characters')
+        new ValidationError({ message: 'Task title cannot exceed 255 characters', field: 'title' })
       );
     }
 

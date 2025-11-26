@@ -45,7 +45,11 @@ export const updateCaseStatus = (
 
     if (!currentCase) {
       return yield* Effect.fail(
-        new NotFoundError('Case', command.businessKey)
+        new NotFoundError({
+          message: `Case not found: ${command.businessKey}`,
+          entityType: 'Case',
+          entityId: command.businessKey
+        })
       );
     }
 
@@ -53,9 +57,10 @@ export const updateCaseStatus = (
     const allowedNextStatuses = VALID_TRANSITIONS[currentCase.status] || [];
     if (!allowedNextStatuses.includes(command.newStatus)) {
       return yield* Effect.fail(
-        new ValidationError(
-          `Cannot transition from ${currentCase.status} to ${command.newStatus}`
-        )
+        new ValidationError({
+          message: `Cannot transition from ${currentCase.status} to ${command.newStatus}`,
+          field: 'status'
+        })
       );
     }
 

@@ -75,7 +75,11 @@ export const getContractDetails = (
     const contract = yield* contractRepo.findById(contractId);
     
     if (!contract) {
-      return yield* Effect.fail(new NotFoundError('Contract', contractId));
+      return yield* Effect.fail(new NotFoundError({
+        message: `Contract not found: ${contractId}`,
+        entityType: 'Contract',
+        entityId: contractId
+      }));
     }
     
     return contract;
@@ -90,7 +94,11 @@ export const updateContractStatus = (data: {
     const current = yield* contractRepo.findByBusinessKey(data.businessKey);
     
     if (!current) {
-      return yield* Effect.fail(new NotFoundError('Contract', data.businessKey));
+      return yield* Effect.fail(new NotFoundError({
+        message: `Contract not found: ${data.businessKey}`,
+        entityType: 'Contract',
+        entityId: data.businessKey
+      }));
     }
     
     yield* contractRepo.update({

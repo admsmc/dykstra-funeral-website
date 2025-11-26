@@ -1,6 +1,9 @@
 import { Effect, Context } from 'effect';
 import { Case, type CaseId, NotFoundError } from '@dykstra/domain';
 
+// Re-export for convenience
+export { NotFoundError };
+
 /**
  * Persistence error
  */

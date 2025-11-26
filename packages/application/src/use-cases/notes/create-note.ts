@@ -33,13 +33,13 @@ export const createNote = (command: CreateNoteCommand): Effect.Effect<
     // Validate content
     if (!command.content || command.content.trim().length === 0) {
       return yield* Effect.fail(
-        new ValidationError('Content cannot be empty')
+        new ValidationError({ message: 'Content cannot be empty', field: 'content' })
       );
     }
 
     if (command.content.length > 10000) {
       return yield* Effect.fail(
-        new ValidationError('Content cannot exceed 10000 characters')
+        new ValidationError({ message: 'Content cannot exceed 10000 characters', field: 'content' })
       );
     }
 
