@@ -34,6 +34,24 @@ Runs ESLint to check for code quality issues using Next.js recommended rules.
 
 ## Architecture & Code Structure
 
+**⚠️ CRITICAL: This project follows Clean Architecture patterns. ALL code MUST adhere to the architectural guidelines.**
+
+**📖 READ FIRST**: See [ARCHITECTURE.md](./ARCHITECTURE.md) for complete Clean Architecture guidelines including:
+- Layer boundaries and dependency rules
+- Object-based repository pattern (NOT classes)
+- SCD2 temporal pattern for historical data
+- Error handling standards
+- Code examples and anti-patterns
+
+**Key Rules**:
+- ✅ Domain layer: Pure business logic, zero dependencies
+- ✅ Application layer: Use cases and ports (interfaces)
+- ✅ Infrastructure layer: Object-based adapters (NOT classes)
+- ✅ API layer: Thin routers, delegate to use cases
+- ❌ NO Prisma in application or domain layers
+- ❌ NO class-based repositories
+- ❌ NO business logic in API routers
+
 ### App Router Pattern
 This project uses Next.js 15 App Router (not Pages Router). All routes are defined as directories under `src/app/` with a `page.tsx` file:
 
