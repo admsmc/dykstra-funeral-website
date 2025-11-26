@@ -7,7 +7,9 @@ import { InfrastructureLayer } from '@dykstra/infrastructure';
  * Helper to run Effect with error handling
  */
 const runEffect = async <A, E>(effect: Effect.Effect<A, E, any>): Promise<A> => {
-  const result = await Effect.runPromise(Effect.provide(effect, InfrastructureLayer).pipe(Effect.either));
+  const result = await Effect.runPromise(Effect.provide(effect, InfrastructureLayer).pipe(Effect.either)) as
+    | { _tag: 'Left'; left: E }
+    | { _tag: 'Right'; right: A };
 
   if (result._tag === 'Left') {
     const error = result.left;
@@ -100,7 +102,7 @@ export async function POST(request: NextRequest) {
         width,
         height,
       })
-    );
+    ) as any; // Type assertion for photo entity from domain layer
     
     // Return photo details
     return NextResponse.json({
