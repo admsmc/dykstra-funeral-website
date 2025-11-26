@@ -17,6 +17,8 @@ export * from './ports/invitation-repository';
 export * from './ports/note-repository';
 export * from './ports/task-repository';
 export * from './ports/audit-log-repository';
+export * from './ports/catalog-repository';
+export * from './ports/contract-template-repository';
 
 // Commands
 export * from './commands/create-case';
@@ -73,3 +75,8 @@ export * from './use-cases/staff/list-staff-members';
 export * from './use-cases/staff/get-dashboard-stats';
 export * from './use-cases/staff/get-analytics';
 export * from './use-cases/staff/get-task-dashboard';
+
+// Contract use cases
+export * from './use-cases/contracts/catalog-queries';
+export * from './use-cases/contracts/template-operations';
+export * from './use-cases/contracts/contract-operations';

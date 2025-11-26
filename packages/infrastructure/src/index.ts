@@ -11,6 +11,8 @@ export * from './database/prisma-note-repository';
 export * from './database/prisma-task-repository';
 export * from './database/prisma-audit-log-repository';
 export * from './database/prisma-staff-repository';
+export * from './database/prisma-catalog-repositories';
+export * from './database/prisma-contract-template-repository';
 
 // Events
 export * from './events/console-event-publisher';
@@ -39,6 +41,8 @@ import { PrismaNoteRepository } from './database/prisma-note-repository';
 import { PrismaTaskRepository } from './database/prisma-task-repository';
 import { PrismaAuditLogRepository } from './database/prisma-audit-log-repository';
 import { PrismaStaffRepository } from './database/prisma-staff-repository';
+import { PrismaProductCatalogRepository, PrismaServiceCatalogRepository } from './database/prisma-catalog-repositories';
+import { PrismaContractTemplateRepository } from './database/prisma-contract-template-repository';
 import { StorageAdapterLive } from './storage/storage-adapter';
 import { createS3StorageAdapter } from './adapters/storage/s3-storage-adapter';
 import {
@@ -52,6 +56,9 @@ import {
   NoteRepository,
   TaskRepository,
   AuditLogRepository,
+  ProductCatalogRepository,
+  ServiceCatalogRepository,
+  ContractTemplateRepository,
   StoragePort,
 } from '@dykstra/application';
 import { StaffRepository } from '@dykstra/application/use-cases/staff/list-staff-members';
@@ -97,6 +104,9 @@ export const InfrastructureLayer = Layer.mergeAll(
   Layer.succeed(TaskRepository, PrismaTaskRepository),
   Layer.succeed(AuditLogRepository, PrismaAuditLogRepository),
   Layer.succeed(StaffRepository, PrismaStaffRepository),
+  Layer.succeed(ProductCatalogRepository, PrismaProductCatalogRepository),
+  Layer.succeed(ServiceCatalogRepository, PrismaServiceCatalogRepository),
+  Layer.succeed(ContractTemplateRepository, PrismaContractTemplateRepository),
   
   // External service adapters
   getStorageLayer(),

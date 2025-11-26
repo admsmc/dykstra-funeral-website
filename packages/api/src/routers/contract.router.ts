@@ -1,7 +1,21 @@
 import { z } from 'zod';
 import { router, staffProcedure } from '../trpc';
-import { TRPCError } from '@trpc/server';
-import { randomBytes } from 'crypto';
+import { runEffect } from '../utils/effect-runner';
+import {
+  getProductCatalog,
+  getServiceCatalog,
+  getTemplates,
+  getDefaultTemplate,
+  saveTemplate,
+  updateTemplate,
+  deleteTemplate,
+  calculateContractTotal,
+  substituteVariables,
+  createContract,
+  listContracts,
+  getContractDetails,
+  updateContractStatus,
+} from '@dykstra/application';
 
 /**
  * Contract Builder Router
@@ -51,33 +65,14 @@ export const contractRouter = router({
         availableOnly: z.boolean().default(true),
       })
     )
-    .query(async ({ ctx, input }) => {
-      const { prisma } = ctx;
-
-      const where: any = {};
-
-      if (input.category) {
-        where.category = input.category;
-      }
-
-      if (input.availableOnly) {
-        where.isAvailable = true;
-      }
-
-      if (input.search) {
-        where.OR = [
-          { name: { contains: input.search, mode: 'insensitive' } },
-          { description: { contains: input.search, mode: 'insensitive' } },
-          { sku: { contains: input.search, mode: 'insensitive' } },
-        ];
-      }
-
-      const products = await prisma.productCatalog.findMany({
-        where,
-        orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
-      });
-
-      return products;
+    .query(async ({ input }) => {
+      return await runEffect(
+        getProductCatalog({
+          category: input.category,
+          search: input.search,
+          availableOnly: input.availableOnly,
+        })
+      );
     }),
 
   /**
@@ -90,25 +85,13 @@ export const contractRouter = router({
         availableOnly: z.boolean().default(true),
       })
     )
-    .query(async ({ ctx, input }) => {
-      const { prisma } = ctx;
-
-      const where: any = {};
-
-      if (input.serviceType) {
-        where.serviceType = input.serviceType;
-      }
-
-      if (input.availableOnly) {
-        where.isAvailable = true;
-      }
-
-      const services = await prisma.serviceCatalog.findMany({
-        where,
-        orderBy: [{ isRequired: 'desc' }, { displayOrder: 'asc' }, { name: 'asc' }],
-      });
-
-      return services;
+    .query(async ({ input }) => {
+      return await runEffect(
+        getServiceCatalog({
+          serviceType: input.serviceType,
+          availableOnly: input.availableOnly,
+        })
+      );
     }),
 
   /**
@@ -121,34 +104,13 @@ export const contractRouter = router({
         activeOnly: z.boolean().default(true),
       })
     )
-    .query(async ({ ctx, input }) => {
-      const { prisma } = ctx;
-
-      const where: any = {};
-
-      if (input.serviceType) {
-        where.serviceType = input.serviceType;
-      }
-
-      if (input.activeOnly) {
-        where.isActive = true;
-      }
-
-      const templates = await prisma.contractTemplate.findMany({
-        where,
-        include: {
-          creator: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-            },
-          },
-        },
-        orderBy: [{ isDefault: 'desc' }, { name: 'asc' }],
-      });
-
-      return templates;
+    .query(async ({ input }) => {
+      return await runEffect(
+        getTemplates({
+          serviceType: input.serviceType,
+          activeOnly: input.activeOnly,
+        })
+      );
     }),
 
   /**
@@ -160,33 +122,10 @@ export const contractRouter = router({
         serviceType: ServiceTypeEnum,
       })
     )
-    .query(async ({ ctx, input }) => {
-      const { prisma } = ctx;
-
-      const template = await prisma.contractTemplate.findFirst({
-        where: {
-          serviceType: input.serviceType,
-          isDefault: true,
-          isActive: true,
-        },
-        include: {
-          creator: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-        },
-      });
-
-      if (!template) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: `No default template found for ${input.serviceType}`,
-        });
-      }
-
-      return template;
+    .query(async ({ input }) => {
+      return await runEffect(
+        getDefaultTemplate(input.serviceType)
+      );
     }),
 
   /**
@@ -213,30 +152,11 @@ export const contractRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      // Calculate subtotals
-      const servicesSubtotal = input.services.reduce(
-        (sum, item) => sum + item.price * item.quantity,
-        0
-      );
-
-      const productsSubtotal = input.products.reduce(
-        (sum, item) => sum + item.price * item.quantity,
-        0
-      );
-
-      const subtotal = servicesSubtotal + productsSubtotal;
-      const tax = subtotal * input.taxRate;
-      const total = subtotal + tax;
-
-      return {
-        subtotal: Math.round(subtotal * 100) / 100,
-        tax: Math.round(tax * 100) / 100,
-        total: Math.round(total * 100) / 100,
-        breakdown: {
-          services: Math.round(servicesSubtotal * 100) / 100,
-          products: Math.round(productsSubtotal * 100) / 100,
-        },
-      };
+      return calculateContractTotal({
+        services: input.services,
+        products: input.products,
+        taxRate: input.taxRate,
+      });
     }),
 
   /**
@@ -250,15 +170,7 @@ export const contractRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      let result = input.content;
-
-      // Replace all {{variableName}} with actual values
-      Object.entries(input.variables).forEach(([key, value]) => {
-        const regex = new RegExp(`{{\\s*${key}\\s*}}`, 'g');
-        result = result.replace(regex, value);
-      });
-
-      return result;
+      return substituteVariables(input.content, input.variables);
     }),
 
   /**
@@ -292,60 +204,21 @@ export const contractRouter = router({
         status: ContractStatusEnum.default('DRAFT'),
       })
     )
-    .mutation(async ({ ctx, input }) => {
-      const { prisma, user } = ctx;
-
-      // Verify case exists
-      const caseData = await prisma.case.findFirst({
-        where: {
-          id: input.caseId,
-          isCurrent: true,
-        },
-      });
-
-      if (!caseData) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'Case not found',
-        });
-      }
-
-      // Generate unique business key
-      const businessKey = `CONTRACT_${Date.now()}_${randomBytes(4).toString('hex')}`;
-
-      // Create contract
-      const contract = await prisma.contract.create({
-        data: {
-          businessKey,
-          temporalVersion: 1,
+    .mutation(async ({ input, ctx }) => {
+      return await runEffect(
+        createContract({
           caseId: input.caseId,
-          contractVersion: 1,
-          status: input.status,
+          templateId: input.templateId,
           services: input.services,
           products: input.products,
           subtotal: input.subtotal,
           tax: input.tax,
           totalAmount: input.totalAmount,
           termsAndConditions: input.termsAndConditions,
-          createdBy: user.id,
-        },
-        include: {
-          case: {
-            select: {
-              id: true,
-              decedentName: true,
-            },
-          },
-          creator: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-        },
-      });
-
-      return contract;
+          status: input.status,
+          createdBy: ctx.user.id,
+        })
+      );
     }),
 
   /**
@@ -360,65 +233,15 @@ export const contractRouter = router({
         cursor: z.string().optional(),
       })
     )
-    .query(async ({ ctx, input }) => {
-      const { prisma } = ctx;
-
-      const where: any = {
-        isCurrent: true,
-      };
-
-      if (input.status) {
-        where.status = input.status;
-      }
-
-      if (input.caseId) {
-        where.caseId = input.caseId;
-      }
-
-      const contracts = await prisma.contract.findMany({
-        where,
-        take: input.limit + 1,
-        cursor: input.cursor ? { id: input.cursor } : undefined,
-        orderBy: {
-          createdAt: 'desc',
-        },
-        include: {
-          case: {
-            select: {
-              id: true,
-              decedentName: true,
-              serviceType: true,
-            },
-          },
-          creator: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-          signatures: {
-            where: {
-              isCurrent: true,
-            },
-            select: {
-              id: true,
-              signerName: true,
-              signedAt: true,
-            },
-          },
-        },
-      });
-
-      let nextCursor: string | undefined = undefined;
-      if (contracts.length > input.limit) {
-        const nextItem = contracts.pop();
-        nextCursor = nextItem!.id;
-      }
-
-      return {
-        contracts,
-        nextCursor,
-      };
+    .query(async ({ input }) => {
+      return await runEffect(
+        listContracts({
+          status: input.status,
+          caseId: input.caseId,
+          limit: input.limit,
+          cursor: input.cursor,
+        })
+      );
     }),
 
   /**
@@ -430,60 +253,10 @@ export const contractRouter = router({
         contractId: z.string(),
       })
     )
-    .query(async ({ ctx, input }) => {
-      const { prisma } = ctx;
-
-      const contract = await prisma.contract.findFirst({
-        where: {
-          id: input.contractId,
-          isCurrent: true,
-        },
-        include: {
-          case: {
-            select: {
-              id: true,
-              decedentName: true,
-              decedentDateOfBirth: true,
-              decedentDateOfDeath: true,
-              serviceType: true,
-              serviceDate: true,
-            },
-          },
-          creator: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-            },
-          },
-          signatures: {
-            where: {
-              isCurrent: true,
-            },
-            include: {
-              signer: {
-                select: {
-                  id: true,
-                  name: true,
-                  email: true,
-                },
-              },
-            },
-            orderBy: {
-              signedAt: 'asc',
-            },
-          },
-        },
-      });
-
-      if (!contract) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'Contract not found',
-        });
-      }
-
-      return contract;
+    .query(async ({ input }) => {
+      return await runEffect(
+        getContractDetails(input.contractId)
+      );
     }),
 
   /**
@@ -496,63 +269,13 @@ export const contractRouter = router({
         status: ContractStatusEnum,
       })
     )
-    .mutation(async ({ ctx, input }) => {
-      const { prisma } = ctx;
-
-      // Find current version
-      const currentContract = await prisma.contract.findFirst({
-        where: {
+    .mutation(async ({ input }) => {
+      return await runEffect(
+        updateContractStatus({
           businessKey: input.businessKey,
-          isCurrent: true,
-        },
-      });
-
-      if (!currentContract) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'Contract not found',
-        });
-      }
-
-      // Validate status transition (basic)
-      // DRAFT → PENDING_REVIEW → PENDING_SIGNATURES → FULLY_SIGNED
-      // Any → CANCELLED
-
-      // SCD2: Close current version and create new version
-      await prisma.$transaction(async (tx: typeof prisma) => {
-        // Close current version
-        await tx.contract.update({
-          where: { id: currentContract.id },
-          data: {
-            isCurrent: false,
-            validTo: new Date(),
-          },
-        });
-
-        // Create new version
-        await tx.contract.create({
-          data: {
-            businessKey: currentContract.businessKey,
-            temporalVersion: currentContract.temporalVersion + 1,
-            caseId: currentContract.caseId,
-            contractVersion: currentContract.contractVersion,
-            status: input.status,
-            services: currentContract.services,
-            products: currentContract.products,
-            subtotal: currentContract.subtotal,
-            tax: currentContract.tax,
-            totalAmount: currentContract.totalAmount,
-            termsAndConditions: currentContract.termsAndConditions,
-            createdBy: currentContract.createdBy,
-            createdAt: currentContract.createdAt,
-          },
-        });
-      });
-
-      return {
-        success: true,
-        message: `Contract status updated to ${input.status}`,
-      };
+          status: input.status,
+        })
+      );
     }),
 
   /**
@@ -569,43 +292,18 @@ export const contractRouter = router({
         isDefault: z.boolean().default(false),
       })
     )
-    .mutation(async ({ ctx, input }) => {
-      const { prisma, user } = ctx;
-
-      // If setting as default, unset other defaults for this service type
-      if (input.isDefault && input.serviceType) {
-        await prisma.contractTemplate.updateMany({
-          where: {
-            serviceType: input.serviceType,
-            isDefault: true,
-          },
-          data: {
-            isDefault: false,
-          },
-        });
-      }
-
-      const template = await prisma.contractTemplate.create({
-        data: {
+    .mutation(async ({ input, ctx }) => {
+      return await runEffect(
+        saveTemplate({
           name: input.name,
           description: input.description,
           serviceType: input.serviceType,
           content: input.content,
           variables: input.variables,
           isDefault: input.isDefault,
-          createdBy: user.id,
-        },
-        include: {
-          creator: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-        },
-      });
-
-      return template;
+          createdBy: ctx.user.id,
+        })
+      );
     }),
 
   /**
@@ -623,25 +321,11 @@ export const contractRouter = router({
         isActive: z.boolean().optional(),
       })
     )
-    .mutation(async ({ ctx, input }) => {
-      const { prisma } = ctx;
-
+    .mutation(async ({ input }) => {
       const { id, ...updateData } = input;
-
-      const template = await prisma.contractTemplate.update({
-        where: { id },
-        data: updateData,
-        include: {
-          creator: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-        },
-      });
-
-      return template;
+      return await runEffect(
+        updateTemplate(id, updateData)
+      );
     }),
 
   /**
@@ -653,13 +337,8 @@ export const contractRouter = router({
         id: z.string(),
       })
     )
-    .mutation(async ({ ctx, input }) => {
-      const { prisma } = ctx;
-
-      await prisma.contractTemplate.delete({
-        where: { id: input.id },
-      });
-
+    .mutation(async ({ input }) => {
+      await runEffect(deleteTemplate(input.id));
       return {
         success: true,
         message: 'Template deleted successfully',
