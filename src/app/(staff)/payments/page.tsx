@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState, useMemo } from "react";
 import ManualPaymentModal from "./_components/ManualPaymentModal";
 import RefundModal from "./_components/RefundModal";
+import FinancialReportsTab from "./_components/FinancialReportsTab";
 import {
   useReactTable,
   getCoreRowModel,
@@ -40,6 +41,7 @@ export default function StaffPaymentsPage() {
   const [methodFilter, setMethodFilter] = useState<string>("all");
   const [isManualPaymentModalOpen, setIsManualPaymentModalOpen] = useState(false);
   const [refundPayment, setRefundPayment] = useState<PaymentRow | null>(null);
+  const [activeTab, setActiveTab] = useState<"payments" | "reports">("payments");
 
   // Fetch payment statistics
   const { data: stats, isLoading: statsLoading } = trpc.payment.getStats.useQuery({
@@ -240,7 +242,7 @@ export default function StaffPaymentsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Payments</h1>
           <p className="text-gray-600 mt-1">Payment processing and reconciliation</p>
@@ -254,7 +256,36 @@ export default function StaffPaymentsPage() {
         </button>
       </div>
 
-      {/* KPI Cards */}
+      {/* Tab Navigation */}
+      <div className="border-b border-gray-200">
+        <nav className="flex space-x-8" aria-label="Tabs">
+          <button
+            onClick={() => setActiveTab("payments")}
+            className={`py-4 px-1 border-b-2 font-medium text-sm transition ${
+              activeTab === "payments"
+                ? "border-[--navy] text-[--navy]"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            }`}
+          >
+            Payments
+          </button>
+          <button
+            onClick={() => setActiveTab("reports")}
+            className={`py-4 px-1 border-b-2 font-medium text-sm transition ${
+              activeTab === "reports"
+                ? "border-[--navy] text-[--navy]"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            }`}
+          >
+            Financial Reports
+          </button>
+        </nav>
+      </div>
+
+      {/* Tab Content */}
+      {activeTab === "payments" ? (
+        <>
+          {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {kpiCards.map((card) => (
           <div
@@ -401,6 +432,10 @@ export default function StaffPaymentsPage() {
           </div>
         )}
       </div>
+        </>
+      ) : (
+        <FinancialReportsTab />
+      )}
 
       {/* Manual Payment Modal */}
       <ManualPaymentModal
