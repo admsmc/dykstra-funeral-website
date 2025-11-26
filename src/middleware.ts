@@ -1,29 +1,22 @@
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+import { clerkMiddleware } from '@clerk/nextjs/server';
 
 /**
  * Clerk authentication middleware
  * 
- * Protects:
- * - /portal/* - Family portal (requires family member authentication)
- * - /staff/* - Staff dashboard (requires staff authentication + role check)
- * - /api/trpc/* - API routes
- * Allows public access to main website pages
+ * By default, clerkMiddleware() will not protect any routes.
+ * All routes are public unless you opt-in to protection.
+ * 
+ * To protect specific routes, use createRouteMatcher() and auth().protect().
+ * See: https://clerk.com/docs/references/nextjs/clerk-middleware
  */
 
-// Define protected routes
-const isProtectedRoute = createRouteMatcher([
-  '/portal(.*)',
-  '/staff(.*)',    // Staff dashboard
-  '/api/trpc(.*)', // Protect API routes
-]);
-
-export default clerkMiddleware((auth, req) => {
-  // Protect routes that require authentication
-  if (isProtectedRoute(req)) {
-    auth().protect();
-  }
-});
+export default clerkMiddleware();
 
 export const config = {
-  matcher: ['/((?!.+\\.[\\w]+$|_next).*)', '/', '/(api|trpc)(.*)'],
+  matcher: [
+    // Skip Next.js internals and all static files, unless found in search params
+    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    // Always run for API routes
+    '/(api|trpc)(.*)',
+  ],
 };

@@ -7,6 +7,7 @@ import { trpc } from '@/lib/trpc/client';
 import SuperJSON from 'superjson';
 import { StripeProvider } from '@/lib/stripe-provider';
 import { Toaster } from 'sonner';
+import { ClerkProvider } from '@clerk/nextjs';
 
 /**
  * Providers component
@@ -43,22 +44,24 @@ export function Providers({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <trpc.Provider client={trpcClient} queryClient={queryClient}>
-      <QueryClientProvider client={queryClient}>
-        <StripeProvider>
-          <Toaster 
-            position="top-right"
-            toastOptions={{
-              style: {
-                fontFamily: 'var(--font-inter), sans-serif',
-              },
-              className: 'sonner-toast',
-            }}
-            richColors
-          />
-          {children}
-        </StripeProvider>
-      </QueryClientProvider>
-    </trpc.Provider>
+    <ClerkProvider>
+      <trpc.Provider client={trpcClient} queryClient={queryClient}>
+        <QueryClientProvider client={queryClient}>
+          <StripeProvider>
+            <Toaster 
+              position="top-right"
+              toastOptions={{
+                style: {
+                  fontFamily: 'var(--font-inter), sans-serif',
+                },
+                className: 'sonner-toast',
+              }}
+              richColors
+            />
+            {children}
+          </StripeProvider>
+        </QueryClientProvider>
+      </trpc.Provider>
+    </ClerkProvider>
   );
 }
