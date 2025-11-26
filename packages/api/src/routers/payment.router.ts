@@ -1,13 +1,19 @@
 import { z } from "zod";
-import { router, familyProcedure } from "../trpc";
+import { router, familyProcedure, staffProcedure } from "../trpc";
 import {
   processACHPayment,
   createPaymentPlan,
   assignInsurance,
   getPaymentHistory,
   getPaymentReceipt,
+  listPayments,
+  recordManualPayment,
+  processRefund,
+  getPaymentStats,
+  getArAgingReport,
 } from "@dykstra/application";
 import { runEffect } from "../utils/effect-runner";
+import { PaymentMethodSchema, PaymentStatusSchema } from '@dykstra/shared';
 
 /**
  * Payment router
@@ -167,5 +173,137 @@ export const paymentRouter = router({
         payer: receipt.payer,
         funeralHome: receipt.funeralHome,
       };
+    }),
+
+  // --- Staff-only procedures ---
+
+  /**
+   * List payments with filters and pagination (staff only)
+   */
+  list: staffProcedure
+    .input(
+      z.object({
+        funeralHomeId: z.string().optional(),
+        status: PaymentStatusSchema.optional(),
+        method: PaymentMethodSchema.optional(),
+        caseId: z.string().optional(),
+        dateFrom: z.date().optional(),
+        dateTo: z.date().optional(),
+        limit: z.number().int().positive().max(100).default(50),
+        offset: z.number().int().nonnegative().default(0),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      const funeralHomeId = input.funeralHomeId ?? ctx.user.funeralHomeId ?? 'default';
+
+      return await runEffect(
+        listPayments({
+          funeralHomeId,
+          status: input.status,
+          method: input.method,
+          caseId: input.caseId,
+          dateFrom: input.dateFrom,
+          dateTo: input.dateTo,
+          limit: input.limit,
+          offset: input.offset,
+        })
+      );
+    }),
+
+  /**
+   * Record manual payment (staff only)
+   * For cash, check, or ACH payments recorded offline
+   */
+  recordManual: staffProcedure
+    .input(
+      z.object({
+        caseId: z.string(),
+        amount: z.number().positive(),
+        method: z.enum(['cash', 'check', 'ach']),
+        checkNumber: z.string().optional(),
+        paymentDate: z.date().optional(),
+        notes: z.string().max(2000).optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      return await runEffect(
+        recordManualPayment({
+          caseId: input.caseId,
+          amount: input.amount,
+          method: input.method,
+          checkNumber: input.checkNumber,
+          paymentDate: input.paymentDate,
+          notes: input.notes,
+          recordedBy: ctx.user.id,
+        })
+      );
+    }),
+
+  /**
+   * Process refund (staff only)
+   */
+  processRefund: staffProcedure
+    .input(
+      z.object({
+        paymentBusinessKey: z.string(),
+        refundAmount: z.number().positive().optional(),
+        reason: z.string().min(1),
+        notes: z.string().max(2000).optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      return await runEffect(
+        processRefund({
+          paymentBusinessKey: input.paymentBusinessKey,
+          refundAmount: input.refundAmount,
+          reason: input.reason,
+          notes: input.notes,
+          processedBy: ctx.user.id,
+        })
+      );
+    }),
+
+  /**
+   * Get payment statistics (staff only)
+   */
+  getStats: staffProcedure
+    .input(
+      z.object({
+        funeralHomeId: z.string().optional(),
+        dateFrom: z.date().optional(),
+        dateTo: z.date().optional(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      const funeralHomeId = input.funeralHomeId ?? ctx.user.funeralHomeId ?? 'default';
+
+      return await runEffect(
+        getPaymentStats({
+          funeralHomeId,
+          dateFrom: input.dateFrom,
+          dateTo: input.dateTo,
+        })
+      );
+    }),
+
+  /**
+   * Get AR aging report (staff only)
+   */
+  getArAgingReport: staffProcedure
+    .input(
+      z.object({
+        funeralHomeId: z.string().optional(),
+        asOfDate: z.date().optional(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      const funeralHomeId = input.funeralHomeId ?? ctx.user.funeralHomeId ?? 'default';
+
+      return await runEffect(
+        getArAgingReport({
+          funeralHomeId,
+          asOfDate: input.asOfDate,
+        })
+      );
     }),
 });

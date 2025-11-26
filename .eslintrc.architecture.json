@@ -1,0 +1,99 @@
+{
+  "extends": ["./.eslintrc.json"],
+  "overrides": [
+    {
+      "files": ["packages/domain/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["@dykstra/application*", "@dykstra/infrastructure*", "@dykstra/api*", "@prisma/*"],
+                "message": "❌ Domain layer MUST NOT depend on any other layer. Domain should be pure business logic with zero external dependencies."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["packages/application/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["@dykstra/api*"],
+                "message": "❌ Application layer MUST NOT import from API layer. Application layer is framework-agnostic."
+              },
+              {
+                "group": ["@dykstra/infrastructure*"],
+                "message": "❌ Application layer MUST NOT import from Infrastructure layer. Use dependency injection via ports instead."
+              },
+              {
+                "group": ["@prisma/client"],
+                "message": "❌ Application layer MUST NOT import Prisma. Database access must be through repository ports defined in application/ports/."
+              }
+            ]
+          }
+        ],
+        "no-restricted-syntax": [
+          "error",
+          {
+            "selector": "ClassDeclaration[superClass.name='Repository']",
+            "message": "❌ Do NOT use class-based repositories. Use object-based pattern: export const PrismaXRepository: XRepository = { ... }"
+          }
+        ]
+      }
+    },
+    {
+      "files": ["packages/infrastructure/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["@dykstra/api*"],
+                "message": "❌ Infrastructure layer MUST NOT import from API layer."
+              }
+            ]
+          }
+        ],
+        "no-restricted-syntax": [
+          "error",
+          {
+            "selector": "ClassDeclaration[implements.0.expression.name=/Repository$/]",
+            "message": "❌ ANTI-PATTERN DETECTED: Class-based repository. Use object-based pattern instead:\n\n✅ CORRECT:\nexport const PrismaXRepository: XRepository = {\n  findById: (id) => Effect.tryPromise({...}),\n};\n\n❌ WRONG:\nexport class PrismaXRepository implements XRepository {\n  constructor(private prisma: PrismaClient) {}\n}"
+          },
+          {
+            "selector": "ImportDeclaration[source.value='@prisma/client'] > ImportSpecifier[imported.name='PrismaClient']",
+            "message": "❌ Do NOT import PrismaClient directly in adapters. Import the singleton: import { prisma } from './prisma-client';"
+          }
+        ]
+      }
+    },
+    {
+      "files": ["packages/api/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["@prisma/client"],
+                "message": "❌ API layer MUST NOT access database directly. Call use cases from application layer instead."
+              },
+              {
+                "group": ["@dykstra/infrastructure*"],
+                "message": "❌ API layer MUST NOT import from Infrastructure. Dependency injection is handled at the server entry point."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

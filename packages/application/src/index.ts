@@ -81,3 +81,10 @@ export * from './use-cases/staff/get-task-dashboard';
 export * from './use-cases/contracts/catalog-queries';
 export * from './use-cases/contracts/template-operations';
 export * from './use-cases/contracts/contract-operations';
+
+// Payment use cases
+export * from './use-cases/payments/list-payments';
+export * from './use-cases/payments/record-manual-payment';
+export * from './use-cases/payments/process-refund';
+export * from './use-cases/payments/get-payment-stats';
+export * from './use-cases/payments/get-ar-aging-report';
