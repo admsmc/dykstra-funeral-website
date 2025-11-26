@@ -8,6 +8,9 @@ export * from './database/prisma-tribute-repository';
 export * from './database/prisma-guestbook-repository';
 export * from './database/prisma-invitation-repository';
 export * from './database/prisma-note-repository';
+export * from './database/prisma-task-repository';
+export * from './database/prisma-audit-log-repository';
+export * from './database/prisma-staff-repository';
 
 // Events
 export * from './events/console-event-publisher';
@@ -33,6 +36,9 @@ import { PrismaTributeRepository } from './database/prisma-tribute-repository';
 import { PrismaGuestbookRepository } from './database/prisma-guestbook-repository';
 import { PrismaInvitationRepository } from './database/prisma-invitation-repository';
 import { PrismaNoteRepository } from './database/prisma-note-repository';
+import { PrismaTaskRepository } from './database/prisma-task-repository';
+import { PrismaAuditLogRepository } from './database/prisma-audit-log-repository';
+import { PrismaStaffRepository } from './database/prisma-staff-repository';
 import { StorageAdapterLive } from './storage/storage-adapter';
 import { createS3StorageAdapter } from './adapters/storage/s3-storage-adapter';
 import {
@@ -44,8 +50,11 @@ import {
   GuestbookRepository,
   InvitationRepository,
   NoteRepository,
+  TaskRepository,
+  AuditLogRepository,
   StoragePort,
 } from '@dykstra/application';
+import { StaffRepository } from '@dykstra/application/use-cases/staff/list-staff-members';
 import { StripeAdapterLive } from './payment/stripe-adapter';
 import { SignatureAdapterLive } from './signature/signature-adapter';
 import { EmailAdapterLive } from './email/email-adapter';
@@ -85,6 +94,9 @@ export const InfrastructureLayer = Layer.mergeAll(
   Layer.succeed(GuestbookRepository, PrismaGuestbookRepository),
   Layer.succeed(InvitationRepository, PrismaInvitationRepository),
   Layer.succeed(NoteRepository, PrismaNoteRepository),
+  Layer.succeed(TaskRepository, PrismaTaskRepository),
+  Layer.succeed(AuditLogRepository, PrismaAuditLogRepository),
+  Layer.succeed(StaffRepository, PrismaStaffRepository),
   
   // External service adapters
   getStorageLayer(),

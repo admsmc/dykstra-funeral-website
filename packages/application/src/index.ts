@@ -15,6 +15,8 @@ export * from './ports/payment-plan-port';
 export * from './ports/user-port';
 export * from './ports/invitation-repository';
 export * from './ports/note-repository';
+export * from './ports/task-repository';
+export * from './ports/audit-log-repository';
 
 // Commands
 export * from './commands/create-case';
@@ -55,3 +57,16 @@ export * from './use-cases/notes/get-note-history';
 export * from './use-cases/notes/create-note';
 export * from './use-cases/notes/update-note';
 export * from './use-cases/notes/delete-note';
+
+// Case management use cases
+export * from './use-cases/case-management/get-financial-summary';
+export * from './use-cases/case-management/update-case-status';
+export * from './use-cases/case-management/get-audit-log';
+
+// Task use cases
+export * from './use-cases/tasks/list-tasks';
+export * from './use-cases/tasks/create-task';
+export * from './use-cases/tasks/update-task-status';
+
+// Staff use cases
+export * from './use-cases/staff/list-staff-members';
