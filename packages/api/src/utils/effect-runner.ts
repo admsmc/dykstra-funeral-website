@@ -12,7 +12,7 @@ import { InfrastructureLayer } from '@dykstra/infrastructure';
  * @returns Promise resolving to the Effect's success value
  * @throws TRPCError - Maps domain errors to appropriate tRPC error codes
  */
-export const runEffect = async <A, E extends { _tag: string; message: string }, R = any>(
+export const runEffect = async <A, E extends { _tag: string; message?: string }, R = any>(
   effect: Effect.Effect<A, E, R>
 ): Promise<A> => {
   // Provide all infrastructure dependencies
@@ -31,9 +31,13 @@ export const runEffect = async <A, E extends { _tag: string; message: string }, 
       
       switch (typedError._tag) {
         case 'NotFoundError':
+        case 'NoteNotFoundError':
+        case 'InvitationNotFoundError':
+        case 'TaskNotFoundError':
+        case 'TemplateNotFoundError':
           throw new TRPCError({
             code: 'NOT_FOUND',
-            message: typedError.message,
+            message: typedError.message || 'Resource not found',
             cause: error,
           });
           
@@ -46,9 +50,13 @@ export const runEffect = async <A, E extends { _tag: string; message: string }, 
           });
           
         case 'ValidationError':
+        case 'NoteValidationError':
+        case 'TaskValidationError':
+        case 'TemplateValidationError':
+        case 'InvitationValidationError':
           throw new TRPCError({
             code: 'BAD_REQUEST',
-            message: typedError.message,
+            message: typedError.message || 'Validation failed',
             cause: error,
           });
           
@@ -66,9 +74,10 @@ export const runEffect = async <A, E extends { _tag: string; message: string }, 
           });
           
         case 'ConflictError':
+        case 'InvitationConflictError':
           throw new TRPCError({
             code: 'CONFLICT',
-            message: typedError.message,
+            message: typedError.message || 'Resource conflict',
             cause: error,
           });
           

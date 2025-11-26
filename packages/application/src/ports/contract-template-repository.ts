@@ -1,4 +1,4 @@
-import { Effect } from 'effect';
+import { Effect, Context } from 'effect';
 import { CatalogServiceType } from './catalog-repository';
 
 /**
@@ -107,6 +107,6 @@ export interface ContractTemplateRepository {
   ): Effect.Effect<void, never, never>;
 }
 
-export const ContractTemplateRepository = Effect.Tag<ContractTemplateRepository>(
-  'ContractTemplateRepository'
+export const ContractTemplateRepository = Context.GenericTag<ContractTemplateRepository>(
+  '@dykstra/ContractTemplateRepository'
 );

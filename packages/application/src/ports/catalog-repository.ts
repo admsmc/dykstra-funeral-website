@@ -1,4 +1,4 @@
-import { Effect } from 'effect';
+import { Effect, Context } from 'effect';
 
 /**
  * Product Category enum
@@ -76,8 +76,8 @@ export interface ProductCatalogRepository {
   findById(id: string): Effect.Effect<Product | null, never, never>;
 }
 
-export const ProductCatalogRepository = Effect.Tag<ProductCatalogRepository>(
-  'ProductCatalogRepository'
+export const ProductCatalogRepository = Context.GenericTag<ProductCatalogRepository>(
+  '@dykstra/ProductCatalogRepository'
 );
 
 /**
@@ -98,6 +98,6 @@ export interface ServiceCatalogRepository {
   findById(id: string): Effect.Effect<Service | null, never, never>;
 }
 
-export const ServiceCatalogRepository = Effect.Tag<ServiceCatalogRepository>(
-  'ServiceCatalogRepository'
+export const ServiceCatalogRepository = Context.GenericTag<ServiceCatalogRepository>(
+  '@dykstra/ServiceCatalogRepository'
 );

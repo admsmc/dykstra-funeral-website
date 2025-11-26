@@ -1,4 +1,4 @@
-import { Effect } from 'effect';
+import { Effect, Context } from 'effect';
 
 export interface StaffMember {
   id: string;
@@ -19,7 +19,7 @@ export interface StaffRepository {
   findAll(): Effect.Effect<StaffMember[], never, never>;
 }
 
-export const StaffRepository = Effect.Tag<StaffRepository>('StaffRepository');
+export const StaffRepository = Context.GenericTag<StaffRepository>('@dykstra/StaffRepository');
 
 /**
  * List staff members for assignment dropdowns

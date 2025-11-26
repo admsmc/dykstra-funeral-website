@@ -1,4 +1,4 @@
-import { Effect } from 'effect';
+import { Effect, Context } from 'effect';
 
 /**
  * Audit Log Entry - Domain Model
@@ -59,4 +59,4 @@ export interface AuditLogRepository {
   }): Effect.Effect<AuditLogEntry, never, never>;
 }
 
-export const AuditLogRepository = Effect.Tag<AuditLogRepository>('AuditLogRepository');
+export const AuditLogRepository = Context.GenericTag<AuditLogRepository>('@dykstra/AuditLogRepository');

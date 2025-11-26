@@ -1,4 +1,4 @@
-import { Effect } from 'effect';
+import { Effect, Context } from 'effect';
 
 /**
  * Task Status
@@ -83,4 +83,4 @@ export interface TaskRepository {
   }): Effect.Effect<Task, TaskNotFoundError, never>;
 }
 
-export const TaskRepository = Effect.Tag<TaskRepository>('TaskRepository');
+export const TaskRepository = Context.GenericTag<TaskRepository>('@dykstra/TaskRepository');

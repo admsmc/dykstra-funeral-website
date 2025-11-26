@@ -1,4 +1,4 @@
-import { Effect } from 'effect';
+import { Effect, Context } from 'effect';
 
 /**
  * Internal Note - Domain Model
@@ -100,4 +100,4 @@ export interface NoteRepository {
   softDelete(businessKey: string): Effect.Effect<void, NoteNotFoundError, never>;
 }
 
-export const NoteRepository = Effect.Tag<NoteRepository>('NoteRepository');
+export const NoteRepository = Context.GenericTag<NoteRepository>('@dykstra/NoteRepository');

@@ -1,5 +1,6 @@
 import { Effect } from 'effect';
-import { ContractRepository, NotFoundError } from '../../ports/case-repository';
+import { ContractRepository } from '../../ports/contract-repository';
+import { NotFoundError } from '../../ports/case-repository';
 import { ValidationError } from '@dykstra/domain';
 
 export type ContractStatus =
