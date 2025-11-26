@@ -213,7 +213,7 @@ export default function PhotoGalleryPage({
             type="file"
             multiple
             accept="image/*"
-            onChange={(e) => handleFileSelect(e.target.files)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => handleFileSelect(e.target.files)}
             className="hidden"
             id="file-upload"
           />
@@ -259,7 +259,7 @@ export default function PhotoGalleryPage({
                         type="text"
                         placeholder="Add caption..."
                         value={captions[index] || ''}
-                        onChange={(e) => updateCaption(index, e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => updateCaption(index, e.target.value)}
                         className="w-full px-3 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[--sage]"
                       />
                     </div>

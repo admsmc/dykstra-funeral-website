@@ -159,13 +159,13 @@ export default function ContractTemplatesPage() {
               type="text"
               placeholder="Search templates..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[--navy] focus:border-transparent"
             />
           </div>
           <select
             value={serviceTypeFilter}
-            onChange={(e) => setServiceTypeFilter(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setServiceTypeFilter(e.target.value)}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[--navy] focus:border-transparent"
           >
             {serviceTypes.map((type) => (
@@ -434,7 +434,7 @@ function TemplateForm({
             type="text"
             required
             value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setFormData({ ...formData, name: e.target.value })}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[--navy] focus:border-transparent"
             placeholder="e.g., Standard Traditional Burial Contract"
           />
@@ -446,7 +446,7 @@ function TemplateForm({
           </label>
           <select
             value={formData.serviceType}
-            onChange={(e) => setFormData({ ...formData, serviceType: e.target.value as any })}
+            onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setFormData({ ...formData, serviceType: e.target.value as any })}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[--navy] focus:border-transparent"
           >
             <option value="">Universal (All Types)</option>
@@ -467,7 +467,7 @@ function TemplateForm({
         <input
           type="text"
           value={formData.description}
-          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setFormData({ ...formData, description: e.target.value })}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[--navy] focus:border-transparent"
           placeholder="Brief description of this template"
         />
@@ -482,7 +482,7 @@ function TemplateForm({
           <input
             type="text"
             value={newVariable}
-            onChange={(e) => setNewVariable(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setNewVariable(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addVariable())}
             className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[--navy] focus:border-transparent"
             placeholder="e.g., decedentName, serviceDate, totalAmount"
@@ -542,7 +542,7 @@ function TemplateForm({
           <textarea
             required
             value={formData.content}
-            onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+            onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setFormData({ ...formData, content: e.target.value })}
             rows={16}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[--navy] focus:border-transparent resize-none font-mono text-sm"
             placeholder="Enter contract template content. Use {{variableName}} for variable substitution."
@@ -557,7 +557,7 @@ function TemplateForm({
             type="checkbox"
             id="isDefault"
             checked={formData.isDefault}
-            onChange={(e) => setFormData({ ...formData, isDefault: e.target.checked })}
+            onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setFormData({ ...formData, isDefault: e.target.checked })}
             className="w-4 h-4 text-[--navy] border-gray-300 rounded focus:ring-[--navy]"
           />
           <label htmlFor="isDefault" className="text-sm text-gray-700">

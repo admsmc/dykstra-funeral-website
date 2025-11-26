@@ -160,7 +160,7 @@ export default function ContractSigningPage({
           <input
             type="checkbox"
             checked={consentAccepted}
-            onChange={(e) => setConsentAccepted(e.target.checked)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setConsentAccepted(e.target.checked)}
             className="mt-1 w-5 h-5"
           />
           <span className="text-sm text-[--charcoal]">

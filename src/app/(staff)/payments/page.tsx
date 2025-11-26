@@ -327,7 +327,7 @@ export default function StaffPaymentsPage() {
             </label>
             <select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setStatusFilter(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[--navy] focus:border-transparent"
             >
               <option value="all">All Statuses</option>
@@ -344,7 +344,7 @@ export default function StaffPaymentsPage() {
             </label>
             <select
               value={methodFilter}
-              onChange={(e) => setMethodFilter(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setMethodFilter(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[--navy] focus:border-transparent"
             >
               <option value="all">All Methods</option>

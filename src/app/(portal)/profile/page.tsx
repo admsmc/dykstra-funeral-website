@@ -232,7 +232,7 @@ export default function ProfilePage() {
                     <input
                       type="text"
                       value={name}
-                      onChange={(e) => {
+                      onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
                         setName(e.target.value);
                         setHasPersonalChanges(true);
                       }}
@@ -249,7 +249,7 @@ export default function ProfilePage() {
                     <input
                       type="tel"
                       value={phone}
-                      onChange={(e) => {
+                      onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
                         setPhone(e.target.value);
                         setHasPersonalChanges(true);
                       }}
@@ -348,7 +348,7 @@ export default function ProfilePage() {
                           <input
                             type="checkbox"
                             checked={emailNotifications[item.key]}
-                            onChange={(e) => {
+                            onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
                               setEmailNotifications({
                                 ...emailNotifications,
                                 [item.key]: e.target.checked,
@@ -393,7 +393,7 @@ export default function ProfilePage() {
                           <input
                             type="checkbox"
                             checked={smsNotifications[item.key]}
-                            onChange={(e) => {
+                            onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
                               setSmsNotifications({
                                 ...smsNotifications,
                                 [item.key]: e.target.checked,

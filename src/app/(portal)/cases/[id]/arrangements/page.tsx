@@ -465,7 +465,7 @@ export default function ArrangementsPage() {
               <Input
                 type="date"
                 value={ceremonyDate}
-                onChange={(e) => setCeremonyDate(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setCeremonyDate(e.target.value)}
               />
             </div>
             <div>
@@ -475,7 +475,7 @@ export default function ArrangementsPage() {
               <Input
                 type="time"
                 value={ceremonyTime}
-                onChange={(e) => setCeremonyTime(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setCeremonyTime(e.target.value)}
                 placeholder="HH:MM"
               />
             </div>
@@ -487,7 +487,7 @@ export default function ArrangementsPage() {
             </label>
             <Input
               value={location}
-              onChange={(e) => setLocation(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setLocation(e.target.value)}
               placeholder="e.g., Dykstra Funeral Home Chapel"
             />
           </div>
@@ -498,7 +498,7 @@ export default function ArrangementsPage() {
             </label>
             <Input
               value={officiant}
-              onChange={(e) => setOfficiant(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setOfficiant(e.target.value)}
               placeholder="Name of clergy or officiant"
             />
           </div>
@@ -509,7 +509,7 @@ export default function ArrangementsPage() {
             </label>
             <Textarea
               value={musicSelections}
-              onChange={(e) => setMusicSelections(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setMusicSelections(e.target.value)}
               placeholder="Enter one song per line&#10;e.g., Amazing Grace&#10;e.g., Ave Maria"
               rows={4}
             />
@@ -522,7 +522,7 @@ export default function ArrangementsPage() {
             </label>
             <Textarea
               value={readings}
-              onChange={(e) => setReadings(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setReadings(e.target.value)}
               placeholder="Enter one reading per line&#10;e.g., Psalm 23&#10;e.g., Do Not Stand at My Grave and Weep"
               rows={4}
             />
@@ -535,7 +535,7 @@ export default function ArrangementsPage() {
             </label>
             <Textarea
               value={specialRequests}
-              onChange={(e) => setSpecialRequests(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setSpecialRequests(e.target.value)}
               placeholder="Any special requests or considerations for the service"
               rows={3}
             />
@@ -583,7 +583,7 @@ export default function ArrangementsPage() {
           <div className="space-y-3">
             <Textarea
               value={newNote}
-              onChange={(e) => setNewNote(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setNewNote(e.target.value)}
               placeholder="Add a note or question..."
               rows={3}
             />

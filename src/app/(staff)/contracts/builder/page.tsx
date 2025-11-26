@@ -568,13 +568,13 @@ function ProductServicesStep({
                   type="text"
                   placeholder="Search products..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[--navy] focus:border-transparent"
                 />
               </div>
               <select
                 value={productCategory}
-                onChange={(e) => setProductCategory(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setProductCategory(e.target.value)}
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[--navy] focus:border-transparent"
               >
                 {productCategories.map((cat) => (
@@ -986,7 +986,7 @@ function ReviewGenerateStep({
             ) : (
               <textarea
                 value={state.termsAndConditions}
-                onChange={(e) => updateState({ termsAndConditions: e.target.value })}
+                onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => updateState({ termsAndConditions: e.target.value })}
                 placeholder="Enter contract terms and conditions..."
                 rows={12}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[--navy] focus:border-transparent resize-none font-mono text-sm"

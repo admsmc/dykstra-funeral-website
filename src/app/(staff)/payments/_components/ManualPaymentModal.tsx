@@ -169,12 +169,12 @@ export default function ManualPaymentModal({
               type="text"
               placeholder="Search by decedent name..."
               value={caseSearchQuery}
-              onChange={(e) => setCaseSearchQuery(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setCaseSearchQuery(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[--navy] focus:border-transparent mb-2"
             />
             <select
               value={formData.caseId}
-              onChange={(e) => setFormData({ ...formData, caseId: e.target.value })}
+              onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setFormData({ ...formData, caseId: e.target.value })}
               className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[--navy] focus:border-transparent ${
                 errors.caseId ? "border-red-500" : "border-gray-300"
               }`}

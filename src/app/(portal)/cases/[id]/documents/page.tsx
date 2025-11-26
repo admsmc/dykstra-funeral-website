@@ -470,7 +470,7 @@ export default function DocumentsPage() {
                 <input
                   type="text"
                   value={uploadDocumentName}
-                  onChange={(e) => setUploadDocumentName(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setUploadDocumentName(e.target.value)}
                   placeholder="e.g., Death Certificate - Official Copy"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[--navy] focus:border-transparent"
                 />
@@ -483,7 +483,7 @@ export default function DocumentsPage() {
                 </label>
                 <select
                   value={uploadDocumentType}
-                  onChange={(e) => setUploadDocumentType(e.target.value as DocumentType)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setUploadDocumentType(e.target.value as DocumentType)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[--navy] focus:border-transparent"
                 >
                   {DOCUMENT_TYPE_ORDER.map((type) => (

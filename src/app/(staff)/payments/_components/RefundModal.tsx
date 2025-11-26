@@ -240,7 +240,7 @@ export default function RefundModal({
             </label>
             <select
               value={formData.reason}
-              onChange={(e) => handleReasonChange(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => handleReasonChange(e.target.value)}
               className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${
                 errors.reason ? "border-red-500" : "border-gray-300"
               }`}

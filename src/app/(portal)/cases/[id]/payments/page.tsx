@@ -418,7 +418,7 @@ export default function PaymentsPage() {
                             <input
                               type="number"
                               value={cardAmount}
-                              onChange={(e) => setCardAmount(e.target.value)}
+                              onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setCardAmount(e.target.value)}
                               placeholder="0.00"
                               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[--navy]"
                             />
@@ -513,7 +513,7 @@ export default function PaymentsPage() {
                         <input
                           type="number"
                           value={achAmount}
-                          onChange={(e) => setAchAmount(e.target.value)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setAchAmount(e.target.value)}
                           placeholder="0.00"
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[--navy]"
                         />
@@ -526,7 +526,7 @@ export default function PaymentsPage() {
                         <input
                           type="text"
                           value={accountHolderName}
-                          onChange={(e) => setAccountHolderName(e.target.value)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setAccountHolderName(e.target.value)}
                           placeholder="John Doe"
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[--navy]"
                         />
@@ -539,7 +539,7 @@ export default function PaymentsPage() {
                         <input
                           type="text"
                           value={routingNumber}
-                          onChange={(e) => setRoutingNumber(e.target.value)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setRoutingNumber(e.target.value)}
                           placeholder="123456789"
                           maxLength={9}
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[--navy]"
@@ -553,7 +553,7 @@ export default function PaymentsPage() {
                         <input
                           type="text"
                           value={accountNumber}
-                          onChange={(e) => setAccountNumber(e.target.value)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setAccountNumber(e.target.value)}
                           placeholder="1234567890"
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[--navy]"
                         />
@@ -602,7 +602,7 @@ export default function PaymentsPage() {
                         <input
                           type="number"
                           value={planTotalAmount}
-                          onChange={(e) => setPlanTotalAmount(e.target.value)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setPlanTotalAmount(e.target.value)}
                           placeholder="10000.00"
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[--navy]"
                         />
@@ -615,7 +615,7 @@ export default function PaymentsPage() {
                         <input
                           type="number"
                           value={planDownPayment}
-                          onChange={(e) => setPlanDownPayment(e.target.value)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setPlanDownPayment(e.target.value)}
                           placeholder="2000.00"
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[--navy]"
                         />
@@ -627,7 +627,7 @@ export default function PaymentsPage() {
                         </label>
                         <select
                           value={planInstallments}
-                          onChange={(e) => setPlanInstallments(e.target.value)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setPlanInstallments(e.target.value)}
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[--navy]"
                         >
                           <option value="6">6 months</option>
@@ -660,7 +660,7 @@ export default function PaymentsPage() {
                         <input
                           type="date"
                           value={planStartDate}
-                          onChange={(e) => setPlanStartDate(e.target.value)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setPlanStartDate(e.target.value)}
                           min={new Date().toISOString().split("T")[0]}
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[--navy]"
                         />
@@ -693,7 +693,7 @@ export default function PaymentsPage() {
                         <input
                           type="text"
                           value={insuranceCompany}
-                          onChange={(e) => setInsuranceCompany(e.target.value)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setInsuranceCompany(e.target.value)}
                           placeholder="State Farm, Allstate, etc."
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[--navy]"
                         />
@@ -706,7 +706,7 @@ export default function PaymentsPage() {
                         <input
                           type="text"
                           value={policyNumber}
-                          onChange={(e) => setPolicyNumber(e.target.value)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setPolicyNumber(e.target.value)}
                           placeholder="ABC123456789"
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[--navy]"
                         />
@@ -719,7 +719,7 @@ export default function PaymentsPage() {
                         <input
                           type="text"
                           value={policyHolderName}
-                          onChange={(e) => setPolicyHolderName(e.target.value)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setPolicyHolderName(e.target.value)}
                           placeholder="John Doe"
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[--navy]"
                         />
@@ -732,7 +732,7 @@ export default function PaymentsPage() {
                         <input
                           type="number"
                           value={assignedAmount}
-                          onChange={(e) => setAssignedAmount(e.target.value)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setAssignedAmount(e.target.value)}
                           placeholder="10000.00"
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[--navy]"
                         />
@@ -745,7 +745,7 @@ export default function PaymentsPage() {
                         <input
                           type="text"
                           value={claimNumber}
-                          onChange={(e) => setClaimNumber(e.target.value)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setClaimNumber(e.target.value)}
                           placeholder="CLM-2024-001"
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[--navy]"
                         />
@@ -757,7 +757,7 @@ export default function PaymentsPage() {
                         </label>
                         <textarea
                           value={insuranceNotes}
-                          onChange={(e) => setInsuranceNotes(e.target.value)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setInsuranceNotes(e.target.value)}
                           placeholder="Additional information..."
                           rows={3}
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[--navy]"

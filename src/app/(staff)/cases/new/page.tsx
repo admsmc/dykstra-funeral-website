@@ -133,7 +133,7 @@ export default function NewCasePage() {
             type="text"
             id="decedentName"
             value={formData.decedentName}
-            onChange={(e) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
               setFormData({ ...formData, decedentName: e.target.value });
               setErrors({ ...errors, decedentName: "" });
             }}

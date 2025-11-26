@@ -418,7 +418,7 @@ export default function MemorialPage() {
                     </label>
                     <Input
                       value={tributeForm.name}
-                      onChange={(e) => setTributeForm({ ...tributeForm, name: e.target.value })}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setTributeForm({ ...tributeForm, name: e.target.value })}
                       required
                     />
                   </div>
@@ -429,7 +429,7 @@ export default function MemorialPage() {
                     <Input
                       type="email"
                       value={tributeForm.email}
-                      onChange={(e) => setTributeForm({ ...tributeForm, email: e.target.value })}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setTributeForm({ ...tributeForm, email: e.target.value })}
                     />
                   </div>
                   <div>
@@ -438,7 +438,7 @@ export default function MemorialPage() {
                     </label>
                     <Textarea
                       value={tributeForm.message}
-                      onChange={(e) => setTributeForm({ ...tributeForm, message: e.target.value })}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setTributeForm({ ...tributeForm, message: e.target.value })}
                       rows={5}
                       required
                       maxLength={5000}
@@ -493,7 +493,7 @@ export default function MemorialPage() {
                     </label>
                     <Input
                       value={guestbookForm.name}
-                      onChange={(e) => setGuestbookForm({ ...guestbookForm, name: e.target.value })}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setGuestbookForm({ ...guestbookForm, name: e.target.value })}
                       required
                     />
                   </div>
@@ -504,7 +504,7 @@ export default function MemorialPage() {
                     <Input
                       type="email"
                       value={guestbookForm.email}
-                      onChange={(e) => setGuestbookForm({ ...guestbookForm, email: e.target.value })}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setGuestbookForm({ ...guestbookForm, email: e.target.value })}
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
@@ -514,7 +514,7 @@ export default function MemorialPage() {
                       </label>
                       <Input
                         value={guestbookForm.city}
-                        onChange={(e) => setGuestbookForm({ ...guestbookForm, city: e.target.value })}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setGuestbookForm({ ...guestbookForm, city: e.target.value })}
                       />
                     </div>
                     <div>
@@ -523,7 +523,7 @@ export default function MemorialPage() {
                       </label>
                       <select
                         value={guestbookForm.state}
-                        onChange={(e) => setGuestbookForm({ ...guestbookForm, state: e.target.value })}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setGuestbookForm({ ...guestbookForm, state: e.target.value })}
                         className="w-full px-3 py-2 border border-[--sage] rounded-md"
                       >
                         <option value="">Select</option>
@@ -541,7 +541,7 @@ export default function MemorialPage() {
                     </label>
                     <Textarea
                       value={guestbookForm.message}
-                      onChange={(e) => setGuestbookForm({ ...guestbookForm, message: e.target.value })}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setGuestbookForm({ ...guestbookForm, message: e.target.value })}
                       rows={4}
                       required
                       maxLength={2000}

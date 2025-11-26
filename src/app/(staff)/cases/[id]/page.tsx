@@ -424,7 +424,7 @@ function InternalNotesTab({ caseId }: { caseId: string }) {
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-3">
           <textarea
             value={noteContent}
-            onChange={(e) => setNoteContent(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setNoteContent(e.target.value)}
             placeholder="Write your note here... (staff only)"
             rows={4}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[--navy] focus:border-transparent resize-none"
@@ -768,7 +768,7 @@ function InvitationForm({ caseId, caseData, onSuccess, onCancel }: {
             type="text"
             required
             value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setFormData({ ...formData, name: e.target.value })}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[--navy] focus:border-transparent"
             placeholder="John Doe"
           />
@@ -782,7 +782,7 @@ function InvitationForm({ caseId, caseData, onSuccess, onCancel }: {
             type="email"
             required
             value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setFormData({ ...formData, email: e.target.value })}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[--navy] focus:border-transparent"
             placeholder="john@example.com"
           />
@@ -795,7 +795,7 @@ function InvitationForm({ caseId, caseData, onSuccess, onCancel }: {
           <input
             type="tel"
             value={formData.phone}
-            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+            onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setFormData({ ...formData, phone: e.target.value })}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[--navy] focus:border-transparent"
             placeholder="(555) 123-4567"
           />
@@ -808,7 +808,7 @@ function InvitationForm({ caseId, caseData, onSuccess, onCancel }: {
           <input
             type="text"
             value={formData.relationship}
-            onChange={(e) => setFormData({ ...formData, relationship: e.target.value })}
+            onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setFormData({ ...formData, relationship: e.target.value })}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[--navy] focus:border-transparent"
             placeholder="Son, Daughter, Spouse, etc."
           />
@@ -820,7 +820,7 @@ function InvitationForm({ caseId, caseData, onSuccess, onCancel }: {
           </label>
           <select
             value={formData.role}
-            onChange={(e) => setFormData({ ...formData, role: e.target.value as any })}
+            onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setFormData({ ...formData, role: e.target.value as any })}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[--navy] focus:border-transparent"
           >
             <option value="FAMILY_MEMBER">Family Member</option>

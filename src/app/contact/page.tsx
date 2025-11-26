@@ -108,7 +108,7 @@ export default function Contact() {
                     required
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[--sage] focus:border-transparent"
                     value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setFormData({ ...formData, name: e.target.value })}
                   />
                 </div>
 
@@ -122,7 +122,7 @@ export default function Contact() {
                     required
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[--sage] focus:border-transparent"
                     value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setFormData({ ...formData, email: e.target.value })}
                   />
                 </div>
 
@@ -135,7 +135,7 @@ export default function Contact() {
                     id="phone"
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[--sage] focus:border-transparent"
                     value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setFormData({ ...formData, phone: e.target.value })}
                   />
                 </div>
 
@@ -149,7 +149,7 @@ export default function Contact() {
                     rows={5}
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[--sage] focus:border-transparent"
                     value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setFormData({ ...formData, message: e.target.value })}
                   />
                 </div>
 

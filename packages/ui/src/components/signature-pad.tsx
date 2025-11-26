@@ -2,6 +2,13 @@ import * as React from 'react';
 import { cn } from '../lib/utils';
 import { Button } from './button';
 
+// Export type for imperative handle (declare before use)
+export interface SignaturePadRef {
+  clear: () => void;
+  isEmpty: () => boolean;
+  toDataURL: () => string | null;
+}
+
 export interface SignaturePadProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
   onChange?: (signature: string | null) => void;
@@ -13,7 +20,7 @@ export interface SignaturePadProps
   disabled?: boolean;
 }
 
-export const SignaturePad = React.forwardRef<HTMLDivElement, SignaturePadProps>(
+export const SignaturePad = React.forwardRef<SignaturePadRef, SignaturePadProps>(
   (
     {
       className,
@@ -162,7 +169,7 @@ export const SignaturePad = React.forwardRef<HTMLDivElement, SignaturePadProps>(
     }));
 
     return (
-      <div ref={ref} className={cn('space-y-3', className)} {...props}>
+      <div className={cn('space-y-3', className)} {...props}>
         {/* Canvas container */}
         <div
           className={cn(
@@ -221,10 +228,3 @@ export const SignaturePad = React.forwardRef<HTMLDivElement, SignaturePadProps>(
 );
 
 SignaturePad.displayName = 'SignaturePad';
-
-// Export type for imperative handle
-export interface SignaturePadRef {
-  clear: () => void;
-  isEmpty: () => boolean;
-  toDataURL: () => string | null;
-}

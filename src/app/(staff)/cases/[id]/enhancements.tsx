@@ -143,20 +143,20 @@ export function EnhancedOverviewTab({ caseData }: { caseData: any }) {
               type="text"
               placeholder="Task title *"
               value={taskForm.title}
-              onChange={(e) => setTaskForm({ ...taskForm, title: e.target.value })}
+              onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setTaskForm({ ...taskForm, title: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"
             />
             <textarea
               placeholder="Description (optional)"
               value={taskForm.description}
-              onChange={(e) => setTaskForm({ ...taskForm, description: e.target.value })}
+              onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setTaskForm({ ...taskForm, description: e.target.value })}
               rows={2}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg resize-none"
             />
             <div className="grid grid-cols-2 gap-3">
               <select
                 value={taskForm.assignedTo}
-                onChange={(e) => setTaskForm({ ...taskForm, assignedTo: e.target.value })}
+                onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setTaskForm({ ...taskForm, assignedTo: e.target.value })}
                 className="px-3 py-2 border border-gray-300 rounded-lg"
               >
                 <option value="">Assign to...</option>
@@ -169,7 +169,7 @@ export function EnhancedOverviewTab({ caseData }: { caseData: any }) {
               <input
                 type="date"
                 value={taskForm.dueDate}
-                onChange={(e) => setTaskForm({ ...taskForm, dueDate: e.target.value })}
+                onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setTaskForm({ ...taskForm, dueDate: e.target.value })}
                 className="px-3 py-2 border border-gray-300 rounded-lg"
               />
             </div>
@@ -276,7 +276,7 @@ function StaffAssignmentSection({ caseId, staffMembers }: { caseId: string; staf
           <div className="mt-2 flex gap-2">
             <select
               value={selectedStaff}
-              onChange={(e) => setSelectedStaff(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setSelectedStaff(e.target.value)}
               className="flex-1 px-3 py-2 border border-gray-300 rounded-lg"
             >
               <option value="">Select director...</option>
@@ -414,7 +414,7 @@ export function StatusTransitionDropdown({ caseData, onSuccess }: { caseData: an
   return (
     <select
       value=""
-      onChange={(e) => e.target.value && handleStatusChange(e.target.value)}
+      onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => e.target.value && handleStatusChange(e.target.value)}
       disabled={updateStatusMutation.isLoading}
       className="px-3 py-2 border border-gray-300 text-gray-700 text-sm rounded-lg hover:bg-gray-50 transition disabled:opacity-50"
     >

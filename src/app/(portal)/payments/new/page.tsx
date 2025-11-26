@@ -92,7 +92,7 @@ function PaymentFormContent() {
               type="number"
               id="amount"
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setAmount(e.target.value)}
               placeholder="0.00"
               step="0.01"
               min="0"
@@ -169,7 +169,7 @@ function PaymentFormContent() {
           <h2 className="text-2xl font-serif text-[--navy] mb-4">Notes (Optional)</h2>
           <textarea
             value={notes}
-            onChange={(e) => setNotes(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setNotes(e.target.value)}
             placeholder="Add any notes about this payment..."
             rows={3}
             className="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[--sage]"
