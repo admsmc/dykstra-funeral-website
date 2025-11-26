@@ -3,6 +3,7 @@
 import { trpc } from "@/lib/trpc-client";
 import Link from "next/link";
 import { useState, useMemo } from "react";
+import ManualPaymentModal from "./_components/ManualPaymentModal";
 import {
   useReactTable,
   getCoreRowModel,
@@ -36,6 +37,7 @@ export default function StaffPaymentsPage() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [methodFilter, setMethodFilter] = useState<string>("all");
+  const [isManualPaymentModalOpen, setIsManualPaymentModalOpen] = useState(false);
 
   // Fetch payment statistics
   const { data: stats, isLoading: statsLoading } = trpc.payment.getStats.useQuery({
@@ -43,7 +45,7 @@ export default function StaffPaymentsPage() {
   });
 
   // Fetch payment list
-  const { data: paymentsData, isLoading: paymentsLoading } = trpc.payment.list.useQuery({
+  const { data: paymentsData, isLoading: paymentsLoading, refetch: refetchPayments } = trpc.payment.list.useQuery({
     funeralHomeId: undefined,
     status: statusFilter !== "all" ? (statusFilter as any) : undefined,
     method: methodFilter !== "all" ? (methodFilter as any) : undefined,
@@ -243,7 +245,7 @@ export default function StaffPaymentsPage() {
         </div>
         <button
           className="inline-flex items-center gap-2 px-4 py-2 bg-[--navy] text-white rounded-lg hover:bg-opacity-90 transition"
-          onClick={() => alert("Record manual payment")}
+          onClick={() => setIsManualPaymentModalOpen(true)}
         >
           <Plus className="w-4 h-4" />
           Record Payment
@@ -397,6 +399,16 @@ export default function StaffPaymentsPage() {
           </div>
         )}
       </div>
+
+      {/* Manual Payment Modal */}
+      <ManualPaymentModal
+        isOpen={isManualPaymentModalOpen}
+        onClose={() => setIsManualPaymentModalOpen(false)}
+        onSuccess={() => {
+          refetchPayments();
+          // Could also show success toast here
+        }}
+      />
     </div>
   );
 }
