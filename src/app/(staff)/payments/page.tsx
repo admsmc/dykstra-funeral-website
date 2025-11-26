@@ -6,6 +6,7 @@ import { useState, useMemo } from "react";
 import ManualPaymentModal from "./_components/ManualPaymentModal";
 import RefundModal from "./_components/RefundModal";
 import FinancialReportsTab from "./_components/FinancialReportsTab";
+import PaymentPlanTab from "./_components/PaymentPlanTab";
 import {
   useReactTable,
   getCoreRowModel,
@@ -41,7 +42,7 @@ export default function StaffPaymentsPage() {
   const [methodFilter, setMethodFilter] = useState<string>("all");
   const [isManualPaymentModalOpen, setIsManualPaymentModalOpen] = useState(false);
   const [refundPayment, setRefundPayment] = useState<PaymentRow | null>(null);
-  const [activeTab, setActiveTab] = useState<"payments" | "reports">("payments");
+  const [activeTab, setActiveTab] = useState<"payments" | "reports" | "plans">("payments");
 
   // Fetch payment statistics
   const { data: stats, isLoading: statsLoading } = trpc.payment.getStats.useQuery({
@@ -279,6 +280,16 @@ export default function StaffPaymentsPage() {
           >
             Financial Reports
           </button>
+          <button
+            onClick={() => setActiveTab("plans")}
+            className={`py-4 px-1 border-b-2 font-medium text-sm transition ${
+              activeTab === "plans"
+                ? "border-[--navy] text-[--navy]"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            }`}
+          >
+            Payment Plans
+          </button>
         </nav>
       </div>
 
@@ -433,8 +444,10 @@ export default function StaffPaymentsPage() {
         )}
       </div>
         </>
-      ) : (
+      ) : activeTab === "reports" ? (
         <FinancialReportsTab />
+      ) : (
+        <PaymentPlanTab />
       )}
 
       {/* Manual Payment Modal */}
