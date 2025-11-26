@@ -14,6 +14,7 @@ export * from './ports/insurance-port';
 export * from './ports/payment-plan-port';
 export * from './ports/user-port';
 export * from './ports/invitation-repository';
+export * from './ports/note-repository';
 
 // Commands
 export * from './commands/create-case';
@@ -47,3 +48,10 @@ export * from './use-cases/invitations/list-invitations';
 export * from './use-cases/invitations/resend-invitation';
 export * from './use-cases/invitations/revoke-invitation';
 export * from './use-cases/invitations/get-invitation-history';
+
+// Note use cases
+export * from './use-cases/notes/list-notes';
+export * from './use-cases/notes/get-note-history';
+export * from './use-cases/notes/create-note';
+export * from './use-cases/notes/update-note';
+export * from './use-cases/notes/delete-note';

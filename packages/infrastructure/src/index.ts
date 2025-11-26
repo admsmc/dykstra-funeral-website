@@ -7,6 +7,7 @@ export * from './database/prisma-photo-repository';
 export * from './database/prisma-tribute-repository';
 export * from './database/prisma-guestbook-repository';
 export * from './database/prisma-invitation-repository';
+export * from './database/prisma-note-repository';
 
 // Events
 export * from './events/console-event-publisher';
@@ -31,6 +32,7 @@ import { PrismaPhotoRepository } from './database/prisma-photo-repository';
 import { PrismaTributeRepository } from './database/prisma-tribute-repository';
 import { PrismaGuestbookRepository } from './database/prisma-guestbook-repository';
 import { PrismaInvitationRepository } from './database/prisma-invitation-repository';
+import { PrismaNoteRepository } from './database/prisma-note-repository';
 import { StorageAdapterLive } from './storage/storage-adapter';
 import { createS3StorageAdapter } from './adapters/storage/s3-storage-adapter';
 import {
@@ -41,6 +43,7 @@ import {
   TributeRepository,
   GuestbookRepository,
   InvitationRepository,
+  NoteRepository,
   StoragePort,
 } from '@dykstra/application';
 import { StripeAdapterLive } from './payment/stripe-adapter';
@@ -81,6 +84,7 @@ export const InfrastructureLayer = Layer.mergeAll(
   Layer.succeed(TributeRepository, PrismaTributeRepository),
   Layer.succeed(GuestbookRepository, PrismaGuestbookRepository),
   Layer.succeed(InvitationRepository, PrismaInvitationRepository),
+  Layer.succeed(NoteRepository, PrismaNoteRepository),
   
   // External service adapters
   getStorageLayer(),

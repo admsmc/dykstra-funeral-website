@@ -1,6 +1,13 @@
 import { z } from 'zod';
 import { router, staffProcedure } from '../trpc';
-import { TRPCError } from '@trpc/server';
+import { runEffect } from '../utils/effect-runner';
+import {
+  listNotes,
+  getNoteHistory,
+  createNote,
+  updateNote,
+  deleteNote,
+} from '@dykstra/application';
 
 /**
  * Internal Notes Router
@@ -20,39 +27,11 @@ export const noteRouter = router({
    */
   listByCaseId: staffProcedure
     .input(z.object({ caseId: z.string() }))
-    .query(async ({ input, ctx }) => {
-      const { prisma } = ctx;
-
-      const notes = await prisma.internalNote.findMany({
-        where: {
-          caseId: input.caseId,
-          isCurrent: true, // Only current versions
-        },
-        include: {
-          creator: {
-            select: {
-              name: true,
-              email: true,
-            },
-          },
-        },
-        orderBy: {
-          createdAt: 'desc',
-        },
-      });
-
-      return notes.map((note: any) => ({
-        id: note.id,
-        businessKey: note.businessKey,
-        version: note.version,
-        content: note.content,
-        createdBy: {
-          name: note.creator.name,
-          email: note.creator.email,
-        },
-        createdAt: note.createdAt,
-        updatedAt: note.updatedAt,
-      }));
+    .query(async ({ input }) => {
+      const result = await runEffect(
+        listNotes({ caseId: input.caseId })
+      );
+      return result.notes;
     }),
 
   /**
@@ -60,34 +39,11 @@ export const noteRouter = router({
    */
   getHistory: staffProcedure
     .input(z.object({ businessKey: z.string() }))
-    .query(async ({ input, ctx }) => {
-      const { prisma } = ctx;
-
-      const history = await prisma.internalNote.findMany({
-        where: {
-          businessKey: input.businessKey,
-        },
-        include: {
-          creator: {
-            select: {
-              name: true,
-            },
-          },
-        },
-        orderBy: {
-          version: 'desc',
-        },
-      });
-
-      return history.map((note: any) => ({
-        id: note.id,
-        version: note.version,
-        content: note.content,
-        createdBy: note.creator.name,
-        validFrom: note.validFrom,
-        validTo: note.validTo,
-        isCurrent: note.isCurrent,
-      }));
+    .query(async ({ input }) => {
+      const result = await runEffect(
+        getNoteHistory({ businessKey: input.businessKey })
+      );
+      return result.history;
     }),
 
   /**
@@ -101,42 +57,13 @@ export const noteRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const { prisma } = ctx;
-
-      // Generate unique businessKey
-      const businessKey = `note-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-
-      const note = await prisma.internalNote.create({
-        data: {
-          businessKey,
-          version: 1,
+      return await runEffect(
+        createNote({
           caseId: input.caseId,
           content: input.content,
           createdBy: ctx.user.id,
-          isCurrent: true,
-          validFrom: new Date(),
-        },
-        include: {
-          creator: {
-            select: {
-              name: true,
-              email: true,
-            },
-          },
-        },
-      });
-
-      return {
-        id: note.id,
-        businessKey: note.businessKey,
-        version: note.version,
-        content: note.content,
-        createdBy: {
-          name: note.creator.name,
-          email: note.creator.email,
-        },
-        createdAt: note.createdAt,
-      };
+        })
+      );
     }),
 
   /**
@@ -150,68 +77,13 @@ export const noteRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const { prisma } = ctx;
-
-      return await prisma.$transaction(async (tx: typeof prisma) => {
-        // 1. Find current version
-        const currentNote = await tx.internalNote.findFirst({
-          where: {
-            businessKey: input.businessKey,
-            isCurrent: true,
-          },
-        });
-
-        if (!currentNote) {
-          throw new TRPCError({
-            code: 'NOT_FOUND',
-            message: 'Note not found or already deleted',
-          });
-        }
-
-        // 2. Close current version (SCD2 temporal closure)
-        const now = new Date();
-        await tx.internalNote.update({
-          where: { id: currentNote.id },
-          data: {
-            isCurrent: false,
-            validTo: now,
-          },
-        });
-
-        // 3. Create new version
-        const newNote = await tx.internalNote.create({
-          data: {
-            businessKey: input.businessKey,
-            version: currentNote.version + 1,
-            caseId: currentNote.caseId,
-            content: input.content,
-            createdBy: ctx.user.id,
-            createdAt: currentNote.createdAt, // Preserve original creation time
-            isCurrent: true,
-            validFrom: now,
-          },
-          include: {
-            creator: {
-              select: {
-                name: true,
-                email: true,
-              },
-            },
-          },
-        });
-
-        return {
-          id: newNote.id,
-          businessKey: newNote.businessKey,
-          version: newNote.version,
-          content: newNote.content,
-          createdBy: {
-            name: newNote.creator.name,
-            email: newNote.creator.email,
-          },
-          updatedAt: newNote.updatedAt,
-        };
-      });
+      return await runEffect(
+        updateNote({
+          businessKey: input.businessKey,
+          content: input.content,
+          updatedBy: ctx.user.id,
+        })
+      );
     }),
 
   /**
@@ -220,35 +92,9 @@ export const noteRouter = router({
    */
   delete: staffProcedure
     .input(z.object({ businessKey: z.string() }))
-    .mutation(async ({ input, ctx }) => {
-      const { prisma } = ctx;
-
-      return await prisma.$transaction(async (tx: typeof prisma) => {
-        // Find current version
-        const currentNote = await tx.internalNote.findFirst({
-          where: {
-            businessKey: input.businessKey,
-            isCurrent: true,
-          },
-        });
-
-        if (!currentNote) {
-          throw new TRPCError({
-            code: 'NOT_FOUND',
-            message: 'Note not found or already deleted',
-          });
-        }
-
-        // Soft delete: mark as not current and set validTo
-        await tx.internalNote.update({
-          where: { id: currentNote.id },
-          data: {
-            isCurrent: false,
-            validTo: new Date(),
-          },
-        });
-
-        return { success: true };
-      });
+    .mutation(async ({ input }) => {
+      return await runEffect(
+        deleteNote({ businessKey: input.businessKey })
+      );
     }),
 });
