@@ -1,12 +1,12 @@
 import { Effect } from 'effect';
 import { PrismaClient } from '@prisma/client';
-import {
+import type {
   ContractTemplateRepository,
   ContractTemplate,
   ContractTemplateWithCreator,
   TemplateNotFoundError,
-} from '@dykstra/application/ports/contract-template-repository';
-import { CatalogServiceType } from '@dykstra/application/ports/catalog-repository';
+  CatalogServiceType,
+} from '@dykstra/application';
 
 export class PrismaContractTemplateRepository implements ContractTemplateRepository {
   constructor(private prisma: PrismaClient) {}

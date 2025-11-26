@@ -1,8 +1,7 @@
 import { Effect } from 'effect';
-import { CaseRepository, NotFoundError } from '../../ports/case-repository';
-import { ValidationError } from '@dykstra/domain';
-
-export type CaseStatus = 'INQUIRY' | 'ACTIVE' | 'COMPLETED' | 'ARCHIVED';
+import { CaseRepository, NotFoundError, PersistenceError } from '../../ports/case-repository';
+import type { CaseStatus } from '@dykstra/shared';
+import { InvalidStateTransitionError } from '@dykstra/domain';
 
 export interface UpdateCaseStatusCommand {
   businessKey: string;
@@ -17,16 +16,6 @@ export interface UpdateCaseStatusResult {
 }
 
 /**
- * Valid status transitions
- */
-const VALID_TRANSITIONS: Record<string, string[]> = {
-  INQUIRY: ['ACTIVE', 'ARCHIVED'],
-  ACTIVE: ['COMPLETED', 'ARCHIVED'],
-  COMPLETED: ['ARCHIVED'],
-  ARCHIVED: [], // Cannot transition from archived
-};
-
-/**
  * Update case status with validation
  * Uses SCD2 pattern to create new version
  */
@@ -34,7 +23,7 @@ export const updateCaseStatus = (
   command: UpdateCaseStatusCommand
 ): Effect.Effect<
   UpdateCaseStatusResult,
-  ValidationError | NotFoundError,
+  InvalidStateTransitionError | NotFoundError | PersistenceError,
   CaseRepository
 > =>
   Effect.gen(function* () {
@@ -53,23 +42,10 @@ export const updateCaseStatus = (
       );
     }
 
-    // Validate status transition
-    const allowedNextStatuses = VALID_TRANSITIONS[currentCase.status] || [];
-    if (!allowedNextStatuses.includes(command.newStatus)) {
-      return yield* Effect.fail(
-        new ValidationError({
-          message: `Cannot transition from ${currentCase.status} to ${command.newStatus}`,
-          field: 'status'
-        })
-      );
-    }
+    // Use Case domain entity's transitionStatus method for validation
+    const updatedCase = yield* currentCase.transitionStatus(command.newStatus);
 
-    // Create new version with updated status
-    const updatedCase = {
-      ...currentCase,
-      status: command.newStatus,
-    };
-
+    // Save the new version (SCD2 pattern)
     const newCase = yield* caseRepo.update(updatedCase);
 
     return {

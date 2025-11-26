@@ -1,13 +1,13 @@
 import { Effect } from 'effect';
 import { PrismaClient } from '@prisma/client';
-import {
+import type {
   ProductCatalogRepository,
   ServiceCatalogRepository,
   Product,
   Service,
   ProductCategory,
   CatalogServiceType,
-} from '@dykstra/application/ports/catalog-repository';
+} from '@dykstra/application';
 
 export class PrismaProductCatalogRepository implements ProductCatalogRepository {
   constructor(private prisma: PrismaClient) {}

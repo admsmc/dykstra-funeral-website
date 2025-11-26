@@ -56,12 +56,12 @@ import {
   NoteRepository,
   TaskRepository,
   AuditLogRepository,
+  StaffRepository,
   ProductCatalogRepository,
   ServiceCatalogRepository,
   ContractTemplateRepository,
   StoragePort,
 } from '@dykstra/application';
-import { StaffRepository } from '@dykstra/application/use-cases/staff/list-staff-members';
 import { StripeAdapterLive } from './payment/stripe-adapter';
 import { SignatureAdapterLive } from './signature/signature-adapter';
 import { EmailAdapterLive } from './email/email-adapter';

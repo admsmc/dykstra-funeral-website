@@ -192,6 +192,53 @@ export const PrismaContractRepository: ContractRepository = {
     }),
   
   /**
+   * Find current version of contract by business key (string identifier)
+   * Convenience method for when you only have the business key string
+   */
+  findByBusinessKey: (businessKey: string) =>
+    Effect.tryPromise({
+      try: async () => {
+        const prismaContract = await prisma.contract.findFirst({
+          where: {
+            businessKey,
+            isCurrent: true,                        // Only current version
+          },
+        });
+
+        if (!prismaContract) {
+          return null;
+        }
+
+        return toDomain(prismaContract);
+      },
+      catch: (error) => new PersistenceError('Failed to find contract by business key', error),
+    }),
+  
+  /**
+   * Find current version of contract by case
+   * Returns only one contract per case (the current/active one)
+   */
+  findCurrentByCase: (caseId: string) =>
+    Effect.tryPromise({
+      try: async () => {
+        const prismaContract = await prisma.contract.findFirst({
+          where: {
+            caseId,
+            isCurrent: true,                        // Only current version
+          },
+          orderBy: { createdAt: 'desc' },            // Get most recent if multiple
+        });
+
+        if (!prismaContract) {
+          return null;
+        }
+
+        return toDomain(prismaContract);
+      },
+      catch: (error) => new PersistenceError('Failed to find current contract by case', error),
+    }),
+  
+  /**
    * Save contract - SCD Type 2 implementation
    * Creates new version instead of updating existing
    */
@@ -227,6 +274,29 @@ export const PrismaContractRepository: ContractRepository = {
         }
       },
       catch: (error) => new PersistenceError('Failed to save contract', error),
+    }),
+  
+  /**
+   * Create new contract - convenience method
+   */
+  create: (contract: Contract) =>
+    Effect.gen(function* () {
+      // Use save for creation (version 1)
+      yield* PrismaContractRepository.save(contract);
+      // Return the created contract
+      return contract;
+    }),
+  
+  /**
+   * Update contract - convenience method that wraps save for SCD2 updates
+   * Creates new version of existing contract
+   */
+  update: (contract: Contract) =>
+    Effect.gen(function* () {
+      // Save creates a new version (SCD2 pattern)
+      yield* PrismaContractRepository.save(contract);
+      // Return the updated contract
+      return contract;
     }),
   
   /**

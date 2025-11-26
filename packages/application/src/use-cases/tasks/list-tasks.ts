@@ -1,5 +1,5 @@
 import { Effect } from 'effect';
-import { TaskRepository, TaskWithUsers } from '../../ports/task-repository';
+import { TaskRepository } from '../../ports/task-repository';
 
 export interface ListTasksQuery {
   caseId: string;

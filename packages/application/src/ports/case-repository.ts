@@ -71,6 +71,14 @@ export interface CaseRepository {
   ) => Effect.Effect<readonly Case[], PersistenceError>;
   
   /**
+   * Find current version of case by business key (string identifier)
+   * Convenience method for when you only have the business key string
+   */
+  readonly findByBusinessKey: (
+    businessKey: string
+  ) => Effect.Effect<Case | null, PersistenceError>;
+  
+  /**
    * Save case - creates new version (SCD2)
    * This operation:
    * 1. Closes the current version (sets validTo, isCurrent=false)
@@ -78,6 +86,12 @@ export interface CaseRepository {
    * 3. Never modifies existing versions (immutable history)
    */
   readonly save: (case_: Case) => Effect.Effect<void, PersistenceError>;
+  
+  /**
+   * Update case - convenience method that wraps save for SCD2 updates
+   * Creates new version of existing case
+   */
+  readonly update: (case_: Case) => Effect.Effect<Case, PersistenceError>;
   
   /**
    * Delete case (soft delete by closing all versions)

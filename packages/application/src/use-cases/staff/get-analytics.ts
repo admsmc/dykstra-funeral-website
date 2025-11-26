@@ -1,5 +1,5 @@
 import { Effect } from 'effect';
-import { CaseRepository } from '../../ports/case-repository';
+import { CaseRepository, PersistenceError } from '../../ports/case-repository';
 import { PaymentRepository } from '../../ports/payment-repository';
 
 export interface GetAnalyticsQuery {
@@ -41,7 +41,7 @@ export const getAnalytics = (
   query: GetAnalyticsQuery
 ): Effect.Effect<
   GetAnalyticsResult,
-  never,
+  PersistenceError,
   CaseRepository | PaymentRepository
 > =>
   Effect.gen(function* () {
@@ -76,7 +76,7 @@ export const getAnalytics = (
     // Filter payments by date range and success status
     const paymentsInPeriod = allPayments.filter(
       (p) =>
-        p.status === 'SUCCEEDED' &&
+        p.status === 'succeeded' &&
         p.createdAt >= query.dateFrom &&
         p.createdAt <= query.dateTo
     );
@@ -86,8 +86,8 @@ export const getAnalytics = (
       if (!acc[p.method]) {
         acc[p.method] = { count: 0, total: 0 };
       }
-      acc[p.method].count++;
-      acc[p.method].total += Number(p.amount);
+      acc[p.method]!.count++;
+      acc[p.method]!.total += Number(p.amount);
       return acc;
     }, {} as Record<string, { count: number; total: number }>);
 

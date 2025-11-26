@@ -1,5 +1,5 @@
 import { Effect } from 'effect';
-import { NoteRepository, NoteHistoryVersion } from '../../ports/note-repository';
+import { NoteRepository } from '../../ports/note-repository';
 
 export interface GetNoteHistoryQuery {
   businessKey: string;

@@ -1,5 +1,5 @@
 import { Effect } from 'effect';
-import { ContractRepository } from '../../ports/contract-repository';
+import { ContractRepository, PersistenceError } from '../../ports/contract-repository';
 import { PaymentRepository } from '../../ports/payment-repository';
 
 export interface GetFinancialSummaryQuery {
@@ -19,7 +19,7 @@ export interface GetFinancialSummaryResult {
  */
 export const getFinancialSummary = (
   query: GetFinancialSummaryQuery
-): Effect.Effect<GetFinancialSummaryResult, never, ContractRepository | PaymentRepository> =>
+): Effect.Effect<GetFinancialSummaryResult, PersistenceError, ContractRepository | PaymentRepository> =>
   Effect.gen(function* () {
     const contractRepo = yield* ContractRepository;
     const paymentRepo = yield* PaymentRepository;
@@ -29,7 +29,7 @@ export const getFinancialSummary = (
 
     // Get sum of successful payments
     const payments = yield* paymentRepo.findByCase(query.caseId);
-    const successfulPayments = payments.filter((p) => p.status === 'SUCCEEDED');
+    const successfulPayments = payments.filter((p) => p.status === 'succeeded');
     const paidToDate = successfulPayments.reduce(
       (sum, p) => sum + Number(p.amount),
       0

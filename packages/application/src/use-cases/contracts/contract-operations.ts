@@ -1,14 +1,8 @@
 import { Effect } from 'effect';
-import { ContractRepository } from '../../ports/contract-repository';
+import { ContractRepository, PersistenceError } from '../../ports/contract-repository';
 import { NotFoundError } from '../../ports/case-repository';
-import { ValidationError } from '@dykstra/domain';
-
-export type ContractStatus =
-  | 'DRAFT'
-  | 'PENDING_REVIEW'
-  | 'PENDING_SIGNATURES'
-  | 'FULLY_SIGNED'
-  | 'CANCELLED';
+import { Contract, ValidationError, InvalidStateTransitionError, BusinessRuleViolationError } from '@dykstra/domain';
+import type { ContractStatus } from '@dykstra/shared';
 
 export const createContract = (data: {
   caseId: string;
@@ -19,25 +13,26 @@ export const createContract = (data: {
   tax: number;
   totalAmount: number;
   termsAndConditions: string;
-  status: ContractStatus;
   createdBy: string;
-}): Effect.Effect<any, ValidationError | NotFoundError, ContractRepository> =>
+}): Effect.Effect<Contract, ValidationError | PersistenceError, ContractRepository> =>
   Effect.gen(function* () {
     const contractRepo = yield* ContractRepository;
     const businessKey = `CONTRACT_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`;
+    const id = `contract_${Date.now()}`;
     
-    return yield* contractRepo.create({
+    // Create Contract entity using domain logic
+    const contract = yield* Contract.create({
+      id,
       businessKey,
       caseId: data.caseId,
       services: data.services,
       products: data.products,
-      subtotal: data.subtotal.toString(),
-      tax: data.tax.toString(),
-      totalAmount: data.totalAmount.toString(),
       termsAndConditions: data.termsAndConditions,
-      status: data.status,
       createdBy: data.createdBy,
     });
+    
+    // Persist via repository
+    return yield* contractRepo.create(contract);
   });
 
 export const listContracts = (filters: {
@@ -45,14 +40,15 @@ export const listContracts = (filters: {
   caseId?: string;
   limit?: number;
   cursor?: string;
-}): Effect.Effect<any, never, ContractRepository> =>
+}): Effect.Effect<{ contracts: readonly Contract[]; nextCursor: string | undefined }, PersistenceError, ContractRepository> =>
   Effect.gen(function* () {
     const contractRepo = yield* ContractRepository;
     const contracts = yield* contractRepo.findByCase(filters.caseId || '');
     
-    let filtered = contracts.filter((c) => c.isCurrent);
+    // Contracts from repo are already current versions only
+    let filtered = contracts;
     if (filters.status) {
-      filtered = filtered.filter((c) => c.status === filters.status);
+      filtered = contracts.filter((c) => c.status === filters.status);
     }
     
     const limit = filters.limit || 50;
@@ -69,10 +65,10 @@ export const listContracts = (filters: {
 
 export const getContractDetails = (
   contractId: string
-): Effect.Effect<any, NotFoundError, ContractRepository> =>
+): Effect.Effect<Contract, NotFoundError | PersistenceError, ContractRepository> =>
   Effect.gen(function* () {
     const contractRepo = yield* ContractRepository;
-    const contract = yield* contractRepo.findById(contractId);
+    const contract = yield* contractRepo.findById(contractId as any);
     
     if (!contract) {
       return yield* Effect.fail(new NotFoundError({
@@ -88,7 +84,7 @@ export const getContractDetails = (
 export const updateContractStatus = (data: {
   businessKey: string;
   status: ContractStatus;
-}): Effect.Effect<{ success: true; message: string }, NotFoundError, ContractRepository> =>
+}): Effect.Effect<{ success: true; message: string }, NotFoundError | InvalidStateTransitionError | BusinessRuleViolationError | PersistenceError, ContractRepository> =>
   Effect.gen(function* () {
     const contractRepo = yield* ContractRepository;
     const current = yield* contractRepo.findByBusinessKey(data.businessKey);
@@ -101,10 +97,9 @@ export const updateContractStatus = (data: {
       }));
     }
     
-    yield* contractRepo.update({
-      ...current,
-      status: data.status,
-    });
+    // Use Contract entity's transitionStatus method for validation
+    const updatedContract = yield* current.transitionStatus(data.status);
+    yield* contractRepo.update(updatedContract);
     
     return {
       success: true,

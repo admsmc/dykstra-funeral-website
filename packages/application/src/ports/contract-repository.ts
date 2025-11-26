@@ -38,10 +38,37 @@ export interface ContractRepository {
   ) => Effect.Effect<readonly Contract[], PersistenceError>;
   
   /**
+   * Find current version of contract by business key (string identifier)
+   * Convenience method for when you only have the business key string
+   */
+  readonly findByBusinessKey: (
+    businessKey: string
+  ) => Effect.Effect<Contract | null, PersistenceError>;
+  
+  /**
+   * Find current version of contract by case
+   * Returns only one contract per case (the current/active one)
+   */
+  readonly findCurrentByCase: (
+    caseId: string
+  ) => Effect.Effect<Contract | null, PersistenceError>;
+  
+  /**
    * Save contract - creates new version (SCD2)
    * ESIGN Act: Signed contracts must never be modified (immutable)
    */
   readonly save: (contract: Contract) => Effect.Effect<void, PersistenceError>;
+  
+  /**
+   * Create new contract - convenience method
+   */
+  readonly create: (contract: Contract) => Effect.Effect<Contract, PersistenceError>;
+  
+  /**
+   * Update contract - convenience method that wraps save for SCD2 updates
+   * Creates new version of existing contract
+   */
+  readonly update: (contract: Contract) => Effect.Effect<Contract, PersistenceError>;
   
   /**
    * Delete contract (soft delete by closing current version)

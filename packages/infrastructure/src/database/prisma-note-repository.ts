@@ -1,12 +1,12 @@
 import { Effect } from 'effect';
 import { PrismaClient } from '@prisma/client';
-import {
+import type {
   NoteRepository,
   Note,
   NoteWithCreator,
   NoteHistoryVersion,
   NoteNotFoundError,
-} from '@dykstra/application/ports/note-repository';
+} from '@dykstra/application';
 
 export class PrismaNoteRepository implements NoteRepository {
   constructor(private prisma: PrismaClient) {}

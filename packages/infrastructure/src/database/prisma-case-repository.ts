@@ -234,6 +234,29 @@ export const PrismaCaseRepository: CaseRepository = {
     }),
 
   /**
+   * Find current version of case by business key (string identifier)
+   * Convenience method for when you only have the business key string
+   */
+  findByBusinessKey: (businessKey: string) =>
+    Effect.tryPromise({
+      try: async () => {
+        const prismaCase = await prisma.case.findFirst({
+          where: {
+            businessKey,
+            isCurrent: true,                        // Only current version
+          },
+        });
+
+        if (!prismaCase) {
+          return null;
+        }
+
+        return toDomain(prismaCase);
+      },
+      catch: (error) => new PersistenceError('Failed to find case by business key', error),
+    }),
+
+  /**
    * Save case - SCD Type 2 implementation
    * Creates new version instead of updating existing
    */
@@ -269,6 +292,18 @@ export const PrismaCaseRepository: CaseRepository = {
         }
       },
       catch: (error) => new PersistenceError('Failed to save case', error),
+    }),
+
+  /**
+   * Update case - convenience method that wraps save for SCD2 updates
+   * Creates new version of existing case
+   */
+  update: (case_: Case) =>
+    Effect.gen(function* () {
+      // Save creates a new version (SCD2 pattern)
+      yield* PrismaCaseRepository.save(case_);
+      // Return the updated case
+      return case_;
     }),
 
   /**

@@ -1,5 +1,5 @@
 import { Effect } from 'effect';
-import { NoteRepository, NoteWithCreator } from '../../ports/note-repository';
+import { NoteRepository } from '../../ports/note-repository';
 
 export interface ListNotesQuery {
   caseId: string;

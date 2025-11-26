@@ -17,6 +17,7 @@ export * from './ports/invitation-repository';
 export * from './ports/note-repository';
 export * from './ports/task-repository';
 export * from './ports/audit-log-repository';
+export * from './ports/staff-repository';
 export * from './ports/catalog-repository';
 export * from './ports/contract-template-repository';
 

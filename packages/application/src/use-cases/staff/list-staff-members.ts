@@ -1,25 +1,9 @@
-import { Effect, Context } from 'effect';
-
-export interface StaffMember {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-}
+import { Effect } from 'effect';
+import { StaffRepository, type StaffMember, PersistenceError } from '../../ports/staff-repository';
 
 export interface ListStaffMembersResult {
-  staff: StaffMember[];
+  staff: readonly StaffMember[];
 }
-
-/**
- * Staff Repository Port
- * Simple port for querying staff members
- */
-export interface StaffRepository {
-  findAll(): Effect.Effect<StaffMember[], never, never>;
-}
-
-export const StaffRepository = Context.GenericTag<StaffRepository>('@dykstra/StaffRepository');
 
 /**
  * List staff members for assignment dropdowns
@@ -27,7 +11,7 @@ export const StaffRepository = Context.GenericTag<StaffRepository>('@dykstra/Sta
  */
 export const listStaffMembers = (): Effect.Effect<
   ListStaffMembersResult,
-  never,
+  PersistenceError,
   StaffRepository
 > =>
   Effect.gen(function* () {

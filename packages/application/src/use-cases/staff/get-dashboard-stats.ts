@@ -1,5 +1,5 @@
 import { Effect } from 'effect';
-import { CaseRepository } from '../../ports/case-repository';
+import { CaseRepository, PersistenceError } from '../../ports/case-repository';
 import { TaskRepository } from '../../ports/task-repository';
 import { PaymentRepository } from '../../ports/payment-repository';
 
@@ -44,7 +44,7 @@ export const getDashboardStats = (
   query: GetDashboardStatsQuery
 ): Effect.Effect<
   GetDashboardStatsResult,
-  never,
+  PersistenceError,
   CaseRepository | TaskRepository | PaymentRepository
 > =>
   Effect.gen(function* () {
@@ -56,15 +56,15 @@ export const getDashboardStats = (
     const allCases = yield* caseRepo.findByFuneralHome(query.funeralHomeId);
 
     // Calculate KPIs
-    const activeCasesCount = allCases.filter((c) => c.status === 'ACTIVE').length;
-    const inquiriesCount = allCases.filter((c) => c.status === 'INQUIRY').length;
+    const activeCasesCount = allCases.filter((c) => c.status === 'active').length;
+    const inquiriesCount = allCases.filter((c) => c.status === 'inquiry').length;
 
     // Upcoming services (next 7 days)
     const now = new Date();
     const sevenDaysFromNow = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
     const upcomingServicesCount = allCases.filter(
       (c) =>
-        c.status === 'ACTIVE' &&
+        c.status === 'active' &&
         c.serviceDate &&
         c.serviceDate >= now &&
         c.serviceDate <= sevenDaysFromNow
@@ -79,7 +79,7 @@ export const getDashboardStats = (
     ).length;
 
     // Recent cases (last 10)
-    const recentCases = allCases
+    const recentCases = [...allCases]
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
       .slice(0, 10)
       .map((c) => ({

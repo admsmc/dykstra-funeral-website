@@ -1,5 +1,5 @@
 import { Effect } from 'effect';
-import { NoteRepository, NoteValidationError } from '../../ports/note-repository';
+import { NoteRepository } from '../../ports/note-repository';
 import { ValidationError } from '@dykstra/domain';
 
 export interface CreateNoteCommand {

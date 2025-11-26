@@ -1,5 +1,5 @@
 import { Effect } from 'effect';
-import { CaseRepository } from '../../ports/case-repository';
+import { CaseRepository, PersistenceError } from '../../ports/case-repository';
 import { TaskRepository, TaskWithUsers } from '../../ports/task-repository';
 
 export interface GetTaskDashboardQuery {
@@ -21,7 +21,7 @@ export const getTaskDashboard = (
   query: GetTaskDashboardQuery
 ): Effect.Effect<
   GetTaskDashboardResult,
-  never,
+  PersistenceError,
   CaseRepository | TaskRepository
 > =>
   Effect.gen(function* () {

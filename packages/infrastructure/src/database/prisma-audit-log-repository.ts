@@ -1,10 +1,10 @@
 import { Effect } from 'effect';
 import { PrismaClient } from '@prisma/client';
-import {
+import type {
   AuditLogRepository,
   AuditLogEntry,
   AuditLogEntryWithUser,
-} from '@dykstra/application/ports/audit-log-repository';
+} from '@dykstra/application';
 
 export class PrismaAuditLogRepository implements AuditLogRepository {
   constructor(private prisma: PrismaClient) {}
