@@ -36,6 +36,7 @@ export const getPaymentById = (
     const paymentRepo = yield* _(PaymentRepository);
     
     // Get current payment version
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Branded type conversion
     const payment = yield* _(paymentRepo.findById(query.paymentId as any));
     
     // Optionally fetch version history

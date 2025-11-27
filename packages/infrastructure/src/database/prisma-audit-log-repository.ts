@@ -38,7 +38,7 @@ export const PrismaAuditLogRepository: AuditLogRepository = {
           id: log.id,
           action: log.action,
           entityType: log.entityType,
-          entityId: log.entityId,
+          entityId: log.entityId || '', // Handle nullable entityId from Prisma
           metadata: log.metadata as Record<string, unknown> | null,
           userId: log.userId,
           ipAddress: log.ipAddress,
@@ -80,7 +80,7 @@ export const PrismaAuditLogRepository: AuditLogRepository = {
           id: log.id,
           action: log.action,
           entityType: log.entityType,
-          entityId: log.entityId,
+          entityId: log.entityId || '', // Handle nullable entityId from Prisma
           metadata: log.metadata as Record<string, unknown> | null,
           userId: log.userId,
           ipAddress: log.ipAddress,
@@ -109,7 +109,7 @@ export const PrismaAuditLogRepository: AuditLogRepository = {
             action: data.action,
             entityType: data.entityType,
             entityId: data.entityId,
-            metadata: data.metadata || null,
+            metadata: data.metadata as any, // Prisma Json type
             userId: data.userId,
             ipAddress: data.ipAddress || null,
           },
@@ -119,7 +119,7 @@ export const PrismaAuditLogRepository: AuditLogRepository = {
           id: log.id,
           action: log.action,
           entityType: log.entityType,
-          entityId: log.entityId,
+          entityId: log.entityId || '', // Handle nullable entityId from Prisma
           metadata: log.metadata as Record<string, unknown> | null,
           userId: log.userId,
           ipAddress: log.ipAddress,

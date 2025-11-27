@@ -78,7 +78,8 @@ export const processPayment = (
         new PaymentReceived({
           occurredAt: new Date(),
           aggregateId: updatedPayment.id,
-          caseId: updatedPayment.caseId as any, // Type conversion for CaseId
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Type conversion for branded CaseId
+          caseId: updatedPayment.caseId as any,
           amount: updatedPayment.amount.amount,
           paymentMethod: updatedPayment.method,
           paidBy: command.createdBy,
@@ -112,6 +113,7 @@ export const confirmPayment = (
     const paymentRepo = yield* _(PaymentRepository);
     
     // Load payment
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Type conversion for branded PaymentId
     const payment = yield* _(paymentRepo.findById(command.paymentId as any));
     
     // Mark as succeeded
@@ -143,6 +145,7 @@ export const failPayment = (
     const paymentRepo = yield* _(PaymentRepository);
     
     // Load payment
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Type conversion for branded PaymentId
     const payment = yield* _(paymentRepo.findById(command.paymentId as any));
     
     // Mark as failed

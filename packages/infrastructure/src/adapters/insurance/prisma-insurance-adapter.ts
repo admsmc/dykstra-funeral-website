@@ -1,6 +1,7 @@
 import { Effect } from 'effect';
 import type { InsurancePort, InsuranceAssignmentResult, InsuranceError } from '@dykstra/application';
 import { prisma } from '../../database/prisma-client';
+import { decimalToNumber } from '../../utils/type-converters';
 
 /**
  * Prisma implementation of InsurancePort
@@ -31,7 +32,7 @@ export class PrismaInsuranceAdapter implements InsurancePort {
             claimNumber: params.claimNumber,
             notes: params.notes,
             status: 'PENDING',
-            createdById: params.userId,
+            createdBy: params.userId,
           },
         });
 
@@ -119,7 +120,14 @@ export class PrismaInsuranceAdapter implements InsurancePort {
           throw new Error(`Insurance assignment ${assignmentId} not found`);
         }
 
-        return assignment;
+        return {
+          id: assignment.id,
+          caseId: assignment.caseId,
+          insuranceCompany: assignment.insuranceCompany,
+          policyNumber: assignment.policyNumber,
+          assignedAmount: decimalToNumber(assignment.assignedAmount),
+          status: assignment.status,
+        };
       },
       catch: (error) => {
         const message = error instanceof Error ? error.message : 'Failed to get insurance assignment';

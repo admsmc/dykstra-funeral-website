@@ -72,7 +72,7 @@ export const getArAgingReport = (
     // For MVP, we'll do basic calculation
     
     // Initialize buckets
-    let buckets: AgingBucket[] = [
+    const buckets: AgingBucket[] = [
       { label: 'Current (0-30 days)', minDays: 0, maxDays: 30, totalAmount: 0, accountCount: 0 },
       { label: '31-60 days', minDays: 31, maxDays: 60, totalAmount: 0, accountCount: 0 },
       { label: '61-90 days', minDays: 61, maxDays: 90, totalAmount: 0, accountCount: 0 },

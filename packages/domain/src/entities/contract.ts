@@ -9,6 +9,26 @@ import { Money } from '../value-objects/money';
 export type ContractId = string & { readonly _brand: 'ContractId' };
 
 /**
+ * Service line item
+ */
+export interface ServiceLineItem {
+  readonly id: string;
+  readonly name: string;
+  readonly description?: string;
+  readonly price: number;
+}
+
+/**
+ * Product line item
+ */
+export interface ProductLineItem {
+  readonly id: string;
+  readonly name: string;
+  readonly description?: string;
+  readonly price: number;
+}
+
+/**
  * Contract entity
  * Represents a funeral service contract
  * SCD Type 2: Immutable once signed for legal compliance (ESIGN Act)
@@ -20,8 +40,8 @@ export class Contract extends Data.Class<{
   readonly caseId: string;
   readonly contractVersion: number;           // Business version (v1.0, v2.0)
   readonly status: ContractStatus;
-  readonly services: readonly any[];          // Service line items
-  readonly products: readonly any[];          // Product line items
+  readonly services: readonly ServiceLineItem[];  // Service line items
+  readonly products: readonly ProductLineItem[];  // Product line items
   readonly subtotal: Money;
   readonly tax: Money;
   readonly totalAmount: Money;
@@ -48,8 +68,8 @@ export class Contract extends Data.Class<{
     id: string;
     businessKey: string;
     caseId: string;
-    services: readonly any[];
-    products: readonly any[];
+    services: readonly ServiceLineItem[];
+    products: readonly ProductLineItem[];
     termsAndConditions: string;
     createdBy: string;
   }): Effect.Effect<Contract, ValidationError> {
@@ -207,7 +227,7 @@ export class Contract extends Data.Class<{
 /**
  * Calculate subtotal from services and products
  */
-function calculateSubtotal(services: readonly any[], products: readonly any[]): { amount: number; currency: string } {
+function calculateSubtotal(services: readonly ServiceLineItem[], products: readonly ProductLineItem[]): { amount: number; currency: string } {
   const servicesTotal = services.reduce((sum, s) => sum + (s.price || 0), 0);
   const productsTotal = products.reduce((sum, p) => sum + (p.price || 0), 0);
   

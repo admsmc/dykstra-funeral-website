@@ -60,6 +60,7 @@ export const signContract = (
     }
     
     // Load contract
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Type conversion for branded ContractId
     const contract = yield* _(contractRepo.findById(command.contractId as any));
     
     // Verify contract is in pending_signatures status
@@ -90,7 +91,8 @@ export const signContract = (
         new ContractSigned({
           occurredAt: new Date(),
           aggregateId: signedContract.id,
-          caseId: signedContract.caseId as any, // Type conversion for CaseId
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Type conversion for branded CaseId
+          caseId: signedContract.caseId as any,
           signerId: command.signerId,
           signerName: command.signerName,
           signerEmail: command.signerEmail,

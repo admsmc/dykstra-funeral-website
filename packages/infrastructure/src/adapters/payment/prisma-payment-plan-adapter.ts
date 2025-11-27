@@ -1,6 +1,7 @@
 import { Effect } from 'effect';
 import type { PaymentPlanPort, PaymentPlanResult, PaymentPlanError, PaymentFrequency, Installment } from '@dykstra/application';
 import { prisma } from '../../database/prisma-client';
+import { decimalToNumber } from '../../utils/type-converters';
 
 /**
  * Calculate installment due dates based on frequency
@@ -141,12 +142,12 @@ export class PrismaPaymentPlanAdapter implements PaymentPlanPort {
         return {
           id: plan.id,
           caseId: plan.caseId,
-          totalAmount: plan.totalAmount,
-          remainingBalance: plan.remainingBalance,
+          totalAmount: decimalToNumber(plan.totalAmount),
+          remainingBalance: decimalToNumber(plan.remainingBalance),
           status: plan.status,
           installments: plan.installments.map((inst: any) => ({
             installmentNumber: inst.installmentNumber,
-            amount: inst.amount,
+            amount: decimalToNumber(inst.amount),
             dueDate: inst.dueDate,
             status: inst.status,
           })),
@@ -231,15 +232,14 @@ export class PrismaPaymentPlanAdapter implements PaymentPlanPort {
   /**
    * Cancel a payment plan
    */
-  readonly cancelPlan = (planId: string, reason: string): Effect.Effect<void, PaymentPlanError> =>
+  readonly cancelPlan = (planId: string, _reason: string): Effect.Effect<void, PaymentPlanError> =>
     Effect.tryPromise({
       try: async () => {
+        // Note: cancellationReason and cancelledAt fields don't exist in schema
         await prisma.paymentPlan.update({
           where: { id: planId },
           data: {
             status: 'CANCELLED',
-            cancellationReason: reason,
-            cancelledAt: new Date(),
           },
         });
       },

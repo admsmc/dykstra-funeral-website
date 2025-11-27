@@ -1,52 +1,231 @@
 
+
 > @dykstra/application@0.1.0 lint /Users/andrewmathers/projects/dykstra-funeral-website/packages/application
 > eslint .
 
 Pages directory cannot be found at /Users/andrewmathers/projects/dykstra-funeral-website/packages/application/pages or /Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/pages. If using a custom path, please configure with the `no-html-link-for-pages` rule in your eslint config file.
-
-/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/commands/add-tribute.ts
-  2:41  warning  'MemorialId' is defined but never used  @typescript-eslint/no-unused-vars
-
-/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/commands/create-payment-plan.ts
-  90:9  error  'currentDate' is never reassigned. Use 'const' instead  prefer-const
-
-/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/commands/process-payment.ts
-  115:72  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  146:72  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-
-/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/commands/save-arrangements.ts
-  35:11  warning  'eventPublisher' is assigned a value but never used  @typescript-eslint/no-unused-vars
-
-/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/commands/sign-contract.ts
-  63:75  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-
-/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/commands/sign-guestbook.ts
-  2:48  warning  'MemorialId' is defined but never used  @typescript-eslint/no-unused-vars
-
-/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/commands/upload-photo.ts
-  4:42  warning  'FileUpload' is defined but never used  @typescript-eslint/no-unused-vars
-
-/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/queries/get-case-timeline.ts
-   42:43  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-   59:45  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  103:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  104:26  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  123:37  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  140:38  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  159:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  160:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-
-/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/queries/get-payment-history.ts
-  34:25  warning  '_' is defined but never used  @typescript-eslint/no-unused-vars
-
-/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/use-cases/user/get-user-profile.ts
-  87:35  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  91:35  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-
-/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/use-cases/user/update-user-profile.ts
-  73:23  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  86:38  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-
-✖ 21 problems (16 errors, 5 warnings)
-  1 error and 0 warnings potentially fixable with the `--fix` option.
-
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/commands/add-tribute.ts[24m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  Imports "ValidationError" are only used as type                           [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m4:1[22m  [33mwarning[39m  All imports in the declaration are only used as types. Use `import type`  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/commands/assign-insurance.ts[24m[0m
+[0m  [2m3:1[22m  [33mwarning[39m  Imports "InsuranceError" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/commands/create-case.ts[24m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  Imports "ValidationError" are only used as type    [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m4:1[22m  [33mwarning[39m  Imports "PersistenceError" are only used as type   [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m5:1[22m  [33mwarning[39m  Imports "EventPublishError" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/commands/create-payment-intent.ts[24m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  Imports "NotFoundError" are only used as type           [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m3:1[22m  [33mwarning[39m  Imports "PaymentProcessingError" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m4:1[22m  [33mwarning[39m  Imports "PersistenceError" are only used as type        [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/commands/create-payment-plan.ts[24m[0m
+[0m  [2m3:1[22m  [33mwarning[39m  Imports "PaymentPlanError" and "PaymentFrequency" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/commands/delete-photo.ts[24m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  Imports "NotFoundError" are only used as type      [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m3:1[22m  [33mwarning[39m  Imports "PersistenceError" are only used as type   [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m4:1[22m  [33mwarning[39m  Imports "StorageError" are only used as type       [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m5:1[22m  [33mwarning[39m  Imports "EventPublishError" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/commands/process-ach-payment.ts[24m[0m
+[0m  [2m3:1[22m  [33mwarning[39m  Imports "PaymentProcessingError" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/commands/process-payment.ts[24m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  Imports "ValidationError", "NotFoundError", "BusinessRuleViolationError" and "InvalidStateTransitionError" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m4:1[22m  [33mwarning[39m  Imports "PersistenceError" are only used as type                                                                                  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m5:1[22m  [33mwarning[39m  Imports "PaymentProcessingError" are only used as type                                                                            [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m6:1[22m  [33mwarning[39m  Imports "EventPublishError" are only used as type                                                                                 [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/commands/save-arrangements.ts[24m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  Imports "Case", "ValidationError", "BusinessRuleViolationError" and "NotFoundError" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m3:1[22m  [33mwarning[39m  Imports "PersistenceError" are only used as type                                                           [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m4:1[22m  [33mwarning[39m  All imports in the declaration are only used as types. Use `import type`                                   [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/commands/sign-contract.ts[24m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  Imports "Contract", "NotFoundError" and "InvalidStateTransitionError" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m3:1[22m  [33mwarning[39m  Imports "PersistenceError" are only used as type                                             [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m4:1[22m  [33mwarning[39m  Imports "EventPublishError" are only used as type                                            [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/commands/sign-guestbook.ts[24m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  Imports "ValidationError" are only used as type   [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m3:1[22m  [33mwarning[39m  Imports "PersistenceError" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/commands/upload-photo.ts[24m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  Imports "ValidationError" are only used as type    [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m3:1[22m  [33mwarning[39m  Imports "PersistenceError" are only used as type   [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m4:1[22m  [33mwarning[39m  Imports "StorageError" are only used as type       [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m5:1[22m  [33mwarning[39m  Imports "EventPublishError" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/audit-log-repository.ts[24m[0m
+[0m  [2m1:1[22m  [33mwarning[39m  Imports "Effect" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/case-repository.ts[24m[0m
+[0m  [2m1:1[22m  [33mwarning[39m  Imports "Effect" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  Imports "Case" are only used as type    [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/catalog-repository.ts[24m[0m
+[0m  [2m1:1[22m  [33mwarning[39m  Imports "Effect" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/contract-repository.ts[24m[0m
+[0m  [2m1:1[22m  [33mwarning[39m  Imports "Effect" are only used as type                                    [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  All imports in the declaration are only used as types. Use `import type`  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/contract-template-repository.ts[24m[0m
+[0m  [2m1:1[22m  [33mwarning[39m  Imports "Effect" are only used as type                                    [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  All imports in the declaration are only used as types. Use `import type`  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/email-port.ts[24m[0m
+[0m  [2m1:1[22m  [33mwarning[39m  Imports "Effect" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/event-publisher.ts[24m[0m
+[0m  [2m1:1[22m  [33mwarning[39m  Imports "Effect" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/guestbook-repository.ts[24m[0m
+[0m  [2m1:1[22m  [33mwarning[39m  Imports "Effect" are only used as type                                    [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m3:1[22m  [33mwarning[39m  All imports in the declaration are only used as types. Use `import type`  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/insurance-port.ts[24m[0m
+[0m  [2m1:1[22m  [33mwarning[39m  Imports "Effect" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/invitation-repository.ts[24m[0m
+[0m  [2m1:1[22m  [33mwarning[39m  Imports "Effect" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/note-repository.ts[24m[0m
+[0m  [2m1:1[22m  [33mwarning[39m  Imports "Effect" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/payment-plan-port.ts[24m[0m
+[0m  [2m1:1[22m  [33mwarning[39m  Imports "Effect" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/payment-port.ts[24m[0m
+[0m  [2m1:1[22m  [33mwarning[39m  Imports "Effect" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/payment-repository.ts[24m[0m
+[0m  [2m1:1[22m  [33mwarning[39m  Imports "Effect" are only used as type                                    [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  All imports in the declaration are only used as types. Use `import type`  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/photo-repository.ts[24m[0m
+[0m  [2m1:1[22m  [33mwarning[39m  Imports "Effect" are only used as type                                    [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  All imports in the declaration are only used as types. Use `import type`  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/signature-port.ts[24m[0m
+[0m  [2m1:1[22m  [33mwarning[39m  Imports "Effect" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/staff-repository.ts[24m[0m
+[0m  [2m1:1[22m  [33mwarning[39m  Imports "Effect" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/storage-port.ts[24m[0m
+[0m  [2m1:1[22m  [33mwarning[39m  Imports "Effect" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/task-repository.ts[24m[0m
+[0m  [2m1:1[22m  [33mwarning[39m  Imports "Effect" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/tribute-repository.ts[24m[0m
+[0m  [2m1:1[22m  [33mwarning[39m  Imports "Effect" are only used as type                                    [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m3:1[22m  [33mwarning[39m  All imports in the declaration are only used as types. Use `import type`  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/user-port.ts[24m[0m
+[0m  [2m1:1[22m  [33mwarning[39m  Imports "Effect" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/queries/get-arrangements.ts[24m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  Imports "NotFoundError" are only used as type     [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m3:1[22m  [33mwarning[39m  Imports "PersistenceError" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/queries/get-case-details.ts[24m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  All imports in the declaration are only used as types. Use `import type`  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m3:1[22m  [33mwarning[39m  Imports "PersistenceError" are only used as type                          [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/queries/get-case-timeline.ts[24m[0m
+[0m  [2m3:1[22m  [33mwarning[39m  All imports in the declaration are only used as types. Use `import type`  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m4:1[22m  [33mwarning[39m  Imports "PersistenceError" are only used as type                          [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/queries/get-guestbook.ts[24m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  All imports in the declaration are only used as types. Use `import type`  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m3:1[22m  [33mwarning[39m  Imports "PersistenceError" are only used as type                          [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/queries/get-payment-history.ts[24m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  Imports "PersistenceError" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/queries/get-payment-receipt.ts[24m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  Imports "NotFoundError" are only used as type     [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m3:1[22m  [33mwarning[39m  Imports "PersistenceError" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/queries/get-photos.ts[24m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  Imports "Photo" are only used as type             [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m3:1[22m  [33mwarning[39m  Imports "PersistenceError" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/queries/get-tributes.ts[24m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  All imports in the declaration are only used as types. Use `import type`  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m3:1[22m  [33mwarning[39m  Imports "PersistenceError" are only used as type                          [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/use-cases/case-management/get-financial-summary.ts[24m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  Imports "PersistenceError" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/use-cases/case-management/update-case-status.ts[24m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  Imports "PersistenceError" are only used as type                          [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m4:1[22m  [33mwarning[39m  All imports in the declaration are only used as types. Use `import type`  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/use-cases/contracts/catalog-queries.ts[24m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  Imports "Product", "Service", "ProductCategory" and "CatalogServiceType" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/use-cases/contracts/contract-operations.ts[24m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  Imports "PersistenceError" are only used as type                                                                 [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m4:1[22m  [33mwarning[39m  Imports "ValidationError", "InvalidStateTransitionError" and "BusinessRuleViolationError" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/use-cases/contracts/template-operations.ts[24m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  Imports "ContractTemplateWithCreator" are only used as type               [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m7:1[22m  [33mwarning[39m  All imports in the declaration are only used as types. Use `import type`  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/use-cases/invitations/create-invitation.ts[24m[0m
+[0m  [2m3:1[22m  [33mwarning[39m  Imports "CaseMemberRole" are only used as type                        [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m4:1[22m  [33mwarning[39m  Imports "NotFoundError" and "PersistenceError" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m5:1[22m  [33mwarning[39m  Imports "EmailError" are only used as type                            [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/use-cases/invitations/get-invitation-history.ts[24m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  Imports "InvitationNotFoundError" and "InvitationWithRelations" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/use-cases/invitations/list-invitations.ts[24m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  Imports "InvitationStatus" and "InvitationWithRelations" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/use-cases/invitations/resend-invitation.ts[24m[0m
+[0m  [2m3:1[22m  [33mwarning[39m  Imports "InvitationNotFoundError" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m4:1[22m  [33mwarning[39m  Imports "EmailError" are only used as type               [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/use-cases/invitations/revoke-invitation.ts[24m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  Imports "InvitationNotFoundError" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/use-cases/notes/delete-note.ts[24m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  Imports "NoteNotFoundError" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/use-cases/payments/get-ar-aging-report.ts[24m[0m
+[0m  [2m3:1[22m  [33mwarning[39m  All imports in the declaration are only used as types. Use `import type`  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m4:1[22m  [33mwarning[39m  All imports in the declaration are only used as types. Use `import type`  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/use-cases/payments/process-refund.ts[24m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  Imports "InvalidStateTransitionError" and "NotFoundError" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/use-cases/payments/record-manual-payment.ts[24m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  Imports "BusinessRuleViolationError" and "InvalidStateTransitionError" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/use-cases/staff/get-analytics.ts[24m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  Imports "PersistenceError" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/use-cases/staff/get-dashboard-stats.ts[24m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  Imports "PersistenceError" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/use-cases/staff/get-task-dashboard.ts[24m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  Imports "PersistenceError" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m3:1[22m  [33mwarning[39m  Imports "TaskWithUsers" are only used as type     [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/use-cases/staff/list-staff-members.ts[24m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  Imports "PersistenceError" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/use-cases/tasks/update-task-status.ts[24m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  Imports "TaskStatus" and "TaskNotFoundError" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[33m[1m✖ 101 problems (0 errors, 101 warnings)[22m[39m[0m
+[0m[33m[1m[22m[39m[33m[1m  0 errors and 101 warnings potentially fixable with the `--fix` option.[22m[39m[0m
+[0m[33m[1m[22m[39m[0m

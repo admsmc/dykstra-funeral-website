@@ -76,39 +76,42 @@ export class Arrangements extends Data.Class<{
   /**
    * Create from JSON (database storage)
    */
-  static fromJSON(json: any): Effect.Effect<Arrangements, ValidationError> {
+  static fromJSON(json: Record<string, unknown>): Effect.Effect<Arrangements, ValidationError> {
     return Effect.gen(function* (_) {
       if (!json || typeof json !== 'object') {
         return Arrangements.empty();
       }
 
+      // Type guard for ceremony object
+      const ceremony = json['ceremony'] as Record<string, unknown> | undefined;
+      
       return new Arrangements({
-        serviceType: json.serviceType ?? null,
-        products: Array.isArray(json.products) ? json.products : [],
+        serviceType: (json['serviceType'] as ServiceType | null) ?? null,
+        products: Array.isArray(json['products']) ? (json['products'] as Product[]) : [],
         ceremony: {
-          date: json.ceremony?.date ? new Date(json.ceremony.date) : null,
-          time: json.ceremony?.time ?? null,
-          location: json.ceremony?.location ?? null,
-          officiant: json.ceremony?.officiant ?? null,
-          musicSelections: Array.isArray(json.ceremony?.musicSelections) 
-            ? json.ceremony.musicSelections 
+          date: ceremony?.['date'] ? new Date(ceremony['date'] as string | number | Date) : null,
+          time: (ceremony?.['time'] as string | null) ?? null,
+          location: (ceremony?.['location'] as string | null) ?? null,
+          officiant: (ceremony?.['officiant'] as string | null) ?? null,
+          musicSelections: Array.isArray(ceremony?.['musicSelections']) 
+            ? (ceremony['musicSelections'] as string[])
             : [],
-          readings: Array.isArray(json.ceremony?.readings) 
-            ? json.ceremony.readings 
+          readings: Array.isArray(ceremony?.['readings']) 
+            ? (ceremony['readings'] as string[])
             : [],
-          specialRequests: json.ceremony?.specialRequests ?? null,
+          specialRequests: (ceremony?.['specialRequests'] as string | null) ?? null,
         },
-        notes: Array.isArray(json.notes)
-          ? json.notes.map((n: any) => ({
-              id: n.id,
-              authorId: n.authorId,
-              authorName: n.authorName,
-              content: n.content,
-              createdAt: new Date(n.createdAt),
+        notes: Array.isArray(json['notes'])
+          ? (json['notes'] as Array<Record<string, unknown>>).map((n) => ({
+              id: String(n['id']),
+              authorId: String(n['authorId']),
+              authorName: String(n['authorName']),
+              content: String(n['content']),
+              createdAt: new Date(n['createdAt'] as string | number | Date),
             }))
           : [],
-        lastModifiedBy: json.lastModifiedBy ?? null,
-        lastModifiedAt: json.lastModifiedAt ? new Date(json.lastModifiedAt) : null,
+        lastModifiedBy: (json['lastModifiedBy'] as string | null) ?? null,
+        lastModifiedAt: json['lastModifiedAt'] ? new Date(json['lastModifiedAt'] as string | number | Date) : null,
       });
     });
   }
@@ -116,7 +119,7 @@ export class Arrangements extends Data.Class<{
   /**
    * Convert to JSON (for database storage)
    */
-  toJSON(): any {
+  toJSON(): Record<string, unknown> {
     return {
       serviceType: this.serviceType,
       products: this.products,
@@ -291,7 +294,7 @@ export class Arrangements extends Data.Class<{
    */
   get completionPercentage(): number {
     let completed = 0;
-    let total = 5;
+    const total = 5;
 
     if (this.serviceType) completed++;
     if (this.selectedProducts.length > 0) completed++;

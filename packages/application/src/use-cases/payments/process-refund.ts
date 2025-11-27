@@ -52,6 +52,7 @@ export const processRefund = (
     
     // Find original payment
     const originalPayment = yield* _(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Branded type conversion
       paymentRepo.findById(command.paymentBusinessKey as any)
     );
     

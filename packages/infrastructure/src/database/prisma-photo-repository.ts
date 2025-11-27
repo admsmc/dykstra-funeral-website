@@ -1,8 +1,9 @@
 import { Effect, Layer } from 'effect';
 import { Photo, type PhotoId, type MemorialId, NotFoundError } from '@dykstra/domain';
-import type { PhotoRepository } from '@dykstra/application';
+import { PhotoRepository } from '@dykstra/application';
 import { PersistenceError } from '@dykstra/application';
 import { prisma } from './prisma-client';
+import { optionToNullable } from '../utils/type-converters';
 
 /**
  * Map Prisma photo to domain Photo entity
@@ -47,7 +48,7 @@ const toPrisma = (photo: Photo, validFrom: Date = new Date()) => {
     caseId: photo.caseId,
     url: photo.url,
     storageKey: photo.storageKey,
-    caption: photo.caption,
+    caption: optionToNullable(photo.caption), // Convert Option<string> to string | null
     uploadedBy: photo.uploadedBy,
     uploadedAt: photo.uploadedAt,
     width: photo.metadata.width,
@@ -306,6 +307,6 @@ export const PrismaPhotoRepository: PhotoRepository = {
  * Effect Layer to provide PhotoRepository
  */
 export const PrismaPhotoRepositoryLive = Layer.succeed(
-  (await import('@dykstra/application')).PhotoRepository,
+  PhotoRepository,
   PrismaPhotoRepository
 );

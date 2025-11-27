@@ -1,8 +1,9 @@
 import { Effect, Layer } from 'effect';
-import { Contract, type ContractId, type Money, NotFoundError } from '@dykstra/domain';
-import type { ContractRepository } from '@dykstra/application';
+import { Contract, type ContractId, Money, NotFoundError } from '@dykstra/domain';
+import { ContractRepository } from '@dykstra/application';
 import { PersistenceError } from '@dykstra/application';
 import type { ContractStatus } from '@dykstra/shared';
+import { ContractStatus as PrismaContractStatus } from '@prisma/client';
 import { prisma } from './prisma-client';
 
 /**
@@ -52,7 +53,7 @@ const toPrisma = (contract: Contract, validFrom: Date = new Date()) => {
     isCurrent: true,
     caseId: contract.caseId,
     contractVersion: contract.contractVersion,
-    status: contract.status.toUpperCase(),
+    status: contract.status.toUpperCase() as PrismaContractStatus,
     services: contract.services as any,
     products: contract.products as any,
     subtotal: contract.subtotal.amount,
@@ -342,6 +343,6 @@ export const PrismaContractRepository: ContractRepository = {
  * Effect Layer to provide ContractRepository
  */
 export const PrismaContractRepositoryLive = Layer.succeed(
-  (await import('@dykstra/application')).ContractRepository,
+  ContractRepository,
   PrismaContractRepository
 );

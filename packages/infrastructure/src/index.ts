@@ -44,7 +44,6 @@ import { PrismaStaffRepository } from './database/prisma-staff-repository';
 import { PrismaProductCatalogRepository, PrismaServiceCatalogRepository } from './database/prisma-catalog-repositories';
 import { PrismaContractTemplateRepository } from './database/prisma-contract-template-repository';
 import { StorageAdapterLive } from './storage/storage-adapter';
-import { createS3StorageAdapter } from './adapters/storage/s3-storage-adapter';
 import {
   CaseRepository,
   ContractRepository,
@@ -60,38 +59,40 @@ import {
   ProductCatalogRepository,
   ServiceCatalogRepository,
   ContractTemplateRepository,
-  StoragePort,
 } from '@dykstra/application';
 import { StripeAdapterLive } from './payment/stripe-adapter';
 import { SignatureAdapterLive } from './signature/signature-adapter';
 import { EmailAdapterLive } from './email/email-adapter';
 import { ConsoleEventPublisherLive } from './events/console-event-publisher';
 
-/**
- * S3 Storage Layer (production)
- */
-export const S3StorageAdapterLive = Layer.succeed(
-  StoragePort,
-  createS3StorageAdapter()
-);
-
-/**
- * Get appropriate storage layer based on environment
- */
-const getStorageLayer = () => {
-  // Use S3 in production if bucket is configured
-  if (process.env['NODE_ENV'] === 'production' && process.env['AWS_S3_BUCKET']) {
-    return S3StorageAdapterLive;
-  }
-  // Fall back to local storage for development
-  return StorageAdapterLive;
-};
+// Note: Always use local storage for now since S3StorageAdapter
+// in adapters/storage/s3-storage-adapter.ts requires AWS credentials
+// and throws on initialization. The StorageAdapterLive provides a
+// working implementation for development.
 
 /**
  * Complete infrastructure layer
  * Combines all adapters and repositories for dependency injection
  */
+/**
+ * Infrastructure Layer
+ * 
+ * SignatureAdapterLive depends on StoragePort, so we provide StorageAdapterLive to it
+ * before merging into the main layer.
+ */
+const SignatureWithStorage = SignatureAdapterLive.pipe(
+  Layer.provide(StorageAdapterLive)
+);
+
 export const InfrastructureLayer = Layer.mergeAll(
+  // Base service adapters
+  StorageAdapterLive,
+  StripeAdapterLive,
+  EmailAdapterLive,
+  
+  // Signature adapter with its StoragePort dependency provided
+  SignatureWithStorage,
+  
   // Repositories
   Layer.succeed(CaseRepository, PrismaCaseRepository),
   Layer.succeed(ContractRepository, PrismaContractRepository),
@@ -107,12 +108,6 @@ export const InfrastructureLayer = Layer.mergeAll(
   Layer.succeed(ProductCatalogRepository, PrismaProductCatalogRepository),
   Layer.succeed(ServiceCatalogRepository, PrismaServiceCatalogRepository),
   Layer.succeed(ContractTemplateRepository, PrismaContractTemplateRepository),
-  
-  // External service adapters
-  getStorageLayer(),
-  StripeAdapterLive,
-  SignatureAdapterLive,
-  EmailAdapterLive,
   
   // Event publisher
   ConsoleEventPublisherLive,

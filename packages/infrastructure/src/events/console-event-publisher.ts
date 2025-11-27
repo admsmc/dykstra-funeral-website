@@ -1,6 +1,5 @@
 import { Effect, Layer } from 'effect';
-import type { EventPublisher, DomainEvent } from '@dykstra/application';
-import { EventPublishError } from '@dykstra/application';
+import { EventPublisher, type DomainEvent, EventPublishError } from '@dykstra/application';
 
 /**
  * Console-based event publisher
@@ -41,6 +40,6 @@ export const ConsoleEventPublisher: EventPublisher = {
  * Effect Layer to provide EventPublisher
  */
 export const ConsoleEventPublisherLive = Layer.succeed(
-  (await import('@dykstra/application')).EventPublisher,
+  EventPublisher,
   ConsoleEventPublisher
 );

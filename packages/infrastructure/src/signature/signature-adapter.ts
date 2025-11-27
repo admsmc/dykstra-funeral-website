@@ -1,5 +1,5 @@
 import { Effect, Layer } from 'effect';
-import { SignaturePort, SignatureData, SignatureResult, SignatureError, StoragePort } from '@dykstra/application';
+import { SignaturePort, StoragePort, type SignatureData, type SignatureResult, SignatureError } from '@dykstra/application';
 import { prisma } from '../database/prisma-client';
 import { randomBytes } from 'crypto';
 
@@ -140,6 +140,6 @@ function isValidBase64(str: string): boolean {
  * Effect Layer to provide SignaturePort
  */
 export const SignatureAdapterLive = Layer.effect(
-  (await import('@dykstra/application')).SignaturePort,
+  SignaturePort,
   SignatureAdapterImpl
 );

@@ -1,65 +1,13 @@
 
+
 > @dykstra/api@0.1.0 lint /Users/andrewmathers/projects/dykstra-funeral-website/packages/api
 > eslint .
 
 Pages directory cannot be found at /Users/andrewmathers/projects/dykstra-funeral-website/packages/api/pages or /Users/andrewmathers/projects/dykstra-funeral-website/packages/api/src/pages. If using a custom path, please configure with the `no-html-link-for-pages` rule in your eslint config file.
-
-/Users/andrewmathers/projects/dykstra-funeral-website/packages/api/src/middleware/audit.ts
-   1:10  warning  'TRPCError' is defined but never used      @typescript-eslint/no-unused-vars
-  10:11  warning  'AuditMetadata' is defined but never used  @typescript-eslint/no-unused-vars
-  14:29  error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
-  75:29  error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
-
-/Users/andrewmathers/projects/dykstra-funeral-website/packages/api/src/routers/arrangements.router.ts
-    4:35  warning  'staffProcedure' is defined but never used  @typescript-eslint/no-unused-vars
-   21:60  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
-  107:35  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
-  148:35  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
-
-/Users/andrewmathers/projects/dykstra-funeral-website/packages/api/src/routers/case-enhancements.router.ts
-  68:31  warning  'ctx' is defined but never used  @typescript-eslint/no-unused-vars
-
-/Users/andrewmathers/projects/dykstra-funeral-website/packages/api/src/routers/case.router.ts
-    6:26  warning  'ServiceTypeSchema' is defined but never used  @typescript-eslint/no-unused-vars
-   21:60  error    Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
-  119:35  error    Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
-  330:35  error    Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
-
-/Users/andrewmathers/projects/dykstra-funeral-website/packages/api/src/routers/contract.router.ts
-   57:20  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-   96:20  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  127:20  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  366:20  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-
-/Users/andrewmathers/projects/dykstra-funeral-website/packages/api/src/routers/invitation.router.ts
-  146:20  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-
-/Users/andrewmathers/projects/dykstra-funeral-website/packages/api/src/routers/payment.router.ts
-   4:35  warning  'staffProcedure' is defined but never used  @typescript-eslint/no-unused-vars
-  16:60  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
-
-/Users/andrewmathers/projects/dykstra-funeral-website/packages/api/src/routers/photo.router.ts
-    5:10  warning  'uploadPhoto' is defined but never used   @typescript-eslint/no-unused-vars
-   21:60  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-   89:43  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  162:39  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  200:41  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  232:31  warning  'ctx' is defined but never used           @typescript-eslint/no-unused-vars
-  235:80  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  265:37  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-
-/Users/andrewmathers/projects/dykstra-funeral-website/packages/api/src/routers/staff.router.ts
-  16:7   warning  'runEffect' is assigned a value but never used  @typescript-eslint/no-unused-vars
-  16:60  error    Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
-
-/Users/andrewmathers/projects/dykstra-funeral-website/packages/api/src/routers/stripe.router.ts
-  10:60  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-
-/Users/andrewmathers/projects/dykstra-funeral-website/packages/api/src/routers/user.router.ts
-  10:60  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-
-/Users/andrewmathers/projects/dykstra-funeral-website/packages/api/src/services/email.service.ts
-  276:9  warning  'htmlContent' is assigned a value but never used  @typescript-eslint/no-unused-vars
-
-✖ 33 problems (23 errors, 10 warnings)
-
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/api/src/routers/invitation.router.ts[24m[0m
+[0m  [2m3:1[22m  [33mwarning[39m  Imports "CaseMemberRole" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[33m[1m✖ 1 problem (0 errors, 1 warning)[22m[39m[0m
+[0m[33m[1m[22m[39m[33m[1m  0 errors and 1 warning potentially fixable with the `--fix` option.[22m[39m[0m
+[0m[33m[1m[22m[39m[0m

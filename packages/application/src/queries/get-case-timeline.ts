@@ -39,132 +39,134 @@ export interface GetCaseTimelineResult {
  * Generate timeline events from case data
  * Maps case history to user-friendly timeline events
  */
-function generateTimelineEvents(caseData: any): TimelineEvent[] {
+function generateTimelineEvents(caseData: Record<string, unknown>): TimelineEvent[] {
   const events: TimelineEvent[] = [];
 
   // Case created event
-  if (caseData.createdAt) {
+  if (caseData['createdAt']) {
     events.push({
-      id: `${caseData.id}-created`,
-      timestamp: new Date(caseData.createdAt),
+      id: `${caseData['id']}-created`,
+      timestamp: new Date(caseData['createdAt'] as string | number | Date),
       eventType: 'created',
       title: 'Case Created',
-      description: `Case opened for ${caseData.decedentName || 'deceased'}`,
-      actor: caseData.createdBy,
+      description: `Case opened for ${(caseData['decedentName'] as string) || 'deceased'}`,
+      actor: caseData['createdBy'] as string | undefined,
     });
   }
 
   // Family members invited (from invitations or notes)
-  if (caseData.familyMembers && caseData.familyMembers.length > 0) {
-    caseData.familyMembers.forEach((member: any, index: number) => {
-      if (member.invitedAt) {
+  if (Array.isArray(caseData['familyMembers']) && caseData['familyMembers'].length > 0) {
+    (caseData['familyMembers'] as Array<Record<string, unknown>>).forEach((member, index: number) => {
+      if (member['invitedAt']) {
         events.push({
-          id: `${caseData.id}-invite-${index}`,
-          timestamp: new Date(member.invitedAt),
+          id: `${caseData['id']}-invite-${index}`,
+          timestamp: new Date(member['invitedAt'] as string | number | Date),
           eventType: 'invite',
           title: 'Family Member Invited',
-          description: `${member.name || member.email} invited to collaborate`,
-          actor: member.invitedBy,
+          description: `${(member['name'] as string) || (member['email'] as string)} invited to collaborate`,
+          actor: member['invitedBy'] as string | undefined,
         });
       }
     });
   }
 
   // Arrangements saved (from SCD2 versions)
-  if (caseData.arrangements) {
+  if (caseData['arrangements']) {
+    const arrangements = caseData['arrangements'] as Record<string, unknown>;
     events.push({
-      id: `${caseData.id}-arrangements`,
-      timestamp: new Date(caseData.arrangements.updatedAt || caseData.arrangements.createdAt),
+      id: `${caseData['id']}-arrangements`,
+      timestamp: new Date((arrangements['updatedAt'] || arrangements['createdAt']) as string | number | Date),
       eventType: 'updated',
       title: 'Arrangements Saved',
-      description: `${caseData.arrangements.serviceType || 'Service'} arrangements recorded`,
-      actor: caseData.arrangements.updatedBy,
+      description: `${(arrangements['serviceType'] as string) || 'Service'} arrangements recorded`,
+      actor: arrangements['updatedBy'] as string | undefined,
     });
   }
 
   // Contract signed (from contract entity)
-  if (caseData.contract?.signedAt) {
+  const contract = caseData['contract'] as Record<string, unknown> | undefined;
+  if (contract?.['signedAt']) {
     events.push({
-      id: `${caseData.id}-contract-signed`,
-      timestamp: new Date(caseData.contract.signedAt),
+      id: `${caseData['id']}-contract-signed`,
+      timestamp: new Date(contract['signedAt'] as string | number | Date),
       eventType: 'signed',
       title: 'Contract Signed',
       description: `Contract signed electronically`,
-      actor: caseData.contract.signedBy,
+      actor: contract['signedBy'] as string | undefined,
       metadata: {
-        contractId: caseData.contract.id,
+        contractId: contract['id'] as string,
       },
     });
   }
 
   // Payments received (from payment records)
-  if (caseData.payments && caseData.payments.length > 0) {
-    caseData.payments
-      .filter((p: any) => p.status === 'SUCCEEDED')
-      .forEach((payment: any) => {
+  if (Array.isArray(caseData['payments']) && caseData['payments'].length > 0) {
+    (caseData['payments'] as Array<Record<string, unknown>>)
+      .filter((p) => p['status'] === 'SUCCEEDED')
+      .forEach((payment) => {
         events.push({
-          id: `${caseData.id}-payment-${payment.id}`,
-          timestamp: new Date(payment.paidAt || payment.createdAt),
+          id: `${caseData['id']}-payment-${payment['id']}`,
+          timestamp: new Date((payment['paidAt'] || payment['createdAt']) as string | number | Date),
           eventType: 'payment',
           title: 'Payment Received',
-          description: `${formatCurrency(payment.amountMinor, payment.currency)} payment processed`,
-          actor: payment.paidBy,
+          description: `${formatCurrency(payment['amountMinor'] as number, payment['currency'] as string)} payment processed`,
+          actor: payment['paidBy'] as string | undefined,
           metadata: {
-            paymentId: payment.id,
-            amount: payment.amountMinor,
-            method: payment.method,
+            paymentId: payment['id'] as string,
+            amount: payment['amountMinor'] as number,
+            method: payment['method'] as string,
           },
         });
       });
   }
 
   // Photos uploaded (from photo records)
-  if (caseData.photos && caseData.photos.length > 0) {
-    caseData.photos.forEach((photo: any) => {
+  if (Array.isArray(caseData['photos']) && caseData['photos'].length > 0) {
+    (caseData['photos'] as Array<Record<string, unknown>>).forEach((photo) => {
       events.push({
-        id: `${caseData.id}-photo-${photo.id}`,
-        timestamp: new Date(photo.uploadedAt),
+        id: `${caseData['id']}-photo-${photo['id']}`,
+        timestamp: new Date(photo['uploadedAt'] as string | number | Date),
         eventType: 'upload',
         title: 'Photo Uploaded',
-        description: photo.caption || 'Photo added to memorial',
-        actor: photo.uploadedBy,
+        description: (photo['caption'] as string) || 'Photo added to memorial',
+        actor: photo['uploadedBy'] as string | undefined,
         metadata: {
-          photoId: photo.id,
+          photoId: photo['id'] as string,
         },
       });
     });
   }
 
   // Documents added (from document records)
-  if (caseData.documents && caseData.documents.length > 0) {
-    caseData.documents.forEach((doc: any) => {
+  if (Array.isArray(caseData['documents']) && caseData['documents'].length > 0) {
+    (caseData['documents'] as Array<Record<string, unknown>>).forEach((doc) => {
       events.push({
-        id: `${caseData.id}-doc-${doc.id}`,
-        timestamp: new Date(doc.uploadedAt || doc.createdAt),
+        id: `${caseData['id']}-doc-${doc['id']}`,
+        timestamp: new Date((doc['uploadedAt'] || doc['createdAt']) as string | number | Date),
         eventType: 'upload',
         title: 'Document Added',
-        description: `${doc.name} uploaded`,
-        actor: doc.uploadedBy,
+        description: `${doc['name'] as string} uploaded`,
+        actor: doc['uploadedBy'] as string | undefined,
         metadata: {
-          documentId: doc.id,
-          documentType: doc.type,
+          documentId: doc['id'] as string,
+          documentType: doc['type'] as string,
         },
       });
     });
   }
 
   // Case status updates (from SCD2 versions)
-  if (caseData.statusHistory && caseData.statusHistory.length > 1) {
-    caseData.statusHistory
-      .filter((_: any, index: number) => index > 0) // Skip initial status
-      .forEach((statusChange: any, index: number) => {
+  if (Array.isArray(caseData['statusHistory']) && caseData['statusHistory'].length > 1) {
+    (caseData['statusHistory'] as Array<Record<string, unknown>>)
+      .filter((_: unknown, index: number) => index > 0) // Skip initial status
+      .forEach((statusChange, index: number) => {
         events.push({
-          id: `${caseData.id}-status-${index}`,
-          timestamp: new Date(statusChange.validFrom),
+          id: `${caseData['id']}-status-${index}`,
+          timestamp: new Date(statusChange['validFrom'] as string | number | Date),
           eventType: 'updated',
           title: 'Status Updated',
-          description: `Case status changed to ${statusChange.status}`,
-          actor: statusChange.updatedBy,
+          description: `Case status changed to ${statusChange['status'] as string}`,
+          actor: statusChange['updatedBy'] as string | undefined,
         });
       });
   }
@@ -179,7 +181,7 @@ function generateTimelineEvents(caseData: any): TimelineEvent[] {
  * Format currency for display
  */
 function formatCurrency(amountMinor: number, currency: string): string {
-  const amount = amountMinor / 100;
+  const amount = (amountMinor || 0) / 100;
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: currency || 'USD',

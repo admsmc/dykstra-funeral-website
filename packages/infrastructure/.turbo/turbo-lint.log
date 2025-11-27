@@ -1,51 +1,24 @@
 
+
 > @dykstra/infrastructure@0.1.0 lint /Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure
 > eslint .
 
 Pages directory cannot be found at /Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/pages or /Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/pages. If using a custom path, please configure with the `no-html-link-for-pages` rule in your eslint config file.
-
-/Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/database/prisma-case-repository.ts
-  12:37  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-
-/Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/database/prisma-contract-repository.ts
-  12:35  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  56:36  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  57:36  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-
-/Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/database/prisma-guestbook-repository.ts
-  10:32  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-
-/Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/database/prisma-payment-repository.ts
-  12:34  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-
-/Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/database/prisma-photo-repository.ts
-  11:32  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-
-/Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/database/prisma-tribute-repository.ts
-  10:34  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-
-/Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/email/email-adapter.ts
-   69:24  warning  'inviteLink' is defined but never used       @typescript-eslint/no-unused-vars
-   69:36  warning  'funeralHomeName' is defined but never used  @typescript-eslint/no-unused-vars
-   69:53  warning  'decedentName' is defined but never used     @typescript-eslint/no-unused-vars
-   91:27  warning  'contractLink' is defined but never used     @typescript-eslint/no-unused-vars
-   91:41  warning  'caseDetails' is defined but never used      @typescript-eslint/no-unused-vars
-   99:28  warning  'receiptUrl' is defined but never used       @typescript-eslint/no-unused-vars
-   99:40  warning  'amount' is defined but never used           @typescript-eslint/no-unused-vars
-   99:48  warning  'caseDetails' is defined but never used      @typescript-eslint/no-unused-vars
-  107:28  warning  'caseDetails' is defined but never used      @typescript-eslint/no-unused-vars
-
-/Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/payment/stripe-adapter.ts
-   18:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-   28:32  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-   37:32  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-   43:32  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  128:29  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-
-/Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/storage/storage-adapter.ts
-   60:31  warning  'expiresIn' is defined but never used  @typescript-eslint/no-unused-vars
-  116:31  warning  'expiresIn' is defined but never used  @typescript-eslint/no-unused-vars
-
-✖ 24 problems (13 errors, 11 warnings)
-
- ELIFECYCLE  Command failed with exit code 1.
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/adapters/storage/s3-storage-adapter.ts[24m[0m
+[0m  [2m9:1[22m  [33mwarning[39m  Imports "FileUpload" and "UploadResult" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/database/prisma-case-repository.ts[24m[0m
+[0m  [2m6:1[22m  [33mwarning[39m  All imports in the declaration are only used as types. Use `import type`  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/database/prisma-contract-repository.ts[24m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  Imports "Money" are only used as type                                     [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m6:1[22m  [33mwarning[39m  All imports in the declaration are only used as types. Use `import type`  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/database/prisma-payment-repository.ts[24m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  Imports "Money" are only used as type                                     [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m6:1[22m  [33mwarning[39m  All imports in the declaration are only used as types. Use `import type`  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[33m[1m✖ 6 problems (0 errors, 6 warnings)[22m[39m[0m
+[0m[33m[1m[22m[39m[33m[1m  0 errors and 6 warnings potentially fixable with the `--fix` option.[22m[39m[0m
+[0m[33m[1m[22m[39m[0m

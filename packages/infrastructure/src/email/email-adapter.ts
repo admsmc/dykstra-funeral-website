@@ -1,6 +1,5 @@
 import { Effect, Layer } from 'effect';
-import type { EmailPort } from '@dykstra/application';
-import { EmailError } from '@dykstra/application';
+import { EmailPort, EmailError } from '@dykstra/application';
 
 /**
  * Console Email Adapter (Development)
@@ -129,7 +128,7 @@ const getEmailAdapter = (): EmailPort => {
 /**
  * Effect Layer to provide EmailPort
  */
-export const EmailAdapterLive = Layer.succeed(
-  (await import('@dykstra/application')).EmailPort,
-  getEmailAdapter()
+export const EmailAdapterLive = Layer.sync(
+  EmailPort,
+  () => getEmailAdapter()
 );

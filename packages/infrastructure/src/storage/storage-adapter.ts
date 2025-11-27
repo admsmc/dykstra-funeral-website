@@ -1,6 +1,5 @@
 import { Effect, Layer } from 'effect';
-import type { StoragePort, FileUpload, UploadResult } from '@dykstra/application';
-import { StorageError } from '@dykstra/application';
+import { StoragePort, type FileUpload, type UploadResult, StorageError } from '@dykstra/application';
 import { randomBytes } from 'crypto';
 
 /**
@@ -145,7 +144,7 @@ const getStorageAdapter = (): StoragePort => {
 /**
  * Effect Layer to provide StoragePort
  */
-export const StorageAdapterLive = Layer.succeed(
-  (await import('@dykstra/application')).StoragePort,
-  getStorageAdapter()
+export const StorageAdapterLive = Layer.sync(
+  StoragePort,
+  () => getStorageAdapter()
 );

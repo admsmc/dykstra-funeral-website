@@ -1,8 +1,9 @@
 import { Effect, Layer } from 'effect';
 import { Case, Arrangements, type CaseId, NotFoundError } from '@dykstra/domain';
-import type { CaseRepository } from '@dykstra/application';
+import { CaseRepository } from '@dykstra/application';
 import { PersistenceError } from '@dykstra/application';
 import type { CaseType, CaseStatus, ServiceType } from '@dykstra/shared';
+import { CaseType as PrismaCaseType, CaseStatus as PrismaCaseStatus, ServiceType as PrismaServiceType } from '@prisma/client';
 import { prisma } from './prisma-client';
 
 /**
@@ -53,11 +54,11 @@ const toPrisma = (case_: Case, validFrom: Date = new Date()) => {
     decedentName: case_.decedentName,
     decedentDateOfBirth: case_.decedentDateOfBirth,
     decedentDateOfDeath: case_.decedentDateOfDeath,
-    type: case_.type.toUpperCase(),
-    status: case_.status.toUpperCase(),
-    serviceType: case_.serviceType?.toUpperCase() ?? null,
+    type: case_.type.toUpperCase() as PrismaCaseType,
+    status: case_.status.toUpperCase() as PrismaCaseStatus,
+    serviceType: (case_.serviceType?.toUpperCase() ?? null) as PrismaServiceType | null,
     serviceDate: case_.serviceDate,
-    arrangements: case_.arrangements ? case_.arrangements.toJSON() : null,
+    arrangements: case_.arrangements ? (case_.arrangements.toJSON() as any) : null,
     createdAt: case_.createdAt,
     updatedAt: case_.updatedAt,
     createdBy: case_.createdBy,
@@ -272,7 +273,7 @@ export const PrismaCaseRepository: CaseRepository = {
           await prisma.case.create({ data });
         } else {
           // Update - SCD Type 2 transaction
-          await prisma.$transaction(async (tx: typeof prisma) => {
+          await prisma.$transaction(async (tx) => {
             // Step 1: Close current version
             await tx.case.updateMany({
               where: {
@@ -347,9 +348,8 @@ export const PrismaCaseRepository: CaseRepository = {
 
 /**
  * Effect Layer to provide CaseRepository
- * Note: Layer creation should be done asynchronously where needed
  */
-export const createPrismaCaseRepositoryLive = async () => {
-  const { CaseRepository } = await import('@dykstra/application');
-  return Layer.succeed(CaseRepository, PrismaCaseRepository);
-};
+export const PrismaCaseRepositoryLive = Layer.succeed(
+  CaseRepository,
+  PrismaCaseRepository
+);

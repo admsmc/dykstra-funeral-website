@@ -1,8 +1,9 @@
 import { Effect, Layer } from 'effect';
-import { Payment, type PaymentId, type Money, NotFoundError } from '@dykstra/domain';
-import type { PaymentRepository } from '@dykstra/application';
+import { Payment, type PaymentId, Money, NotFoundError } from '@dykstra/domain';
+import { PaymentRepository } from '@dykstra/application';
 import { PersistenceError } from '@dykstra/application';
 import type { PaymentMethod, PaymentStatus } from '@dykstra/shared';
+import { PaymentMethod as PrismaPaymentMethod, PaymentStatus as PrismaPaymentStatus } from '@prisma/client';
 import { prisma } from './prisma-client';
 
 /**
@@ -46,8 +47,8 @@ const toPrisma = (payment: Payment, validFrom: Date = new Date()) => {
     isCurrent: true,
     caseId: payment.caseId,
     amount: payment.amount.amount,
-    method: payment.method.toUpperCase(),
-    status: payment.status.toUpperCase(),
+    method: payment.method.toUpperCase() as PrismaPaymentMethod,
+    status: payment.status.toUpperCase() as PrismaPaymentStatus,
     stripePaymentIntentId: payment.stripePaymentIntentId,
     stripePaymentMethodId: payment.stripePaymentMethodId,
     receiptUrl: payment.receiptUrl,
@@ -266,6 +267,6 @@ export const PrismaPaymentRepository: PaymentRepository = {
  * Effect Layer to provide PaymentRepository
  */
 export const PrismaPaymentRepositoryLive = Layer.succeed(
-  (await import('@dykstra/application')).PaymentRepository,
+  PaymentRepository,
   PrismaPaymentRepository
 );

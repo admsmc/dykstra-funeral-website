@@ -67,6 +67,7 @@ export const createPaymentIntent = ({
     const paymentPort = yield* _(PaymentPort);
 
     // Verify case exists (this will throw NotFoundError if not found)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Type conversion for branded CaseId
     yield* _(caseRepo.findById(caseId as any));
 
     // Create Stripe PaymentIntent

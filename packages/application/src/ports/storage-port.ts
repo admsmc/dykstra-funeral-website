@@ -29,7 +29,7 @@ export interface UploadResult {
 }
 
 /**
- * Storage Port
+ * Storage Port interface
  * Abstraction for file storage (S3, Vercel Blob, etc.)
  */
 export interface StoragePort {

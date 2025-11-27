@@ -1,15 +1,12 @@
 
+
 > @dykstra/ui@0.1.0 lint /Users/andrewmathers/projects/dykstra-funeral-website/packages/ui
 > eslint src/**/*.{ts,tsx}
 
 Pages directory cannot be found at /Users/andrewmathers/projects/dykstra-funeral-website/packages/ui/pages or /Users/andrewmathers/projects/dykstra-funeral-website/packages/ui/src/pages. If using a custom path, please configure with the `no-html-link-for-pages` rule in your eslint config file.
-
-/Users/andrewmathers/projects/dykstra-funeral-website/packages/ui/src/components/file-upload.tsx
-  225:23  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
-
-/Users/andrewmathers/projects/dykstra-funeral-website/packages/ui/src/components/payment-form.tsx
-  38:7  warning  'error' is defined but never used                        @typescript-eslint/no-unused-vars
-  39:7  warning  'showBillingDetails' is assigned a value but never used  @typescript-eslint/no-unused-vars
-
-✖ 3 problems (0 errors, 3 warnings)
-
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/ui/src/components/file-upload.tsx[24m[0m
+[0m  [2m225:23[22m  [33mwarning[39m  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  [2m@next/next/no-img-element[22m[0m
+[0m[0m
+[0m[33m[1m✖ 1 problem (0 errors, 1 warning)[22m[39m[0m
+[0m[33m[1m[22m[39m[0m

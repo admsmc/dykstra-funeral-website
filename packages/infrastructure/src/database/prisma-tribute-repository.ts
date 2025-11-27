@@ -1,6 +1,6 @@
 import { Effect, Layer } from 'effect';
 import { Tribute, type TributeId, type MemorialId, NotFoundError } from '@dykstra/domain';
-import type { TributeRepository } from '@dykstra/application';
+import { TributeRepository } from '@dykstra/application';
 import { PersistenceError } from '@dykstra/application';
 import { prisma } from './prisma-client';
 
@@ -166,6 +166,6 @@ export const PrismaTributeRepository: TributeRepository = {
  * Effect Layer to provide TributeRepository
  */
 export const PrismaTributeRepositoryLive = Layer.succeed(
-  (await import('@dykstra/application')).TributeRepository,
+  TributeRepository,
   PrismaTributeRepository
 );

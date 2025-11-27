@@ -68,6 +68,7 @@ export const getContractDetails = (
 ): Effect.Effect<Contract, NotFoundError | PersistenceError, ContractRepository> =>
   Effect.gen(function* () {
     const contractRepo = yield* ContractRepository;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Branded type conversion
     const contract = yield* contractRepo.findById(contractId as any);
     
     if (!contract) {

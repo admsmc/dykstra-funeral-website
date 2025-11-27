@@ -28,9 +28,74 @@ Runs the production build locally. Must run `npm run build` first.
 
 ### Linting
 ```bash
-npm run lint
+pnpm lint
 ```
 Runs ESLint to check for code quality issues using Next.js recommended rules.
+
+### Validation (Recommended Before Commit)
+```bash
+pnpm validate
+```
+Runs comprehensive pre-commit checks:
+- TypeScript compilation across all packages
+- ESLint with Effect-specific rules
+- Circular dependency detection
+- Effect Layer validation (catches await import issues)
+- Interface/tag naming conflict detection
+
+### Specific Validation Commands
+```bash
+pnpm check:circular  # Check for circular dependencies
+pnpm check:layers    # Validate Effect Layer definitions
+pnpm type-check      # TypeScript compilation only
+```
+
+## Prisma 7 Configuration
+
+This project uses **Prisma ORM 7.0.1** with the following setup:
+
+### Key Files
+- **Configuration**: `prisma.config.ts` at project root (new in Prisma 7)
+- **Schema**: `packages/infrastructure/prisma/schema.prisma`
+- **Migrations**: `packages/infrastructure/prisma/migrations/`
+- **Database adapter**: `@prisma/adapter-pg` for PostgreSQL
+
+### Prisma 7 Breaking Changes
+- ✅ Connection URL moved from schema to `prisma.config.ts`
+- ✅ Database adapter required in PrismaClient instantiation
+- ✅ Environment variables loaded via `dotenv/config` (not auto-loaded)
+- ✅ Uses PostgreSQL connection pool (`pg`) for better performance
+
+### Running Prisma Commands
+All Prisma commands automatically load configuration from `prisma.config.ts`:
+```bash
+# From project root
+npx prisma generate          # Generate Prisma Client
+npx prisma db push           # Push schema changes to database
+npx prisma migrate dev       # Create and apply migration
+npx prisma studio            # Open Prisma Studio
+
+# From infrastructure package
+pnpm --filter @dykstra/infrastructure db:generate
+pnpm --filter @dykstra/infrastructure db:push
+pnpm --filter @dykstra/infrastructure db:migrate
+pnpm --filter @dykstra/infrastructure db:studio
+```
+
+### PrismaClient Setup
+PrismaClient is configured with the PostgreSQL adapter in `packages/infrastructure/src/database/prisma-client.ts`:
+```typescript
+import { PrismaClient } from '@prisma/client'
+import { PrismaPg } from '@prisma/adapter-pg'
+import { Pool } from 'pg'
+
+const pool = new Pool({ connectionString: process.env.DATABASE_URL })
+const adapter = new PrismaPg(pool)
+
+export const prisma = new PrismaClient({ adapter })
+```
+
+**Note**: The connection pool is managed as a singleton to prevent connection leaks in development.
 
 ## Architecture & Code Structure
 
@@ -51,6 +116,35 @@ Runs ESLint to check for code quality issues using Next.js recommended rules.
 - ❌ NO Prisma in application or domain layers
 - ❌ NO class-based repositories
 - ❌ NO business logic in API routers
+
+### Effect-Specific Best Practices
+
+**Service Tag / Interface Naming (CRITICAL)**:
+- **Problem**: Using the same name for both interface and Context tag causes circular type references
+- **Solution**: Suffix interfaces with `Service` (e.g., `StoragePortService` interface, `StoragePort` tag)
+- **Example**:
+  ```typescript
+  // ✅ CORRECT
+  export interface StoragePortService { ... }
+  export const StoragePort = Context.GenericTag<StoragePortService>('@dykstra/StoragePort');
+  
+  // ❌ WRONG - Causes "StoragePort is not defined" runtime error
+  export interface StoragePort { ... }
+  export const StoragePort = Context.GenericTag<StoragePort>('@dykstra/StoragePort');
+  ```
+
+**Layer Definition Rules**:
+- ❌ NEVER use `await import()` in Layer definitions (causes dependency injection failures)
+- ✅ Always import service tags at top of file: `import { ServiceTag } from '@dykstra/application'`
+- ✅ Use `Layer.succeed(ServiceTag, implementation)` pattern
+- ❌ NO top-level side effects in exported Layers
+
+**Validation Tools**:
+Run `pnpm validate` before committing to catch:
+- Circular dependencies
+- Interface/tag naming conflicts  
+- `await import()` in Layer definitions
+- Type-aware ESLint issues
 
 ### App Router Pattern
 This project uses Next.js 15 App Router (not Pages Router). All routes are defined as directories under `src/app/` with a `page.tsx` file:

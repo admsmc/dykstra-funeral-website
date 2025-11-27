@@ -35,8 +35,8 @@ export const PaymentForm = React.forwardRef<HTMLFormElement, PaymentFormProps>(
       className,
       onSubmit,
       loading = false,
-      error,
-      showBillingDetails = false,
+      error: _error,
+      showBillingDetails: _showBillingDetails = false,
       children,
       ...props
     },

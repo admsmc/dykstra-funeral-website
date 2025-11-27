@@ -33,6 +33,9 @@ export default function Header() {
             <Link href="/about" className="text-gray-700 hover:text-[--navy] transition-colors">
               About Us
             </Link>
+            <Link href="/sign-in" className="text-gray-700 hover:text-[--navy] transition-colors">
+              Family Portal
+            </Link>
             <Link 
               href="/contact" 
               className="bg-[--navy] text-white px-6 py-2 rounded-md hover:bg-[--charcoal] transition-colors"
@@ -75,6 +78,9 @@ export default function Header() {
               </Link>
               <Link href="/about" className="text-gray-700 hover:text-[--navy] py-2">
                 About Us
+              </Link>
+              <Link href="/sign-in" className="text-gray-700 hover:text-[--navy] py-2">
+                Family Portal
               </Link>
               <Link href="/contact" className="text-gray-700 hover:text-[--navy] py-2">
                 Contact Us

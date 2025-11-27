@@ -34,15 +34,19 @@ export interface ButtonProps
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, loading, disabled, children, ...props }, ref) => {
+  ({ className, variant, size, loading, disabled, children, type, onClick, onMouseDown, onMouseUp, onKeyDown }, ref) => {
     return (
       <motion.button
         ref={ref}
+        type={type}
+        onClick={onClick}
+        onMouseDown={onMouseDown}
+        onMouseUp={onMouseUp}
+        onKeyDown={onKeyDown}
         className={cn(buttonVariants({ variant, size, className }))}
         disabled={disabled || loading}
         whileTap={{ scale: 0.98 }}
         transition={{ duration: 0.15 }}
-        {...(props as any)}
       >
         {loading && (
           <svg

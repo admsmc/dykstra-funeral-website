@@ -1,13 +1,19 @@
-import { middleware } from '../trpc';
 import { prisma } from '@dykstra/infrastructure';
+import type { Context } from '../context/context';
 
 /**
  * Audit logging middleware
  * Logs all staff mutations for compliance
+ * 
+ * Note: This is a middleware function, not wrapped with t.middleware.
+ * It's meant to be used with .use() on procedures.
  */
-
-
-export const auditMiddleware = middleware(async ({ ctx, next, path, type }) => {
+export async function auditMiddleware({ ctx, next, path, type }: {
+  ctx: Context;
+  next: () => Promise<any>;
+  path: string;
+  type: 'query' | 'mutation' | 'subscription';
+}) {
   // Only log mutations
   if (type !== 'mutation') {
     return next();
@@ -27,8 +33,8 @@ export const auditMiddleware = middleware(async ({ ctx, next, path, type }) => {
     userId: ctx.user.id,
     action: path,
     entityType: extractEntityType(path),
-    ipAddress: ctx.req.headers['x-forwarded-for'] as string || ctx.req.headers['x-real-ip'] as string || 'unknown',
-    userAgent: ctx.req.headers['user-agent'] || 'unknown',
+    ipAddress: ctx.req.headers.get('x-forwarded-for') || ctx.req.headers.get('x-real-ip') || 'unknown',
+    userAgent: ctx.req.headers.get('user-agent') || 'unknown',
     metadata: {
       // Include result if it contains an ID
       ...(typeof result === 'object' && result && 'id' in result 
@@ -41,7 +47,7 @@ export const auditMiddleware = middleware(async ({ ctx, next, path, type }) => {
   });
 
   return result;
-});
+}
 
 /**
  * Extract entity type from tRPC path

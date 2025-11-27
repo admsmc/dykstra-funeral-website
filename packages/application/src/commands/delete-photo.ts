@@ -60,7 +60,8 @@ export const deletePhoto = (
           occurredAt: new Date(),
           aggregateId: photo.id,
           memorialId: photo.memorialId,
-          caseId: photo.caseId as any, // Type conversion for CaseId
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Type conversion for branded CaseId
+          caseId: photo.caseId as any,
           deletedBy: command.deletedBy,
         })
       )

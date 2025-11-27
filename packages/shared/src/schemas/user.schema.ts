@@ -2,12 +2,15 @@ import { z } from 'zod';
 
 /**
  * User roles in the system
+ * Must match Prisma UserRole enum
  */
 export const UserRoleSchema = z.enum([
-  'family_primary', // Primary contact for a case
-  'family_member',  // Additional family member
-  'funeral_director', // Staff member
-  'admin',          // System administrator
+  'FAMILY_PRIMARY',   // Primary contact for a case
+  'FAMILY_MEMBER',    // Additional family member
+  'STAFF',            // Staff member (read-only)
+  'DIRECTOR',         // Funeral director (full case management)
+  'FUNERAL_DIRECTOR', // Deprecated: use DIRECTOR
+  'ADMIN',            // System administrator
 ]);
 
 export type UserRole = z.infer<typeof UserRoleSchema>;
@@ -47,7 +50,7 @@ export const FamilyMemberInvitationSchema = z.object({
   caseId: z.string().cuid(),
   email: z.string().email(),
   name: z.string().min(1).max(255),
-  role: z.enum(['family_primary', 'family_member']),
+  role: z.enum(['FAMILY_PRIMARY', 'FAMILY_MEMBER']),
   permissions: FamilyMemberPermissionsSchema,
   invitedAt: z.date(),
   acceptedAt: z.date().nullable(),

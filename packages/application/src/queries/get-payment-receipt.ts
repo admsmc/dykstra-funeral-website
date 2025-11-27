@@ -47,6 +47,7 @@ export const getPaymentReceipt = ({ paymentId }: GetPaymentReceiptInput): Effect
     const caseRepo = yield* _(CaseRepository);
     
     // Fetch payment
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Branded type conversion
     const payment = yield* _(paymentRepo.findById(paymentId as any));
 
     // Only generate receipts for succeeded payments
@@ -62,6 +63,7 @@ export const getPaymentReceipt = ({ paymentId }: GetPaymentReceiptInput): Effect
     }
     
     // Fetch case details
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Type conversion for branded CaseId
     const caseEntity = yield* _(caseRepo.findById(payment.caseId as any));
 
     const receipt: PaymentReceipt = {

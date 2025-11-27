@@ -1,7 +1,6 @@
 import { initTRPC, TRPCError } from '@trpc/server';
 import superjson from 'superjson';
 import type { Context } from './context/context';
-import { auditMiddleware } from './middleware/audit';
 
 /**
  * Initialize tRPC with context
@@ -50,10 +49,12 @@ export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
  */
 export const familyProcedure = protectedProcedure.use(async ({ ctx, next }) => {
   const allowedRoles: typeof ctx.user.role[] = [
-    'family_primary',
-    'family_member',
-    'funeral_director',
-    'admin',
+    'FAMILY_PRIMARY',
+    'FAMILY_MEMBER',
+    'STAFF',
+    'DIRECTOR',
+    'FUNERAL_DIRECTOR',
+    'ADMIN',
   ];
 
   if (!allowedRoles.includes(ctx.user.role)) {
@@ -73,10 +74,10 @@ export const familyProcedure = protectedProcedure.use(async ({ ctx, next }) => {
 export const staffProcedure = protectedProcedure
   .use(async ({ ctx, next }) => {
     const allowedRoles: typeof ctx.user.role[] = [
-      'staff',
-      'director',
-      'funeral_director', // Legacy
-      'admin',
+      'STAFF',
+      'DIRECTOR',
+      'FUNERAL_DIRECTOR', // Legacy
+      'ADMIN',
     ];
 
     if (!allowedRoles.includes(ctx.user.role)) {
@@ -88,13 +89,17 @@ export const staffProcedure = protectedProcedure
 
     return next({ ctx });
   })
-  .use(auditMiddleware);
+  .use(t.middleware(async ({ ctx, next, path, type }) => {
+    // Audit middleware inline to avoid circular dependency
+    const { auditMiddleware } = await import('./middleware/audit');
+    return auditMiddleware({ ctx, next, path, type });
+  }));
 
 /**
  * Admin procedure - requires admin role
  */
 export const adminProcedure = protectedProcedure.use(async ({ ctx, next }) => {
-  if (ctx.user.role !== 'admin') {
+  if (ctx.user.role !== 'ADMIN') {
     throw new TRPCError({
       code: 'FORBIDDEN',
       message: 'You must be an administrator to access this resource',

@@ -57,6 +57,7 @@ export const createInvitation = (command: CreateInvitationCommand): Effect.Effec
     }
 
     // Verify case exists
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Branded type conversion
     const caseEntity = yield* caseRepo.findById(command.caseId as any);
 
     // Check for existing active invitation

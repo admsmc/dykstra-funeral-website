@@ -1,6 +1,6 @@
 import { Effect, Layer } from 'effect';
 import { GuestbookEntry, type GuestbookEntryId, type MemorialId, NotFoundError } from '@dykstra/domain';
-import type { GuestbookRepository } from '@dykstra/application';
+import { GuestbookRepository } from '@dykstra/application';
 import { PersistenceError } from '@dykstra/application';
 import { prisma } from './prisma-client';
 
@@ -140,6 +140,6 @@ export const PrismaGuestbookRepository: GuestbookRepository = {
  * Effect Layer to provide GuestbookRepository
  */
 export const PrismaGuestbookRepositoryLive = Layer.succeed(
-  (await import('@dykstra/application')).GuestbookRepository,
+  GuestbookRepository,
   PrismaGuestbookRepository
 );

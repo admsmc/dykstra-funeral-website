@@ -50,7 +50,7 @@ export const listPayments = (
     const allPayments = yield* _(paymentRepo.findByCase(query.caseId ?? 'all'));
     
     // Apply filters in memory (not ideal for production, but works for MVP)
-    let filtered = allPayments.filter((payment) => {
+    const filtered = allPayments.filter((payment) => {
       if (query.status && payment.status !== query.status) return false;
       if (query.method && payment.method !== query.method) return false;
       if (query.dateFrom && payment.createdAt < query.dateFrom) return false;

@@ -37,6 +37,7 @@ export const getPaymentHistory = ({ caseId }: GetPaymentHistoryInput): Effect.Ef
     const paymentRepo = yield* _(PaymentRepository);
     
     // Fetch all payments for the case
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Branded type conversion
     const payments = yield* _(paymentRepo.findByCase(caseId as any));
 
     const paymentItems: PaymentHistoryItem[] = payments.map((payment) => ({

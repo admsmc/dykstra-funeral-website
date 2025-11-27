@@ -277,7 +277,7 @@ export async function sendInvitationEmail(data: InvitationEmailData): Promise<vo
   const textContent = generateInvitationEmailText(data);
 
   // Development: Log to console
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env['NODE_ENV'] !== 'production') {
     console.log('[Email Service] Invitation Email');
     console.log('=================================');
     console.log('To:', data.to);
