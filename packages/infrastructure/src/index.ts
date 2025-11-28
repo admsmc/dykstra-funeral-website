@@ -14,6 +14,28 @@ export * from './database/prisma-staff-repository';
 export * from './database/prisma-catalog-repositories';
 export * from './database/prisma-contract-template-repository';
 
+// CRM Repositories
+export * from './database/prisma-lead-repository';
+export * from './database/prisma-contact-repository';
+export * from './database/prisma-campaign-repository';
+export * from './database/prisma-referral-source-repository';
+export * from './database/prisma-interaction-repository';
+export * from './database/prisma-family-relationship-repository';
+export * from './database/prisma-email-repository';
+
+// CRM Adapters
+export * from './adapters/email/sendgrid-marketing-adapter';
+export * from './adapters/sms/twilio-sms-adapter';
+
+// Email Sync Adapters (provider-specific, not in main layer)
+export * from './adapters/email-sync/microsoft-graph-adapter';
+export * from './adapters/email-sync/gmail-adapter';
+
+// CRM Enhancement Adapters
+export * from './adapters/validation/google-places-adapter';
+export * from './adapters/validation/twilio-phone-adapter';
+export * from './adapters/enrichment/clearbit-enrichment-adapter';
+
 // Events
 export * from './events/console-event-publisher';
 
@@ -43,6 +65,18 @@ import { PrismaAuditLogRepository } from './database/prisma-audit-log-repository
 import { PrismaStaffRepository } from './database/prisma-staff-repository';
 import { PrismaProductCatalogRepository, PrismaServiceCatalogRepository } from './database/prisma-catalog-repositories';
 import { PrismaContractTemplateRepository } from './database/prisma-contract-template-repository';
+import { PrismaLeadRepository } from './database/prisma-lead-repository';
+import { PrismaContactRepository } from './database/prisma-contact-repository';
+import { PrismaCampaignRepository } from './database/prisma-campaign-repository';
+import { PrismaReferralSourceRepository } from './database/prisma-referral-source-repository';
+import { PrismaInteractionRepository } from './database/prisma-interaction-repository';
+import { PrismaFamilyRelationshipRepository } from './database/prisma-family-relationship-repository';
+import { PrismaEmailRepository } from './database/prisma-email-repository';
+import { SendGridMarketingAdapter } from './adapters/email/sendgrid-marketing-adapter';
+import { TwilioSMSAdapter } from './adapters/sms/twilio-sms-adapter';
+import { GooglePlacesAdapter } from './adapters/validation/google-places-adapter';
+import { TwilioPhoneAdapter } from './adapters/validation/twilio-phone-adapter';
+import { ClearbitEnrichmentAdapter } from './adapters/enrichment/clearbit-enrichment-adapter';
 import { StorageAdapterLive } from './storage/storage-adapter';
 import {
   CaseRepository,
@@ -59,6 +93,18 @@ import {
   ProductCatalogRepository,
   ServiceCatalogRepository,
   ContractTemplateRepository,
+  LeadRepository,
+  ContactRepository,
+  CampaignRepository,
+  ReferralSourceRepository,
+  InteractionRepository,
+  FamilyRelationshipRepository,
+  EmailRepository,
+  EmailMarketingService,
+  SMSService,
+  AddressValidation,
+  PhoneValidation,
+  ContactEnrichment,
 } from '@dykstra/application';
 import { StripeAdapterLive } from './payment/stripe-adapter';
 import { SignatureAdapterLive } from './signature/signature-adapter';
@@ -108,6 +154,24 @@ export const InfrastructureLayer = Layer.mergeAll(
   Layer.succeed(ProductCatalogRepository, PrismaProductCatalogRepository),
   Layer.succeed(ServiceCatalogRepository, PrismaServiceCatalogRepository),
   Layer.succeed(ContractTemplateRepository, PrismaContractTemplateRepository),
+  
+  // CRM Repositories
+  Layer.succeed(LeadRepository, PrismaLeadRepository),
+  Layer.succeed(ContactRepository, PrismaContactRepository),
+  Layer.succeed(CampaignRepository, PrismaCampaignRepository),
+  Layer.succeed(ReferralSourceRepository, PrismaReferralSourceRepository),
+  Layer.succeed(InteractionRepository, PrismaInteractionRepository),
+  Layer.succeed(FamilyRelationshipRepository, PrismaFamilyRelationshipRepository),
+  Layer.succeed(EmailRepository, PrismaEmailRepository),
+  
+  // CRM Adapters
+  Layer.succeed(EmailMarketingService, SendGridMarketingAdapter),
+  Layer.succeed(SMSService, TwilioSMSAdapter),
+  
+  // CRM Enhancement Adapters
+  Layer.succeed(AddressValidation, GooglePlacesAdapter),
+  Layer.succeed(PhoneValidation, TwilioPhoneAdapter),
+  Layer.succeed(ContactEnrichment, ClearbitEnrichmentAdapter),
   
   // Event publisher
   ConsoleEventPublisherLive,

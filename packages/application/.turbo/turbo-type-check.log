@@ -1,5 +1,22 @@
 
-
 > @dykstra/application@0.1.0 type-check /Users/andrewmathers/projects/dykstra-funeral-website/packages/application
 > tsc --noEmit
 
+src/ports/calendar-event-repository.ts(2,54): error TS2307: Cannot find module '@dykstra/domain/entities/calendar-event' or its corresponding type declarations.
+src/ports/calendar-event-repository.ts(3,36): error TS2307: Cannot find module '../errors/application-errors' or its corresponding type declarations.
+src/ports/calendar-sync-port.ts(2,15): error TS6196: 'CalendarEvent' is declared but never used.
+src/ports/calendar-sync-port.ts(2,90): error TS2307: Cannot find module '@dykstra/domain/entities/calendar-event' or its corresponding type declarations.
+src/ports/calendar-sync-port.ts(3,36): error TS2307: Cannot find module '../errors/application-errors' or its corresponding type declarations.
+src/use-cases/calendar-sync/get-staff-availability.ts(2,1): error TS6192: All imports in import declaration are unused.
+src/use-cases/calendar-sync/get-staff-availability.ts(2,59): error TS2307: Cannot find module '../../ports' or its corresponding type declarations.
+src/use-cases/calendar-sync/get-staff-availability.ts(4,39): error TS2307: Cannot find module '@dykstra/domain/entities/calendar-event' or its corresponding type declarations.
+src/use-cases/calendar-sync/suggest-meeting-times.ts(2,1): error TS6133: 'CalendarSyncPort' is declared but its value is never read.
+src/use-cases/calendar-sync/suggest-meeting-times.ts(2,34): error TS2307: Cannot find module '../../ports' or its corresponding type declarations.
+src/use-cases/calendar-sync/suggest-meeting-times.ts(3,39): error TS2307: Cannot find module '@dykstra/domain/entities/calendar-event' or its corresponding type declarations.
+src/use-cases/calendar-sync/sync-interaction-to-calendar.ts(2,1): error TS6192: All imports in import declaration are unused.
+src/use-cases/calendar-sync/sync-interaction-to-calendar.ts(2,59): error TS2307: Cannot find module '../../ports' or its corresponding type declarations.
+src/use-cases/calendar-sync/sync-interaction-to-calendar.ts(4,39): error TS2307: Cannot find module '@dykstra/domain/entities/calendar-event' or its corresponding type declarations.
+src/use-cases/calendar-sync/sync-interaction-to-calendar.ts(5,1): error TS6133: 'DatabaseError' is declared but its value is never read.
+src/use-cases/calendar-sync/sync-interaction-to-calendar.ts(5,31): error TS2307: Cannot find module '../../errors/application-errors' or its corresponding type declarations.
+src/use-cases/calendar-sync/sync-interaction-to-calendar.ts(20,43): error TS6133: 'params' is declared but its value is never read.
+ ELIFECYCLE  Command failed with exit code 2.

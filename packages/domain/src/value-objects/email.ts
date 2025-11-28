@@ -2,15 +2,15 @@ import { Effect, Data } from 'effect';
 import { ValidationError } from '../errors/domain-errors';
 
 /**
- * Email value object
+ * EmailAddress value object
  * Immutable, validated email address
  */
-export class Email extends Data.Class<{ readonly value: string }> {
+export class EmailAddress extends Data.Class<{ readonly value: string }> {
   /**
    * Create an Email from a string
    * Returns Effect with ValidationError if invalid
    */
-  static create(value: string): Effect.Effect<Email, ValidationError> {
+  static create(value: string): Effect.Effect<EmailAddress, ValidationError> {
     const trimmed = value.trim().toLowerCase();
     
     if (!trimmed) {
@@ -34,7 +34,7 @@ export class Email extends Data.Class<{ readonly value: string }> {
       );
     }
     
-    return Effect.succeed(new Email({ value: trimmed }));
+    return Effect.succeed(new EmailAddress({ value: trimmed }));
   }
   
   /**

@@ -1,0 +1,11 @@
+
+> @dykstra/api@0.1.0 test /Users/andrewmathers/projects/dykstra-funeral-website/packages/api
+> vitest run
+
+
+ RUN  v2.1.9 /Users/andrewmathers/projects/dykstra-funeral-website/packages/api
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude:  **/node_modules/**, **/dist/**, **/cypress/**, **/.{idea,git,cache,output,temp}/**, **/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build,eslint,prettier}.config.*
+
+No test files found, exiting with code 1

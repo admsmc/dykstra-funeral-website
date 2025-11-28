@@ -21,6 +21,25 @@ export * from './ports/staff-repository';
 export * from './ports/catalog-repository';
 export * from './ports/contract-template-repository';
 
+// CRM Ports
+export * from './ports/lead-repository';
+export * from './ports/contact-repository';
+export * from './ports/campaign-repository';
+export * from './ports/interaction-repository';
+export * from './ports/referral-source-repository';
+export * from './ports/email-marketing-port';
+
+// CRM Enhancement Ports
+export * from './ports/address-validation-port';
+export * from './ports/phone-validation-port';
+export * from './ports/contact-enrichment-port';
+export * from './ports/family-relationship-repository';
+export * from './ports/sms-port';
+export * from './ports/email-sync-port';
+export * from './ports/email-repository';
+export * from './ports/calendar-sync-port';
+export * from './ports/calendar-event-repository';
+
 // Commands
 export * from './commands/create-case';
 export * from './commands/upload-photo';
@@ -89,3 +108,26 @@ export * from './use-cases/payments/record-manual-payment';
 export * from './use-cases/payments/process-refund';
 export * from './use-cases/payments/get-payment-stats';
 export * from './use-cases/payments/get-ar-aging-report';
+
+// CRM Lead use cases
+export * from './use-cases/leads/create-lead';
+export * from './use-cases/leads/convert-lead-to-case';
+
+// CRM Contact use cases
+export * from './use-cases/contacts/merge-contacts';
+export * from './use-cases/contacts/find-duplicates';
+
+// CRM Campaign use cases
+export * from './use-cases/campaigns/send-campaign';
+
+// CRM Interaction use cases
+export * from './use-cases/interactions/log-interaction';
+
+// Email Sync use cases
+export * from './use-cases/email-sync/match-email-to-entity';
+export * from './use-cases/email-sync/sync-user-emails';
+
+// Calendar Sync use cases
+export * from './use-cases/calendar-sync/sync-interaction-to-calendar';
+export * from './use-cases/calendar-sync/get-staff-availability';
+export * from './use-cases/calendar-sync/suggest-meeting-times';

@@ -25,11 +25,20 @@ model FuneralHome {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  cases             Case[]
-  users             User[]
-  productCatalog    ProductCatalog[]
-  serviceCatalog    ServiceCatalog[]
-  contractTemplates ContractTemplate[]
+  cases               Case[]
+  users               User[]
+  productCatalog      ProductCatalog[]
+  serviceCatalog      ServiceCatalog[]
+  contractTemplates   ContractTemplate[]
+  leads               Lead[]
+  contacts            Contact[]
+  campaigns           Campaign[]
+  interactions        Interaction[]
+  referralSources     ReferralSource[]
+  familyRelationships FamilyRelationship[]
+  emails              Email[]
+  calendarEvents      CalendarEvent[]
+  phoneCalls          PhoneCall[]
 
   @@map("funeral_homes")
 }
@@ -62,6 +71,11 @@ model User {
   internalNotes     InternalNote[]
   sentInvitations   FamilyInvitation[]
   contractTemplates ContractTemplate[]
+  assignedLeads     Lead[]             @relation("AssignedLeads")
+  staffInteractions Interaction[]      @relation("StaffInteractions")
+  oauthTokens       OAuthToken[]
+  calendarEvents    CalendarEvent[]    @relation("CalendarEventCreator")
+  phoneCalls        PhoneCall[]        @relation("PhoneCallStaff")
 
   @@index([email])
   @@index([funeralHomeId])
@@ -110,8 +124,13 @@ model Case {
   tasks             Task[]
   internalNotes     InternalNote[]
   familyInvitations FamilyInvitation[]
+  convertedFromLead Lead[]             @relation("ConvertedFromLead")
+  interactions      Interaction[]
+  emails            Email[]
+  calendarEvents    CalendarEvent[]
+  phoneCalls        PhoneCall[]
 
-  @@unique([businessKey, version]) // Each version is unique
+  @@unique([businessKey, version])
   @@index([businessKey, isCurrent]) // Fast current version lookup
   @@index([validFrom, validTo]) // Temporal queries
   @@index([funeralHomeId])
@@ -754,4 +773,582 @@ model ContractTemplate {
   @@index([isDefault])
   @@index([isActive])
   @@map("contract_templates")
+}
+
+// ============================================================================
+// CRM & Marketing System Models
+// ============================================================================
+
+// Lead (SCD Type 2)
+model Lead {
+  id          String    @id @default(cuid())
+  businessKey String
+  version     Int       @default(1)
+  validFrom   DateTime  @default(now())
+  validTo     DateTime?
+  isCurrent   Boolean   @default(true)
+
+  funeralHomeId     String
+  firstName         String
+  lastName          String
+  email             String?
+  phone             String?
+  status            LeadStatus
+  source            LeadSource
+  type              LeadType
+  score             Int        @default(0)
+  assignedTo        String?
+  referralSourceId  String?
+  notes             String?    @db.Text
+  lastContactedAt   DateTime?
+  convertedToCaseId String?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  createdBy         String
+
+  funeralHome    FuneralHome     @relation(fields: [funeralHomeId], references: [id])
+  assignedStaff  User?           @relation("AssignedLeads", fields: [assignedTo], references: [id])
+  referralSource ReferralSource? @relation(fields: [referralSourceId], references: [id])
+  convertedCase  Case?           @relation("ConvertedFromLead", fields: [convertedToCaseId], references: [id])
+  interactions   Interaction[]
+  emails         Email[]
+  phoneCalls     PhoneCall[]
+
+  @@unique([businessKey, version])
+  @@index([businessKey, isCurrent])
+  @@index([validFrom, validTo])
+  @@index([funeralHomeId])
+  @@index([status])
+  @@index([score])
+  @@index([assignedTo])
+  @@map("leads")
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  NURTURING
+  CONVERTED
+  LOST
+  ARCHIVED
+}
+
+enum LeadSource {
+  WEBSITE
+  PHONE
+  EMAIL
+  REFERRAL
+  SOCIAL_MEDIA
+  EVENT
+  DIRECT_MAIL
+  OTHER
+}
+
+enum LeadType {
+  AT_NEED
+  PRE_NEED
+  GENERAL_INQUIRY
+}
+
+// Contact (SCD Type 2)
+model Contact {
+  id          String    @id @default(cuid())
+  businessKey String
+  version     Int       @default(1)
+  validFrom   DateTime  @default(now())
+  validTo     DateTime?
+  isCurrent   Boolean   @default(true)
+
+  funeralHomeId          String
+  firstName              String
+  lastName               String
+  email                  String?
+  phone                  String?
+  alternatePhone         String?
+  address                String?
+  city                   String?
+  state                  String?
+  zipCode                String?
+  type                   ContactType
+  relationshipType       RelationshipType?
+  birthDate              DateTime?
+  notes                  String?            @db.Text
+  doNotContact           Boolean            @default(false)
+  emailOptIn             Boolean            @default(false)
+  smsOptIn               Boolean            @default(false)
+  tags                   String[]           @default([])
+  mergedIntoContactId    String?
+  // Funeral-specific enhancements
+  isVeteran              Boolean            @default(false)
+  militaryBranch         MilitaryBranch?
+  religiousAffiliation   String?
+  culturalPreferences    String[]           @default([])
+  dietaryRestrictions    String[]           @default([])
+  languagePreference     LanguagePreference @default(EN)
+  // Grief journey tracking
+  griefStage             GriefStage?
+  griefJourneyStartedAt  DateTime?
+  decedentRelationshipId String? // Link to FamilyRelationship
+  serviceAnniversaryDate DateTime?
+  lastGriefCheckIn       DateTime?
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+  createdBy              String
+
+  funeralHome           FuneralHome          @relation(fields: [funeralHomeId], references: [id])
+  mergedInto            Contact?             @relation("MergedContacts", fields: [mergedIntoContactId], references: [id])
+  mergedContacts        Contact[]            @relation("MergedContacts")
+  interactions          Interaction[]
+  sourceRelationships   FamilyRelationship[] @relation("SourceContact")
+  targetRelationships   FamilyRelationship[] @relation("TargetContact")
+  decedentRelationships FamilyRelationship[] @relation("Decedent")
+  emails                Email[]
+  phoneCalls            PhoneCall[]
+
+  @@unique([businessKey, version])
+  @@index([businessKey, isCurrent])
+  @@index([validFrom, validTo])
+  @@index([funeralHomeId])
+  @@index([email])
+  @@index([phone])
+  @@index([griefStage])
+  @@index([serviceAnniversaryDate])
+  @@map("contacts")
+}
+
+enum ContactType {
+  PRIMARY
+  SECONDARY
+  PROFESSIONAL
+  REFERRAL
+}
+
+enum RelationshipType {
+  SPOUSE
+  CHILD
+  PARENT
+  SIBLING
+  FRIEND
+  CLERGY
+  ATTORNEY
+  OTHER
+}
+
+enum GriefStage {
+  SHOCK
+  DENIAL
+  ANGER
+  BARGAINING
+  DEPRESSION
+  ACCEPTANCE
+}
+
+enum MilitaryBranch {
+  ARMY
+  NAVY
+  AIR_FORCE
+  MARINES
+  COAST_GUARD
+  SPACE_FORCE
+}
+
+enum LanguagePreference {
+  EN
+  ES
+  FR
+  DE
+  PL
+  IT
+  ZH
+  OTHER
+}
+
+// FamilyRelationship (SCD Type 2)
+// Maps relationships between contacts for family network visualization
+model FamilyRelationship {
+  id          String    @id @default(cuid())
+  businessKey String
+  version     Int       @default(1)
+  validFrom   DateTime  @default(now())
+  validTo     DateTime?
+  isCurrent   Boolean   @default(true)
+
+  funeralHomeId    String
+  sourceContactId  String
+  targetContactId  String
+  relationshipType FamilyRelationshipType
+  isPrimaryContact Boolean                @default(false)
+  decedentId       String? // Contact ID of deceased
+  notes            String?                @db.Text
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+  createdBy        String
+
+  funeralHome   FuneralHome @relation(fields: [funeralHomeId], references: [id])
+  sourceContact Contact     @relation("SourceContact", fields: [sourceContactId], references: [id])
+  targetContact Contact     @relation("TargetContact", fields: [targetContactId], references: [id])
+  decedent      Contact?    @relation("Decedent", fields: [decedentId], references: [id])
+
+  @@unique([businessKey, version])
+  @@index([businessKey, isCurrent])
+  @@index([validFrom, validTo])
+  @@index([funeralHomeId])
+  @@index([sourceContactId])
+  @@index([targetContactId])
+  @@index([decedentId])
+  @@map("family_relationships")
+}
+
+enum FamilyRelationshipType {
+  SPOUSE
+  CHILD
+  PARENT
+  SIBLING
+  GRANDCHILD
+  GRANDPARENT
+  NIECE_NEPHEW
+  AUNT_UNCLE
+  COUSIN
+  IN_LAW
+  STEP_RELATION
+  FRIEND
+  OTHER
+}
+
+// Campaign (SCD Type 2)
+model Campaign {
+  id          String    @id @default(cuid())
+  businessKey String
+  version     Int       @default(1)
+  validFrom   DateTime  @default(now())
+  validTo     DateTime?
+  isCurrent   Boolean   @default(true)
+
+  funeralHomeId  String
+  name           String
+  description    String?        @db.Text
+  type           CampaignType
+  status         CampaignStatus
+  subject        String?
+  content        String?        @db.Text
+  segmentTags    String[]       @default([])
+  scheduledFor   DateTime?
+  sentAt         DateTime?
+  targetCount    Int            @default(0)
+  sentCount      Int            @default(0)
+  openedCount    Int            @default(0)
+  clickedCount   Int            @default(0)
+  convertedCount Int            @default(0)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  createdBy      String
+
+  funeralHome FuneralHome @relation(fields: [funeralHomeId], references: [id])
+
+  @@unique([businessKey, version])
+  @@index([businessKey, isCurrent])
+  @@index([validFrom, validTo])
+  @@index([funeralHomeId])
+  @@index([status])
+  @@map("campaigns")
+}
+
+enum CampaignType {
+  EMAIL
+  SMS
+  DIRECT_MAIL
+  MIXED
+}
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  SENDING
+  SENT
+  PAUSED
+  ARCHIVED
+}
+
+// Interaction (immutable - no SCD2)
+model Interaction {
+  id            String               @id @default(cuid())
+  funeralHomeId String
+  leadId        String?
+  contactId     String?
+  caseId        String?
+  type          InteractionType
+  direction     InteractionDirection
+  subject       String
+  body          String?              @db.Text
+  outcome       String?              @db.Text
+  scheduledFor  DateTime?
+  completedAt   DateTime?
+  duration      Int?
+  staffId       String
+  createdAt     DateTime             @default(now())
+
+  funeralHome   FuneralHome    @relation(fields: [funeralHomeId], references: [id])
+  lead          Lead?          @relation(fields: [leadId], references: [id])
+  contact       Contact?       @relation(fields: [contactId], references: [id])
+  case          Case?          @relation(fields: [caseId], references: [id])
+  staff         User           @relation("StaffInteractions", fields: [staffId], references: [id])
+  calendarEvent CalendarEvent?
+  phoneCall     PhoneCall?
+
+  @@index([funeralHomeId])
+  @@index([leadId])
+  @@index([contactId])
+  @@index([caseId])
+  @@index([staffId])
+  @@index([createdAt])
+  @@map("interactions")
+}
+
+enum InteractionType {
+  PHONE_CALL
+  EMAIL
+  MEETING
+  VISIT
+  NOTE
+  TASK
+}
+
+enum InteractionDirection {
+  INBOUND
+  OUTBOUND
+}
+
+// Referral Source (SCD Type 2)
+model ReferralSource {
+  id          String    @id @default(cuid())
+  businessKey String
+  version     Int       @default(1)
+  validFrom   DateTime  @default(now())
+  validTo     DateTime?
+  isCurrent   Boolean   @default(true)
+
+  funeralHomeId      String
+  name               String
+  type               ReferralSourceType
+  contactPerson      String?
+  email              String?
+  phone              String?
+  address            String?
+  notes              String?            @db.Text
+  isActive           Boolean            @default(true)
+  totalReferrals     Int                @default(0)
+  convertedReferrals Int                @default(0)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  createdBy          String
+
+  funeralHome FuneralHome @relation(fields: [funeralHomeId], references: [id])
+  leads       Lead[]
+
+  @@unique([businessKey, version])
+  @@index([businessKey, isCurrent])
+  @@index([validFrom, validTo])
+  @@index([funeralHomeId])
+  @@map("referral_sources")
+}
+
+enum ReferralSourceType {
+  FUNERAL_HOME
+  HOSPICE
+  HOSPITAL
+  CLERGY
+  ATTORNEY
+  FAMILY
+  ONLINE
+  OTHER
+}
+
+// Email (immutable event log - no SCD2)
+// Bi-directional email sync from Microsoft 365 / Gmail
+model Email {
+  id            String         @id @default(cuid())
+  funeralHomeId String
+  provider      EmailProvider
+  externalId    String? // Provider's message ID (for deduplication)
+  from          String
+  to            String[]       @default([])
+  cc            String[]       @default([])
+  bcc           String[]       @default([])
+  subject       String
+  body          String         @db.Text // Plain text
+  htmlBody      String?        @db.Text
+  threadId      String? // For conversation threading
+  inReplyTo     String? // Parent email ID
+  direction     EmailDirection
+  sentAt        DateTime?
+  receivedAt    DateTime?
+  isRead        Boolean        @default(false)
+  contactId     String? // Matched contact
+  leadId        String? // Matched lead
+  caseId        String? // Matched case
+  attachments   Json           @default("[]") // Array of attachment metadata
+  createdAt     DateTime       @default(now())
+  syncedBy      String? // User who triggered sync
+
+  funeralHome FuneralHome @relation(fields: [funeralHomeId], references: [id])
+  contact     Contact?    @relation(fields: [contactId], references: [id])
+  lead        Lead?       @relation(fields: [leadId], references: [id])
+  case        Case?       @relation(fields: [caseId], references: [id])
+
+  @@unique([provider, externalId]) // Prevent duplicate syncs
+  @@index([funeralHomeId])
+  @@index([contactId])
+  @@index([leadId])
+  @@index([caseId])
+  @@index([threadId])
+  @@index([from])
+  @@index([sentAt])
+  @@index([receivedAt])
+  @@index([createdAt])
+  @@map("emails")
+}
+
+enum EmailProvider {
+  MICROSOFT
+  GOOGLE
+  INTERNAL
+}
+
+enum EmailDirection {
+  INBOUND
+  OUTBOUND
+}
+
+// OAuth Token storage for email sync
+model OAuthToken {
+  id           String        @id @default(cuid())
+  userId       String
+  provider     OAuthProvider
+  accessToken  String        @db.Text
+  refreshToken String?       @db.Text
+  expiresAt    DateTime
+  scope        String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, provider]) // One token per provider per user
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("oauth_tokens")
+}
+
+enum OAuthProvider {
+  MICROSOFT
+  GOOGLE
+}
+
+// CalendarEvent (immutable event log - no SCD2)
+// Synced with external calendar providers (Microsoft 365, Google Calendar)
+model CalendarEvent {
+  id             String           @id @default(cuid())
+  funeralHomeId  String
+  interactionId  String?          @unique // Optional link to Interaction
+  provider       CalendarProvider
+  externalId     String? // Provider's event ID
+  title          String
+  description    String?          @db.Text
+  startTime      DateTime
+  endTime        DateTime
+  location       String?
+  attendees      Json             @default("[]") // Array of Attendee objects
+  reminders      Json             @default("[]") // Array of Reminder objects
+  recurrenceRule String?          @db.Text // iCalendar RRULE format
+  isCancelled    Boolean          @default(false)
+  createdBy      String
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  caseId         String?
+
+  funeralHome FuneralHome  @relation(fields: [funeralHomeId], references: [id])
+  interaction Interaction? @relation(fields: [interactionId], references: [id])
+  case        Case?        @relation(fields: [caseId], references: [id])
+  creator     User         @relation("CalendarEventCreator", fields: [createdBy], references: [id])
+
+  @@unique([provider, externalId]) // Prevent duplicate syncs
+  @@index([funeralHomeId])
+  @@index([interactionId])
+  @@index([caseId])
+  @@index([startTime])
+  @@index([endTime])
+  @@index([createdBy])
+  @@index([isCancelled])
+  @@map("calendar_events")
+}
+
+enum CalendarProvider {
+  MICROSOFT
+  GOOGLE
+}
+
+// PhoneCall (immutable event log - no SCD2)
+// Tracks phone calls from Twilio/RingCentral with optional recording/transcription
+model PhoneCall {
+  id             String        @id @default(cuid())
+  funeralHomeId  String
+  interactionId  String?       @unique // Optional link to Interaction
+  provider       PhoneProvider
+  externalCallId String? // Provider's call SID/ID
+  from           String // E.164 format
+  to             String // E.164 format
+  direction      CallDirection
+  status         CallStatus
+  duration       Int? // Duration in seconds
+  recordingUrl   String? // URL to call recording
+  transcription  String?       @db.Text // Call transcription
+  consentGiven   Boolean       @default(false) // Recording consent flag
+  outcome        String?       @db.Text // Call outcome notes
+  contactId      String? // Matched contact
+  leadId         String? // Matched lead
+  caseId         String? // Matched case
+  staffId        String // Staff member who made/received call
+  startedAt      DateTime?
+  endedAt        DateTime?
+  createdAt      DateTime      @default(now())
+
+  funeralHome FuneralHome  @relation(fields: [funeralHomeId], references: [id])
+  interaction Interaction? @relation(fields: [interactionId], references: [id])
+  contact     Contact?     @relation(fields: [contactId], references: [id])
+  lead        Lead?        @relation(fields: [leadId], references: [id])
+  case        Case?        @relation(fields: [caseId], references: [id])
+  staff       User         @relation("PhoneCallStaff", fields: [staffId], references: [id])
+
+  @@unique([provider, externalCallId]) // Prevent duplicate logging
+  @@index([funeralHomeId])
+  @@index([interactionId])
+  @@index([contactId])
+  @@index([leadId])
+  @@index([caseId])
+  @@index([staffId])
+  @@index([startedAt])
+  @@index([createdAt])
+  @@map("phone_calls")
+}
+
+enum PhoneProvider {
+  TWILIO
+  RINGCENTRAL
+}
+
+enum CallDirection {
+  INBOUND
+  OUTBOUND
+}
+
+enum CallStatus {
+  INITIATED
+  RINGING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  BUSY
+  NO_ANSWER
+  CANCELLED
 }
