@@ -24,7 +24,8 @@
     "check:prisma": "cd packages/infrastructure && prisma format --check",
     "check:types": "pnpm -r type-check",
     "check:unused": "knip --no-exit-code",
-    "check:env": "node scripts/check-env.js"
+    "check:env": "node scripts/check-env.js",
+    "generate:go-types": "openapi-typescript http://localhost:8080/api/docs/openapi.yaml -o src/generated/go-api.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.940.0",
@@ -71,6 +72,8 @@
     "eslint-plugin-import": "^2.32.0",
     "knip": "^5.70.2",
     "madge": "^8.0.0",
+    "openapi-fetch": "^0.15.0",
+    "openapi-typescript": "^7.10.1",
     "prettier": "^3.2.5",
     "prisma": "^7.0.1",
     "tailwindcss": "^4",

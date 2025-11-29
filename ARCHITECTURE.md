@@ -617,7 +617,399 @@ Is it HTTP routing?
 
 ---
 
+---
+
+## Go ERP Integration Architecture
+
+### Overview
+
+This project integrates with a **separate Go ERP backend** that provides production-grade financial, inventory, payroll, and procurement capabilities. The integration follows Clean Architecture principles with strict boundaries.
+
+**Key Principles**:
+- ✅ TypeScript frontend NEVER directly accesses Go infrastructure (TigerBeetle, EventStoreDB, PostgreSQL)
+- ✅ Communication ONLY via HTTP/JSON through OpenAPI contracts
+- ✅ BFF (Backend-for-Frontend) acts as boundary
+- ✅ Separate PostgreSQL databases (TypeScript CRM + Go ERP)
+- ✅ Unified Next.js UI for both TypeScript and Go domains
+
+### System Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ Next.js 15 Unified UI (Single Deployment)                       │
+│ - Family Portal (TypeScript: memorials, CRM)                   │
+│ - Staff Dashboard (TypeScript: CRM + Go: payroll, inventory)   │
+│ - Command Palette, Real-time Collaboration, AI Features        │
+└────────────────┬────────────────────────────────────────────┘
+                 │
+         ┌───────┼───────┐
+         │       │       │
+┌────────┴──────┐  │  ┌──────┴────────────────────────────────┐
+│ TypeScript  │  │  │ BFF Proxy (Next.js API Routes)  │
+│ tRPC APIs   │  │  │ - Auth injection                │
+│             │  │  │ - HTTP-only routing             │
+│ - Leads     │  │  │ - OpenAPI client (generated)    │
+│ - Contacts  │  │  └─────────┬────────────────────────────┘
+│ - Campaigns │  │           │
+│ - Memorials │  │           │ HTTP/JSON (OpenAPI)
+└────────┬──────┘  │           │
+         │          │  ┌─────────┴────────────────────────────┐
+         │          │  │ Go ERP Backend (HTTP API)       │
+         │          │  │ - Contracts, GL/AR/AP           │
+         │          │  │ - Inventory, Payroll, P2P       │
+         │          │  │ - HCM, Fixed Assets, Approvals  │
+         │          │  └─────────┬────────────────────────────┘
+         │          │           │
+         │          │  ┌─────────┼────────────────────────────┐
+         │          │  │         │                       │
+         │          │  │  ┌──────┴───────┐  ┌─────────────┐
+         │          │  │  │ EventStoreDB │  │ TigerBeetle │
+         │          │  │  │ (Events)     │  │ (Accounting)│
+         │          │  │  └──────┬───────┘  └─────────────┘
+         │          │  │         │
+         │          │  │  ┌──────┴─────────────────────────────┐
+         │          │  │  │ PostgreSQL 2 (Go ERP)          │
+         │          │  │  │ - contracts_hist               │
+         │          │  │  │ - gl_accounts_hist             │
+         │          │  │  │ - workers_hist (HCM)           │
+         │          │  │  │ - inventory_items_hist         │
+         │          │  │  │ (Managed by Go projectors)     │
+         │          │  │  └─────────────────────────────────┘
+         │          │  │
+┌────────┴─────────────────────────────────┐  │
+│ PostgreSQL 1 (TypeScript CRM)          │  │
+│ - leads, contacts, campaigns            │  │
+│ - memorials, interactions               │  │
+│ - documents (SCD2)                      │  │
+│ (Managed by Prisma migrations)          │  │
+└───────────────────────────────────────────┘  │
+                                              │
+                                   ❌ NO DIRECT ACCESS
+```
+
+### Dual Backend Strategy
+
+#### TypeScript Domain (This Codebase)
+**Owns**: Family-facing, CRM, Marketing, Memorial capabilities
+
+- ✅ Domain: Lead, Contact, Campaign, Memorial, Interaction, ReferralSource
+- ✅ Application: CRM use cases (createLead, convertLeadToCase, sendCampaign)
+- ✅ Infrastructure: PrismaCaseRepository, SendGridAdapter, StripeAdapter
+- ✅ API: tRPC routers for TypeScript domain
+
+**Database**: PostgreSQL 1 (funeral_home_crm)
+- Managed by Prisma migrations
+- SCD2 temporal pattern for all entities
+
+#### Go ERP Domain (External Backend)
+**Owns**: Transaction-heavy, compliance-heavy, financial capabilities
+
+- ✅ 20 Go modules: Contracts, GL/AR/AP, Inventory, Payroll, P2P, HCM, Fixed Assets, etc.
+- ✅ Event-sourced (EventStoreDB)
+- ✅ TigerBeetle double-entry accounting
+- ✅ Production-grade, battle-tested
+
+**Database**: PostgreSQL 2 (funeral_home_erp)
+- Managed by Go projectors
+- SCD2 temporal pattern (Go implementation)
+
+### Integration Patterns
+
+#### 1. BFF Proxy Pattern
+
+**Purpose**: TypeScript frontend communicates with Go backend ONLY via BFF.
+
+```typescript
+// app/api/go-proxy/[...path]/route.ts
+// ✅ CORRECT: BFF acts as thin proxy
+
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { path: string[] } }
+) {
+  const user = await getCurrentUser(req); // TypeScript auth
+  
+  // Proxy to Go backend
+  const response = await fetch(
+    `${process.env.GO_BACKEND_URL}/${params.path.join('/')}`,
+    {
+      headers: {
+        'Authorization': `Bearer ${user.backendToken}`,
+        'X-Tenant-Id': user.funeralHomeId
+      }
+    }
+  );
+  
+  return Response.json(await response.json());
+}
+```
+
+**❌ FORBIDDEN**:
+```typescript
+// ❌ WRONG: Never import Go packages or access Go infrastructure directly
+import { TigerBeetleClient } from 'tigerbeetle-node'; // ❌ NO!
+import { EventStoreDBClient } from '@eventstore/db-client'; // ❌ NO!
+```
+
+#### 2. OpenAPI Client Adapter Pattern
+
+**Purpose**: Type-safe Go API access via infrastructure adapter.
+
+```typescript
+// infrastructure/adapters/go-backend/go-contract-adapter.ts
+// ✅ CORRECT: Object-based adapter wrapping OpenAPI client
+
+import createClient from 'openapi-fetch';
+import type { paths } from '@/generated/go-api'; // Generated from Go OpenAPI
+import type { ContractPort } from '@/application/ports';
+
+export const goClient = createClient<paths>({ 
+  baseUrl: '/api/go-proxy' 
+});
+
+// Object-based adapter (follows our repository pattern)
+export const GoContractAdapter: ContractPort = {
+  approveContract: (contractId: string) =>
+    Effect.tryPromise({
+      try: async () => {
+        const res = await goClient.POST('/v1/contracts/{id}/approve', {
+          params: { path: { id: contractId } }
+        });
+        if (res.error) throw new Error(res.error);
+        return res.data;
+      },
+      catch: (error) => new NetworkError('Failed to approve contract', error)
+    }),
+    
+  createContract: (data: CreateContractData) =>
+    Effect.tryPromise({
+      try: async () => {
+        const res = await goClient.POST('/v1/contracts', { body: data });
+        if (res.error) throw new Error(res.error);
+        return res.data;
+      },
+      catch: (error) => new NetworkError('Failed to create contract', error)
+    })
+};
+```
+
+#### 3. Cross-Domain Use Case Pattern
+
+**Purpose**: Orchestrate TypeScript + Go domains in application layer.
+
+```typescript
+// application/use-cases/case-management/convert-lead-to-case.ts
+// ✅ CORRECT: Use case orchestrates TypeScript + Go via ports
+
+export const convertLeadToCase = (command: ConvertLeadToCaseCommand) =>
+  Effect.gen(function* () {
+    // 1. TypeScript domain: Load lead
+    const leadRepo = yield* LeadRepository;
+    const lead = yield* leadRepo.findByBusinessKey(command.leadId);
+    
+    if (!lead) {
+      return yield* Effect.fail(new NotFoundError({...}));
+    }
+    
+    // 2. TypeScript domain: Create case
+    const caseRepo = yield* CaseRepository;
+    const case_ = yield* caseRepo.create({
+      decedentName: lead.decedentName,
+      familyContactId: lead.contactId,
+      type: 'at-need'
+    });
+    
+    // 3. Go domain: Create contract (via port)
+    const goContractAdapter = yield* GoContractAdapter;
+    const contract = yield* goContractAdapter.createContract({
+      caseId: case_.id,
+      services: lead.requestedServices,
+    });
+    
+    // 4. TypeScript domain: Link case to contract
+    const updatedCase = yield* caseRepo.update({
+      ...case_,
+      goContractId: contract.id
+    });
+    
+    // 5. TypeScript domain: Mark lead as converted
+    yield* leadRepo.update({
+      ...lead,
+      status: 'converted',
+      convertedToCaseId: case_.id
+    });
+    
+    return { caseId: case_.id, contractId: contract.id };
+  });
+```
+
+**Key Points**:
+- ✅ Application layer orchestrates multiple domains via ports
+- ✅ Go interaction happens through `GoContractAdapter` (infrastructure layer)
+- ✅ No direct HTTP calls in use cases
+- ✅ Clean separation of concerns
+
+### Database Isolation
+
+#### Why Two Separate PostgreSQL Databases?
+
+**PostgreSQL 1 (funeral_home_crm)**:
+- Owner: TypeScript application
+- Schema: Managed by Prisma migrations
+- Purpose: CRM, Marketing, Memorial data
+
+**PostgreSQL 2 (funeral_home_erp)**:
+- Owner: Go backend projectors
+- Schema: Managed by Go DDL (projector-driven)
+- Purpose: Read-models from Go event sourcing
+
+**Benefits**:
+1. ✅ **Schema isolation**: Prisma migrations never conflict with Go DDL
+2. ✅ **Independent scaling**: Scale CRM DB separately from ERP read-models
+3. ✅ **Blast radius containment**: Go projector bugs can't corrupt CRM data
+4. ✅ **Clear ownership boundaries**: TypeScript owns CRM, Go owns ERP
+5. ✅ **Deployment independence**: Deploy Go updates without TypeScript coordination
+
+**❌ ANTI-PATTERN**: Sharing a single database
+```prisma
+// ❌ WRONG: DO NOT put Go and TypeScript tables in same database
+model Case {  // TypeScript table
+  id String @id
+}
+
+model contract_hist {  // Go table - ❌ CONFLICT!
+  id String @id
+}
+```
+
+### Unified UI Strategy
+
+#### Single Next.js Application
+
+**Goal**: One deployment serves both TypeScript and Go domains.
+
+```
+apps/funeral-home-portal/
+  app/
+    (family)/              # Family-facing (TypeScript domain)
+      memorials/[id]/
+      cases/[id]/
+    (staff)/               # Staff-facing (TypeScript + Go domains)
+      dashboard/
+      crm/                 # TypeScript domain
+        leads/
+        campaigns/
+      financial/           # Go domain (via BFF proxy)
+        invoices/
+        payments/
+      payroll/             # Go domain (via BFF proxy)
+      inventory/           # Go domain (via BFF proxy)
+    api/
+      trpc/[trpc]/         # TypeScript tRPC APIs
+      go-proxy/[...path]/  # BFF proxy to Go
+  lib/
+    trpc.ts                # TypeScript API client
+    go-client.ts           # Go OpenAPI client
+```
+
+**Benefits**:
+- ✅ Single deployment (simpler ops)
+- ✅ Shared design system (consistent UX)
+- ✅ Single auth boundary (user logs in once)
+- ✅ Cross-domain navigation (seamless UX)
+- ✅ Unified command palette (search across all domains)
+
+### Architectural Boundaries Enforcement
+
+#### CI Validation
+
+```yaml
+# .github/workflows/arch-validation.yml
+name: Architecture Validation
+on: [pull_request]
+jobs:
+  enforce-boundaries:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check no direct Go infrastructure access
+        run: |
+          # Fail if TypeScript imports TigerBeetle, EventStoreDB, or Go PG
+          if grep -r "from 'tigerbeetle" packages/; then
+            echo "ERROR: Direct TigerBeetle import in TypeScript!"
+            exit 1
+          fi
+          if grep -r "from '@eventstore" packages/; then
+            echo "ERROR: Direct EventStoreDB import in TypeScript!"
+            exit 1
+          fi
+      
+      - name: Check application layer doesn't import infrastructure
+        run: |
+          if grep -r "from '@prisma/client'" packages/application/; then
+            echo "ERROR: Prisma import in application layer!"
+            exit 1
+          fi
+```
+
+#### Port Definition for Go Backend
+
+```typescript
+// application/ports/go-contract-port.ts
+// ✅ CORRECT: Define port for Go backend integration
+
+import { Effect } from 'effect';
+
+export interface GoContractPort {
+  readonly createContract: (data: CreateContractData) => 
+    Effect.Effect<Contract, NetworkError>;
+  readonly approveContract: (id: string) => 
+    Effect.Effect<void, NetworkError>;
+  readonly getContract: (id: string) => 
+    Effect.Effect<Contract, NotFoundError | NetworkError>;
+}
+
+export const GoContractPort = Context.GenericTag<GoContractPort>(
+  '@dykstra/GoContractPort'
+);
+```
+
+### Integration Checklist
+
+**When integrating with Go backend**:
+- [ ] Define port interface in `application/ports/`
+- [ ] Implement adapter in `infrastructure/adapters/go-backend/`
+- [ ] Use object-based pattern (not class)
+- [ ] Wrap OpenAPI-generated client
+- [ ] Handle errors via Effect
+- [ ] Proxy HTTP calls through BFF (`/api/go-proxy/*`)
+- [ ] Never import Go packages directly
+- [ ] Never access TigerBeetle, EventStoreDB, or Go PostgreSQL
+- [ ] Test adapter with mocked Go API responses
+
+### Summary
+
+**The Go ERP integration**:
+1. ✅ Maintains Clean Architecture (via ports/adapters)
+2. ✅ Preserves hexagonal boundaries (BFF as boundary)
+3. ✅ Uses separate databases (schema isolation)
+4. ✅ Provides unified UI (single Next.js deployment)
+5. ✅ Enables cross-domain workflows (via application layer orchestration)
+6. ✅ Enforces boundaries via CI (automated validation)
+
+**This architecture allows us to leverage production-grade Go ERP capabilities while maintaining TypeScript Clean Architecture principles.**
+
+---
+
 ## Version History
+
+- **v1.1** (2025-11-29): Go ERP integration documented
+  - Dual backend strategy (TypeScript CRM + Go ERP)
+  - Separate PostgreSQL databases (schema isolation)
+  - BFF proxy pattern for Go integration
+  - OpenAPI client adapter pattern
+  - Cross-domain use case orchestration
+  - Unified UI architecture
+  - CI boundary enforcement
 
 - **v1.0** (2025-11-26): Initial architecture documentation
   - Clean Architecture patterns established
@@ -635,5 +1027,6 @@ When in doubt:
 3. Prefer object-based over class-based
 4. Keep business logic in domain entities
 5. Keep layers strictly separated
+6. **For Go integration**: Use ports/adapters, proxy via BFF, never access Go infrastructure directly
 
 **Remember**: Architecture discipline prevents technical debt!
