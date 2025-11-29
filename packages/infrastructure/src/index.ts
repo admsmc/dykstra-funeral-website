@@ -99,7 +99,10 @@ import {
   GoEmployeeTerminationAdapter,
   GoPositionManagementAdapter,
   GoPTOAdapter,
-  GoHCMCommonAdapter,
+  GoPerformanceAdapter,
+  GoTrainingAdapter,
+  GoRehireAdapter,
+  GoEmployeeMasterDataAdapter,
 } from './adapters/go-backend';
 import {
   CaseRepository,
@@ -145,7 +148,10 @@ import {
   GoEmployeeTerminationPort,
   GoPositionManagementPort,
   GoPTOPort,
-  GoHCMCommonPort,
+  GoPerformancePort,
+  GoTrainingPort,
+  GoRehirePort,
+  GoEmployeeMasterDataPort,
 } from '@dykstra/application';
 import { StripeAdapterLive } from './payment/stripe-adapter';
 import { SignatureAdapterLive } from './signature/signature-adapter';
@@ -236,7 +242,10 @@ export const InfrastructureLayer = Layer.mergeAll(
   Layer.succeed(GoEmployeeTerminationPort, GoEmployeeTerminationAdapter),
   Layer.succeed(GoPositionManagementPort, GoPositionManagementAdapter),
   Layer.succeed(GoPTOPort, GoPTOAdapter),
-  Layer.succeed(GoHCMCommonPort, GoHCMCommonAdapter),
+  Layer.succeed(GoPerformancePort, GoPerformanceAdapter),
+  Layer.succeed(GoTrainingPort, GoTrainingAdapter),
+  Layer.succeed(GoRehirePort, GoRehireAdapter),
+  Layer.succeed(GoEmployeeMasterDataPort, GoEmployeeMasterDataAdapter),
   
   // Event publisher
   ConsoleEventPublisherLive,
