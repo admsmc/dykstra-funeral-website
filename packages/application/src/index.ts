@@ -40,6 +40,29 @@ export * from './ports/email-repository';
 export * from './ports/calendar-sync-port';
 export * from './ports/calendar-event-repository';
 
+// Go ERP Integration Ports (20 modules)
+export * from './ports/go-approval-workflow-port';
+export * from './ports/go-budget-port';
+export * from './ports/go-consolidations-port';
+export * from './ports/go-contract-port';
+export * from './ports/go-employee-master-data-port';
+export * from './ports/go-employee-onboarding-port';
+export * from './ports/go-employee-termination-port';
+export * from './ports/go-financial-port';
+export * from './ports/go-fixed-assets-port';
+export * from './ports/go-inventory-port';
+export * from './ports/go-payroll-port';
+export * from './ports/go-performance-port';
+export * from './ports/go-position-management-port';
+export * from './ports/go-procurement-port';
+export * from './ports/go-professional-services-port';
+export * from './ports/go-pto-port';
+export * from './ports/go-reconciliations-port';
+export * from './ports/go-rehire-port';
+export * from './ports/go-segment-reporting-port';
+export * from './ports/go-timesheet-port';
+export * from './ports/go-training-port';
+
 // Commands
 export * from './commands/create-case';
 export * from './commands/upload-photo';

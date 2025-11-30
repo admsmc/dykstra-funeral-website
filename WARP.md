@@ -117,6 +117,47 @@ export const prisma = new PrismaClient({ adapter })
 - ❌ NO class-based repositories
 - ❌ NO business logic in API routers
 
+### Go Backend Integration Architecture
+
+**Port-Adapter File Structure**:
+- ✅ **1:1 Mapping**: Each Go port has exactly one matching adapter file
+- ✅ **Individual Files**: All 21 Go ERP module ports are in separate files (no consolidation)
+- ✅ **Naming Convention**: `go-{module}-port.ts` → `go-{module}-adapter.ts`
+- ✅ **Location**:
+  - Ports: `packages/application/src/ports/go-*.ts`
+  - Adapters: `packages/infrastructure/src/adapters/go-backend/go-*-adapter.ts`
+
+**21 Go Modules**:
+- High-priority (6): Contract, Financial, Inventory, Payroll, Procurement, Timesheet
+- Medium-priority (6): ApprovalWorkflow, Budget, FixedAssets, ProfessionalServices, Reconciliations, SegmentReporting
+- Low-priority (9): Consolidations, EmployeeMasterData, EmployeeOnboarding, EmployeeTermination, Performance, PositionManagement, PTO, Rehire, Training
+
+**Adapter Pattern** (Object-based, NOT class-based):
+```typescript
+// ✅ CORRECT - Object-based adapter
+export const GoContractAdapter: GoContractPortService = {
+  createContract: (command) =>
+    Effect.tryPromise({
+      try: async () => {
+        const res = await goClient.POST('/v1/contracts', { body: command });
+        if (res.error) throw new Error(res.error.message);
+        return mapToGoContract(res.data);
+      },
+      catch: (error) => new NetworkError('Failed to create contract', error)
+    }),
+  // ... other methods
+};
+
+// ❌ WRONG - Class-based adapter
+class GoContractAdapter implements GoContractPortService { ... }
+```
+
+**Refactoring History** (November 2025):
+- Split consolidated `go-remaining-ports.ts` (14 ports) → 15 individual port files
+- Split `GoHCMCommonPort` (12 methods, 4 concerns) → 4 focused ports (Performance, Training, Rehire, EmployeeMasterData)
+- Split 2 consolidated adapter files → 21 individual adapter files
+- Benefits: SRP compliance, ISP compliance, clearer ownership, reduced merge conflicts
+
 ### Effect-Specific Best Practices
 
 **Service Tag / Interface Naming (CRITICAL)**:

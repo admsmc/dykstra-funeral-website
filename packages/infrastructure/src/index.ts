@@ -36,6 +36,9 @@ export * from './adapters/validation/google-places-adapter';
 export * from './adapters/validation/twilio-phone-adapter';
 export * from './adapters/enrichment/clearbit-enrichment-adapter';
 
+// Go Backend Adapters
+export * from './adapters/go-backend';
+
 // Events
 export * from './events/console-event-publisher';
 
@@ -79,6 +82,29 @@ import { TwilioPhoneAdapter } from './adapters/validation/twilio-phone-adapter';
 import { ClearbitEnrichmentAdapter } from './adapters/enrichment/clearbit-enrichment-adapter';
 import { StorageAdapterLive } from './storage/storage-adapter';
 import {
+  GoContractAdapter,
+  GoInventoryAdapter,
+  GoPayrollAdapter,
+  GoFinancialAdapter,
+  GoProcurementAdapter,
+  GoTimesheetAdapter,
+  GoProfessionalServicesAdapter,
+  GoApprovalWorkflowAdapter,
+  GoFixedAssetsAdapter,
+  GoReconciliationsAdapter,
+  GoBudgetAdapter,
+  GoSegmentReportingAdapter,
+  GoConsolidationsAdapter,
+  GoEmployeeOnboardingAdapter,
+  GoEmployeeTerminationAdapter,
+  GoPositionManagementAdapter,
+  GoPTOAdapter,
+  GoPerformanceAdapter,
+  GoTrainingAdapter,
+  GoRehireAdapter,
+  GoEmployeeMasterDataAdapter,
+} from './adapters/go-backend';
+import {
   CaseRepository,
   ContractRepository,
   PaymentRepository,
@@ -105,6 +131,27 @@ import {
   AddressValidation,
   PhoneValidation,
   ContactEnrichment,
+  GoContractPort,
+  GoInventoryPort,
+  GoPayrollPort,
+  GoFinancialPort,
+  GoProcurementPort,
+  GoTimesheetPort,
+  GoProfessionalServicesPort,
+  GoApprovalWorkflowPort,
+  GoFixedAssetsPort,
+  GoReconciliationsPort,
+  GoBudgetPort,
+  GoSegmentReportingPort,
+  GoConsolidationsPort,
+  GoEmployeeOnboardingPort,
+  GoEmployeeTerminationPort,
+  GoPositionManagementPort,
+  GoPTOPort,
+  GoPerformancePort,
+  GoTrainingPort,
+  GoRehirePort,
+  GoEmployeeMasterDataPort,
 } from '@dykstra/application';
 import { StripeAdapterLive } from './payment/stripe-adapter';
 import { SignatureAdapterLive } from './signature/signature-adapter';
@@ -172,6 +219,33 @@ export const InfrastructureLayer = Layer.mergeAll(
   Layer.succeed(AddressValidation, GooglePlacesAdapter),
   Layer.succeed(PhoneValidation, TwilioPhoneAdapter),
   Layer.succeed(ContactEnrichment, ClearbitEnrichmentAdapter),
+  
+  // Go Backend Adapters - High Priority
+  Layer.succeed(GoContractPort, GoContractAdapter),
+  Layer.succeed(GoInventoryPort, GoInventoryAdapter),
+  Layer.succeed(GoPayrollPort, GoPayrollAdapter),
+  Layer.succeed(GoFinancialPort, GoFinancialAdapter),
+  Layer.succeed(GoProcurementPort, GoProcurementAdapter),
+  Layer.succeed(GoTimesheetPort, GoTimesheetAdapter),
+  
+  // Go Backend Adapters - Medium Priority
+  Layer.succeed(GoProfessionalServicesPort, GoProfessionalServicesAdapter),
+  Layer.succeed(GoApprovalWorkflowPort, GoApprovalWorkflowAdapter),
+  Layer.succeed(GoFixedAssetsPort, GoFixedAssetsAdapter),
+  Layer.succeed(GoReconciliationsPort, GoReconciliationsAdapter),
+  Layer.succeed(GoBudgetPort, GoBudgetAdapter),
+  Layer.succeed(GoSegmentReportingPort, GoSegmentReportingAdapter),
+  
+  // Go Backend Adapters - Low Priority
+  Layer.succeed(GoConsolidationsPort, GoConsolidationsAdapter),
+  Layer.succeed(GoEmployeeOnboardingPort, GoEmployeeOnboardingAdapter),
+  Layer.succeed(GoEmployeeTerminationPort, GoEmployeeTerminationAdapter),
+  Layer.succeed(GoPositionManagementPort, GoPositionManagementAdapter),
+  Layer.succeed(GoPTOPort, GoPTOAdapter),
+  Layer.succeed(GoPerformancePort, GoPerformanceAdapter),
+  Layer.succeed(GoTrainingPort, GoTrainingAdapter),
+  Layer.succeed(GoRehirePort, GoRehireAdapter),
+  Layer.succeed(GoEmployeeMasterDataPort, GoEmployeeMasterDataAdapter),
   
   // Event publisher
   ConsoleEventPublisherLive,
