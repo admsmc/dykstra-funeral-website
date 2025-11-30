@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs';
+import { getGoBackendToken, getTenantId } from '@/lib/bff-auth';
 
 const GO_BACKEND_URL = process.env.GO_BACKEND_URL || 'http://localhost:8080';
 
@@ -33,13 +34,27 @@ export async function GET(
   const searchParams = url.searchParams.toString();
   
   try {
+    // Get tenant ID and authentication token
+    const tenantId = await getTenantId(userId);
+    if (!tenantId) {
+      console.error(`[BFF Proxy] No tenant found for user: ${userId}`);
+      return NextResponse.json(
+        { error: 'User not associated with a funeral home' },
+        { status: 403 }
+      );
+    }
+    
+    const token = await getGoBackendToken(userId);
+    
+    console.log(`[BFF Proxy] GET /${path} (user: ${userId}, tenant: ${tenantId})`);
+    
     const response = await fetch(
       `${GO_BACKEND_URL}/${path}${searchParams ? `?${searchParams}` : ''}`,
       {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${await getGoBackendToken(userId)}`,
-          'X-Tenant-Id': await getTenantId(userId),
+          'Authorization': `Bearer ${token}`,
+          'X-Tenant-Id': tenantId,
           'Content-Type': 'application/json',
         },
         signal: AbortSignal.timeout(30000), // 30s timeout
@@ -71,11 +86,25 @@ export async function POST(
   const body = await req.json();
   
   try {
+    // Get tenant ID and authentication token
+    const tenantId = await getTenantId(userId);
+    if (!tenantId) {
+      console.error(`[BFF Proxy] No tenant found for user: ${userId}`);
+      return NextResponse.json(
+        { error: 'User not associated with a funeral home' },
+        { status: 403 }
+      );
+    }
+    
+    const token = await getGoBackendToken(userId);
+    
+    console.log(`[BFF Proxy] POST /${path} (user: ${userId}, tenant: ${tenantId})`);
+    
     const response = await fetch(`${GO_BACKEND_URL}/${path}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${await getGoBackendToken(userId)}`,
-        'X-Tenant-Id': await getTenantId(userId),
+        'Authorization': `Bearer ${token}`,
+        'X-Tenant-Id': tenantId,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(body),
@@ -107,11 +136,25 @@ export async function PATCH(
   const body = await req.json();
   
   try {
+    // Get tenant ID and authentication token
+    const tenantId = await getTenantId(userId);
+    if (!tenantId) {
+      console.error(`[BFF Proxy] No tenant found for user: ${userId}`);
+      return NextResponse.json(
+        { error: 'User not associated with a funeral home' },
+        { status: 403 }
+      );
+    }
+    
+    const token = await getGoBackendToken(userId);
+    
+    console.log(`[BFF Proxy] PATCH /${path} (user: ${userId}, tenant: ${tenantId})`);
+    
     const response = await fetch(`${GO_BACKEND_URL}/${path}`, {
       method: 'PATCH',
       headers: {
-        'Authorization': `Bearer ${await getGoBackendToken(userId)}`,
-        'X-Tenant-Id': await getTenantId(userId),
+        'Authorization': `Bearer ${token}`,
+        'X-Tenant-Id': tenantId,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(body),
@@ -142,11 +185,25 @@ export async function DELETE(
   const path = params.path.join('/');
   
   try {
+    // Get tenant ID and authentication token
+    const tenantId = await getTenantId(userId);
+    if (!tenantId) {
+      console.error(`[BFF Proxy] No tenant found for user: ${userId}`);
+      return NextResponse.json(
+        { error: 'User not associated with a funeral home' },
+        { status: 403 }
+      );
+    }
+    
+    const token = await getGoBackendToken(userId);
+    
+    console.log(`[BFF Proxy] DELETE /${path} (user: ${userId}, tenant: ${tenantId})`);
+    
     const response = await fetch(`${GO_BACKEND_URL}/${path}`, {
       method: 'DELETE',
       headers: {
-        'Authorization': `Bearer ${await getGoBackendToken(userId)}`,
-        'X-Tenant-Id': await getTenantId(userId),
+        'Authorization': `Bearer ${token}`,
+        'X-Tenant-Id': tenantId,
         'Content-Type': 'application/json',
       },
       signal: AbortSignal.timeout(30000), // 30s timeout
@@ -163,39 +220,5 @@ export async function DELETE(
   }
 }
 
-/**
- * Get Go backend authentication token for the given Clerk user
- * 
- * TODO: Implement proper token exchange logic
- * Options:
- * 1. Generate JWT signed by shared secret
- * 2. Exchange Clerk session token for Go token
- * 3. Use Clerk JWT template to include Go backend claims
- */
-async function getGoBackendToken(userId: string): Promise<string> {
-  // For now, return a placeholder token
-  // In production, this should:
-  // 1. Fetch user's funeral home ID from database
-  // 2. Generate/fetch a JWT token for Go backend
-  // 3. Cache the token with appropriate TTL
-  
-  return 'dev-token-' + userId;
-}
-
-/**
- * Get tenant ID (funeral home ID) for the given Clerk user
- * 
- * TODO: Implement proper tenant lookup
- * This should query the TypeScript database to find which funeral home
- * the user belongs to, then return that as the tenant ID.
- */
-async function getTenantId(userId: string): Promise<string> {
-  // For now, return a placeholder tenant
-  // In production, this should:
-  // 1. Query funeral_home_crm database
-  // 2. Find user's associated funeral home
-  // 3. Return funeral home ID
-  // 4. Cache the result
-  
-  return 'dykstra-funeral-home';
-}
+// Note: getGoBackendToken and getTenantId are now imported from @/lib/bff-auth
+// This provides production-ready JWT generation and tenant lookup with caching.
