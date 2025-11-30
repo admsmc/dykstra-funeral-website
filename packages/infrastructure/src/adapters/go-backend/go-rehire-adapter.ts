@@ -3,7 +3,6 @@ import { goClient, unwrapResponse } from './client';
 import type {
   GoRehirePortService,
   GoEmployee,
-  GoRehireEligibility,
 } from '@dykstra/application';
 import { NetworkError } from '@dykstra/application';
 

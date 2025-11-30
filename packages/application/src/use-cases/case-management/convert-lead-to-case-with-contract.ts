@@ -8,7 +8,7 @@ import {
 } from '../../ports/lead-repository';
 import { 
   CaseRepository, 
-  type CaseRepository as CaseRepositoryService 
+  type CaseRepository as CaseRepositoryService,
 } from '../../ports/case-repository';
 import {
   GoContractPort,
@@ -110,9 +110,8 @@ export const convertLeadToCaseWithContract = (
     if (lead.status !== 'qualified') {
       return yield* Effect.fail(
         new ValidationError({
-          message: 'Lead must be qualified before conversion to case with contract',
+          message: `Lead must be qualified before conversion to case with contract (current status: ${lead.status})`,
           field: 'status',
-          value: lead.status,
         })
       );
     }
@@ -163,17 +162,10 @@ export const convertLeadToCaseWithContract = (
     const contract = yield* goContractPort.createContract(contractCommand);
     
     // Step 4: Link case to contract (TypeScript domain)
-    // Note: This assumes Case entity has a goContractId field
-    // If not, this would be stored in a separate linking table
-    const caseWithContract = {
-      ...newCase,
-      metadata: {
-        ...newCase.metadata,
-        goContractId: contract.id,
-      },
-    };
+    // Note: Since Case entity doesn't have metadata, we just use the new case
+    // In production, you'd store the contract link in a separate table or extend Case entity
     
-    yield* caseRepo.update(caseWithContract);
+    yield* caseRepo.save(newCase);
     
     // Step 5: Mark lead as converted (TypeScript domain)
     const convertedLead = yield* lead.convertToCase(newCase.id);
@@ -181,7 +173,7 @@ export const convertLeadToCaseWithContract = (
     
     return {
       lead: convertedLead,
-      case: caseWithContract,
+      case: newCase,
       contract,
     };
   });

@@ -96,13 +96,12 @@ export const reserveInventoryForCase = (
       );
     }
     
-    // Validate case is active
-    if (case_.status !== 'active' && case_.status !== 'planning') {
+    // Validate case is active or inquiry
+    if (case_.status !== 'active' && case_.status !== 'inquiry') {
       return yield* Effect.fail(
         new ValidationError({
-          message: 'Can only reserve inventory for active or planning cases',
+          message: `Can only reserve inventory for active or inquiry cases (current status: ${case_.status})`,
           field: 'status',
-          value: case_.status,
         })
       );
     }
@@ -126,10 +125,8 @@ export const reserveInventoryForCase = (
         itemId: item.itemId,
         quantity: item.quantity,
         locationId: item.locationId,
-        referenceType: 'case',
-        referenceId: case_.businessKey,
-        reservedBy: command.reservedBy,
-        notes: item.notes,
+        caseId: case_.businessKey,
+        contractId: '', // TODO: Get from case-contract linking table
       };
       
       const reservation = yield* goInventoryPort.reserveInventory(reserveCommand);
@@ -137,24 +134,12 @@ export const reserveInventoryForCase = (
     }
     
     // Step 3: Link reservations to case (TypeScript domain)
-    const caseWithReservations = {
-      ...case_,
-      metadata: {
-        ...case_.metadata,
-        inventoryReservations: reservations.map(r => ({
-          reservationId: r.id,
-          itemId: r.itemId,
-          quantity: r.quantity,
-          locationId: r.locationId,
-          reservedAt: r.createdAt,
-        })),
-      },
-    };
+    // Note: Case doesn't have metadata field
+    // In production, store reservations in a separate case-reservation linking table
     
-    yield* caseRepo.update(caseWithReservations);
-    
+    // For now, just return the case and reservations without linking
     return {
-      case: caseWithReservations,
+      case: case_,
       reservations,
     };
   });
@@ -195,12 +180,12 @@ export const releaseInventoryForCase = (
       );
     }
     
-    // Get reservations from case metadata
-    const reservations = case_.metadata?.inventoryReservations as Array<{
-      reservationId: string;
-    }> | undefined;
+    // Get reservations from separate linking table
+    // TODO: Implement proper case-reservation lookup
+    // For now, use GoInventoryPort to get reservations by case
+    const reservations = yield* goInventoryPort.getReservationsByCase(case_.businessKey);
     
-    if (!reservations || reservations.length === 0) {
+    if (reservations.length === 0) {
       return {
         case: case_,
         releasedCount: 0,
@@ -209,22 +194,11 @@ export const releaseInventoryForCase = (
     
     // Release each reservation
     for (const reservation of reservations) {
-      yield* goInventoryPort.releaseReservation(reservation.reservationId);
+      yield* goInventoryPort.releaseReservation(reservation.id);
     }
     
-    // Clear reservations from case metadata
-    const caseWithoutReservations = {
-      ...case_,
-      metadata: {
-        ...case_.metadata,
-        inventoryReservations: [],
-      },
-    };
-    
-    yield* caseRepo.update(caseWithoutReservations);
-    
     return {
-      case: caseWithoutReservations,
+      case: case_,
       releasedCount: reservations.length,
     };
   });

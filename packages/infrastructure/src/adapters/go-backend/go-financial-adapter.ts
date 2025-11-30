@@ -11,7 +11,7 @@ import type {
   GoVendorBill,
   GoVendorPayment,
   GoThreeWayMatchStatus,
-  GoAPPaymentRun,
+  // GoAPPaymentRun, // TODO: Uncomment when AP Payment Run endpoints are implemented
   CreateJournalEntryCommand,
   CreateInvoiceCommand,
   RecordPaymentCommand,
@@ -766,19 +766,20 @@ function mapToGoThreeWayMatchStatus(data: any): GoThreeWayMatchStatus {
   };
 }
 
-function mapToGoAPPaymentRun(data: any): GoAPPaymentRun {
-  return {
-    id: data.id,
-    runNumber: data.run_number,
-    runDate: new Date(data.run_date),
-    status: data.status,
-    billIds: data.bill_ids || [],
-    totalAmount: data.total_amount,
-    paymentMethod: data.payment_method,
-    nachaFileId: data.nacha_file_id,
-    createdBy: data.created_by,
-    createdAt: new Date(data.created_at),
-    approvedBy: data.approved_by,
-    approvedAt: data.approved_at ? new Date(data.approved_at) : undefined,
-  };
-}
+// TODO: Implement AP Payment Run endpoints when Go backend adds them
+// function mapToGoAPPaymentRun(data: any): GoAPPaymentRun {
+//   return {
+//     id: data.id,
+//     runNumber: data.run_number,
+//     runDate: new Date(data.run_date),
+//     status: data.status,
+//     billIds: data.bill_ids || [],
+//     totalAmount: data.total_amount,
+//     paymentMethod: data.payment_method,
+//     nachaFileId: data.nacha_file_id,
+//     createdBy: data.created_by,
+//     createdAt: new Date(data.created_at),
+//     approvedBy: data.approved_by,
+//     approvedAt: data.approved_at ? new Date(data.approved_at) : undefined,
+//   };
+// }
