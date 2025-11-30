@@ -439,6 +439,138 @@ const fontName = Font_Name({
 - CSS variables: kebab-case (`--navy`)
 - Functions: camelCase
 
+## Critical Use Cases Implementation Progress
+
+### Current Status (as of November 30, 2024)
+
+**Overall Progress**: 22/35 critical use cases complete (63%)
+
+**Test Status**: ✅ All 117 tests passing, zero TypeScript compilation errors
+
+**Implementation Plan**: See [docs/Implementation Plan_ Remaining 20 Critical Use Cases.md](./docs/Implementation%20Plan_%20Remaining%2020%20Critical%20Use%20Cases.md)
+
+### Phase 6: Accounts Payable & Financial Close (7/8 - 87.5%)
+
+#### Completed Use Cases
+- ✅ **6.1: Insurance Claim Processing** - Full claim lifecycle with adjudication and payment posting
+- ✅ **6.2: Batch Payment Application** - High-volume payment processing with validation
+- ✅ **6.3: Refund Processing** - Multi-payment refund support with audit trail
+- ✅ **6.4: Vendor Bill Processing** - Production-grade 3-way matching (PO/receipt/invoice)
+- ✅ **6.5: Inventory Transfer Between Locations** - Multi-location transfers with real-time availability
+- ✅ **6.6: Contract Renewal Management** - Pre-need contract renewals with price adjustments
+- ✅ **6.7: Service Arrangement Recommendations** - Personalized recommendations (uses "Service Arrangements" not "packages" per Dykstra preference)
+
+#### Remaining Use Cases
+- ⏳ **6.8: Pre-Need Contract Processing** - NEXT TO IMPLEMENT
+  - Creates new pre-need contracts with families
+  - Service selection, pricing, payment terms
+  - Contract generation and storage
+  - Integration with Go Contract module
+
+### Phase 5: Procurement & Inventory (7/7 - 100% Complete)
+- ✅ 5.1: Purchase Order Creation
+- ✅ 5.2: Receipt Recording
+- ✅ 5.3: Vendor Return Processing
+- ✅ 5.4: Inventory Adjustment
+- ✅ 5.5: Item Master Data Management
+- ✅ 5.6: Vendor Master Data Management
+- ✅ 5.7: Multi-Location Inventory Visibility
+
+### Phase 4: Payroll (4/4 - 100% Complete)
+- ✅ 4.1: Biweekly Payroll Calculation
+- ✅ 4.2: Direct Deposit File Generation
+- ✅ 4.3: Payroll Journal Entry Creation
+- ✅ 4.4: Year-End W-2 Generation
+
+### Phase 3: Time & Attendance (4/4 - 100% Complete)
+- ✅ 3.1: Time Entry Recording
+- ✅ 3.2: Timesheet Approval
+- ✅ 3.3: PTO Request and Approval
+- ✅ 3.4: Overtime Calculation
+
+### Remaining Phases
+- **Phase 1**: Core Case Management (0/8 use cases)
+- **Phase 2**: Financial Operations (0/4 use cases)
+
+### Key Implementation Patterns
+
+All use cases follow these established patterns:
+
+1. **Clean Architecture**
+   - Domain layer: Pure business logic, zero external dependencies
+   - Application layer: Use cases and ports (interfaces)
+   - Infrastructure layer: Object-based adapters (NOT classes)
+   - API layer: Thin routers delegating to use cases
+
+2. **Effect-TS Integration**
+   - All use cases return `Effect<Result, Error, Dependencies>`
+   - Proper error handling with typed errors
+   - Dependency injection via Effect Context
+   - Layer composition for service wiring
+
+3. **Go Backend Integration**
+   - 21 individual Go module ports (1:1 port-to-adapter mapping)
+   - 142 methods across all adapters
+   - Port-adapter pattern with object-based implementations
+   - 4-phase validation system (static, OpenAPI, contract tests, breaking changes)
+
+4. **Testing Strategy**
+   - Comprehensive unit tests for all business logic
+   - Effect-based test utilities for mocking
+   - Validation scenarios, business rules, error handling, edge cases
+   - Contract validation tests for Go backend integration
+
+5. **Terminology Preferences**
+   - "Service Arrangements" (not "packages") - more personal and compassionate
+   - "Families" (not "clients") - warmer terminology
+   - Dignified language throughout all user-facing content
+
+### Next Session Checklist
+
+When resuming work on Use Case 6.8:
+
+1. **Verify Go Backend Methods** (5-Step Pre-Implementation Checklist)
+   ```bash
+   # Step 1: Search for method names in Go codebase
+   # Step 2: Check E2E test coverage
+   # Step 3: Check adapter implementations  
+   # Step 4: Document verification results
+   # Step 5: Update implementation estimates
+   ```
+   See [docs/PRE_IMPLEMENTATION_CHECKLIST.md](./docs/PRE_IMPLEMENTATION_CHECKLIST.md)
+
+2. **Run Pre-Commit Validation**
+   ```bash
+   pnpm validate  # Runs all checks including contract validation
+   ```
+
+3. **Implementation Steps**
+   - Create use case file in `packages/application/src/use-cases/contract/`
+   - Write comprehensive tests in `__tests__/` subdirectory
+   - Verify all 117+ tests pass
+   - Zero TypeScript compilation errors
+   - Update this progress section
+
+4. **Commit Message Format**
+   ```
+   feat: Complete Use Case 6.8 - Pre-Need Contract Processing
+   
+   [Implementation details]
+   
+   Phase 6 Progress: 8/8 use cases complete (100%)
+   Overall Progress: 23/35 critical use cases (66%)
+   Test Status: ✅ All [N] tests passing, zero TypeScript errors
+   ```
+
+### Resources
+
+- **Architecture Guide**: [ARCHITECTURE.md](./ARCHITECTURE.md)
+- **Implementation Plan**: [docs/Implementation Plan_ Remaining 20 Critical Use Cases.md](./docs/Implementation%20Plan_%20Remaining%2020%20Critical%20Use%20Cases.md)
+- **Pre-Implementation Checklist**: [docs/PRE_IMPLEMENTATION_CHECKLIST.md](./docs/PRE_IMPLEMENTATION_CHECKLIST.md)
+- **Verification Quick Reference**: [docs/VERIFICATION_QUICK_REFERENCE.md](./docs/VERIFICATION_QUICK_REFERENCE.md)
+- **Contract Validation Guide**: [docs/BACKEND_CONTRACT_VALIDATION_COMPLETE.md](./docs/BACKEND_CONTRACT_VALIDATION_COMPLETE.md)
+- **CI Scripts Documentation**: [.github/scripts/README.md](./.github/scripts/README.md)
+
 ## Future Enhancement Areas
 
 The README documents planned features:
