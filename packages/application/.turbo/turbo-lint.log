@@ -118,11 +118,32 @@ Pages directory cannot be found at /Users/andrewmathers/projects/dykstra-funeral
 [0m  [2m1:1[22m  [33mwarning[39m  Imports "Effect" are only used as type              [2m@typescript-eslint/consistent-type-imports[22m[0m
 [0m  [2m2:1[22m  [33mwarning[39m  Imports "FamilyRelationship" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
 [0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/go-approval-workflow-port.ts[24m[0m
+[0m  [2m8:1[22m  [33mwarning[39m  Imports "Effect" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/go-budget-port.ts[24m[0m
+[0m  [2m8:1[22m  [33mwarning[39m  Imports "Effect" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/go-consolidations-port.ts[24m[0m
+[0m  [2m8:1[22m  [33mwarning[39m  Imports "Effect" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
 [0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/go-contract-port.ts[24m[0m
 [0m  [2m1:1[22m  [33mwarning[39m  Imports "Effect" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
 [0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/go-employee-master-data-port.ts[24m[0m
+[0m  [2m8:1[22m  [33mwarning[39m  Imports "Effect" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/go-employee-onboarding-port.ts[24m[0m
+[0m  [2m8:1[22m  [33mwarning[39m  Imports "Effect" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/go-employee-termination-port.ts[24m[0m
+[0m  [2m8:1[22m  [33mwarning[39m  Imports "Effect" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
 [0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/go-financial-port.ts[24m[0m
 [0m  [2m1:1[22m  [33mwarning[39m  Imports "Effect" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/go-fixed-assets-port.ts[24m[0m
+[0m  [2m8:1[22m  [33mwarning[39m  Imports "Effect" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
 [0m[0m
 [0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/go-inventory-port.ts[24m[0m
 [0m  [2m1:1[22m  [33mwarning[39m  Imports "Effect" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
@@ -130,11 +151,35 @@ Pages directory cannot be found at /Users/andrewmathers/projects/dykstra-funeral
 [0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/go-payroll-port.ts[24m[0m
 [0m  [2m1:1[22m  [33mwarning[39m  Imports "Effect" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
 [0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/go-performance-port.ts[24m[0m
+[0m  [2m8:1[22m  [33mwarning[39m  Imports "Effect" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/go-position-management-port.ts[24m[0m
+[0m  [2m8:1[22m  [33mwarning[39m  Imports "Effect" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
 [0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/go-procurement-port.ts[24m[0m
 [0m  [2m1:1[22m  [33mwarning[39m  Imports "Effect" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
 [0m[0m
-[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/go-remaining-ports.ts[24m[0m
-[0m  [2m22:1[22m  [33mwarning[39m  Imports "Effect" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/go-professional-services-port.ts[24m[0m
+[0m  [2m8:1[22m  [33mwarning[39m  Imports "Effect" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/go-pto-port.ts[24m[0m
+[0m  [2m8:1[22m  [33mwarning[39m  Imports "Effect" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/go-reconciliations-port.ts[24m[0m
+[0m  [2m8:1[22m  [33mwarning[39m  Imports "Effect" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/go-rehire-port.ts[24m[0m
+[0m  [2m8:1[22m  [33mwarning[39m  Imports "Effect" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/go-segment-reporting-port.ts[24m[0m
+[0m  [2m8:1[22m  [33mwarning[39m  Imports "Effect" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/go-timesheet-port.ts[24m[0m
+[0m  [2m1:1[22m  [33mwarning[39m  Imports "Effect" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/go-training-port.ts[24m[0m
+[0m  [2m8:1[22m  [33mwarning[39m  Imports "Effect" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
 [0m[0m
 [0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/ports/guestbook-repository.ts[24m[0m
 [0m  [2m1:1[22m  [33mwarning[39m  Imports "Effect" are only used as type                                    [2m@typescript-eslint/consistent-type-imports[22m[0m
@@ -237,6 +282,11 @@ Pages directory cannot be found at /Users/andrewmathers/projects/dykstra-funeral
 [0m  [2m5:1[22m  [33mwarning[39m  Imports "EmailError" are only used as type                                [2m@typescript-eslint/consistent-type-imports[22m[0m
 [0m  [2m6:1[22m  [33mwarning[39m  Imports "SMSError" are only used as type                                  [2m@typescript-eslint/consistent-type-imports[22m[0m
 [0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/use-cases/case-management/convert-lead-to-case-with-contract.ts[24m[0m
+[0m   [2m2:1[22m  [33mwarning[39m  Imports "Lead" and "InvalidStateTransitionError" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m   [2m3:1[22m  [33mwarning[39m  Imports "PersistenceError" are only used as type                        [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m13:1[22m  [33mwarning[39m  Imports "NetworkError" are only used as type                            [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
 [0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/use-cases/case-management/get-financial-summary.ts[24m[0m
 [0m  [2m2:1[22m  [33mwarning[39m  Imports "PersistenceError" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
 [0m[0m
@@ -269,9 +319,19 @@ Pages directory cannot be found at /Users/andrewmathers/projects/dykstra-funeral
 [0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/use-cases/email-sync/sync-user-emails.ts[24m[0m
 [0m  [2m2:1[22m  [33mwarning[39m  Imports "EmailSyncError" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
 [0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/use-cases/financial/process-case-payment.ts[24m[0m
+[0m   [2m2:1[22m  [33mwarning[39m  Imports "Case" are only used as type              [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m   [2m3:1[22m  [33mwarning[39m  Imports "PersistenceError" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m11:1[22m  [33mwarning[39m  Imports "NetworkError" are only used as type      [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
 [0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/use-cases/interactions/log-interaction.ts[24m[0m
 [0m  [2m2:1[22m  [33mwarning[39m  Imports "ValidationError" are only used as type   [2m@typescript-eslint/consistent-type-imports[22m[0m
 [0m  [2m3:1[22m  [33mwarning[39m  Imports "PersistenceError" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/use-cases/inventory/reserve-inventory-for-case.ts[24m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  Imports "Case" are only used as type              [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m3:1[22m  [33mwarning[39m  Imports "PersistenceError" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m9:1[22m  [33mwarning[39m  Imports "NetworkError" are only used as type      [2m@typescript-eslint/consistent-type-imports[22m[0m
 [0m[0m
 [0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/use-cases/invitations/create-invitation.ts[24m[0m
 [0m  [2m3:1[22m  [33mwarning[39m  Imports "CaseMemberRole" are only used as type                        [2m@typescript-eslint/consistent-type-imports[22m[0m
@@ -328,6 +388,6 @@ Pages directory cannot be found at /Users/andrewmathers/projects/dykstra-funeral
 [0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/use-cases/tasks/update-task-status.ts[24m[0m
 [0m  [2m2:1[22m  [33mwarning[39m  Imports "TaskStatus" and "TaskNotFoundError" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
 [0m[0m
-[0m[33m[1m✖ 145 problems (0 errors, 145 warnings)[22m[39m[0m
-[0m[33m[1m[22m[39m[33m[1m  0 errors and 145 warnings potentially fixable with the `--fix` option.[22m[39m[0m
+[0m[33m[1m✖ 169 problems (0 errors, 169 warnings)[22m[39m[0m
+[0m[33m[1m[22m[39m[33m[1m  0 errors and 169 warnings potentially fixable with the `--fix` option.[22m[39m[0m
 [0m[33m[1m[22m[39m[0m

@@ -82,6 +82,9 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     "packages/*/dist/**",
     "**/node_modules/**",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/__tests__/**",
   ]),
 ]);
 

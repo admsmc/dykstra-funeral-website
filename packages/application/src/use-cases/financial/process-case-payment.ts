@@ -34,7 +34,19 @@ export interface ProcessCasePaymentCommand {
  */
 export interface ProcessCasePaymentResult {
   readonly case: Case;
-  readonly tsPayment: any;         // TypeScript payment record
+  readonly tsPayment: {           // TypeScript payment record (stub)
+    id: string;
+    caseId: string;
+    amount: number;
+    paymentMethod: string;
+    reference?: string;
+    paidBy: string;
+    receivedBy: string;
+    notes?: string;
+    status: string;
+    goPaymentId: string;
+    goInvoiceId: string;
+  };
   readonly goPayment: GoPayment;   // Go AR payment record
   readonly remainingBalance: number;
 }
