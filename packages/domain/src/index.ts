@@ -1,6 +1,9 @@
 // Errors
 export * from './errors/domain-errors';
 
+// Constants
+export * from './constants/gl-accounts';
+
 // Value Objects
 export * from './value-objects/email';
 export * from './value-objects/money';

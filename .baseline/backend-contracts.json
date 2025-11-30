@@ -1,0 +1,316 @@
+{
+  "version": "1.0.0",
+  "timestamp": "2025-11-30T02:20:49.545Z",
+  "contracts": {
+    "go-approval-workflow-port": {
+      "methods": [
+        "createApprovalRequest",
+        "approveRequest",
+        "rejectRequest",
+        "getPendingApprovals",
+        "getApprovalHistory"
+      ],
+      "endpoints": {
+        "createApprovalRequest": {
+          "httpMethod": "POST",
+          "path": "/v1/workflows/approval-requests"
+        },
+        "getPendingApprovals": {
+          "httpMethod": "GET",
+          "path": "/v1/workflows/approval-requests"
+        },
+        "getApprovalHistory": {
+          "httpMethod": "GET",
+          "path": "/v1/workflows/approval-requests"
+        }
+      }
+    },
+    "go-budget-port": {
+      "methods": [
+        "createBudget",
+        "getBudget",
+        "updateBudgetAccount",
+        "approveBudget",
+        "getBudgetVarianceReport"
+      ],
+      "endpoints": {
+        "createBudget": {
+          "httpMethod": "POST",
+          "path": "/v1/budgets"
+        },
+        "getBudget": {
+          "httpMethod": "GET",
+          "path": "/v1/budgets"
+        },
+        "getBudgetVarianceReport": {
+          "httpMethod": "GET",
+          "path": "/v1/budgets/variance"
+        }
+      }
+    },
+    "go-consolidations-port": {
+      "methods": [
+        "listEntities",
+        "generateConsolidationReport"
+      ],
+      "endpoints": {
+        "listEntities": {
+          "httpMethod": "GET",
+          "path": "/v1/consolidations/entities"
+        },
+        "generateConsolidationReport": {
+          "httpMethod": "POST",
+          "path": "/v1/consolidations/reports"
+        }
+      }
+    },
+    "go-contract-port": {
+      "methods": [
+        "createContract",
+        "getContract",
+        "listContractsByCase",
+        "updateContract",
+        "approveContract",
+        "signContract",
+        "cancelContract",
+        "getApprovalHistory"
+      ],
+      "endpoints": {
+        "createContract": {
+          "httpMethod": "POST",
+          "path": "/v1/contracts"
+        },
+        "listContractsByCase": {
+          "httpMethod": "GET",
+          "path": "/v1/contracts"
+        }
+      }
+    },
+    "go-employee-master-data-port": {
+      "methods": [
+        "getEmployeeById",
+        "updateEmployeeInfo",
+        "getOrgChart",
+        "getCompensationHistory"
+      ],
+      "endpoints": {
+        "getOrgChart": {
+          "httpMethod": "GET",
+          "path": "/v1/hcm/org-chart"
+        }
+      }
+    },
+    "go-employee-onboarding-port": {
+      "methods": [
+        "hireEmployee",
+        "getOnboardingTasks",
+        "completeOnboardingTask"
+      ],
+      "endpoints": {
+        "hireEmployee": {
+          "httpMethod": "POST",
+          "path": "/v1/hcm/employees/hire"
+        }
+      }
+    },
+    "go-employee-termination-port": {
+      "methods": [
+        "terminateEmployee",
+        "getExitChecklist",
+        "processFinalPaycheck"
+      ],
+      "endpoints": {}
+    },
+    "go-financial-port": {
+      "methods": [
+        "getChartOfAccounts",
+        "getGLAccount",
+        "getGLAccountByNumber",
+        "createJournalEntry",
+        "postJournalEntry",
+        "reverseJournalEntry"
+      ],
+      "endpoints": {
+        "getChartOfAccounts": {
+          "httpMethod": "GET",
+          "path": "/v1/financial/chart-of-accounts"
+        },
+        "createJournalEntry": {
+          "httpMethod": "POST",
+          "path": "/v1/financial/journal-entries"
+        }
+      }
+    },
+    "go-fixed-assets-port": {
+      "methods": [
+        "createAsset",
+        "getAsset"
+      ],
+      "endpoints": {
+        "createAsset": {
+          "httpMethod": "POST",
+          "path": "/v1/fixed-assets/assets"
+        }
+      }
+    },
+    "go-inventory-port": {
+      "methods": [
+        "createItem",
+        "getItem",
+        "getItemBySku"
+      ],
+      "endpoints": {
+        "createItem": {
+          "httpMethod": "POST",
+          "path": "/v1/inventory/items"
+        },
+        "getItemBySku": {
+          "httpMethod": "GET",
+          "path": "/v1/inventory/items"
+        }
+      }
+    },
+    "go-payroll-port": {
+      "methods": [
+        "createPayrollRun",
+        "getPayrollRun"
+      ],
+      "endpoints": {
+        "createPayrollRun": {
+          "httpMethod": "POST",
+          "path": "/v1/payroll/runs"
+        }
+      }
+    },
+    "go-performance-port": {
+      "methods": [
+        "createPerformanceReview",
+        "getEmployeeReviews"
+      ],
+      "endpoints": {}
+    },
+    "go-position-management-port": {
+      "methods": [
+        "promoteEmployee",
+        "transferEmployee",
+        "adjustCompensation",
+        "listPositions"
+      ],
+      "endpoints": {
+        "listPositions": {
+          "httpMethod": "GET",
+          "path": "/v1/hcm/positions"
+        }
+      }
+    },
+    "go-procurement-port": {
+      "methods": [
+        "createPurchaseRequisition",
+        "getPurchaseRequisition"
+      ],
+      "endpoints": {
+        "createPurchaseRequisition": {
+          "httpMethod": "POST",
+          "path": "/v1/procurement/requisitions"
+        }
+      }
+    },
+    "go-professional-services-port": {
+      "methods": [
+        "createEngagement",
+        "submitTimesheet",
+        "approveTimesheet",
+        "getCaseEngagements"
+      ],
+      "endpoints": {
+        "createEngagement": {
+          "httpMethod": "POST",
+          "path": "/v1/professional-services/engagements"
+        },
+        "submitTimesheet": {
+          "httpMethod": "POST",
+          "path": "/v1/professional-services/timesheets"
+        },
+        "getCaseEngagements": {
+          "httpMethod": "GET",
+          "path": "/v1/professional-services/engagements"
+        }
+      }
+    },
+    "go-pto-port": {
+      "methods": [
+        "getPTOBalances",
+        "submitPTORequest",
+        "approvePTORequest",
+        "rejectPTORequest",
+        "getPendingPTORequests"
+      ],
+      "endpoints": {
+        "getPendingPTORequests": {
+          "httpMethod": "GET",
+          "path": "/v1/hcm/pto/requests"
+        }
+      }
+    },
+    "go-reconciliations-port": {
+      "methods": [
+        "createReconciliation",
+        "getReconciliation"
+      ],
+      "endpoints": {
+        "createReconciliation": {
+          "httpMethod": "POST",
+          "path": "/v1/reconciliations"
+        }
+      }
+    },
+    "go-rehire-port": {
+      "methods": [
+        "checkRehireEligibility",
+        "rehireEmployee"
+      ],
+      "endpoints": {}
+    },
+    "go-segment-reporting-port": {
+      "methods": [
+        "listSegments",
+        "generateSegmentReport"
+      ],
+      "endpoints": {
+        "listSegments": {
+          "httpMethod": "GET",
+          "path": "/v1/segments"
+        },
+        "generateSegmentReport": {
+          "httpMethod": "GET",
+          "path": "/v1/segments/reports"
+        }
+      }
+    },
+    "go-timesheet-port": {
+      "methods": [
+        "createTimesheet",
+        "getTimesheet"
+      ],
+      "endpoints": {
+        "createTimesheet": {
+          "httpMethod": "POST",
+          "path": "/v1/timesheets"
+        }
+      }
+    },
+    "go-training-port": {
+      "methods": [
+        "recordTraining",
+        "getEmployeeTraining",
+        "getExpiringCertifications"
+      ],
+      "endpoints": {
+        "getExpiringCertifications": {
+          "httpMethod": "GET",
+          "path": "/v1/hcm/training/expiring"
+        }
+      }
+    }
+  }
+}

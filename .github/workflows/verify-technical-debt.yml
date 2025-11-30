@@ -1,0 +1,169 @@
+name: Verify Technical Debt Claims
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'packages/application/src/use-cases/**/*.ts'
+      - 'docs/**/*.md'
+      - 'packages/infrastructure/src/adapters/**/*.ts'
+
+jobs:
+  verify:
+    name: Check for false "missing method" claims
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for git diff
+      
+      - name: Fetch base branch
+        run: |
+          git fetch origin ${{ github.base_ref }}
+      
+      - name: Run verification script
+        id: verify
+        run: |
+          # Get list of changed files
+          CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+          
+          # Run verification (capture output)
+          set +e  # Don't exit on error
+          OUTPUT=$(.github/scripts/verify-technical-debt.sh $CHANGED_FILES 2>&1)
+          EXIT_CODE=$?
+          set -e
+          
+          # Save output for PR comment
+          echo "$OUTPUT" > verification-output.txt
+          echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+          
+          # Print to workflow log
+          echo "$OUTPUT"
+          
+          exit $EXIT_CODE
+      
+      - name: Comment on PR (if failures found)
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const output = fs.readFileSync('verification-output.txt', 'utf8');
+            
+            const body = `## ❌ Technical Debt Verification Failed
+            
+            The CI script detected method(s) claimed as "missing" that actually exist in the codebase.
+            
+            <details>
+            <summary>📋 Verification Output</summary>
+            
+            \`\`\`
+            ${output}
+            \`\`\`
+            
+            </details>
+            
+            ### Action Required
+            
+            1. **Remove false "TECHNICAL DEBT" comments** from your code
+            2. **Use the existing port/adapter methods** instead of simplified placeholders
+            3. **Run verification locally**: \`.github/scripts/verify-technical-debt.sh\`
+            4. **Update your PR** after fixing the issues
+            
+            ### Why This Matters
+            
+            False "missing method" claims lead to:
+            - ❌ Duplicate implementations of existing functionality
+            - ❌ Incorrect effort estimates (hours vs weeks)
+            - ❌ Technical debt that doesn't actually exist
+            - ❌ Confusion for future developers
+            
+            ### Resources
+            
+            - 📖 [Pre-Implementation Checklist](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/docs/PRE_IMPLEMENTATION_CHECKLIST.md)
+            - 📖 [Verification Quick Reference](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/docs/VERIFICATION_QUICK_REFERENCE.md)
+            
+            ---
+            
+            **Lesson learned from Use Case 6.4**: Always verify before claiming "missing" - the Go backend has extensive functionality already implemented!`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+      
+      - name: Comment on PR (if warnings found)
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const output = fs.readFileSync('verification-output.txt', 'utf8');
+            
+            // Check if there are warnings
+            const warningsMatch = output.match(/⚠️\s+Warnings:\s+(\d+)/);
+            if (warningsMatch && parseInt(warningsMatch[1]) > 0) {
+              const body = `## ⚠️ Technical Debt Verification - Warnings Detected
+              
+              The verification passed, but found some "simplified implementation" patterns that should be reviewed.
+              
+              <details>
+              <summary>📋 Verification Output</summary>
+              
+              \`\`\`
+              ${output}
+              \`\`\`
+              
+              </details>
+              
+              ### Before Merging
+              
+              1. Run the **4 verification commands** from [Verification Quick Reference](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/docs/VERIFICATION_QUICK_REFERENCE.md)
+              2. Confirm the full implementation doesn't already exist in:
+                 - TypeScript ports (\`packages/application/src/ports/\`)
+                 - TypeScript adapters (\`packages/infrastructure/src/adapters/go-backend/\`)
+                 - Go backend (\`~/tigerbeetle-trial-app-1/cmd/api/\`)
+              3. Update the PR description with your verification results
+              
+              ### Pro Tip
+              
+              If the method exists with E2E test coverage in the Go backend, it's production-ready! You only need to wire it up in TypeScript (typically 1-2 hours, not weeks).
+              
+              ---
+              
+              This is a **warning only** - the PR is not blocked.`;
+              
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body
+              });
+            } else {
+              // All clear - post success message
+              const body = `## ✅ Technical Debt Verification Passed
+              
+              No false "missing method" claims detected. Great work! 🎉
+              
+              <details>
+              <summary>📋 Verification Output</summary>
+              
+              \`\`\`
+              ${output}
+              \`\`\`
+              
+              </details>`;
+              
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body
+              });
+            }

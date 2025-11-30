@@ -220,6 +220,14 @@ export interface GoAPPaymentRun {
   readonly approvedAt?: Date;
 }
 
+export interface GoAPPaymentRunExecution {
+  readonly paymentRunId: string;
+  readonly status: string;
+  readonly executed: number;
+  readonly glJournalId?: string;
+  readonly executedAt: Date;
+}
+
 // Commands
 export interface CreateJournalEntryCommand {
   readonly entryDate: Date;
@@ -596,6 +604,38 @@ export interface GoFinancialPortService {
   readonly getAPPaymentRun: (
     id: string
   ) => Effect.Effect<GoAPPaymentRun, NotFoundError | NetworkError>;
+  
+  /**
+   * Approve AP payment run
+   * 
+   * Backend operation:
+   * 1. Validates payment run is in draft/submitted status
+   * 2. Records approval
+   * 3. Emits PaymentRunApproved event
+   * 4. Status: approved (ready for execution)
+   */
+  readonly approveAPPaymentRun: (
+    id: string,
+    approvedBy?: string
+  ) => Effect.Effect<GoAPPaymentRun, NetworkError>;
+  
+  /**
+   * Execute AP payment run
+   * 
+   * Backend operation:
+   * 1. Validates payment run is approved
+   * 2. Marks all bills as paid
+   * 3. Posts GL entries (DR: AP, CR: Cash)
+   * 4. Generates payment file (ACH/wire/check)
+   * 5. Emits PaymentRunExecuted event
+   * 6. Status: completed
+   */
+  readonly executeAPPaymentRun: (
+    params: {
+      id: string;
+      bankId?: string;
+    }
+  ) => Effect.Effect<GoAPPaymentRunExecution, NetworkError>;
 }
 
 export interface GoThreeWayMatchStatus {

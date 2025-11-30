@@ -61,4 +61,12 @@ npx tsx scripts/validate-di.ts
 echo "🔒 Validating Prisma type safety..."
 npx tsx scripts/validate-prisma-types.ts
 
+# Backend Contract validation (Phase 1)
+echo "🔌 Validating backend contracts..."
+npx tsx scripts/validate-backend-contracts.ts
+
+# Breaking Change Detection (Phase 4)
+echo "🔍 Checking for breaking changes..."
+npx tsx scripts/detect-breaking-changes.ts --quiet
+
 echo "✅ All pre-commit checks passed!"

@@ -42,13 +42,84 @@ Runs comprehensive pre-commit checks:
 - Circular dependency detection
 - Effect Layer validation (catches await import issues)
 - Interface/tag naming conflict detection
+- Dependency injection validation
+- Prisma type safety validation
+- **Backend contract validation** (NEW: verifies adapters match ports)
+
+### Technical Debt Verification (CI)
+```bash
+.github/scripts/verify-technical-debt.sh
+```
+- ✅ Prevents false "missing method" claims in code and docs
+- ✅ Detects when methods exist but are incorrectly documented as missing
+- ✅ Runs automatically on pull requests via GitHub Actions
+- ✅ Blocks PRs with false technical debt claims
+- ⚠️ Warns about simplified implementations without verification
+
+**Resources**:
+- 📖 [CI Verification Scripts README](.github/scripts/README.md) - Complete usage guide
+- 📖 [Pre-Implementation Checklist](docs/PRE_IMPLEMENTATION_CHECKLIST.md) - 5-step verification process
+- 📖 [Verification Quick Reference](docs/VERIFICATION_QUICK_REFERENCE.md) - Quick command cheat sheet
+
+**Why This Matters**: Use Case 6.4 initially documented 3 weeks of "missing" Go backend work when only 4 hours of TypeScript wiring was needed. This system prevents similar mistakes.
 
 ### Specific Validation Commands
 ```bash
-pnpm check:circular  # Check for circular dependencies
-pnpm check:layers    # Validate Effect Layer definitions
-pnpm type-check      # TypeScript compilation only
+pnpm check:circular       # Check for circular dependencies
+pnpm check:layers         # Validate Effect Layer definitions
+pnpm type-check           # TypeScript compilation only
+pnpm validate:di          # Dependency injection validation
+pnpm validate:contracts   # Backend contract validation (Phase 1)
+pnpm validate:contracts:openapi  # OpenAPI integration (Phase 2)
+pnpm validate:breaking-changes   # Breaking change detection (Phase 4)
 ```
+
+### Backend Contract Validation System (4 Phases)
+
+The project includes a comprehensive 4-phase validation system for Go backend integration:
+
+#### Phase 1: Static Validation
+```bash
+pnpm validate:contracts
+```
+- ✅ Verifies all 21 Go backend ports have corresponding adapters
+- ✅ Ensures every port method has an adapter implementation (142 methods)
+- ✅ Extracts and displays HTTP endpoints for documentation
+- ✅ Catches missing implementations before runtime
+- ✅ Integrated into `pnpm validate` and pre-commit hooks
+
+#### Phase 2: OpenAPI Integration (Optional)
+```bash
+pnpm validate:contracts:openapi
+pnpm validate:contracts:openapi --openapi-path=../go-erp/docs/openapi.yaml
+```
+- ✅ Validates TypeScript endpoints match Go OpenAPI specification
+- ✅ Compares HTTP methods and paths
+- ✅ Auto-discovers OpenAPI spec in common locations
+- ⚠️  Informational only (doesn't fail builds)
+
+#### Phase 3: Contract Testing
+```bash
+pnpm test  # Includes contract validation tests
+pnpm --filter @dykstra/infrastructure test contract-validation
+```
+- ✅ Runtime tests verify adapter implementations
+- ✅ Validates all 21 adapters implement their port interfaces
+- ✅ Ensures consistent error handling patterns
+- ✅ Located at `packages/infrastructure/src/adapters/go-backend/__tests__/contract-validation.test.ts`
+
+#### Phase 4: Breaking Change Detection
+```bash
+pnpm validate:breaking-changes                    # Check for changes
+pnpm validate:breaking-changes --update-baseline  # Update baseline
+```
+- ✅ Tracks API changes over time with baseline snapshots
+- ✅ Detects removed methods, changed endpoints, modified signatures
+- ✅ Fails on breaking changes, warns on non-breaking changes
+- ✅ Baseline stored in `.baseline/backend-contracts.json` (committed to Git)
+- ✅ Integrated into `pnpm validate` and pre-commit hooks
+
+**Complete Documentation**: See [docs/BACKEND_CONTRACT_VALIDATION_COMPLETE.md](./docs/BACKEND_CONTRACT_VALIDATION_COMPLETE.md) for the full 4-phase validation system guide.
 
 ## Prisma 7 Configuration
 

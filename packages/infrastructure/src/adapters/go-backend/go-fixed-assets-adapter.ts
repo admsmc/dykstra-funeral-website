@@ -113,7 +113,13 @@ export const GoFixedAssetsAdapter: GoFixedAssetsPortService = {
             period: period.toISOString(),
           }
         });
-        unwrapResponse(res);
+        const data = unwrapResponse(res);
+        return {
+          runId: data.run_id || 'depr-' + period.toISOString().slice(0, 7),
+          period: new Date(data.period || period),
+          assetsProcessed: data.assets_processed || 0,
+          totalDepreciationAmount: data.total_depreciation_amount || 0,
+        };
       },
       catch: (error) => new NetworkError('Failed to run monthly depreciation', error as Error)
     }),

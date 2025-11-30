@@ -1,48 +1,47 @@
 
-
 > @dykstra/infrastructure@0.1.0 lint /Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure
 > eslint .
 
 Pages directory cannot be found at /Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/pages or /Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/pages. If using a custom path, please configure with the `no-html-link-for-pages` rule in your eslint config file.
-[0m[0m
-[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/adapters/email-sync/gmail-adapter.ts[24m[0m
-[0m  [2m34:14[22m  [33mwarning[39m  'error' is defined but never used  [2m@typescript-eslint/no-unused-vars[22m[0m
-[0m[0m
-[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/adapters/email-sync/microsoft-graph-adapter.ts[24m[0m
-[0m  [2m35:14[22m  [33mwarning[39m  'error' is defined but never used  [2m@typescript-eslint/no-unused-vars[22m[0m
-[0m[0m
-[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/adapters/email/sendgrid-marketing-adapter.ts[24m[0m
-[0m  [2m91:18[22m  [33mwarning[39m  'bulkError' is defined but never used  [2m@typescript-eslint/no-unused-vars[22m[0m
-[0m[0m
-[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/adapters/storage/s3-storage-adapter.ts[24m[0m
-[0m  [2m9:1[22m  [33mwarning[39m  Imports "FileUpload" and "UploadResult" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
-[0m[0m
-[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/database/prisma-campaign-repository.ts[24m[0m
-[0m  [2m4:1[22m  [33mwarning[39m  All imports in the declaration are only used as types. Use `import type`  [2m@typescript-eslint/consistent-type-imports[22m[0m
-[0m[0m
-[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/database/prisma-case-repository.ts[24m[0m
-[0m  [2m6:1[22m  [33mwarning[39m  All imports in the declaration are only used as types. Use `import type`  [2m@typescript-eslint/consistent-type-imports[22m[0m
-[0m[0m
-[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/database/prisma-contact-repository.ts[24m[0m
-[0m  [2m13:1[22m  [33mwarning[39m  All imports in the declaration are only used as types. Use `import type`  [2m@typescript-eslint/consistent-type-imports[22m[0m
-[0m[0m
-[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/database/prisma-contract-repository.ts[24m[0m
-[0m  [2m2:1[22m  [33mwarning[39m  Imports "Money" are only used as type                                     [2m@typescript-eslint/consistent-type-imports[22m[0m
-[0m  [2m6:1[22m  [33mwarning[39m  All imports in the declaration are only used as types. Use `import type`  [2m@typescript-eslint/consistent-type-imports[22m[0m
-[0m[0m
-[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/database/prisma-interaction-repository.ts[24m[0m
-[0m  [2m4:1[22m  [33mwarning[39m  All imports in the declaration are only used as types. Use `import type`  [2m@typescript-eslint/consistent-type-imports[22m[0m
-[0m[0m
-[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/database/prisma-lead-repository.ts[24m[0m
-[0m  [2m4:1[22m  [33mwarning[39m  All imports in the declaration are only used as types. Use `import type`  [2m@typescript-eslint/consistent-type-imports[22m[0m
-[0m[0m
-[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/database/prisma-payment-repository.ts[24m[0m
-[0m  [2m2:1[22m  [33mwarning[39m  Imports "Money" are only used as type                                     [2m@typescript-eslint/consistent-type-imports[22m[0m
-[0m  [2m6:1[22m  [33mwarning[39m  All imports in the declaration are only used as types. Use `import type`  [2m@typescript-eslint/consistent-type-imports[22m[0m
-[0m[0m
-[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/database/prisma-referral-source-repository.ts[24m[0m
-[0m  [2m4:1[22m  [33mwarning[39m  All imports in the declaration are only used as types. Use `import type`  [2m@typescript-eslint/consistent-type-imports[22m[0m
-[0m[0m
-[0m[33m[1m✖ 14 problems (0 errors, 14 warnings)[22m[39m[0m
-[0m[33m[1m[22m[39m[33m[1m  0 errors and 11 warnings potentially fixable with the `--fix` option.[22m[39m[0m
-[0m[33m[1m[22m[39m[0m
+
+/Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/adapters/email-sync/gmail-adapter.ts
+  34:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/adapters/email-sync/microsoft-graph-adapter.ts
+  35:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/adapters/email/sendgrid-marketing-adapter.ts
+  91:18  warning  'bulkError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/adapters/storage/s3-storage-adapter.ts
+  9:1  warning  Imports "FileUpload" and "UploadResult" are only used as type  @typescript-eslint/consistent-type-imports
+
+/Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/database/prisma-campaign-repository.ts
+  4:1  warning  All imports in the declaration are only used as types. Use `import type`  @typescript-eslint/consistent-type-imports
+
+/Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/database/prisma-case-repository.ts
+  6:1  warning  All imports in the declaration are only used as types. Use `import type`  @typescript-eslint/consistent-type-imports
+
+/Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/database/prisma-contact-repository.ts
+  13:1  warning  All imports in the declaration are only used as types. Use `import type`  @typescript-eslint/consistent-type-imports
+
+/Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/database/prisma-contract-repository.ts
+  2:1  warning  Imports "Money" are only used as type                                     @typescript-eslint/consistent-type-imports
+  6:1  warning  All imports in the declaration are only used as types. Use `import type`  @typescript-eslint/consistent-type-imports
+
+/Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/database/prisma-interaction-repository.ts
+  4:1  warning  All imports in the declaration are only used as types. Use `import type`  @typescript-eslint/consistent-type-imports
+
+/Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/database/prisma-lead-repository.ts
+  4:1  warning  All imports in the declaration are only used as types. Use `import type`  @typescript-eslint/consistent-type-imports
+
+/Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/database/prisma-payment-repository.ts
+  2:1  warning  Imports "Money" are only used as type                                     @typescript-eslint/consistent-type-imports
+  6:1  warning  All imports in the declaration are only used as types. Use `import type`  @typescript-eslint/consistent-type-imports
+
+/Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure/src/database/prisma-referral-source-repository.ts
+  4:1  warning  All imports in the declaration are only used as types. Use `import type`  @typescript-eslint/consistent-type-imports
+
+✖ 14 problems (0 errors, 14 warnings)
+  0 errors and 11 warnings potentially fixable with the `--fix` option.
+

@@ -26,6 +26,15 @@ export class Case extends Data.Class<{
   readonly serviceType: ServiceType | null;
   readonly serviceDate: Date | null;
   readonly arrangements: Arrangements | null; // Arrangements details
+  readonly goContractId: string | null;       // Go backend contract ID
+  readonly glJournalEntryId: string | null;   // GL journal entry ID (when finalized)
+  readonly revenueAmount: number | null;      // Total revenue recognized (when finalized)
+  readonly cogsAmount: number | null;         // Total COGS for inventory delivered
+  readonly cogsJournalEntryId: string | null; // COGS GL journal entry ID
+  readonly inventoryDeliveredAt: Date | null; // When inventory was delivered to family
+  readonly inventoryDeliveredBy: string | null; // Who delivered the inventory
+  readonly finalizedAt: Date | null;          // When case was finalized
+  readonly finalizedBy: string | null;        // Who finalized the case
   readonly createdAt: Date;
   readonly updatedAt: Date;
   readonly createdBy: string;
@@ -81,6 +90,15 @@ export class Case extends Data.Class<{
         serviceType: null,
         serviceDate: null,
         arrangements: null,
+        goContractId: null,
+        glJournalEntryId: null,
+        revenueAmount: null,
+        cogsAmount: null,
+        cogsJournalEntryId: null,
+        inventoryDeliveredAt: null,
+        inventoryDeliveredBy: null,
+        finalizedAt: null,
+        finalizedBy: null,
         createdAt: now,
         updatedAt: now,
         createdBy: params.createdBy,
@@ -236,6 +254,13 @@ export class Case extends Data.Class<{
   }
   
   /**
+   * Get case number (alias for businessKey)
+   */
+  get caseNumber(): string {
+    return this.businessKey;
+  }
+  
+  /**
    * Check if case is inquiry
    */
   get isInquiry(): boolean {
@@ -272,6 +297,186 @@ export class Case extends Data.Class<{
         version: self.version + 1,              // Increment version on change
         arrangements,
         updatedAt: new Date(),
+      });
+    });
+  }
+  
+  /**
+   * Link Go backend contract to case
+   */
+  linkContract(goContractId: string): Effect.Effect<Case, ValidationError> {
+    const self = this;
+    return Effect.gen(function* (_) {
+      if (!goContractId || goContractId.trim() === '') {
+        return yield* _(Effect.fail(
+          new ValidationError({
+            message: 'Contract ID is required',
+            field: 'goContractId',
+          })
+        ));
+      }
+      
+      return new Case({
+        ...self,
+        version: self.version + 1,
+        goContractId,
+        updatedAt: new Date(),
+      });
+    });
+  }
+  
+  /**
+   * Update COGS information after inventory delivery
+   * 
+   * This method records the cost of goods sold when inventory is delivered to a family.
+   * Typically called after committing inventory reservations.
+   * 
+   * @param params - COGS tracking parameters
+   * @returns Effect with updated case or validation error
+   */
+  updateCOGS(params: {
+    cogsAmount: number;
+    cogsJournalEntryId: string;
+    inventoryDeliveredAt: Date;
+    inventoryDeliveredBy: string;
+  }): Effect.Effect<Case, ValidationError> {
+    const self = this;
+    return Effect.gen(function* (_) {
+      // Validate case status (must be active or completed)
+      if (self.status !== 'active' && self.status !== 'completed') {
+        return yield* _(Effect.fail(
+          new ValidationError({
+            message: `Cannot update COGS for case in ${self.status} status`,
+            field: 'status',
+          })
+        ));
+      }
+      
+      // Validate COGS amount
+      if (params.cogsAmount < 0) {
+        return yield* _(Effect.fail(
+          new ValidationError({
+            message: 'COGS amount cannot be negative',
+            field: 'cogsAmount',
+          })
+        ));
+      }
+      
+      // Validate journal entry ID
+      if (!params.cogsJournalEntryId || params.cogsJournalEntryId.trim() === '') {
+        return yield* _(Effect.fail(
+          new ValidationError({
+            message: 'COGS journal entry ID is required',
+            field: 'cogsJournalEntryId',
+          })
+        ));
+      }
+      
+      // Validate delivered by
+      if (!params.inventoryDeliveredBy || params.inventoryDeliveredBy.trim() === '') {
+        return yield* _(Effect.fail(
+          new ValidationError({
+            message: 'Inventory delivered by user ID is required',
+            field: 'inventoryDeliveredBy',
+          })
+        ));
+      }
+      
+      return new Case({
+        ...self,
+        version: self.version + 1,
+        cogsAmount: params.cogsAmount,
+        cogsJournalEntryId: params.cogsJournalEntryId,
+        inventoryDeliveredAt: params.inventoryDeliveredAt,
+        inventoryDeliveredBy: params.inventoryDeliveredBy,
+        updatedAt: new Date(),
+      });
+    });
+  }
+  
+  /**
+   * Finalize case with GL posting
+   * 
+   * This method handles the business logic for case finalization:
+   * - Validates case can be finalized (active or completed status)
+   * - Validates contract is linked
+   * - Transitions status to archived
+   * - Records GL journal entry reference
+   * - Records revenue amount and finalization timestamp
+   * 
+   * @param journalEntryId - GL journal entry ID from Go backend
+   * @param revenueAmount - Total revenue recognized
+   * @param finalizedBy - User ID who performed finalization
+   * @returns Effect with finalized case or validation error
+   */
+  finalize(
+    journalEntryId: string,
+    revenueAmount: number,
+    finalizedBy: string
+  ): Effect.Effect<Case, ValidationError> {
+    const self = this;
+    return Effect.gen(function* (_) {
+      // Validate case status
+      if (self.status !== 'active' && self.status !== 'completed') {
+        return yield* _(Effect.fail(
+          new ValidationError({
+            message: `Cannot finalize case from status: ${self.status}. Case must be active or completed.`,
+            field: 'status',
+          })
+        ));
+      }
+      
+      // Validate contract is linked
+      if (!self.goContractId) {
+        return yield* _(Effect.fail(
+          new ValidationError({
+            message: 'Cannot finalize case without linked contract',
+            field: 'goContractId',
+          })
+        ));
+      }
+      
+      // Validate journal entry ID
+      if (!journalEntryId || journalEntryId.trim() === '') {
+        return yield* _(Effect.fail(
+          new ValidationError({
+            message: 'Journal entry ID is required',
+            field: 'journalEntryId',
+          })
+        ));
+      }
+      
+      // Validate revenue amount
+      if (revenueAmount <= 0) {
+        return yield* _(Effect.fail(
+          new ValidationError({
+            message: 'Revenue amount must be positive',
+            field: 'revenueAmount',
+          })
+        ));
+      }
+      
+      // Validate finalized by
+      if (!finalizedBy || finalizedBy.trim() === '') {
+        return yield* _(Effect.fail(
+          new ValidationError({
+            message: 'Finalized by user ID is required',
+            field: 'finalizedBy',
+          })
+        ));
+      }
+      
+      const now = new Date();
+      
+      return new Case({
+        ...self,
+        version: self.version + 1,              // Increment version
+        status: 'archived',                     // Finalized cases are archived
+        glJournalEntryId: journalEntryId,
+        revenueAmount: revenueAmount,
+        finalizedAt: now,
+        finalizedBy: finalizedBy,
+        updatedAt: now,
       });
     });
   }

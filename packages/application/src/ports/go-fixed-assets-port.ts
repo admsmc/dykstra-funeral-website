@@ -39,6 +39,13 @@ export interface GoDepreciationEntry {
   readonly endingBookValue: number;
 }
 
+export interface GoDepreciationRun {
+  readonly runId: string;
+  readonly period: Date;
+  readonly assetsProcessed: number;
+  readonly totalDepreciationAmount: number;
+}
+
 export interface GoFixedAssetsPortService {
   readonly createAsset: (asset: Omit<GoFixedAsset, 'id' | 'currentBookValue' | 'accumulatedDepreciation'>) => 
     Effect.Effect<GoFixedAsset, NetworkError>;
@@ -51,7 +58,7 @@ export interface GoFixedAssetsPortService {
   readonly disposeAsset: (assetId: string, disposalDate: Date, disposalAmount: number) => 
     Effect.Effect<void, NetworkError>;
   readonly runMonthlyDepreciation: (period: Date) => 
-    Effect.Effect<void, NetworkError>;
+    Effect.Effect<GoDepreciationRun, NetworkError>;
 }
 
 export const GoFixedAssetsPort = Context.GenericTag<GoFixedAssetsPortService>(

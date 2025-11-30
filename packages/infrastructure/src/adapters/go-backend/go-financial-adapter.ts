@@ -575,6 +575,64 @@ export const GoFinancialAdapter: GoFinancialPortService = {
         return new NetworkError('Failed to get AP payment run', error as Error);
       }
     }),
+  
+  approveAPPaymentRun: (id: string, approvedBy?: string) =>
+    Effect.tryPromise({
+      try: async () => {
+        const res = await goClient.POST('/ap/payment-runs/{id}/approve', {
+          params: { path: { id } },
+          body: {
+            approved_by: approvedBy || 'system',
+          }
+        });
+        
+        if (res.error) {
+          throw new Error(res.error.message);
+        }
+        
+        const data = res.data;
+        return {
+          id: data.payment_run_id,
+          runNumber: data.payment_run_id,
+          runDate: new Date(data.created_at),
+          status: data.status,
+          billIds: data.items?.map((i: any) => i.invoice_id) || [],
+          totalAmount: data.items?.reduce((sum: number, i: any) => sum + i.amount_cents, 0) || 0,
+          paymentMethod: 'ach',
+          createdBy: data.created_by || 'system',
+          createdAt: new Date(data.created_at),
+          approvedBy: data.approved_by,
+          approvedAt: data.approved_at ? new Date(data.approved_at) : undefined,
+        };
+      },
+      catch: (error) => new NetworkError('Failed to approve AP payment run', error as Error)
+    }),
+  
+  executeAPPaymentRun: (params: { id: string; bankId?: string }) =>
+    Effect.tryPromise({
+      try: async () => {
+        const res = await goClient.POST('/ap/payment-runs/{id}/execute', {
+          params: { path: { id: params.id } },
+          body: {
+            bank_id: params.bankId || 'default',
+          }
+        });
+        
+        if (res.error) {
+          throw new Error(res.error.message);
+        }
+        
+        const data = res.data;
+        return {
+          paymentRunId: data.payment_run_id,
+          status: data.status || 'completed',
+          executed: data.executed || 0,
+          glJournalId: data.gl_journal_id,
+          executedAt: new Date(data.executed_at),
+        };
+      },
+      catch: (error) => new NetworkError('Failed to execute AP payment run', error as Error)
+    }),
 };
 
 // Mappers
