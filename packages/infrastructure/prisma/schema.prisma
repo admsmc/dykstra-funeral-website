@@ -1916,3 +1916,35 @@ model LeadScoringPolicy {
   @@index([funeralHomeId, validFrom])
   @@map("lead_scoring_policies")
 }
+
+// Lead To Case Conversion Policy
+// SCD Type 2: Tracks historical lead-to-case conversion policies per funeral home
+model LeadToCaseConversionPolicy {
+  id            String    @id @default(cuid())
+  businessKey   String    @default(cuid()) // Policy identifier
+  version       Int       @default(1)
+  validFrom     DateTime  @default(now())
+  validTo       DateTime?
+  isCurrent     Boolean   @default(true)
+  funeralHomeId String
+
+  // Lead To Case Conversion Rules
+  defaultCaseStatus       String  @default("inquiry") // 'inquiry' or 'active'
+  requireDecedentName     Boolean @default(true) // Must have decedent name
+  autoAssignToLeadStaff   Boolean @default(true) // Auto-assign case to lead's assignee
+  preserveLeadNotes       Boolean @default(true) // Copy lead notes to case
+  createInteractionRecord Boolean @default(true) // Log conversion as interaction
+
+  // Audit Trail
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String
+  updatedBy String?
+  reason    String?  @db.Text // Reason for policy change
+
+  @@unique([businessKey, version])
+  @@index([businessKey, isCurrent])
+  @@index([validFrom, validTo])
+  @@index([funeralHomeId, isCurrent])
+  @@map("lead_to_case_conversion_policies")
+}

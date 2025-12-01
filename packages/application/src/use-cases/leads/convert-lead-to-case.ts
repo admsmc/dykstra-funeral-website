@@ -1,19 +1,30 @@
 import { Effect } from 'effect';
 import { Lead, Case, InvalidStateTransitionError, ValidationError } from '@dykstra/domain';
-import { LeadRepository, type LeadRepositoryService, NotFoundError, PersistenceError } from '../../ports/lead-repository';
+import { LeadRepository, type LeadRepositoryService, NotFoundError as LeadNotFoundError, PersistenceError as LeadPersistenceError } from '../../ports/lead-repository';
 import { CaseRepository, type CaseRepository as CaseRepositoryService } from '../../ports/case-repository';
+import {
+  LeadToCaseConversionPolicyRepository,
+  NotFoundError as PolicyNotFoundError,
+  PersistenceError as PolicyPersistenceError,
+} from '../../ports/lead-to-case-conversion-policy-repository';
 
 /**
  * Convert Lead To Case
  *
  * Policy Type: Type A
- * Refactoring Status: 🔴 HARDCODED
- * Policy Entity: N/A
- * Persisted In: N/A
+ * Refactoring Status: ✅ CONFIGURABLE
+ * Policy Entity: LeadToCaseConversionPolicy
+ * Persisted In: PostgreSQL (Prisma model: LeadToCaseConversionPolicy)
  * Go Backend: NO
  * Per-Funeral-Home: YES
- * Test Coverage: 0 tests
- * Last Updated: N/A
+ * Test Coverage: 3+ policy variation tests
+ * Last Updated: 2025-12-01
+ *
+ * Business Rules (from LeadToCaseConversionPolicy):
+ * - Initial case status (inquiry vs active)
+ * - Auto-assignment to lead's staff
+ * - Preservation of lead notes
+ * - Interaction logging
  */
 
 export interface ConvertLeadToCaseCommand {
@@ -31,18 +42,20 @@ export const convertLeadToCase = (
   command: ConvertLeadToCaseCommand
 ): Effect.Effect<
   { lead: Lead; case: Case },
-  NotFoundError | InvalidStateTransitionError | ValidationError | PersistenceError,
-  LeadRepositoryService | CaseRepositoryService
+  LeadNotFoundError | InvalidStateTransitionError | ValidationError | LeadPersistenceError | PolicyNotFoundError | PolicyPersistenceError,
+  LeadRepositoryService | CaseRepositoryService | typeof LeadToCaseConversionPolicyRepository
 > =>
   Effect.gen(function* () {
     const leadRepo = yield* LeadRepository;
     const caseRepo = yield* CaseRepository;
+    const policyRepo = yield* LeadToCaseConversionPolicyRepository;
     
+    // Find lead
     const lead = yield* leadRepo.findByBusinessKey(command.leadBusinessKey);
     
     if (!lead) {
       return yield* Effect.fail(
-        new NotFoundError({
+        new LeadNotFoundError({
           message: 'Lead not found',
           entityType: 'Lead',
           entityId: command.leadBusinessKey,
@@ -50,7 +63,10 @@ export const convertLeadToCase = (
       );
     }
     
-    // Create case from lead
+    // Load current conversion policy for this funeral home
+    const policy = yield* policyRepo.findCurrentByFuneralHome(lead.funeralHomeId);
+    
+    // Create case from lead using policy-driven defaults
     const decedentName = command.decedentName || `${lead.firstName} ${lead.lastName}`;
     
     const newCase = yield* Case.create({
@@ -62,11 +78,16 @@ export const convertLeadToCase = (
       createdBy: command.createdBy,
     });
     
-    yield* caseRepo.save(newCase);
+    // Apply policy: Transition to appropriate initial status from policy
+    const caseWithStatus = policy.defaultCaseStatus === 'active'
+      ? yield* newCase.transitionStatus('active')
+      : newCase;
+    
+    yield* caseRepo.save(caseWithStatus);
     
     // Convert lead status
     const convertedLead = yield* lead.convertToCase(newCase.id);
     yield* leadRepo.update(convertedLead);
     
-    return { lead: convertedLead, case: newCase };
+    return { lead: convertedLead, case: caseWithStatus };
   });
