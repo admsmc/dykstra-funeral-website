@@ -21,6 +21,7 @@ export * from './entities/lead';
 export * from './entities/lead-scoring-policy';
 export * from './entities/lead-to-case-conversion-policy';
 export * from './entities/note-management-policy';
+export * from './entities/interaction-management-policy';
 export * from './entities/contact';
 export * from './entities/campaign';
 export * from './entities/interaction';
