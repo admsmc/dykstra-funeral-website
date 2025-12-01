@@ -28,6 +28,8 @@ export class InteractionManagementPolicy extends Data.Class<{
   readonly requireAssociation: boolean;
   readonly allowScheduledInteractions: boolean;
   readonly autoCompleteUncompletedAfterDays: number | null;
+  readonly allowOutcomeUpdate: boolean;
+  readonly autoArchiveCompletedAfterDays: number | null;
   readonly createdAt: Date;
   readonly updatedAt: Date;
   readonly createdBy: string;
@@ -51,6 +53,8 @@ export const DEFAULT_INTERACTION_MANAGEMENT_POLICY = {
   requireAssociation: true,
   allowScheduledInteractions: true,
   autoCompleteUncompletedAfterDays: null,
+  allowOutcomeUpdate: false,
+  autoArchiveCompletedAfterDays: null,
   reason: null,
 };
 
@@ -63,6 +67,8 @@ export const STRICT_INTERACTION_MANAGEMENT_POLICY = {
   maxSubjectLength: 150,
   maxOutcomeLength: 500,
   maxDurationMinutes: 240, // 4 hours
+  allowOutcomeUpdate: false, // No updates after completion
+  autoArchiveCompletedAfterDays: 30, // Archive after 30 days
 };
 
 /**
@@ -74,4 +80,6 @@ export const PERMISSIVE_INTERACTION_MANAGEMENT_POLICY = {
   maxSubjectLength: 500,
   maxOutcomeLength: 5000,
   maxDurationMinutes: null, // No limit
+  allowOutcomeUpdate: true, // Allow updates after completion
+  autoArchiveCompletedAfterDays: 90, // Archive after 90 days
 };
