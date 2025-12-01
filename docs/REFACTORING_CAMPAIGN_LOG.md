@@ -125,6 +125,7 @@ Verify behavior changes with different policies.
 
 ---
 
-*Last Updated: 2025-12-01 16:00:00 UTC*
-*Phase 1.1 (create-lead): ✅ COMPLETE - All 6 phases done, 25 tests passing, committed*
-*Phase 1.2 (convert-lead-to-case): 🟡 IN PROGRESS - Starting now*
+*Last Updated: 2025-12-01 17:00:00 UTC*
+*Phase 1.1 (create-lead): ✅ COMPLETE - All 6 phases done, 25 tests passing, committed (3a3c698)*
+*Phase 1.2 (convert-lead-to-case): ✅ COMPLETE - All 6 phases done, 18 tests passing, committed (682bb30)*
+*Phase 1.3 (create-note): 🟡 QUEUED*

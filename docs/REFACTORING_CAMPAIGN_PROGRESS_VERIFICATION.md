@@ -1,6 +1,6 @@
 # Refactoring Campaign Progress Verification
-**Date**: 2025-12-01 15:50 UTC  
-**Status**: ✅ CAMPAIGN IN PROGRESS - Foundation built, ready for Phase 1 use case refactoring  
+**Date**: 2025-12-01 17:30 UTC  
+**Status**: ✅ CAMPAIGN IN PROGRESS - Phase 1.1 & 1.2 COMPLETE, 2/9 CRM use cases done (22%)  
 **Plan Document**: `docs/Refactoring Campaign_ Hardcoded Use Cases to Configurable Policies.md`
 
 ---
@@ -14,8 +14,8 @@ The refactoring campaign plan was created but **not fully documented** in the pl
 | **Campaign Infrastructure** | ✅ COMPLETE | SCD2 temporal pattern, policy entity design, repository pattern |
 | **Phase 1 Foundation** | ✅ COMPLETE | LeadScoringPolicy domain entity, Prisma model, port, adapter |
 | **Phase 3 Policies (Advanced)** | ✅ PARTIAL | 5 scheduling policies already exist (Phase 3 early-start) |
-| **Use Case Refactoring** | 🟡 STARTED | LeadScoringPolicy ready, create-lead waiting for refactor |
-| **Overall Campaign** | 🟡 IN PROGRESS | 12/108 use cases accounted for, 96 remaining |
+| **Use Case Refactoring** | ✅ PHASE 1.1 & 1.2 DONE | create-lead (25 tests ✓), convert-lead-to-case (18 tests ✓) |
+| **Overall Campaign** | ✅ IN PROGRESS | 14/108 use cases accounted for, 94 remaining, ~13% complete |
 
 ---
 
@@ -77,25 +77,29 @@ The refactoring campaign plan was created but **not fully documented** in the pl
 
 ### 2. 🟡 PHASE 1: Use Case Refactoring In Progress
 
-**create-lead** - `packages/application/src/use-cases/leads/create-lead.ts`
+**create-lead** - PHASE 1.1 ✅ COMPLETE
 ```
-Status: ⏳ AWAITING REFACTOR
-Current state: Still contains hardcoded lead scoring
-- Line 1-72: File exists but needs refactor
-- Hardcoded rules identified:
-  * atNeedInitialScore = 80 (in Lead.create())
-  * preNeedInitialScore = 30 (in Lead.create())
-  * inactiveThreshold = 14 days
-  * autoArchive = false (default)
-  
-Next steps:
-1. Load policy: const policy = yield* LeadScoringPolicyRepository.findCurrentByFuneralHome(funeralHomeId)
-2. Replace hardcoded values with policy values
-3. Add policy variation tests (3+ configurations)
-4. Run validation gates: type-check, test, lint, architecture checks
+Status: ✅ REFACTORED & COMMITTED (3a3c698)
+- Loads LeadScoringPolicy from repository per funeral home
+- Applies policy-driven lead scoring
+- 25 comprehensive tests passing (3 policy variations)
+- Zero TypeScript errors
+- Full validation gates passed
 ```
 
-**Remaining Phase 1 Use Cases**: 8 more (convert-lead-to-case, create-note, etc.)
+**convert-lead-to-case** - PHASE 1.2 ✅ COMPLETE
+```
+Status: ✅ REFACTORED & COMMITTED (682bb30)
+- LeadToCaseConversionPolicy entity (80 lines, SCD2 fields)
+- Prisma schema model with temporal indexing
+- Repository port + object-based adapter (217 lines)
+- Loads policy, applies defaultCaseStatus rule
+- 18 comprehensive tests passing (3 policy variations)
+- Zero TypeScript errors
+- Full validation gates passed
+```
+
+**Remaining Phase 1 Use Cases**: 7 more (create-note, update-lead, etc.)
 
 ---
 
@@ -175,12 +179,14 @@ Discovered: **5 scheduling policies already implemented** (not mentioned in Phas
 
 **Campaign Log** - `docs/REFACTORING_CAMPAIGN_LOG.md`
 ```
-✅ Created: 129 lines
+✅ Updated: 131 lines
 ✅ Started: 2025-12-01 15:31:23 UTC
 ✅ Phase-by-phase tracking
 ✅ 6-phase process for each use case documented
 ✅ Timeline and resource links
-✅ Last updated: 2025-12-01 15:38:43 UTC
+✅ Last updated: 2025-12-01 17:30 UTC
+✅ Phase 1.1 (create-lead): COMPLETE (3a3c698)
+✅ Phase 1.2 (convert-lead-to-case): COMPLETE (682bb30)
 ```
 
 ---
