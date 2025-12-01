@@ -1,5 +1,6 @@
 import { Effect, Data } from 'effect';
 import { ValidationError, InvalidStateTransitionError, BusinessRuleViolationError } from '../errors/domain-errors';
+import { LeadScoringPolicy } from './lead-scoring-policy';
 
 /**
  * Lead ID branded type
@@ -81,6 +82,8 @@ export class Lead extends Data.Class<{
 
   /**
    * Create a new Lead
+   * @param params Lead creation parameters
+   * @param policy LeadScoringPolicy - determines initial score and validation rules
    */
   static create(params: {
     id: string;
@@ -93,19 +96,21 @@ export class Lead extends Data.Class<{
     source: LeadSource;
     type: LeadType;
     createdBy: string;
-  }): Effect.Effect<Lead, ValidationError> {
+  }, policy: LeadScoringPolicy): Effect.Effect<Lead, ValidationError> {
     return Effect.gen(function* () {
       // Validate name
       const trimmedFirstName = params.firstName.trim();
       const trimmedLastName = params.lastName.trim();
       
       if (!trimmedFirstName || !trimmedLastName) {
-        return yield* Effect.fail(
-          new ValidationError({ 
-            message: 'First and last name are required', 
-            field: 'name' 
-          })
-        );
+        if (policy.requireFirstName || policy.requireLastName) {
+          return yield* Effect.fail(
+            new ValidationError({ 
+              message: 'First and last name are required', 
+              field: 'name' 
+            })
+          );
+        }
       }
 
       if (trimmedFirstName.length > 100 || trimmedLastName.length > 100) {
@@ -117,8 +122,8 @@ export class Lead extends Data.Class<{
         );
       }
 
-      // Validate contact method
-      if (!params.email && !params.phone) {
+      // Validate contact method based on policy
+      if (policy.requirePhoneOrEmail && !params.email && !params.phone) {
         return yield* Effect.fail(
           new ValidationError({ 
             message: 'Email or phone is required', 
@@ -127,9 +132,42 @@ export class Lead extends Data.Class<{
         );
       }
 
+      // Validate lead source against policy
+      if (policy.disallowedSources.includes(params.source)) {
+        return yield* Effect.fail(
+          new ValidationError({ 
+            message: `Lead source '${params.source}' is not allowed`, 
+            field: 'source' 
+          })
+        );
+      }
+
       const now = new Date();
-      // At-need leads get higher priority score
-      const initialScore = params.type === 'at_need' ? 80 : 30;
+      // Calculate initial score based on lead type and policy
+      let initialScore = params.type === 'at_need' 
+        ? policy.atNeedInitialScore 
+        : params.type === 'pre_need'
+          ? policy.preNeedInitialScore
+          : policy.generalInquiryScore;
+      
+      // Apply contact method bonus if both email and phone provided
+      if (params.email && params.phone) {
+        initialScore += policy.contactMethodBonus;
+      }
+      
+      // Apply referral bonus if applicable
+      if (params.source === 'referral') {
+        initialScore += policy.referralSourceBonus;
+      }
+      
+      // Apply preferred source bonus
+      if (policy.preferredSources.includes(params.source)) {
+        // Subtle bonus for preferred sources (1/3 of referral bonus)
+        initialScore += Math.floor(policy.referralSourceBonus / 3);
+      }
+      
+      // Clamp score to valid range (0-100)
+      initialScore = Math.max(0, Math.min(100, initialScore));
 
       return new Lead({
         id: params.id as LeadId,

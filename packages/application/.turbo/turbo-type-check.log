@@ -2,75 +2,63 @@
 > @dykstra/application@0.1.0 type-check /Users/andrewmathers/projects/dykstra-funeral-website/packages/application
 > tsc --noEmit
 
-src/ports/on-call-policy-port.ts(1,193): error TS1127: Invalid character.
-src/ports/on-call-policy-port.ts(1,195): error TS1127: Invalid character.
-src/ports/on-call-policy-port.ts(1,196): error TS1435: Unknown keyword or identifier. Did you mean 'import'?
-src/ports/on-call-policy-port.ts(1,224): error TS1434: Unexpected keyword or identifier.
-src/ports/on-call-policy-port.ts(1,238): error TS1127: Invalid character.
-src/ports/on-call-policy-port.ts(1,239): error TS1435: Unknown keyword or identifier. Did you mean 'import'?
-src/ports/on-call-policy-port.ts(1,252): error TS2457: Type alias name cannot be 'type'.
-src/ports/on-call-policy-port.ts(1,285): error TS1434: Unexpected keyword or identifier.
-src/ports/on-call-policy-port.ts(1,308): error TS1127: Invalid character.
-src/ports/on-call-policy-port.ts(1,310): error TS1127: Invalid character.
-src/ports/on-call-policy-port.ts(1,432): error TS1127: Invalid character.
-src/ports/on-call-policy-port.ts(1,433): error TS1435: Unknown keyword or identifier. Did you mean 'export'?
-src/ports/on-call-policy-port.ts(1,476): error TS1127: Invalid character.
-src/ports/on-call-policy-port.ts(1,477): error TS1131: Property or signature expected.
-src/ports/on-call-policy-port.ts(1,707): error TS1127: Invalid character.
-src/ports/on-call-policy-port.ts(1,708): error TS1434: Unexpected keyword or identifier.
-src/ports/on-call-policy-port.ts(1,741): error TS1127: Invalid character.
-src/ports/on-call-policy-port.ts(1,747): error TS1005: ',' expected.
-src/ports/on-call-policy-port.ts(1,760): error TS1005: ',' expected.
-src/ports/on-call-policy-port.ts(1,768): error TS1127: Invalid character.
-src/ports/on-call-policy-port.ts(1,773): error TS1005: ';' expected.
-src/ports/on-call-policy-port.ts(1,817): error TS1127: Invalid character.
-src/ports/on-call-policy-port.ts(1,819): error TS1127: Invalid character.
-src/ports/on-call-policy-port.ts(1,1163): error TS1127: Invalid character.
-src/ports/on-call-policy-port.ts(1,1164): error TS1434: Unexpected keyword or identifier.
-src/ports/on-call-policy-port.ts(1,1186): error TS1127: Invalid character.
-src/ports/on-call-policy-port.ts(1,1192): error TS1005: ',' expected.
-src/ports/on-call-policy-port.ts(1,1205): error TS1005: ',' expected.
-src/ports/on-call-policy-port.ts(1,1214): error TS1127: Invalid character.
-src/ports/on-call-policy-port.ts(1,1220): error TS1005: ',' expected.
-src/ports/on-call-policy-port.ts(1,1230): error TS1005: ',' expected.
-src/ports/on-call-policy-port.ts(1,1254): error TS1127: Invalid character.
-src/ports/on-call-policy-port.ts(1,1260): error TS1005: ',' expected.
-src/ports/on-call-policy-port.ts(1,1269): error TS1005: ',' expected.
-src/ports/on-call-policy-port.ts(1,1277): error TS1127: Invalid character.
-src/ports/on-call-policy-port.ts(1,1282): error TS1005: ';' expected.
-src/ports/on-call-policy-port.ts(1,1319): error TS1127: Invalid character.
-src/ports/on-call-policy-port.ts(1,1321): error TS1127: Invalid character.
-src/ports/on-call-policy-port.ts(1,1692): error TS1127: Invalid character.
-src/ports/on-call-policy-port.ts(1,1693): error TS1434: Unexpected keyword or identifier.
-src/ports/on-call-policy-port.ts(1,1715): error TS1127: Invalid character.
-src/ports/on-call-policy-port.ts(1,1721): error TS1005: ',' expected.
-src/ports/on-call-policy-port.ts(1,1729): error TS1005: ',' expected.
-src/ports/on-call-policy-port.ts(1,1746): error TS1127: Invalid character.
-src/ports/on-call-policy-port.ts(1,1752): error TS1005: ',' expected.
-src/ports/on-call-policy-port.ts(1,1762): error TS1005: ',' expected.
-src/ports/on-call-policy-port.ts(1,1786): error TS1127: Invalid character.
-src/ports/on-call-policy-port.ts(1,1792): error TS1005: ',' expected.
-src/ports/on-call-policy-port.ts(1,1801): error TS1005: ',' expected.
-src/ports/on-call-policy-port.ts(1,1809): error TS1127: Invalid character.
-src/ports/on-call-policy-port.ts(1,1814): error TS1005: ';' expected.
-src/ports/on-call-policy-port.ts(1,1851): error TS1127: Invalid character.
-src/ports/on-call-policy-port.ts(1,1853): error TS1127: Invalid character.
-src/ports/on-call-policy-port.ts(1,2095): error TS1127: Invalid character.
-src/ports/on-call-policy-port.ts(1,2096): error TS1434: Unexpected keyword or identifier.
-src/ports/on-call-policy-port.ts(1,2122): error TS1127: Invalid character.
-src/ports/on-call-policy-port.ts(1,2128): error TS1005: ',' expected.
-src/ports/on-call-policy-port.ts(1,2141): error TS1005: ',' expected.
-src/ports/on-call-policy-port.ts(1,2149): error TS1127: Invalid character.
-src/ports/on-call-policy-port.ts(1,2154): error TS1005: ';' expected.
-src/ports/on-call-policy-port.ts(1,2193): error TS1127: Invalid character.
-src/ports/on-call-policy-port.ts(1,2195): error TS1128: Declaration or statement expected.
-src/ports/on-call-policy-port.ts(1,2196): error TS1127: Invalid character.
-src/ports/on-call-policy-port.ts(1,2198): error TS1127: Invalid character.
-src/ports/on-call-policy-port.ts(1,2248): error TS1127: Invalid character.
-src/ports/on-call-policy-port.ts(1,2249): error TS1435: Unknown keyword or identifier. Did you mean 'export'?
-src/ports/on-call-policy-port.ts(1,2326): error TS1127: Invalid character.
-src/ports/on-call-policy-port.ts(1,2330): error TS1005: ',' expected.
-src/ports/on-call-policy-port.ts(1,2357): error TS1127: Invalid character.
-src/ports/on-call-policy-port.ts(1,2361): error TS1127: Invalid character.
-src/ports/on-call-policy-port.ts(1,2362): error TS1434: Unexpected keyword or identifier.
-src/ports/on-call-policy-port.ts(1,2364): error TS1002: Unterminated string literal.
+src/ports/lead-scoring-policy-repository.ts(73,5): error TS4115: This parameter property must have an 'override' modifier because it overrides a member in base class 'Error'.
+src/use-cases/financial/customer-retention-analysis.ts(90,3): error TS2322: Type 'Effect<{ metadata: { period: { startDate: Date; endDate: Date; }; includePreNeed: boolean; generatedAt: Date; generatedBy: string; }; families: FamilyRetentionMetrics[]; summary: { ...; }; }, unknown, unknown>' is not assignable to type 'Effect<RetentionAnalysisReport, ValidationError, GoContractPortService>'.
+  Type 'unknown' is not assignable to type 'ValidationError'.
+src/use-cases/financial/customer-retention-analysis.ts(98,46): error TS2339: Property 'listContracts' does not exist on type 'GoContractPortService'.
+src/use-cases/financial/customer-retention-analysis.ts(149,34): error TS2532: Object is possibly 'undefined'.
+src/use-cases/financial/customer-retention-analysis.ts(150,33): error TS2532: Object is possibly 'undefined'.
+src/use-cases/financial/fixed-asset-depreciation-run.ts(134,3): error TS2322: Type 'Effect<{ metadata: { periodMonth: Date; runDate: Date; initiatedBy: string; autoPosted: boolean; }; assets: AssetDepreciationDetail[]; journalEntry: { id: string; entryNumber: string; totalDebit: number; totalCredit: number; status: "draft" | "posted"; } | undefined; summary: { ...; }; }, ValidationError | NetworkEr...' is not assignable to type 'Effect<RunMonthlyDepreciationResult, ValidationError, GoFinancialPortService | GoFixedAssetsPortService>'.
+  Type 'ValidationError | NetworkError' is not assignable to type 'ValidationError'.
+    Type 'NetworkError' is missing the following properties from type 'ValidationError': [Effect.EffectTypeId], [Stream.StreamTypeId], [Sink.SinkTypeId], [Channel.ChannelTypeId], and 4 more.
+src/use-cases/financial/fixed-asset-depreciation-run.ts(146,7): error TS2353: Object literal may only specify known properties, and 'periodMonth' does not exist in type 'Date'.
+src/use-cases/financial/fixed-asset-depreciation-run.ts(151,72): error TS2339: Property 'assets' does not exist on type 'GoDepreciationRun'.
+src/use-cases/financial/fixed-asset-depreciation-run.ts(151,83): error TS7006: Parameter 'asset' implicitly has an 'any' type.
+src/use-cases/financial/fixed-asset-depreciation-run.ts(177,9): error TS2353: Object literal may only specify known properties, and 'reference' does not exist in type 'CreateJournalEntryCommand'.
+src/use-cases/financial/fixed-asset-depreciation-run.ts(205,47): error TS2345: Argument of type '{ journalEntryId: string; postedBy: string; postDate: Date; }' is not assignable to parameter of type 'string'.
+src/use-cases/financial/revenue-by-service-type.ts(139,7): error TS2353: Object literal may only specify known properties, and 'accountNumberRange' does not exist in type '{ startDate?: Date | undefined; endDate?: Date | undefined; accountId?: string | undefined; status?: "draft" | "posted" | "reversed" | undefined; }'.
+src/use-cases/financial/revenue-by-service-type.ts(156,73): error TS2339: Property 'reference' does not exist on type 'GoJournalEntry'.
+src/use-cases/financial/revenue-by-service-type.ts(164,29): error TS2339: Property 'lineItems' does not exist on type 'GoJournalEntry'.
+src/use-cases/financial/revenue-by-service-type.ts(165,17): error TS7006: Parameter 'li' implicitly has an 'any' type.
+src/use-cases/financial/revenue-by-service-type.ts(166,18): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/use-cases/financial/revenue-by-service-type.ts(166,23): error TS7006: Parameter 'li' implicitly has an 'any' type.
+src/use-cases/leads/create-lead.ts(49,3): error TS2322: Type 'Effect<Lead, ValidationError | PersistenceError | NotFoundError | PersistenceError, LeadRepositoryService | LeadScoringPolicyRepository>' is not assignable to type 'Effect<Lead, ValidationError | PersistenceError | NotFoundError, LeadRepositoryService & Tag<...>>'.
+  Type 'LeadRepositoryService | LeadScoringPolicyRepository' is not assignable to type 'LeadRepositoryService & Tag<LeadScoringPolicyRepository, LeadScoringPolicyRepository>'.
+    Type 'LeadRepositoryService' is not assignable to type 'LeadRepositoryService & Tag<LeadScoringPolicyRepository, LeadScoringPolicyRepository>'.
+      Type 'LeadRepositoryService' is missing the following properties from type 'Tag<LeadScoringPolicyRepository, LeadScoringPolicyRepository>': _op, Service, Identifier, of, and 12 more.
+src/use-cases/prep-room/auto-release-reservation.ts(29,3): error TS2322: Type 'Effect<{ releasedCount: number; message: string; }, Error, PrepRoomRepositoryService>' is not assignable to type 'Effect<AutoReleaseResult, Error, Tag<PrepRoomRepositoryService, PrepRoomRepositoryService>>'.
+  Type 'PrepRoomRepositoryService' is missing the following properties from type 'Tag<PrepRoomRepositoryService, PrepRoomRepositoryService>': _op, Service, Identifier, of, and 12 more.
+src/use-cases/prep-room/check-availability.ts(39,3): error TS2322: Type 'Effect<{ availableSlots: AvailableSlot[]; urgentSlots: AvailableSlot[]; message: string; }, Error, PrepRoomRepositoryService>' is not assignable to type 'Effect<CheckAvailabilityResult, Error, Tag<PrepRoomRepositoryService, PrepRoomRepositoryService>>'.
+  Type 'PrepRoomRepositoryService' is missing the following properties from type 'Tag<PrepRoomRepositoryService, PrepRoomRepositoryService>': _op, Service, Identifier, of, and 12 more.
+src/use-cases/prep-room/check-in-reservation.ts(38,3): error TS2322: Type 'Effect<{ success: true; reservation: PrepRoomReservation; message: string; }, Error, PrepRoomRepositoryService>' is not assignable to type 'Effect<CheckInResult, Error, Tag<PrepRoomRepositoryService, PrepRoomRepositoryService>>'.
+  Type 'PrepRoomRepositoryService' is missing the following properties from type 'Tag<PrepRoomRepositoryService, PrepRoomRepositoryService>': _op, Service, Identifier, of, and 12 more.
+src/use-cases/prep-room/check-out-reservation.ts(39,3): error TS2322: Type 'Effect<{ success: true; reservation: PrepRoomReservation; actualDurationMinutes: number; message: string; }, Error, PrepRoomRepositoryService>' is not assignable to type 'Effect<CheckOutResult, Error, Tag<PrepRoomRepositoryService, PrepRoomRepositoryService>>'.
+  Type 'PrepRoomRepositoryService' is missing the following properties from type 'Tag<PrepRoomRepositoryService, PrepRoomRepositoryService>': _op, Service, Identifier, of, and 12 more.
+src/use-cases/prep-room/list-schedule.ts(38,3): error TS2322: Type 'Effect<{ rooms: RoomUtilization[]; totalCapacity: number; utilizationPercentage: number; message: string; }, Error, PrepRoomRepositoryService>' is not assignable to type 'Effect<ListScheduleResult, Error, Tag<PrepRoomRepositoryService, PrepRoomRepositoryService>>'.
+  Type 'PrepRoomRepositoryService' is missing the following properties from type 'Tag<PrepRoomRepositoryService, PrepRoomRepositoryService>': _op, Service, Identifier, of, and 12 more.
+src/use-cases/prep-room/override-conflict.ts(45,3): error TS2322: Type 'Effect<{ success: true; reservationId: ReservationId; message: string; }, Error, PrepRoomRepositoryService>' is not assignable to type 'Effect<OverrideConflictResult, Error, Tag<PrepRoomRepositoryService, PrepRoomRepositoryService>>'.
+  Type 'PrepRoomRepositoryService' is missing the following properties from type 'Tag<PrepRoomRepositoryService, PrepRoomRepositoryService>': _op, Service, Identifier, of, and 12 more.
+src/use-cases/prep-room/reserve-room.ts(55,3): error TS2322: Type 'Effect<{ success: false; conflictType: "overlap" | "capacity" | "buffer"; conflictingReservationId: string; suggestedAlternatives: AvailableSlot[]; message: string; reservationId?: undefined; room?: undefined; } | { ...; }, Error, PrepRoomRepositoryService>' is not assignable to type 'Effect<ReserveRoomResponse, Error, Tag<PrepRoomRepositoryService, PrepRoomRepositoryService>>'.
+  Type 'PrepRoomRepositoryService' is missing the following properties from type 'Tag<PrepRoomRepositoryService, PrepRoomRepositoryService>': _op, Service, Identifier, of, and 12 more.
+src/use-cases/pto-management/approve-pto-request.ts(54,3): error TS2322: Type 'Effect<{ success: false; errors: string[]; ptoRequest?: undefined; } | { success: true; ptoRequest: PtoRequest; errors: string[]; }, Error, BackfillManagementPortService | PtoManagementPortService>' is not assignable to type 'Effect<ApprovePtoRequestResult, Error, Tag<BackfillManagementPortService, BackfillManagementPortService> | Tag<...>>'.
+  Type 'BackfillManagementPortService | PtoManagementPortService' is not assignable to type 'Tag<BackfillManagementPortService, BackfillManagementPortService> | Tag<PtoManagementPortService, PtoManagementPortService>'.
+    Type 'BackfillManagementPortService' is not assignable to type 'Tag<BackfillManagementPortService, BackfillManagementPortService> | Tag<PtoManagementPortService, PtoManagementPortService>'.
+src/use-cases/pto-management/approve-training.ts(52,3): error TS2322: Type 'Effect<{ success: false; backfillAssigned: false; errors: string[]; trainingRecord?: undefined; } | { success: true; trainingRecord: TrainingRecord; backfillAssigned: false; errors: string[]; }, Error, TrainingManagementPortService>' is not assignable to type 'Effect<ApproveTrainingResult, Error, Tag<BackfillManagementPortService, BackfillManagementPortService> | Tag<...>>'.
+  Type 'TrainingManagementPortService' is not assignable to type 'Tag<BackfillManagementPortService, BackfillManagementPortService> | Tag<TrainingManagementPortService, TrainingManagementPortService>'.
+src/use-cases/pto-management/assign-pto-backfill.ts(12,3): error TS6133: 'suggestPremiumType' is declared but its value is never read.
+src/use-cases/pto-management/assign-pto-backfill.ts(70,3): error TS2322: Type 'Effect<{ success: false; estimatedHours: number; estimatedCost: number; warnings: string[]; errors: string[]; assignment?: undefined; } | { success: true; assignment: BackfillAssignment; estimatedHours: number; estimatedCost: number; warnings: string[]; errors: string[]; }, Error, BackfillManagementPortService>' is not assignable to type 'Effect<AssignPtoBackfillResult, Error, Tag<BackfillManagementPortService, BackfillManagementPortService>>'.
+  Type 'BackfillManagementPortService' is missing the following properties from type 'Tag<BackfillManagementPortService, BackfillManagementPortService>': _op, Service, Identifier, of, and 12 more.
+src/use-cases/pto-management/assign-pto-backfill.ts(96,11): error TS6133: 'isHoliday' is declared but its value is never read.
+src/use-cases/pto-management/complete-training.ts(55,3): error TS2322: Type 'Effect<{ success: false; backfillsReleased: number; errors: string[]; trainingRecord?: undefined; } | { success: true; trainingRecord: TrainingRecord; backfillsReleased: number; errors: string[]; }, unknown, unknown>' is not assignable to type 'Effect<CompleteTrainingResult, Error, Tag<BackfillManagementPortService, BackfillManagementPortService> | Tag<...>>'.
+  Type 'unknown' is not assignable to type 'Error'.
+src/use-cases/pto-management/complete-training.ts(96,45): error TS2339: Property 'getMultiDayTrainingsScheduled' does not exist on type 'BackfillManagementPortService'.
+src/use-cases/pto-management/reject-pto-request.ts(54,3): error TS2322: Type 'Effect<{ success: false; backfillsCancelled: number; errors: string[]; ptoRequest?: undefined; } | { success: true; ptoRequest: PtoRequest; backfillsCancelled: number; errors: string[]; }, Error, BackfillManagementPortService | PtoManagementPortService>' is not assignable to type 'Effect<RejectPtoRequestResult, Error, Tag<BackfillManagementPortService, BackfillManagementPortService> | Tag<...>>'.
+  Type 'BackfillManagementPortService | PtoManagementPortService' is not assignable to type 'Tag<BackfillManagementPortService, BackfillManagementPortService> | Tag<PtoManagementPortService, PtoManagementPortService>'.
+    Type 'BackfillManagementPortService' is not assignable to type 'Tag<BackfillManagementPortService, BackfillManagementPortService> | Tag<PtoManagementPortService, PtoManagementPortService>'.
+src/use-cases/pto-management/request-pto.ts(7,18): error TS6133: 'Context' is declared but its value is never read.
+src/use-cases/pto-management/request-pto.ts(63,3): error TS2322: Type 'Effect<{ success: false; validationErrors: string[]; warnings: string[]; ptoRequest?: undefined; } | { success: true; ptoRequest: PtoRequest; validationErrors: string[]; warnings: string[]; }, Error, PtoManagementPortService>' is not assignable to type 'Effect<RequestPtoResult, Error, Tag<PtoManagementPortService, PtoManagementPortService>>'.
+  Type 'PtoManagementPortService' is missing the following properties from type 'Tag<PtoManagementPortService, PtoManagementPortService>': _op, Service, Identifier, of, and 12 more.
+src/use-cases/pto-management/request-pto.ts(92,11): error TS6133: 'isHolidayPeriod' is declared but its value is never read.
+src/use-cases/pto-management/request-training.ts(64,3): error TS2322: Type 'Effect<{ success: false; validationErrors: string[]; warnings: string[]; requiresApproval: boolean; requiresBackfill: boolean; trainingRecord?: undefined; } | { success: true; trainingRecord: TrainingRecord; validationErrors: string[]; warnings: string[]; requiresApproval: boolean; requiresBackfill: boolean; }, Erro...' is not assignable to type 'Effect<RequestTrainingResult, Error, Tag<TrainingManagementPortService, TrainingManagementPortService>>'.
+  Type 'TrainingManagementPortService' is missing the following properties from type 'Tag<TrainingManagementPortService, TrainingManagementPortService>': _op, Service, Identifier, of, and 12 more.
+ ELIFECYCLE  Command failed with exit code 2.

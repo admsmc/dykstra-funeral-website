@@ -1,18 +1,30 @@
 import { Effect } from 'effect';
 import { Lead, ValidationError } from '@dykstra/domain';
-import { LeadRepository, type LeadRepositoryService, PersistenceError } from '../../ports/lead-repository';
+import { LeadRepository, type LeadRepositoryService, PersistenceError as LeadPersistenceError } from '../../ports/lead-repository';
+import { 
+  LeadScoringPolicyRepository, 
+  NotFoundError as PolicyNotFoundError,
+  PersistenceError as PolicyPersistenceError
+} from '../../ports/lead-scoring-policy-repository';
 
 /**
  * Create Lead
  *
  * Policy Type: Type A
- * Refactoring Status: 🔴 HARDCODED
- * Policy Entity: N/A
- * Persisted In: N/A
+ * Refactoring Status: ✅ CONFIGURABLE
+ * Policy Entity: LeadScoringPolicy
+ * Persisted In: PostgreSQL (Prisma model: LeadScoringPolicy)
  * Go Backend: NO
  * Per-Funeral-Home: YES
- * Test Coverage: 0 tests
- * Last Updated: N/A
+ * Test Coverage: 3+ policy variation tests
+ * Last Updated: 2025-12-01
+ *
+ * Business Rules (from LeadScoringPolicy):
+ * - Initial score varies by lead type (at_need, pre_need, general_inquiry)
+ * - Contact method bonus: +points for email + phone
+ * - Referral source bonus: +points for referrals
+ * - Preferred sources: subtle bonus for strategic sources
+ * - Validation: phone/email requirement, source allowlist
  */
 
 export interface CreateLeadCommand {
@@ -35,15 +47,19 @@ export const createLead = (
   command: CreateLeadCommand
 ): Effect.Effect<
   Lead,
-  ValidationError | PersistenceError,
-  LeadRepositoryService
+  ValidationError | LeadPersistenceError | PolicyNotFoundError | PolicyPersistenceError,
+  LeadRepositoryService | typeof LeadScoringPolicyRepository
 > =>
   Effect.gen(function* () {
     const leadRepo = yield* LeadRepository;
+    const policyRepo = yield* LeadScoringPolicyRepository;
     
     const businessKey = command.id;
     
-    // Create lead entity (validates business rules)
+    // Load current lead scoring policy for this funeral home
+    const policy = yield* policyRepo.findCurrentByFuneralHome(command.funeralHomeId);
+    
+    // Create lead entity with policy (validates all business rules from policy)
     const lead = yield* Lead.create({
       id: command.id,
       businessKey,
@@ -55,13 +71,18 @@ export const createLead = (
       source: command.source,
       type: command.type,
       createdBy: command.createdBy,
-    });
+    }, policy);
     
     // Save to repository (SCD2)
     yield* leadRepo.save(lead);
     
     // TODO: Publish domain event when LeadCreated event type is defined
-    // yield* eventPublisher.publish({ ... });
+    // yield* eventPublisher.publish({ 
+    //   type: 'LeadCreated',
+    //   leadId: lead.id,
+    //   initialScore: lead.score,
+    //   policyVersion: policy.version,
+    // });
     
     return lead;
   });
