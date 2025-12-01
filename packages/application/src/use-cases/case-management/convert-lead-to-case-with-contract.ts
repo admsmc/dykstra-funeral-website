@@ -21,6 +21,19 @@ import {
 /**
  * Command for converting a lead to a case with contract
  */
+/**
+ * Convert Lead To Case With Contract
+ *
+ * Policy Type: N/A
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: NO
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface ConvertLeadToCaseWithContractCommand {
   readonly leadBusinessKey: string;
   readonly decedentName?: string;  // If different from lead name

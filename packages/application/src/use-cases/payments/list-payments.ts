@@ -6,6 +6,19 @@ import type { PaymentStatus, PaymentMethod } from '@dykstra/shared';
 /**
  * List payments query parameters
  */
+/**
+ * List Payments
+ *
+ * Policy Type: Type A
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: NO
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface ListPaymentsQuery {
   readonly funeralHomeId: string;
   readonly status?: PaymentStatus;

@@ -32,6 +32,19 @@ import { ValidationError, NotFoundError } from '@dykstra/domain';
 // Command & Result Types
 // ============================================================================
 
+/**
+ * Purchase Requisition To Po
+ *
+ * Policy Type: Type B
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: YES
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface PurchaseRequisitionToPOCommand {
   readonly requestorId: string;
   readonly departmentId: string;

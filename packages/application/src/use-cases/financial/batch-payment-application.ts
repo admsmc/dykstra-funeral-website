@@ -27,6 +27,19 @@ import { NetworkError } from '../../ports/go-contract-port';
 /**
  * Command to apply a batch payment across multiple invoices
  */
+/**
+ * Batch Payment Application
+ *
+ * Policy Type: Type B
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: YES
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface ApplyBatchPaymentCommand {
   /** Payment ID to apply */
   paymentId: string;

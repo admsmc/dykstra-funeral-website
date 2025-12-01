@@ -8,6 +8,19 @@ import { randomUUID } from 'crypto';
  * Record manual payment command
  * Used for recording cash, check, or ACH payments that occur outside Stripe
  */
+/**
+ * Record Manual Payment
+ *
+ * Policy Type: Type A
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: NO
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface RecordManualPaymentCommand {
   readonly caseId: string;
   readonly amount: number;

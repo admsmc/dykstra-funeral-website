@@ -20,6 +20,19 @@ import { GoFinancialPort, type GoFinancialPortService, NetworkError } from '../.
  * @see docs/Implement 35 Critical Use Cases with Verified Go Backend Ports.md - Phase 4, Use Case 1.7
  */
 
+/**
+ * Ar Aging Report
+ *
+ * Policy Type: Type B
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: YES
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface ARAgingReportCommand {
   readonly asOfDate: Date;
 }

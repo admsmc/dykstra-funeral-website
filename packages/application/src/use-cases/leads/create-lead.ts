@@ -2,6 +2,19 @@ import { Effect } from 'effect';
 import { Lead, ValidationError } from '@dykstra/domain';
 import { LeadRepository, type LeadRepositoryService, PersistenceError } from '../../ports/lead-repository';
 
+/**
+ * Create Lead
+ *
+ * Policy Type: Type A
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: NO
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface CreateLeadCommand {
   readonly id: string;
   readonly funeralHomeId: string;

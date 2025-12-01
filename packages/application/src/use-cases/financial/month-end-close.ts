@@ -12,6 +12,19 @@ import { ValidationError } from '@dykstra/domain';
 /**
  * Command to execute month-end close
  */
+/**
+ * Month End Close
+ *
+ * Policy Type: Type B
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: YES
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface MonthEndCloseCommand {
   readonly periodEnd: Date;
   readonly tenant: string;

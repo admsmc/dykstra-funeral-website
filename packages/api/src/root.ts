@@ -20,6 +20,11 @@ import { enrichmentRouter } from './routers/enrichment.router';
 import { duplicateRouter } from './routers/duplicate.router';
 import { familyRelationshipRouter } from './routers/family-relationship.router';
 import { emailSyncRouter } from './routers/email-sync.router';
+import { prePlanRouter } from './routers/preplan.router';
+import { driverVehicleRouter } from './routers/driver-vehicle.router';
+import { ptoManagementRouter } from './routers/pto-management.router';
+import { trainingManagementRouter } from './routers/training-management.router';
+import { backfillManagementRouter } from './routers/backfill-management.router';
 
 /**
  * Root application router
@@ -50,6 +55,14 @@ export const appRouter = router({
   familyRelationship: familyRelationshipRouter,
   // Email sync router (Sprint 10)
   emailSync: emailSyncRouter,
+  // Pre-Planning Appointment Scheduling (Scenario 6)
+  prePlan: prePlanRouter,
+  // Driver/Vehicle Coordination (Scenario 7)
+  driverVehicle: driverVehicleRouter,
+  // Scenario 10: Staff Training & PTO Coverage (Phases 1-7)
+  ptoManagement: ptoManagementRouter,
+  trainingManagement: trainingManagementRouter,
+  backfillManagement: backfillManagementRouter,
   // memorial: memorialRouter, // TODO: Phase 2 continuation
 });
 

@@ -22,6 +22,19 @@ import { GoBudgetPort, type GoBudgetPortService, NetworkError } from '../../port
  * @see docs/Implement 35 Critical Use Cases with Verified Go Backend Ports.md - Phase 4, Use Case 1.11
  */
 
+/**
+ * Budget Variance Report
+ *
+ * Policy Type: Type B
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: YES
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface BudgetVarianceReportCommand {
   readonly period: Date; // Usually month-end date (e.g., 2025-01-31)
 }

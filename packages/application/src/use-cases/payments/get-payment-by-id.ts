@@ -5,6 +5,19 @@ import { PaymentRepository, type PersistenceError } from '../../ports/payment-re
 /**
  * Get payment by ID query
  */
+/**
+ * Get Payment By Id
+ *
+ * Policy Type: Type A
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: NO
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface GetPaymentByIdQuery {
   readonly paymentId: string;
   readonly includeHistory?: boolean;

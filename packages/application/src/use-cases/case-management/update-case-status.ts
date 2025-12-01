@@ -3,6 +3,19 @@ import { CaseRepository, NotFoundError, PersistenceError } from '../../ports/cas
 import type { CaseStatus } from '@dykstra/shared';
 import { InvalidStateTransitionError } from '@dykstra/domain';
 
+/**
+ * Update Case Status
+ *
+ * Policy Type: N/A
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: NO
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface UpdateCaseStatusCommand {
   businessKey: string;
   newStatus: CaseStatus;

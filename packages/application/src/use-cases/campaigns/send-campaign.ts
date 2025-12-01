@@ -5,6 +5,19 @@ import { ContactRepository, type ContactRepositoryService } from '../../ports/co
 import { EmailMarketingService, type EmailMarketingServicePort, EmailError } from '../../ports/email-marketing-port';
 import { SMSService, type SMSServicePort, SMSError } from '../../ports/sms-port';
 
+/**
+ * Send Campaign
+ *
+ * Policy Type: Type A
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: NO
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface SendCampaignCommand {
   readonly campaignBusinessKey: string;
 }

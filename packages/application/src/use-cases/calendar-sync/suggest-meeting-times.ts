@@ -10,6 +10,19 @@ import type { CalendarProvider } from '@dykstra/domain';
  * 3. Rank suggestions by best fit (optional: email open patterns)
  * 4. Return suggested time slots
  */
+/**
+ * Suggest Meeting Times
+ *
+ * Policy Type: Type A
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: NO
+ * Per-Funeral-Home: NO
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export const suggestMeetingTimes = (params: {
   attendeeUserIds: string[];
   provider: CalendarProvider;

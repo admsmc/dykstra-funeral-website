@@ -5,6 +5,19 @@ import { ContactRepository, type ContactRepositoryService, PersistenceError } fr
 /**
  * Duplicate match with similarity score
  */
+/**
+ * Find Duplicates
+ *
+ * Policy Type: Type A
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: NO
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface DuplicateMatch {
   readonly contact: Contact;
   readonly similarityScore: number;  // 0-100

@@ -154,3 +154,28 @@ export * from './use-cases/email-sync/sync-user-emails';
 export * from './use-cases/calendar-sync/sync-interaction-to-calendar';
 export * from './use-cases/calendar-sync/get-staff-availability';
 export * from './use-cases/calendar-sync/suggest-meeting-times';
+
+// Pre-Planning Appointment Port
+export * from './ports/pre-planning-appointment-repository';
+
+// Driver/Vehicle Coordination Ports (Scenario 7)
+export * from './ports/driver-assignment-repository';
+export * from './ports/vehicle-repository';
+export * from './ports/driver-dispatch-service';
+
+// Pre-Planning Appointment use cases (Scenario 6)
+export * from './use-cases/pre-planning/schedule-appointment';
+export * from './use-cases/pre-planning/get-director-availability';
+export * from './use-cases/pre-planning/list-appointments';
+export * from './use-cases/pre-planning/cancel-appointment';
+export * from './use-cases/pre-planning/complete-appointment';
+export * from './use-cases/pre-planning/send-appointment-reminders';
+
+// Driver/Vehicle Coordination use cases (Scenario 7)
+export * from './use-cases/scheduling/assign-driver';
+export * from './use-cases/scheduling/assign-vehicle';
+export * from './use-cases/scheduling/record-mileage';
+export * from './use-cases/scheduling/check-driver-availability';
+export * from './use-cases/scheduling/check-vehicle-availability';
+export * from './use-cases/scheduling/list-driver-schedule';
+export * from './use-cases/scheduling/dispatch-driver';

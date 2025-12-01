@@ -7,6 +7,19 @@ import {
 import { CatalogServiceType } from '../../ports/catalog-repository';
 import { ValidationError } from '@dykstra/domain';
 
+/**
+ * Template Operations
+ *
+ * Policy Type: Type C
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: YES
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export const getTemplates = (filters: {
   serviceType?: CatalogServiceType;
   activeOnly?: boolean;

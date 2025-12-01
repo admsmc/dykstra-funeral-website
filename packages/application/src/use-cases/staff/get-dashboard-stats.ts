@@ -3,6 +3,19 @@ import { CaseRepository, PersistenceError } from '../../ports/case-repository';
 import { TaskRepository } from '../../ports/task-repository';
 import { PaymentRepository } from '../../ports/payment-repository';
 
+/**
+ * Get Dashboard Stats
+ *
+ * Policy Type: Type A
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: NO
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface GetDashboardStatsQuery {
   funeralHomeId: string;
 }

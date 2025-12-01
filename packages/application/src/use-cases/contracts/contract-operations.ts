@@ -4,6 +4,19 @@ import { NotFoundError } from '../../ports/case-repository';
 import { Contract, ValidationError, InvalidStateTransitionError, BusinessRuleViolationError } from '@dykstra/domain';
 import type { ContractStatus } from '@dykstra/shared';
 
+/**
+ * Contract Operations
+ *
+ * Policy Type: Type C
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: YES
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export const createContract = (data: {
   caseId: string;
   templateId?: string;

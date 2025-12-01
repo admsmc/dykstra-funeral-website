@@ -5,6 +5,19 @@ import { CaseRepository, NotFoundError, PersistenceError } from '../../ports/cas
 import { EmailPort, EmailError } from '../../ports/email-port';
 import { ValidationError } from '@dykstra/domain';
 
+/**
+ * Create Invitation
+ *
+ * Policy Type: Type A
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: NO
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface CreateInvitationCommand {
   caseId: string;
   email: string;

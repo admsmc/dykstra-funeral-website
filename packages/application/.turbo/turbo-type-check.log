@@ -2,3 +2,75 @@
 > @dykstra/application@0.1.0 type-check /Users/andrewmathers/projects/dykstra-funeral-website/packages/application
 > tsc --noEmit
 
+src/ports/on-call-policy-port.ts(1,193): error TS1127: Invalid character.
+src/ports/on-call-policy-port.ts(1,195): error TS1127: Invalid character.
+src/ports/on-call-policy-port.ts(1,196): error TS1435: Unknown keyword or identifier. Did you mean 'import'?
+src/ports/on-call-policy-port.ts(1,224): error TS1434: Unexpected keyword or identifier.
+src/ports/on-call-policy-port.ts(1,238): error TS1127: Invalid character.
+src/ports/on-call-policy-port.ts(1,239): error TS1435: Unknown keyword or identifier. Did you mean 'import'?
+src/ports/on-call-policy-port.ts(1,252): error TS2457: Type alias name cannot be 'type'.
+src/ports/on-call-policy-port.ts(1,285): error TS1434: Unexpected keyword or identifier.
+src/ports/on-call-policy-port.ts(1,308): error TS1127: Invalid character.
+src/ports/on-call-policy-port.ts(1,310): error TS1127: Invalid character.
+src/ports/on-call-policy-port.ts(1,432): error TS1127: Invalid character.
+src/ports/on-call-policy-port.ts(1,433): error TS1435: Unknown keyword or identifier. Did you mean 'export'?
+src/ports/on-call-policy-port.ts(1,476): error TS1127: Invalid character.
+src/ports/on-call-policy-port.ts(1,477): error TS1131: Property or signature expected.
+src/ports/on-call-policy-port.ts(1,707): error TS1127: Invalid character.
+src/ports/on-call-policy-port.ts(1,708): error TS1434: Unexpected keyword or identifier.
+src/ports/on-call-policy-port.ts(1,741): error TS1127: Invalid character.
+src/ports/on-call-policy-port.ts(1,747): error TS1005: ',' expected.
+src/ports/on-call-policy-port.ts(1,760): error TS1005: ',' expected.
+src/ports/on-call-policy-port.ts(1,768): error TS1127: Invalid character.
+src/ports/on-call-policy-port.ts(1,773): error TS1005: ';' expected.
+src/ports/on-call-policy-port.ts(1,817): error TS1127: Invalid character.
+src/ports/on-call-policy-port.ts(1,819): error TS1127: Invalid character.
+src/ports/on-call-policy-port.ts(1,1163): error TS1127: Invalid character.
+src/ports/on-call-policy-port.ts(1,1164): error TS1434: Unexpected keyword or identifier.
+src/ports/on-call-policy-port.ts(1,1186): error TS1127: Invalid character.
+src/ports/on-call-policy-port.ts(1,1192): error TS1005: ',' expected.
+src/ports/on-call-policy-port.ts(1,1205): error TS1005: ',' expected.
+src/ports/on-call-policy-port.ts(1,1214): error TS1127: Invalid character.
+src/ports/on-call-policy-port.ts(1,1220): error TS1005: ',' expected.
+src/ports/on-call-policy-port.ts(1,1230): error TS1005: ',' expected.
+src/ports/on-call-policy-port.ts(1,1254): error TS1127: Invalid character.
+src/ports/on-call-policy-port.ts(1,1260): error TS1005: ',' expected.
+src/ports/on-call-policy-port.ts(1,1269): error TS1005: ',' expected.
+src/ports/on-call-policy-port.ts(1,1277): error TS1127: Invalid character.
+src/ports/on-call-policy-port.ts(1,1282): error TS1005: ';' expected.
+src/ports/on-call-policy-port.ts(1,1319): error TS1127: Invalid character.
+src/ports/on-call-policy-port.ts(1,1321): error TS1127: Invalid character.
+src/ports/on-call-policy-port.ts(1,1692): error TS1127: Invalid character.
+src/ports/on-call-policy-port.ts(1,1693): error TS1434: Unexpected keyword or identifier.
+src/ports/on-call-policy-port.ts(1,1715): error TS1127: Invalid character.
+src/ports/on-call-policy-port.ts(1,1721): error TS1005: ',' expected.
+src/ports/on-call-policy-port.ts(1,1729): error TS1005: ',' expected.
+src/ports/on-call-policy-port.ts(1,1746): error TS1127: Invalid character.
+src/ports/on-call-policy-port.ts(1,1752): error TS1005: ',' expected.
+src/ports/on-call-policy-port.ts(1,1762): error TS1005: ',' expected.
+src/ports/on-call-policy-port.ts(1,1786): error TS1127: Invalid character.
+src/ports/on-call-policy-port.ts(1,1792): error TS1005: ',' expected.
+src/ports/on-call-policy-port.ts(1,1801): error TS1005: ',' expected.
+src/ports/on-call-policy-port.ts(1,1809): error TS1127: Invalid character.
+src/ports/on-call-policy-port.ts(1,1814): error TS1005: ';' expected.
+src/ports/on-call-policy-port.ts(1,1851): error TS1127: Invalid character.
+src/ports/on-call-policy-port.ts(1,1853): error TS1127: Invalid character.
+src/ports/on-call-policy-port.ts(1,2095): error TS1127: Invalid character.
+src/ports/on-call-policy-port.ts(1,2096): error TS1434: Unexpected keyword or identifier.
+src/ports/on-call-policy-port.ts(1,2122): error TS1127: Invalid character.
+src/ports/on-call-policy-port.ts(1,2128): error TS1005: ',' expected.
+src/ports/on-call-policy-port.ts(1,2141): error TS1005: ',' expected.
+src/ports/on-call-policy-port.ts(1,2149): error TS1127: Invalid character.
+src/ports/on-call-policy-port.ts(1,2154): error TS1005: ';' expected.
+src/ports/on-call-policy-port.ts(1,2193): error TS1127: Invalid character.
+src/ports/on-call-policy-port.ts(1,2195): error TS1128: Declaration or statement expected.
+src/ports/on-call-policy-port.ts(1,2196): error TS1127: Invalid character.
+src/ports/on-call-policy-port.ts(1,2198): error TS1127: Invalid character.
+src/ports/on-call-policy-port.ts(1,2248): error TS1127: Invalid character.
+src/ports/on-call-policy-port.ts(1,2249): error TS1435: Unknown keyword or identifier. Did you mean 'export'?
+src/ports/on-call-policy-port.ts(1,2326): error TS1127: Invalid character.
+src/ports/on-call-policy-port.ts(1,2330): error TS1005: ',' expected.
+src/ports/on-call-policy-port.ts(1,2357): error TS1127: Invalid character.
+src/ports/on-call-policy-port.ts(1,2361): error TS1127: Invalid character.
+src/ports/on-call-policy-port.ts(1,2362): error TS1434: Unexpected keyword or identifier.
+src/ports/on-call-policy-port.ts(1,2364): error TS1002: Unterminated string literal.

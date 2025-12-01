@@ -1,6 +1,19 @@
 import { Effect } from 'effect';
 import { NoteRepository, NoteNotFoundError } from '../../ports/note-repository';
 
+/**
+ * Delete Note
+ *
+ * Policy Type: Type A
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: NO
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface DeleteNoteCommand {
   businessKey: string;
 }

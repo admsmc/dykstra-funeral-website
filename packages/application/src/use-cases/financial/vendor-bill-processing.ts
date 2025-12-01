@@ -34,6 +34,19 @@ import { NetworkError } from '../../ports/go-contract-port';
 /**
  * Command to create vendor bill from PO
  */
+/**
+ * Vendor Bill Processing
+ *
+ * Policy Type: Type B
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: YES
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface CreateVendorBillCommand {
   /** Vendor ID */
   vendorId: string;

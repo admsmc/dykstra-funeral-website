@@ -1,6 +1,19 @@
 import { Effect } from 'effect';
 import { TaskRepository, TaskStatus, TaskNotFoundError } from '../../ports/task-repository';
 
+/**
+ * Update Task Status
+ *
+ * Policy Type: Type A
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: NO
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface UpdateTaskStatusCommand {
   taskId: string;
   status: TaskStatus;

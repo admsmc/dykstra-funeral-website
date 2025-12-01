@@ -1,8 +1,7 @@
 
-
 > @dykstra/application@0.1.0 test /Users/andrewmathers/projects/dykstra-funeral-website/packages/application
 > vitest run
 
 
-[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application[39m
+ RUN  v2.1.9 /Users/andrewmathers/projects/dykstra-funeral-website/packages/application
 

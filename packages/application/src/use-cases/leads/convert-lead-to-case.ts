@@ -3,6 +3,19 @@ import { Lead, Case, InvalidStateTransitionError, ValidationError } from '@dykst
 import { LeadRepository, type LeadRepositoryService, NotFoundError, PersistenceError } from '../../ports/lead-repository';
 import { CaseRepository, type CaseRepository as CaseRepositoryService } from '../../ports/case-repository';
 
+/**
+ * Convert Lead To Case
+ *
+ * Policy Type: Type A
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: NO
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface ConvertLeadToCaseCommand {
   readonly leadBusinessKey: string;
   readonly decedentName?: string;  // If different from lead name

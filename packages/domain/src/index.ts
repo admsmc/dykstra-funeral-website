@@ -25,6 +25,14 @@ export * from './entities/referral-source';
 export * from './entities/family-relationship';
 export * from './entities/email';
 export * from './entities/calendar-event';
+export * from './entities/pre-planning-appointment';
+export * from './entities/driver-assignment';
+export * from './entities/vehicle';
+export * from './entities/prep-room';
+export * from './entities/prep-room-reservation';
+export * from './entities/pto-management';
+export * from './entities/scheduling/on-call-policy';
+export * from './entities/scheduling/service-coverage-policy';
 
 // Events
 export * from './events/domain-events';

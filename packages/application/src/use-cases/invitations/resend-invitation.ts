@@ -4,6 +4,19 @@ import { InvitationRepository, InvitationNotFoundError } from '../../ports/invit
 import { EmailPort, EmailError } from '../../ports/email-port';
 import { ValidationError } from '@dykstra/domain';
 
+/**
+ * Resend Invitation
+ *
+ * Policy Type: Type A
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: NO
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface ResendInvitationCommand {
   businessKey: string;
   sentBy: string;

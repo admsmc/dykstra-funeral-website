@@ -20,6 +20,19 @@ import { ValidationError } from '@dykstra/domain';
  * - NetworkError: Go backend communication failure
  */
 
+/**
+ * Submit Timesheet For Approval
+ *
+ * Policy Type: Type B
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: YES
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface SubmitTimesheetForApprovalCommand {
   readonly tenant: string;
   readonly timesheetId: string;

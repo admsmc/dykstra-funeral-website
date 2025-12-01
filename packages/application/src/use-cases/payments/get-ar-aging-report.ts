@@ -6,6 +6,19 @@ import { ContractRepository } from '../../ports/contract-repository';
 /**
  * AR aging report query
  */
+/**
+ * Get Ar Aging Report
+ *
+ * Policy Type: Type A
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: NO
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface GetArAgingReportQuery {
   readonly funeralHomeId: string;
   readonly asOfDate?: Date;

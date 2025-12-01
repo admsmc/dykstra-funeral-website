@@ -17,6 +17,19 @@ import {
 /**
  * Command for reserving inventory for a case
  */
+/**
+ * Reserve Inventory For Case
+ *
+ * Policy Type: Type B
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: YES
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface ReserveInventoryForCaseCommand {
   readonly caseBusinessKey: string;
   readonly items: readonly {

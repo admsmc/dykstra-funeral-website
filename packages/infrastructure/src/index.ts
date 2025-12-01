@@ -23,6 +23,9 @@ export * from './database/prisma-interaction-repository';
 export * from './database/prisma-family-relationship-repository';
 export * from './database/prisma-email-repository';
 
+// Pre-Planning Appointment Repository (Scenario 6)
+export * from './repositories/pre-planning-appointment-repository';
+
 // CRM Adapters
 export * from './adapters/email/sendgrid-marketing-adapter';
 export * from './adapters/sms/twilio-sms-adapter';
@@ -75,6 +78,7 @@ import { PrismaReferralSourceRepository } from './database/prisma-referral-sourc
 import { PrismaInteractionRepository } from './database/prisma-interaction-repository';
 import { PrismaFamilyRelationshipRepository } from './database/prisma-family-relationship-repository';
 import { PrismaEmailRepository } from './database/prisma-email-repository';
+import { PrismaPrePlanningAppointmentRepository } from './repositories/pre-planning-appointment-repository';
 import { SendGridMarketingAdapter } from './adapters/email/sendgrid-marketing-adapter';
 import { TwilioSMSAdapter } from './adapters/sms/twilio-sms-adapter';
 import { GooglePlacesAdapter } from './adapters/validation/google-places-adapter';
@@ -131,6 +135,7 @@ import {
   AddressValidation,
   PhoneValidation,
   ContactEnrichment,
+  PrePlanningAppointmentRepository,
   GoContractPort,
   GoInventoryPort,
   GoPayrollPort,
@@ -210,6 +215,9 @@ export const InfrastructureLayer = Layer.mergeAll(
   Layer.succeed(InteractionRepository, PrismaInteractionRepository),
   Layer.succeed(FamilyRelationshipRepository, PrismaFamilyRelationshipRepository),
   Layer.succeed(EmailRepository, PrismaEmailRepository),
+  
+  // Pre-Planning Appointment Repository (Scenario 6)
+  Layer.succeed(PrePlanningAppointmentRepository, PrismaPrePlanningAppointmentRepository),
   
   // CRM Adapters
   Layer.succeed(EmailMarketingService, SendGridMarketingAdapter),

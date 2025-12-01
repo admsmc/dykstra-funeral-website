@@ -10,6 +10,19 @@ import type { CalendarProvider } from '@dykstra/domain';
  * 2. Detect conflicts/double-booking
  * 3. Return free/busy slots
  */
+/**
+ * Get Staff Availability
+ *
+ * Policy Type: Type A
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: NO
+ * Per-Funeral-Home: NO
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export const getStaffAvailability = (params: {
   userId: string;
   provider: CalendarProvider;

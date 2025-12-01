@@ -4,6 +4,19 @@ import { PaymentRepository, type PersistenceError } from '../../ports/payment-re
 /**
  * Payment statistics query
  */
+/**
+ * Get Payment Stats
+ *
+ * Policy Type: Type A
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: NO
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface GetPaymentStatsQuery {
   readonly funeralHomeId: string;
   readonly dateFrom?: Date;

@@ -23,6 +23,19 @@ import { EXPENSE_ACCOUNTS, LIABILITY_ACCOUNTS, ValidationError } from '@dykstra/
  * - NetworkError: Go backend communication failure
  */
 
+/**
+ * Case Based Labor Costing
+ *
+ * Policy Type: Type B
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: YES
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface CaseBasedLaborCostingCommand {
   readonly tenant: string;
   readonly caseId: string;

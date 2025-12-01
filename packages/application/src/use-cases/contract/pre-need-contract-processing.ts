@@ -55,6 +55,19 @@ import {
  * @see Implementation Plan: docs/Implementation Plan_ Remaining 20 Critical Use Cases.md
  */
 
+/**
+ * Pre Need Contract Processing
+ *
+ * Policy Type: Type C
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: YES
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export type PaymentTerm = 
   | 'lump_sum'           // Single payment upfront
   | 'monthly_12'         // 12 monthly installments

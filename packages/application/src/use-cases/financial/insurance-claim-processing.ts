@@ -26,6 +26,19 @@ import { ValidationError } from '@dykstra/domain';
  * @see Implementation Plan: Remaining 20 Critical Use Cases - Phase 6, Use Case 6.1
  */
 
+/**
+ * Insurance Claim Processing
+ *
+ * Policy Type: Type B
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: YES
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface InsuranceClaimCommand {
   readonly caseId: string;
   readonly invoiceId: string;

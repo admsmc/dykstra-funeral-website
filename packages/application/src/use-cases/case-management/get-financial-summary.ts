@@ -2,6 +2,19 @@ import { Effect } from 'effect';
 import { ContractRepository, PersistenceError } from '../../ports/contract-repository';
 import { PaymentRepository } from '../../ports/payment-repository';
 
+/**
+ * Get Financial Summary
+ *
+ * Policy Type: N/A
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: NO
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface GetFinancialSummaryQuery {
   caseId: string;
 }

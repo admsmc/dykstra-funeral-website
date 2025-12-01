@@ -7,6 +7,19 @@ import { ValidationError, REVENUE_RECOGNITION_ACCOUNTS } from '@dykstra/domain';
 /**
  * Command to finalize a case with GL posting
  */
+/**
+ * Finalize Case With Gl Posting
+ *
+ * Policy Type: N/A
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: NO
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface FinalizeCaseWithGLPostingCommand {
   readonly caseBusinessKey: string;
   readonly actorUserId: string;

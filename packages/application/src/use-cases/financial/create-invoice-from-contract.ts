@@ -11,6 +11,19 @@ import { ValidationError } from '@dykstra/domain';
 /**
  * Command to create an invoice from a contract
  */
+/**
+ * Create Invoice From Contract
+ *
+ * Policy Type: Type B
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: YES
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface CreateInvoiceFromContractCommand {
   readonly contractId: string;
   readonly caseBusinessKey: string;

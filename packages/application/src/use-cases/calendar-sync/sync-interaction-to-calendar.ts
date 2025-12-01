@@ -14,6 +14,19 @@ import type { Interaction, CalendarProvider } from '@dykstra/domain';
  * 4. Save CalendarEvent to database via CalendarEventRepository
  * 5. Handle OAuth token refresh if needed
  */
+/**
+ * Sync Interaction To Calendar
+ *
+ * Policy Type: Type A
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: NO
+ * Per-Funeral-Home: NO
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export const syncInteractionToCalendar = (_params: {
   interaction: Interaction;
   userId: string;

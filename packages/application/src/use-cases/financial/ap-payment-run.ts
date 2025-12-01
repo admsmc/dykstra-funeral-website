@@ -12,6 +12,19 @@ import { ValidationError } from '@dykstra/domain';
 /**
  * Command to create and execute an AP payment run
  */
+/**
+ * Ap Payment Run
+ *
+ * Policy Type: Type B
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: YES
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface ExecuteAPPaymentRunCommand {
   readonly billIds: readonly string[];
   readonly runDate: Date;

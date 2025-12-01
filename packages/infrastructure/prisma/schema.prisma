@@ -25,20 +25,23 @@ model FuneralHome {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  cases               Case[]
-  users               User[]
-  productCatalog      ProductCatalog[]
-  serviceCatalog      ServiceCatalog[]
-  contractTemplates   ContractTemplate[]
-  leads               Lead[]
-  contacts            Contact[]
-  campaigns           Campaign[]
-  interactions        Interaction[]
-  referralSources     ReferralSource[]
-  familyRelationships FamilyRelationship[]
-  emails              Email[]
-  calendarEvents      CalendarEvent[]
-  phoneCalls          PhoneCall[]
+  cases                   Case[]
+  users                   User[]
+  productCatalog          ProductCatalog[]
+  serviceCatalog          ServiceCatalog[]
+  contractTemplates       ContractTemplate[]
+  leads                   Lead[]
+  contacts                Contact[]
+  campaigns               Campaign[]
+  interactions            Interaction[]
+  referralSources         ReferralSource[]
+  familyRelationships     FamilyRelationship[]
+  emails                  Email[]
+  calendarEvents          CalendarEvent[]
+  phoneCalls              PhoneCall[]
+  prePlanningAppointments PrePlanningAppointment[]
+  driverAssignments       DriverAssignment[]
+  vehicles                Vehicle[]
 
   @@map("funeral_homes")
 }
@@ -1351,4 +1354,509 @@ enum CallStatus {
   BUSY
   NO_ANSWER
   CANCELLED
+}
+
+// PrePlanningAppointment (SCD Type 2: Full history tracked)
+// Manages pre-need consultation appointments with funeral directors
+// Business Rules:
+// - Appointments only 8am-5pm Mon-Fri
+// - Minimum 1 hour duration
+// - Maximum 4 appointments per director per day
+// - No double-booking (overlapping appointments)
+// - Lunch break 12-1pm automatically blocks availability
+// - 24-hour cancellation notice required
+// - Automated reminders at 24 hours and 1 hour before
+model PrePlanningAppointment {
+  id          String    @id @default(cuid()) // Row ID (technical key)
+  businessKey String // Immutable business identifier (directorId:timestamp)
+  version     Int       @default(1) // Version number (increments on each change)
+  validFrom   DateTime  @default(now()) // When this version became effective
+  validTo     DateTime? // When this version was superseded (null = current)
+  isCurrent   Boolean   @default(true) // Fast lookup for current version
+
+  funeralHomeId     String
+  directorId        String
+  directorName      String
+  familyName        String
+  familyEmail       String
+  familyPhone       String
+  appointmentDate   DateTime // Date of appointment (time component ignored)
+  startTime         DateTime // Start time (full datetime)
+  endTime           DateTime // End time (full datetime)
+  duration          Int // Duration in minutes
+  notes             String?           @db.Text
+  status            AppointmentStatus
+  reminderEmailSent Boolean           @default(false)
+  reminderSmsSent   Boolean           @default(false)
+  completedAt       DateTime?
+  cancelledAt       DateTime?
+  cancelReason      String?           @db.Text
+  createdAt         DateTime          @default(now()) // When originally created
+  updatedAt         DateTime          @updatedAt // When this version created
+  createdBy         String
+
+  funeralHome FuneralHome @relation(fields: [funeralHomeId], references: [id])
+
+  @@unique([businessKey, version]) // Each temporal version unique
+  @@index([businessKey, isCurrent]) // Fast current version lookup
+  @@index([validFrom, validTo]) // Temporal queries
+  @@index([funeralHomeId]) // Find funeral home's appointments
+  @@index([directorId]) // Find director's appointments
+  @@index([familyEmail]) // Find family appointments
+  @@index([appointmentDate]) // Find appointments by date
+  @@index([status]) // Find by status
+  @@index([reminderEmailSent]) // Find appointments needing reminders
+  @@map("pre_planning_appointments")
+}
+
+enum AppointmentStatus {
+  SCHEDULED // Confirmed appointment
+  CONFIRMED // Confirmed by director/family
+  COMPLETED // Appointment completed
+  CANCELLED // Cancelled by family/director
+  NO_SHOW // Family did not attend
+}
+
+// DriverAssignment (SCD Type 2: Full history tracked)
+// Manages driver assignments to funeral home removals, transfers, and processions
+// Business Rules:
+// - Minimum 1-hour rest period between assignments (validated with 60-minute buffer)
+// - Duration: 15-240 minutes
+// - Mileage recorded at completion for payroll reimbursement ($0.67/mile IRS rate)
+// - Assignment status tracks workflow: pending → accepted → in_progress → completed
+model DriverAssignment {
+  id          String    @id @default(cuid()) // Row ID (technical key)
+  businessKey String // Immutable business identifier (format: funeralHomeId:eventType_caseId:driverId)
+  version     Int       @default(1) // Version number (increments on each change)
+  validFrom   DateTime  @default(now()) // When this version became effective
+  validTo     DateTime? // When this version was superseded (null = current)
+  isCurrent   Boolean   @default(true) // Fast lookup for current version
+
+  funeralHomeId    String
+  driverId         String // External ID (staff/driver reference)
+  vehicleId        String? // Optional vehicle assignment
+  eventType        EventType // removal, transfer, or procession
+  caseId           String // Link to funeral case for labor costing
+  pickupLocation   Json // Nested object: {address, city, state, zipCode, latitude?, longitude?}
+  dropoffLocation  Json // Nested object: {address, city, state, zipCode, latitude?, longitude?}
+  scheduledTime    DateTime // When the assignment is scheduled
+  estimatedDuration Int     // Duration in minutes (15-240)
+  actualDuration   Int?    // Actual duration if completed
+  status           AssignmentStatus
+  mileageStart     Int?     // Odometer reading at start
+  mileageEnd       Int?     // Odometer reading at end
+  mileageAllowance Float?   // Calculated reimbursement ($0.67/mile)
+  notes            String?  @db.Text
+  createdAt        DateTime          @default(now()) // When originally created
+  updatedAt        DateTime          @updatedAt // When this version created
+  createdBy        String // Staff ID
+  updatedBy        String? // Last staff to update
+
+  funeralHome FuneralHome @relation(fields: [funeralHomeId], references: [id])
+
+  @@unique([businessKey, version]) // Each temporal version unique
+  @@index([businessKey, isCurrent]) // Fast current version lookup
+  @@index([validFrom, validTo]) // Temporal queries
+  @@index([funeralHomeId]) // Find funeral home's assignments
+  @@index([driverId]) // Find driver's assignments
+  @@index([vehicleId]) // Find vehicle's assignments
+  @@index([caseId]) // Find case's assignments for labor costing
+  @@index([scheduledTime]) // Find assignments by date/time
+  @@index([status]) // Find by status
+  @@map("driver_assignments")
+}
+
+enum EventType {
+  REMOVAL // Body removal from location
+  TRANSFER // Transfer between locations
+  PROCESSION // Procession/funeral service
+}
+
+enum AssignmentStatus {
+  PENDING // Initial state, awaiting driver acceptance
+  ACCEPTED // Driver has accepted assignment
+  IN_PROGRESS // Driver has begun the assignment
+  COMPLETED // Assignment completed and mileage recorded
+  CANCELLED // Assignment cancelled
+}
+
+// Vehicle (SCD Type 2: Full history tracked)
+// Manages funeral home vehicle fleet with maintenance and inspection tracking
+// Business Rules:
+// - Inspection must be current (not expired)
+// - Vehicles due for maintenance cannot be assigned
+// - Status tracks availability: available, in_use, maintenance, retired
+// - Mileage recorded for each assignment completion
+model Vehicle {
+  id          String    @id @default(cuid()) // Row ID (technical key)
+  businessKey String // Immutable business identifier (format: funeralHomeId:licensePlate)
+  version     Int       @default(1) // Version number (increments on each change)
+  validFrom   DateTime  @default(now()) // When this version became effective
+  validTo     DateTime? // When this version was superseded (null = current)
+  isCurrent   Boolean   @default(true) // Fast lookup for current version
+
+  funeralHomeId       String
+  vehicleType         String // hearse, limousine, van, sedan, etc.
+  licensePlate        String @unique // Must be unique per state
+  vin                 String @unique // Vehicle Identification Number
+  year                Int
+  make                String // Cadillac, Lincoln, Mercedes, etc.
+  model               String
+  color               String
+  capacity            Int // Number of passengers (including driver)
+  status              VehicleStatus
+  mileageCurrentTotal Int // Total cumulative mileage
+  lastMaintenanceDate DateTime? // Last maintenance completion date
+  nextMaintenanceDate DateTime // When next maintenance is due
+  lastInspectionDate  DateTime? // Last inspection completion date
+  nextInspectionDate  DateTime // When next inspection is due
+  acquisitionDate     DateTime // When funeral home acquired vehicle
+  retirementDate      DateTime? // When vehicle was retired from service
+  notes               String?           @db.Text
+  createdAt           DateTime          @default(now()) // When originally created
+  updatedAt           DateTime          @updatedAt // When this version created
+  createdBy           String // Staff ID
+  updatedBy           String? // Last staff to update
+
+  funeralHome FuneralHome @relation(fields: [funeralHomeId], references: [id])
+
+  @@unique([businessKey, version]) // Each temporal version unique
+  @@index([businessKey, isCurrent]) // Fast current version lookup
+  @@index([validFrom, validTo]) // Temporal queries
+  @@index([funeralHomeId]) // Find funeral home's vehicles
+  @@index([status]) // Find by status (available, in_use, maintenance)
+  @@index([nextInspectionDate]) // Find vehicles with expiring inspections
+  @@index([nextMaintenanceDate]) // Find vehicles due for maintenance
+  @@map("vehicles")
+}
+
+enum VehicleStatus {
+  AVAILABLE // Ready for assignment
+  IN_USE // Currently assigned to a removal/transfer
+  MAINTENANCE // In maintenance or repair
+  RETIRED // No longer in service
+}
+
+// Preparation Room (embalming station)
+// SCD Type 2: Temporal tracking for facility maintenance history
+model PrepRoom {
+  id          String   @id @default(cuid()) // Row ID (technical key)
+  businessKey String // Immutable business identifier (format: funeralHomeId:roomNumber)
+  version     Int      @default(1) // Version number (increments on each change)
+  validFrom   DateTime @default(now()) // When this version became effective
+  validTo     DateTime? // When this version was superseded (null = current)
+  isCurrent   Boolean  @default(true) // Fast lookup for current version
+
+  funeralHomeId String
+  roomNumber    String // Room identifier (e.g., "A1", "B2")
+  capacity      Int // 1 or 2 (single or double embalming stations)
+  status        PrepRoomStatus // available, maintenance, closed
+  createdAt     DateTime @default(now()) // When originally created
+  updatedAt     DateTime @updatedAt // When this version created
+  createdBy     String // Staff ID
+
+  reservations PrepRoomReservation[]
+
+  @@unique([businessKey, version]) // Each temporal version unique
+  @@index([businessKey, isCurrent]) // Fast current version lookup
+  @@index([validFrom, validTo]) // Temporal queries
+  @@index([funeralHomeId]) // Find funeral home's prep rooms
+  @@index([status]) // Find by status
+  @@map("prep_rooms")
+}
+
+enum PrepRoomStatus {
+  AVAILABLE // Ready for reservation
+  MAINTENANCE // Undergoing maintenance
+  CLOSED // Not available
+}
+
+// Preparation Room Reservation
+// SCD Type 2: Full audit trail of all reservations and status changes
+model PrepRoomReservation {
+  id          String   @id @default(cuid()) // Row ID (technical key)
+  businessKey String // Immutable business identifier (format: prepRoomId:caseId:embalmerId)
+  version     Int      @default(1) // Version number (increments on each change)
+  validFrom   DateTime @default(now()) // When this version became effective
+  validTo     DateTime? // When this version was superseded (null = current)
+  isCurrent   Boolean  @default(true) // Fast lookup for current version
+
+  prepRoomId    String
+  embalmerId    String // Staff ID
+  caseId        String // Case being prepared
+  familyId      String // Family ID (for tracking)
+  status        PrepRoomReservationStatus
+  priority      PrepRoomReservationPriority
+  reservedFrom  DateTime // Scheduled start time
+  reservedTo    DateTime // Scheduled end time
+  checkedInAt   DateTime? // Actual check-in time
+  checkedOutAt  DateTime? // Actual check-out time
+  actualDuration Int? // Actual duration in minutes (calculated on checkout)
+  notes         String? @db.Text // Prep notes or override reason
+  createdAt     DateTime @default(now()) // When originally created
+  updatedAt     DateTime @updatedAt // When this version created
+  createdBy     String // Staff ID who created
+
+  prepRoom PrepRoom @relation(fields: [prepRoomId], references: [id])
+
+  @@unique([businessKey, version]) // Each temporal version unique
+  @@index([businessKey, isCurrent]) // Fast current version lookup
+  @@index([validFrom, validTo]) // Temporal queries
+  @@index([prepRoomId, reservedFrom]) // Find conflicts for room
+  @@index([embalmerId, reservedFrom]) // Find embalmer's schedule
+  @@index([caseId]) // Find reservations for case
+  @@index([status]) // Find by status (pending, confirmed, in_progress, completed, etc.)
+  @@index([priority]) // Find urgent reservations
+  @@map("prep_room_reservations")
+}
+
+enum PrepRoomReservationStatus {
+  PENDING // Awaiting confirmation (30-min auto-release timeout)
+  CONFIRMED // Confirmed but not yet checked in
+  IN_PROGRESS // Checked in, currently in use
+  COMPLETED // Checked out successfully
+  AUTO_RELEASED // Released due to 30-minute timeout without check-in
+  CANCELLED // Manually cancelled
+}
+
+enum PrepRoomReservationPriority {
+  NORMAL // Standard reservation
+  URGENT // High priority (death call, etc.)
+}
+
+// On-Call Policy
+// SCD Type 2: Tracks on-call rotation policies for per-funeral-home customization
+model OnCallPolicy {
+  id                           String   @id @default(cuid())
+  businessKey                  String   @default(cuid())
+  version                      Int      @default(1)
+  validFrom                    DateTime @default(now())
+  validTo                      DateTime?
+  isCurrent                    Boolean  @default(true)
+
+  funeralHomeId                String
+  minAdvanceNoticeHours        Int      @default(48)    // 24-96 hours
+  maxConsecutiveWeekendsOn     Int      @default(2)     // 1-3
+  minRestHoursAfterShift       Int      @default(8)     // 6-12
+  backupDirectorRequired       Boolean  @default(true)
+  fairRotationEnabled          Boolean  @default(true)
+  maxOnCallPerDirectorPerQuarter Int    @default(13)    // Quarter = ~13 weeks
+  onCallBasePayAmount          Float    @default(150)   // Flat rate per assignment
+  callbackHourlyRate           Float    @default(1.5)   // Multiplier for callback hours
+  notes                        String?  @db.Text
+  createdAt                    DateTime @default(now())
+  updatedAt                    DateTime @updatedAt
+  createdBy                    String
+
+  @@unique([businessKey, version])
+  @@index([businessKey, isCurrent])
+  @@index([validFrom, validTo])
+  @@index([funeralHomeId, isCurrent])
+  @@map("on_call_policies")
+}
+
+// PTO Policy
+// SCD Type 2: Tracks policy changes for audit trail and historical compliance
+model PtoPolicy {
+  id                String   @id @default(cuid()) // Row ID (technical key)
+  businessKey       String   @default(cuid()) // Funeral home + policy identifier
+  version           Int      @default(1) // Version number (increments on each change)
+  validFrom         DateTime @default(now()) // When this version became effective
+  validTo           DateTime? // When this version was superseded (null = current)
+  isCurrent         Boolean  @default(true) // Fast lookup for current version
+
+  funeralHomeId                    String
+  minAdvanceNoticeDays             Int      @default(14)
+  minAdvanceNoticeHolidaysDays     Int      @default(30)
+  annualPtoDaysPerEmployee         Int      @default(20)
+  maxConcurrentEmployeesOnPto      Int      @default(2)
+  maxConsecutivePtoDays            Int      @default(10)
+  roleSpecificPolicies             Json     @default("{}")
+  blackoutDates                    Json     @default("[]")
+  enablePremiumPayForBackfill      Boolean  @default(true)
+  premiumMultiplier                Float    @default(1.5)
+  notes                            String?  @db.Text
+  createdAt                        DateTime @default(now())
+  updatedAt                        DateTime @updatedAt
+  createdBy                        String
+
+  @@unique([businessKey, version])
+  @@index([businessKey, isCurrent])
+  @@index([validFrom, validTo])
+  @@index([funeralHomeId, isCurrent])
+  @@map("pto_policies")
+}
+
+// Training Policy
+// SCD Type 2: Tracks training policy changes with audit trail
+model TrainingPolicy {
+  id                           String   @id @default(cuid())
+  businessKey                  String   @default(cuid())
+  version                      Int      @default(1)
+  validFrom                    DateTime @default(now())
+  validTo                      DateTime?
+  isCurrent                    Boolean  @default(true)
+
+  funeralHomeId                String
+  roleRequirements             Json     @default("{}")
+  enableTrainingBackfill       Boolean  @default(true)
+  backfillPremiumMultiplier    Float    @default(1.25)
+  defaultRenewalNoticeDays     Int      @default(60)
+  approvalRequiredAboveCost    Float    @default(1000)
+  notes                        String?  @db.Text
+  createdAt                    DateTime @default(now())
+  updatedAt                    DateTime @updatedAt
+  createdBy                    String
+
+  @@unique([businessKey, version])
+  @@index([businessKey, isCurrent])
+  @@index([validFrom, validTo])
+  @@index([funeralHomeId, isCurrent])
+  @@map("training_policies")
+}
+
+// PTO Request
+// SCD Type 2: Tracks all PTO requests with full audit trail
+model PtoRequest {
+  id                    String   @id @default(cuid())
+  businessKey           String   @default(cuid())
+  version               Int      @default(1)
+  validFrom             DateTime @default(now())
+  validTo               DateTime?
+  isCurrent             Boolean  @default(true)
+
+  funeralHomeId         String
+  employeeId            String
+  employeeName          String
+  ptoType               String   // 'vacation', 'sick_leave', 'bereavement', 'unpaid', 'personal'
+  requestedDays         Int
+  startDate             DateTime
+  endDate               DateTime
+  reason                String?  @db.Text
+  status                String   @default("draft") // 'draft', 'pending', 'approved', 'rejected', 'taken', 'cancelled'
+  requestedAt           DateTime @default(now())
+  respondedAt           DateTime?
+  respondedBy           String?
+  rejectionReason       String?  @db.Text
+  backfillRequirementsMet Boolean @default(false)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  createdBy             String
+
+  @@unique([businessKey, version])
+  @@index([businessKey, isCurrent])
+  @@index([validFrom, validTo])
+  @@index([funeralHomeId, employeeId])
+  @@index([funeralHomeId, status])
+  @@index([startDate, endDate])
+  @@index([status])
+  @@map("pto_requests")
+}
+
+// Training Record
+// Non-versioned (immutable once created) - records training events
+model TrainingRecord {
+  id                  String   @id @default(cuid())
+  funeralHomeId       String
+  employeeId          String
+  employeeName        String
+  trainingType        String   // 'embalming', 'funeral_directing', 'restorative_art', etc.
+  trainingName        String
+  requiredForRole     Boolean  @default(false)
+  status              String   @default("scheduled") // 'scheduled', 'in_progress', 'completed', 'cancelled', 'no_show'
+  scheduledDate       DateTime?
+  startDate           DateTime?
+  endDate             DateTime?
+  completedAt         DateTime?
+  hours               Int
+  cost                Float
+  instructor          String?
+  location            String?
+  certificationNumber String?  @unique
+  expiresAt           DateTime?
+  renewalReminderSentAt DateTime?
+  notes               String?  @db.Text
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  createdBy           String
+
+  @@index([funeralHomeId, employeeId])
+  @@index([status])
+  @@index([expiresAt])
+  @@index([trainingType])
+  @@index([completedAt])
+  @@map("training_records")
+}
+
+// Backfill Assignment
+// SCD Type 2: Tracks staff coverage assignments for PTO/training
+model BackfillAssignment {
+  id                      String   @id @default(cuid())
+  businessKey             String   @default(cuid())
+  version                 Int      @default(1)
+  validFrom               DateTime @default(now())
+  validTo                 DateTime?
+  isCurrent               Boolean  @default(true)
+
+  funeralHomeId           String
+  absenceId               String   // PTO request or training record ID
+  absenceType             String   // 'pto', 'training', 'other'
+  absenceStartDate        DateTime
+  absenceEndDate          DateTime
+  absenceEmployeeId       String
+  absenceEmployeeName     String
+  absenceEmployeeRole     String
+  backfillEmployeeId      String
+  backfillEmployeeName    String
+  backfillEmployeeRole    String
+  status                  String   @default("suggested") // 'suggested', 'pending_confirmation', 'confirmed', 'rejected', 'cancelled', 'completed'
+  suggestedAt             DateTime @default(now())
+  confirmedAt             DateTime?
+  confirmedBy             String?
+  rejectedAt              DateTime?
+  rejectionReason         String?  @db.Text
+  completedAt             DateTime?
+  premiumType             String   @default("none") // 'none', 'overtime', 'holiday', 'training_coverage', 'emergency'
+  premiumMultiplier       Float    @default(1.0)
+  estimatedHours          Int
+  actualHours             Int?
+  notes                   String?  @db.Text
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+  createdBy               String
+
+  @@unique([businessKey, version])
+  @@index([businessKey, isCurrent])
+  @@index([validFrom, validTo])
+  @@index([funeralHomeId, absenceId])
+  @@index([funeralHomeId, status])
+  @@index([backfillEmployeeId, absenceStartDate])
+  @@index([absenceStartDate, absenceEndDate])
+  @@index([status])
+  @@map("backfill_assignments")
+}
+
+// Certification Status
+// Non-versioned - tracks current certification status per employee
+model CertificationStatus {
+  id                    String   @id @default(cuid())
+  funeralHomeId         String
+  employeeId            String
+  certificationId       String
+  certificationName     String
+  trainingRecordId      String?  // Link to training record
+  status                String   // 'current', 'expiring_soon', 'expired', 'missing'
+  expiresAt             DateTime?
+  renewalDueAt          DateTime?
+  renewalReminderSentAt DateTime?
+  notes                 String?  @db.Text
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@unique([funeralHomeId, employeeId, certificationId])
+  @@index([funeralHomeId, employeeId])
+  @@index([expiresAt])
+  @@index([status])
+  @@index([renewalDueAt])
+  @@map("certification_statuses")
 }

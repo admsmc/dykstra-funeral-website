@@ -2,6 +2,19 @@ import { Effect } from 'effect';
 import { Interaction, ValidationError } from '@dykstra/domain';
 import { InteractionRepository, type InteractionRepositoryService, PersistenceError } from '../../ports/interaction-repository';
 
+/**
+ * Log Interaction
+ *
+ * Policy Type: Type A
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: NO
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface LogInteractionCommand {
   readonly id: string;
   readonly funeralHomeId: string;

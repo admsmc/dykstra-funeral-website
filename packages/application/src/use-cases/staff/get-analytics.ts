@@ -2,6 +2,19 @@ import { Effect } from 'effect';
 import { CaseRepository, PersistenceError } from '../../ports/case-repository';
 import { PaymentRepository } from '../../ports/payment-repository';
 
+/**
+ * Get Analytics
+ *
+ * Policy Type: Type A
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: NO
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface GetAnalyticsQuery {
   funeralHomeId: string;
   dateFrom: Date;

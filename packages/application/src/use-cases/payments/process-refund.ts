@@ -6,6 +6,19 @@ import { randomUUID } from 'crypto';
 /**
  * Process refund command
  */
+/**
+ * Process Refund
+ *
+ * Policy Type: Type A
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: NO
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface ProcessRefundCommand {
   readonly paymentBusinessKey: string;
   readonly refundAmount?: number;  // If omitted, full refund

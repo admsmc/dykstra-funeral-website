@@ -2,6 +2,19 @@ import { Effect } from 'effect';
 import { InvitationRepository, InvitationNotFoundError } from '../../ports/invitation-repository';
 import { ValidationError } from '@dykstra/domain';
 
+/**
+ * Revoke Invitation
+ *
+ * Policy Type: Type A
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: NO
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface RevokeInvitationCommand {
   businessKey: string;
 }

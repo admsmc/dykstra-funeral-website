@@ -2,6 +2,19 @@ import { Effect } from 'effect';
 import { Contact } from '@dykstra/domain';
 import { ContactRepository, type ContactRepositoryService, NotFoundError, PersistenceError } from '../../ports/contact-repository';
 
+/**
+ * Merge Contacts
+ *
+ * Policy Type: Type A
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: NO
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface MergeContactsCommand {
   readonly sourceContactBusinessKey: string;
   readonly targetContactBusinessKey: string;

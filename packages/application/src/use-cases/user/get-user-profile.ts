@@ -2,6 +2,19 @@ import { Effect } from "effect";
 import { UserPort } from '../../ports/user-port';
 
 // Extended user profile with additional API-specific fields
+/**
+ * Get User Profile
+ *
+ * Policy Type: Type A
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: NO
+ * Per-Funeral-Home: NO
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 interface ExtendedUserProfile {
   readonly id: string;
   readonly email: string;

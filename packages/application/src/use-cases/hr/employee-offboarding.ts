@@ -23,6 +23,19 @@ import { GoEmployeeTerminationPort, type GoEmployeeTerminationPortService, Netwo
  * @see docs/Implement 35 Critical Use Cases with Verified Go Backend Ports.md - Phase 5, Use Case 4.2
  */
 
+/**
+ * Employee Offboarding
+ *
+ * Policy Type: Type B
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: YES
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface EmployeeOffboardingCommand {
   readonly employeeId: string;
   readonly terminationDate: Date;

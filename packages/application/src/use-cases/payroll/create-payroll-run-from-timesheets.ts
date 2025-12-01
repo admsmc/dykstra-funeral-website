@@ -12,6 +12,19 @@ import { ValidationError, PAYROLL_EXPENSE_ACCOUNTS } from '@dykstra/domain';
  * @see docs/Implement 35 Critical Use Cases with Verified Go Backend Ports.md - Phase 3, Use Case 3.1
  */
 
+/**
+ * Create Payroll Run From Timesheets
+ *
+ * Policy Type: Type B
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: YES
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface CreatePayrollRunFromTimesheetsCommand {
   readonly tenant: string;
   readonly payPeriodStart: Date;

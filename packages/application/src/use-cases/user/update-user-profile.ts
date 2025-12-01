@@ -2,6 +2,19 @@ import { Effect } from "effect";
 import { ValidationError } from "../../errors";
 import { UserPort } from '../../ports/user-port';
 
+/**
+ * Update User Profile
+ *
+ * Policy Type: Type A
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: NO
+ * Per-Funeral-Home: NO
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 interface UpdateUserProfileInput {
   userId: string;
   name?: string;

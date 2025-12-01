@@ -7,6 +7,19 @@ import { PersistenceError } from '../../ports/case-repository';
 /**
  * Email matching command
  */
+/**
+ * Match Email To Entity
+ *
+ * Policy Type: Type A
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: NO
+ * Per-Funeral-Home: NO
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface MatchEmailCommand {
   readonly emailAddress: string;
   readonly funeralHomeId: string;

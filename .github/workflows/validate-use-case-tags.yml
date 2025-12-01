@@ -1,0 +1,175 @@
+name: Validate Use Case Tags
+
+on:
+  pull_request:
+    paths:
+      - 'packages/application/src/use-cases/**/*.ts'
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'packages/application/src/use-cases/**/*.ts'
+
+jobs:
+  validate-tags:
+    name: Validate JSDoc Headers & Tags
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check Use Case Tags
+        run: |
+          #!/bin/bash
+          set -euo pipefail
+          
+          ROOT="packages/application/src/use-cases"
+          ERRORS=0
+          
+          echo "🔍 Scanning use case files for required JSDoc headers..."
+          echo
+          
+          while IFS= read -r file; do
+            filename=$(basename "$file")
+            
+            # Check if file has JSDoc header with required fields
+            has_policy_type=$(grep -c "Policy Type:" "$file" || true)
+            has_status=$(grep -c "Refactoring Status:" "$file" || true)
+            has_entity=$(grep -c "Policy Entity:" "$file" || true)
+            has_persisted=$(grep -c "Persisted In:" "$file" || true)
+            has_backend=$(grep -c "Go Backend:" "$file" || true)
+            has_per_home=$(grep -c "Per-Funeral-Home:" "$file" || true)
+            has_tests=$(grep -c "Test Coverage:" "$file" || true)
+            has_updated=$(grep -c "Last Updated:" "$file" || true)
+            
+            # Check all fields present
+            if [ "$has_policy_type" -eq 0 ] || [ "$has_status" -eq 0 ] || [ "$has_entity" -eq 0 ] || \
+               [ "$has_persisted" -eq 0 ] || [ "$has_backend" -eq 0 ] || [ "$has_per_home" -eq 0 ] || \
+               [ "$has_tests" -eq 0 ] || [ "$has_updated" -eq 0 ]; then
+              echo "❌ MISSING FIELDS: $filename"
+              echo "   Required: Policy Type, Refactoring Status, Policy Entity, Persisted In,"
+              echo "              Go Backend, Per-Funeral-Home, Test Coverage, Last Updated"
+              ERRORS=$((ERRORS+1))
+              continue
+            fi
+            
+            # Extract values (handle emojis by matching exact values)
+            status=$(grep "Refactoring Status:" "$file" | head -1 | grep -oE 'HARDCODED|IN PROGRESS|CONFIGURABLE' || echo "")
+            policy_type=$(grep "Policy Type:" "$file" | head -1 | grep -oE 'Type [ABC]|N/A' || echo "")
+            policy_entity=$(grep "Policy Entity:" "$file" | head -1 | sed 's/.*Policy Entity: \([^ ]*\).*/\1/' | xargs)
+            persisted=$(grep "Persisted In:" "$file" | head -1 | sed 's/.*Persisted In: \(.*\)/\1/' | sed 's/ *$//' | xargs)
+            backend=$(grep "Go Backend:" "$file" | head -1 | grep -oE 'YES|NO' || echo "")
+            per_home=$(grep "Per-Funeral-Home:" "$file" | head -1 | grep -oE 'YES|NO' || echo "")
+            
+            # Validate values are recognized
+            if [ -z "$status" ]; then
+              echo "❌ INVALID STATUS: $filename"
+              echo "   Must be one of: HARDCODED, IN PROGRESS, CONFIGURABLE"
+              ERRORS=$((ERRORS+1))
+            fi
+            
+            if [ -z "$backend" ]; then
+              echo "❌ INVALID GO BACKEND: $filename"
+              echo "   Must be one of: YES, NO"
+              ERRORS=$((ERRORS+1))
+            fi
+            
+            if [ -z "$per_home" ]; then
+              echo "❌ INVALID PER-FUNERAL-HOME: $filename"
+              echo "   Must be one of: YES, NO"
+              ERRORS=$((ERRORS+1))
+            fi
+            
+            # Type-specific invariant checks
+            if [[ "$policy_type" == "Type A" && "$backend" != "NO" ]]; then
+              echo "❌ TYPE INVARIANT VIOLATION: $filename"
+              echo "   Type A must have Go Backend: NO"
+              ERRORS=$((ERRORS+1))
+            fi
+            
+            if [[ "$policy_type" == "Type B" && "$backend" != "YES" ]]; then
+              echo "❌ TYPE INVARIANT VIOLATION: $filename"
+              echo "   Type B must have Go Backend: YES"
+              ERRORS=$((ERRORS+1))
+            fi
+            
+            if [[ "$policy_type" == "Type B" && ! "$persisted" =~ "TypeScript/PostgreSQL" ]]; then
+              echo "❌ TYPE INVARIANT VIOLATION: $filename"
+              echo "   Type B must have Persisted In: TypeScript/PostgreSQL"
+              ERRORS=$((ERRORS+1))
+            fi
+            
+            if [[ "$policy_type" == "Type C" && ! "$persisted" =~ "Go Backend" ]]; then
+              echo "❌ TYPE INVARIANT VIOLATION: $filename"
+              echo "   Type C must have Persisted In: Go Backend"
+              ERRORS=$((ERRORS+1))
+            fi
+            
+            # Status coherence checks
+            if [ "$status" = "HARDCODED" ]; then
+              if [ "$policy_entity" != "N/A" ] || [ "$persisted" != "N/A" ]; then
+                echo "❌ STATUS COHERENCE ERROR: $filename"
+                echo "   HARDCODED must have Policy Entity: N/A and Persisted In: N/A"
+                ERRORS=$((ERRORS+1))
+              fi
+            fi
+            
+            if [ "$status" = "CONFIGURABLE" ]; then
+              if [ "$policy_entity" = "N/A" ] || [ "$persisted" = "N/A" ]; then
+                echo "❌ STATUS COHERENCE ERROR: $filename"
+                echo "   CONFIGURABLE must have Policy Entity and Persisted In defined (not N/A)"
+                ERRORS=$((ERRORS+1))
+              fi
+            fi
+            
+            # Success message for this file
+            if [ "$ERRORS" -eq 0 ]; then
+              echo "✅ $filename [$status]"
+            fi
+            
+          done < <(find "$ROOT" -type f -name "*.ts" ! -path "*/__tests__/*" ! -path "*/index.ts")
+          
+          echo
+          echo "---"
+          echo
+          
+          if [ "$ERRORS" -gt 0 ]; then
+            echo "❌ VALIDATION FAILED: $ERRORS error(s) found"
+            echo
+            echo "Fix errors and ensure:"
+            echo "1. All use case files have complete JSDoc headers"
+            echo "2. Policy Type, Refactoring Status, etc. are valid values"
+            echo "3. Type-specific invariants are respected"
+            echo "4. Status coherence rules are followed"
+            echo
+            echo "See ARCHITECTURE.md > Use Case Tagging & Inventory Best Practices"
+            exit 1
+          else
+            echo "✅ VALIDATION PASSED: All use case tags are valid"
+            exit 0
+          fi
+
+      - name: Generate Status Report
+        if: always()
+        run: |
+          echo "## Use Case Status Summary"
+          echo
+          chmod +x ./scripts/scan-use-case-status.sh
+          ./scripts/scan-use-case-status.sh | head -30
+          echo
+          echo "[View full report](USE_CASE_STATUS.md)"
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request' && failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `❌ Use case tag validation failed.\n\nPlease ensure all modified use case files have complete JSDoc headers with:\n- ✅ Policy Type\n- ✅ Refactoring Status\n- ✅ Policy Entity\n- ✅ Persisted In\n- ✅ Go Backend\n- ✅ Per-Funeral-Home\n- ✅ Test Coverage\n- ✅ Last Updated\n\nSee [ARCHITECTURE.md > Use Case Tagging](./ARCHITECTURE.md#use-case-tagging--inventory-best-practices) for details.`
+            })

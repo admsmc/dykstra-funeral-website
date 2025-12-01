@@ -1,6 +1,19 @@
 import { Effect } from 'effect';
 import { NoteRepository } from '../../ports/note-repository';
 
+/**
+ * List Notes
+ *
+ * Policy Type: Type A
+ * Refactoring Status: 🔴 HARDCODED
+ * Policy Entity: N/A
+ * Persisted In: N/A
+ * Go Backend: NO
+ * Per-Funeral-Home: YES
+ * Test Coverage: 0 tests
+ * Last Updated: N/A
+ */
+
 export interface ListNotesQuery {
   caseId: string;
 }
