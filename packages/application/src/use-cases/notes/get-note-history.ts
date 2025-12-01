@@ -5,16 +5,17 @@ import { NoteRepository } from '../../ports/note-repository';
  * Get Note History
  *
  * Policy Type: Type A
- * Refactoring Status: 🔴 HARDCODED
- * Policy Entity: N/A
- * Persisted In: N/A
+ * Refactoring Status: ✅ POLICY-AWARE
+ * Policy Entity: NoteManagementPolicy (read-only, no enforcement)
+ * Persisted In: PostgreSQL (packages/infrastructure/prisma/schema.prisma)
  * Go Backend: NO
  * Per-Funeral-Home: YES
- * Test Coverage: 0 tests
- * Last Updated: N/A
+ * Test Coverage: 6 tests
+ * Last Updated: Phase 1.5
  */
 
 export interface GetNoteHistoryQuery {
+  funeralHomeId: string;  // Required for scoping
   businessKey: string;
 }
 
