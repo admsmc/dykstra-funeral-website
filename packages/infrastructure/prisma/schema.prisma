@@ -1948,3 +1948,35 @@ model LeadToCaseConversionPolicy {
   @@index([funeralHomeId, isCurrent])
   @@map("lead_to_case_conversion_policies")
 }
+
+// Note Management Policy
+// SCD Type 2: Tracks historical note management policies per funeral home
+model NoteManagementPolicy {
+  id            String    @id @default(cuid())
+  businessKey   String    @default(cuid()) // Policy identifier
+  version       Int       @default(1)
+  validFrom     DateTime  @default(now())
+  validTo       DateTime?
+  isCurrent     Boolean   @default(true)
+  funeralHomeId String
+
+  // Note Management Rules
+  maxContentLength         Int     @default(10000) // Maximum characters allowed
+  minContentLength         Int     @default(1) // Minimum characters required
+  requireContentValidation Boolean @default(true) // Enforce validation rules
+  enableAutoArchive        Boolean @default(false) // Enable automatic archival
+  autoArchiveAfterDays     Int? // Days before auto-archive (null = disabled)
+
+  // Audit Trail
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String
+  updatedBy String?
+  reason    String?  @db.Text // Reason for policy change
+
+  @@unique([businessKey, version])
+  @@index([businessKey, isCurrent])
+  @@index([validFrom, validTo])
+  @@index([funeralHomeId, isCurrent])
+  @@map("note_management_policies")
+}
