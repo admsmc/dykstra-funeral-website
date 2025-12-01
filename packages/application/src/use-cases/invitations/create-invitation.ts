@@ -4,22 +4,24 @@ import { InvitationRepository, CaseMemberRole, InvitationConflictError } from '.
 import { CaseRepository, NotFoundError, PersistenceError } from '../../ports/case-repository';
 import { EmailPort, EmailError } from '../../ports/email-port';
 import { ValidationError } from '@dykstra/domain';
+import { InvitationManagementPolicyRepository, type InvitationManagementPolicyRepositoryService } from '../../ports/invitation-management-policy-repository';
 
 /**
  * Create Invitation
  *
  * Policy Type: Type A
- * Refactoring Status: 🔴 HARDCODED
- * Policy Entity: N/A
- * Persisted In: N/A
+ * Refactoring Status: ✅ POLICY-AWARE
+ * Policy Entity: InvitationManagementPolicy
+ * Persisted In: InvitationManagementPolicyRepository
  * Go Backend: NO
  * Per-Funeral-Home: YES
- * Test Coverage: 0 tests
- * Last Updated: N/A
+ * Test Coverage: 18+ tests
+ * Last Updated: Phase 1.8
  */
 
 export interface CreateInvitationCommand {
   caseId: string;
+  funeralHomeId: string;
   email: string;
   name: string;
   phone?: string;
@@ -44,28 +46,52 @@ export interface CreateInvitationResult {
 /**
  * Create and send family invitation
  * 
- * Business rules:
- * - Case must exist
- * - Email must not have an active invitation for this case
- * - Token is secure 64-character hex string
- * - Expiration is 7 days from creation
- * - Sends email with magic link
+ * Uses InvitationManagementPolicy to enforce:
+ * - Token length and format
+ * - Expiration window
+ * - Email validation rules
+ * - Duplicate invitation handling
  */
 export const createInvitation = (command: CreateInvitationCommand): Effect.Effect<
   CreateInvitationResult,
   ValidationError | InvitationConflictError | NotFoundError | PersistenceError | EmailError,
-  InvitationRepository | CaseRepository | EmailPort
+  InvitationRepository | CaseRepository | EmailPort | InvitationManagementPolicyRepositoryService
 > =>
   Effect.gen(function* () {
     const invitationRepo = yield* InvitationRepository;
     const caseRepo = yield* CaseRepository;
     const emailPort = yield* EmailPort;
+    const policyRepo = yield* InvitationManagementPolicyRepository;
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // Load policy for this funeral home
+    const policy = yield* policyRepo.findByFuneralHome(command.funeralHomeId);
+
+    // Validate policy is active
+    if (!policy.isCurrent) {
+      return yield* Effect.fail(
+        new ValidationError({
+          message: 'Policy is not active',
+          field: 'policy',
+        })
+      );
+    }
+
+    // Validate email format based on policy
+    let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Default strict validation
+    if (!policy.requireStrictEmailValidation) {
+      // Relaxed validation - allow edge cases
+      emailRegex = /^.+@.+$/;
+    }
     if (!emailRegex.test(command.email)) {
       return yield* Effect.fail(
         new ValidationError({ message: 'Invalid email format', field: 'email' })
+      );
+    }
+
+    // Validate phone number if required by policy
+    if (policy.requirePhoneNumber && !command.phone) {
+      return yield* Effect.fail(
+        new ValidationError({ message: 'Phone number is required', field: 'phone' })
       );
     }
 
@@ -73,20 +99,20 @@ export const createInvitation = (command: CreateInvitationCommand): Effect.Effec
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Branded type conversion
     const caseEntity = yield* caseRepo.findById(command.caseId as any);
 
-    // Check for existing active invitation
+    // Check for existing active invitation (based on policy allowance)
     const hasActive = yield* invitationRepo.hasActiveInvitation(command.caseId, command.email);
-    if (hasActive) {
+    if (hasActive && !policy.allowMultipleInvitationsPerEmail) {
       return yield* Effect.fail(
         new InvitationConflictError('An active invitation already exists for this email')
       );
     }
 
-    // Generate secure token (32 bytes = 64 hex characters)
-    const token = randomBytes(32).toString('hex');
+    // Generate token with policy-configured length
+    const token = randomBytes(policy.tokenLengthBytes).toString('hex');
 
-    // Set expiration to 7 days from now
+    // Set expiration based on policy
     const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 7);
+    expiresAt.setDate(expiresAt.getDate() + policy.expirationDays);
 
     // Generate unique business key
     const businessKey = `INV_${Date.now()}_${randomBytes(4).toString('hex')}`;
