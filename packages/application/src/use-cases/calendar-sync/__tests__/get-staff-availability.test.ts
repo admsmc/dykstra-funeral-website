@@ -1,1 +1,530 @@
-import { describe, it, expect, beforeEach } from 'vitest';\nimport { Effect } from 'effect';\nimport { getStaffAvailability, type GetStaffAvailabilityCommand } from '../get-staff-availability';\nimport { type CalendarSyncServicePort, type AvailabilitySlot } from '../../../ports/calendar-sync-port';\nimport { type EmailCalendarSyncPolicyRepositoryService } from '../../../ports/email-calendar-sync-policy-repository';\nimport { type EmailCalendarSyncPolicy } from '../../../../domain/src/entities/email-sync/email-calendar-sync-policy';\n\nconst createMockPolicy = (overrides?: Partial<EmailCalendarSyncPolicy>): EmailCalendarSyncPolicy => ({\n  id: 'policy-1',\n  funeralHomeId: 'home-1',\n  policyName: 'Standard',\n  emailSyncFrequencyMinutes: 15,\n  maxRetries: 3,\n  retryDelaySeconds: 5,\n  emailMatchingStrategy: 'exact_with_fallback',\n  fuzzyMatchThreshold: 85,\n  emailFallbackStrategies: ['exact', 'domain'],\n  calendarFieldMappings: {\n    subject: true,\n    startTime: true,\n    endTime: true,\n    attendees: true,\n    description: true,\n    location: true,\n  },\n  timezoneHandling: 'local',\n  calendarSyncRetryPolicy: 'exponential',\n  availabilityLookAheadDays: 30,\n  blockOutTimePerEventMinutes: 15,\n  meetingDurationMinutes: 60,\n  timeSlotSuggestionCount: 5,\n  minimumBufferMinutes: 15,\n  workingHoursStartTime: '09:00',\n  workingHoursEndTime: '17:00',\n  notificationDelayMinutes: 5,\n  enableSyncNotifications: true,\n  version: 1,\n  validFrom: new Date(),\n  validTo: null,\n  isActive: true,\n  createdAt: new Date(),\n  updatedAt: new Date(),\n  ...overrides,\n});\n\ndescribe('Get Staff Availability - Policy-Driven', () => {\n  let mockCalendarSync: CalendarSyncServicePort;\n  let mockPolicyRepo: EmailCalendarSyncPolicyRepositoryService;\n\n  beforeEach(() => {\n    mockCalendarSync = {\n      createEvent: () => Effect.succeed({ externalId: '', calendarEvent: {} as any }),\n      updateEvent: () => Effect.succeed(void 0),\n      deleteEvent: () => Effect.succeed(void 0),\n      getEvent: () => Effect.succeed(null),\n      listEvents: () => Effect.succeed([]),\n      getAvailability: () => Effect.succeed([]),\n      refreshToken: () => Effect.succeed(void 0),\n    };\n\n    mockPolicyRepo = {\n      findByFuneralHome: () => Effect.succeed(createMockPolicy()),\n      findById: () => Effect.succeed(createMockPolicy()),\n      create: () => Effect.succeed(createMockPolicy()),\n      update: () => Effect.succeed(createMockPolicy()),\n      delete: () => Effect.succeed(void 0),\n    };\n  });\n\n  describe('No Busy Events - Standard Policy', () => {\n    it('should return entire working window when calendar is free', async () => {\n      mockCalendarSync.getAvailability = () => Effect.succeed([]);\n      const policy = createMockPolicy({\n        availabilityLookAheadDays: 7,\n        workingHoursStartTime: '09:00',\n        workingHoursEndTime: '17:00',\n      });\n      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);\n\n      const start = new Date('2025-12-01T00:00:00Z');\n      const end = new Date('2025-12-05T23:59:59Z');\n\n      const command: GetStaffAvailabilityCommand = {\n        userId: 'user-1',\n        provider: 'microsoft',\n        startDate: start,\n        endDate: end,\n        funeralHomeId: 'home-1',\n      };\n\n      const result = await Effect.runPromise(\n        Effect.provide(\n          getStaffAvailability(command),\n          Effect.mergeContexts(\n            Effect.contextFromEnvironment(() => mockCalendarSync),\n            Effect.contextFromEnvironment(() => mockPolicyRepo)\n          )\n        )\n      );\n\n      // Should have slots for each working day (Mon-Fri)\n      expect(result.length).toBeGreaterThan(0);\n      expect(result[0]?.status).toBe('free');\n      // First slot should start at 09:00\n      expect(result[0]?.startTime.getUTCHours()).toBe(9);\n    });\n  });\n\n  describe('Busy Event with Block-Out Buffer', () => {\n    it('should exclude meeting plus block-out buffer from availability - Standard Policy', async () => {\n      const meetingStart = new Date('2025-12-01T10:00:00Z');\n      const meetingEnd = new Date('2025-12-01T11:00:00Z');\n\n      mockCalendarSync.getAvailability = () =>\n        Effect.succeed([\n          {\n            startTime: meetingStart,\n            endTime: meetingEnd,\n            status: 'busy',\n          },\n        ]);\n\n      const policy = createMockPolicy({\n        blockOutTimePerEventMinutes: 15, // 15 min before and after\n        workingHoursStartTime: '09:00',\n        workingHoursEndTime: '17:00',\n      });\n      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);\n\n      const start = new Date('2025-12-01T09:00:00Z');\n      const end = new Date('2025-12-01T17:00:00Z');\n\n      const command: GetStaffAvailabilityCommand = {\n        userId: 'user-1',\n        provider: 'microsoft',\n        startDate: start,\n        endDate: end,\n        funeralHomeId: 'home-1',\n      };\n\n      const result = await Effect.runPromise(\n        Effect.provide(\n          getStaffAvailability(command),\n          Effect.mergeContexts(\n            Effect.contextFromEnvironment(() => mockCalendarSync),\n            Effect.contextFromEnvironment(() => mockPolicyRepo)\n          )\n        )\n      );\n\n      // Should have morning slot (9:00 to 9:45) and afternoon slot (11:15 to 17:00)\n      expect(result.length).toBeGreaterThanOrEqual(2);\n      // First free slot ends before meeting start minus buffer\n      expect(result[0]!.endTime.getTime()).toBeLessThanOrEqual(new Date('2025-12-01T09:45:00Z').getTime());\n      // Second free slot starts after meeting end plus buffer\n      expect(result[1]!.startTime.getTime()).toBeGreaterThanOrEqual(new Date('2025-12-01T11:15:00Z').getTime());\n    });\n\n    it('should respect different block-out buffers per policy - Strict vs Permissive', async () => {\n      const meetingStart = new Date('2025-12-01T10:00:00Z');\n      const meetingEnd = new Date('2025-12-01T11:00:00Z');\n\n      mockCalendarSync.getAvailability = () =>\n        Effect.succeed([\n          {\n            startTime: meetingStart,\n            endTime: meetingEnd,\n            status: 'busy',\n          },\n        ]);\n\n      const strictPolicy = createMockPolicy({\n        policyName: 'Strict',\n        blockOutTimePerEventMinutes: 30, // Conservative\n        workingHoursStartTime: '09:00',\n        workingHoursEndTime: '17:00',\n      });\n\n      const permissivePolicy = createMockPolicy({\n        policyName: 'Permissive',\n        blockOutTimePerEventMinutes: 5, // Aggressive\n        workingHoursStartTime: '09:00',\n        workingHoursEndTime: '17:00',\n      });\n\n      const start = new Date('2025-12-01T09:00:00Z');\n      const end = new Date('2025-12-01T17:00:00Z');\n\n      // Test Strict policy\n      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(strictPolicy);\n      const strictCommand: GetStaffAvailabilityCommand = {\n        userId: 'user-1',\n        provider: 'microsoft',\n        startDate: start,\n        endDate: end,\n        funeralHomeId: 'home-1',\n      };\n\n      const strictResult = await Effect.runPromise(\n        Effect.provide(\n          getStaffAvailability(strictCommand),\n          Effect.mergeContexts(\n            Effect.contextFromEnvironment(() => mockCalendarSync),\n            Effect.contextFromEnvironment(() => mockPolicyRepo)\n          )\n        )\n      );\n\n      // Test Permissive policy\n      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(permissivePolicy);\n      const permCommand: GetStaffAvailabilityCommand = {\n        userId: 'user-1',\n        provider: 'microsoft',\n        startDate: start,\n        endDate: end,\n        funeralHomeId: 'home-1',\n      };\n\n      const permResult = await Effect.runPromise(\n        Effect.provide(\n          getStaffAvailability(permCommand),\n          Effect.mergeContexts(\n            Effect.contextFromEnvironment(() => mockCalendarSync),\n            Effect.contextFromEnvironment(() => mockPolicyRepo)\n          )\n        )\n      );\n\n      // Permissive should have more total free time (smaller buffer)\n      const permTotalFree = permResult.reduce((sum, s) => sum + (s.endTime.getTime() - s.startTime.getTime()), 0);\n      const strictTotalFree = strictResult.reduce((sum, s) => sum + (s.endTime.getTime() - s.startTime.getTime()), 0);\n      expect(permTotalFree).toBeGreaterThan(strictTotalFree);\n    });\n  });\n\n  describe('Lookahead Window Enforcement', () => {\n    it('should limit results to lookahead days - Standard Policy (30 days)', async () => {\n      mockCalendarSync.getAvailability = () => Effect.succeed([]);\n      const policy = createMockPolicy({\n        availabilityLookAheadDays: 7, // Only 7 days ahead\n        workingHoursStartTime: '09:00',\n        workingHoursEndTime: '17:00',\n      });\n      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);\n\n      const start = new Date('2025-12-01T09:00:00Z');\n      const end = new Date('2025-12-31T17:00:00Z'); // Request 30 days\n\n      const command: GetStaffAvailabilityCommand = {\n        userId: 'user-1',\n        provider: 'microsoft',\n        startDate: start,\n        endDate: end,\n        funeralHomeId: 'home-1',\n      };\n\n      const result = await Effect.runPromise(\n        Effect.provide(\n          getStaffAvailability(command),\n          Effect.mergeContexts(\n            Effect.contextFromEnvironment(() => mockCalendarSync),\n            Effect.contextFromEnvironment(() => mockPolicyRepo)\n          )\n        )\n      );\n\n      // All results should be within 7 days\n      const maxDate = new Date(start.getTime() + 7 * 24 * 60 * 60 * 1000);\n      expect(result.every((s) => s.endTime <= maxDate)).toBe(true);\n    });\n\n    it('should return earlier end date if within lookahead - Strict Policy', async () => {\n      mockCalendarSync.getAvailability = () => Effect.succeed([]);\n      const policy = createMockPolicy({\n        policyName: 'Strict',\n        availabilityLookAheadDays: 14,\n        workingHoursStartTime: '09:00',\n        workingHoursEndTime: '17:00',\n      });\n      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);\n\n      const start = new Date('2025-12-01T09:00:00Z');\n      const end = new Date('2025-12-05T17:00:00Z'); // 4 days (within 14 day lookahead)\n\n      const command: GetStaffAvailabilityCommand = {\n        userId: 'user-1',\n        provider: 'microsoft',\n        startDate: start,\n        endDate: end,\n        funeralHomeId: 'home-1',\n      };\n\n      const result = await Effect.runPromise(\n        Effect.provide(\n          getStaffAvailability(command),\n          Effect.mergeContexts(\n            Effect.contextFromEnvironment(() => mockCalendarSync),\n            Effect.contextFromEnvironment(() => mockPolicyRepo)\n          )\n        )\n      );\n\n      // Should not exceed requested end date\n      expect(result.every((s) => s.endTime <= end)).toBe(true);\n    });\n  });\n\n  describe('Working Hours Enforcement', () => {\n    it('should only return time within working hours - Standard Policy (9-5)', async () => {\n      mockCalendarSync.getAvailability = () => Effect.succeed([]);\n      const policy = createMockPolicy({\n        workingHoursStartTime: '09:00',\n        workingHoursEndTime: '17:00',\n      });\n      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);\n\n      const start = new Date('2025-12-01T06:00:00Z'); // Before working hours\n      const end = new Date('2025-12-01T20:00:00Z'); // After working hours\n\n      const command: GetStaffAvailabilityCommand = {\n        userId: 'user-1',\n        provider: 'microsoft',\n        startDate: start,\n        endDate: end,\n        funeralHomeId: 'home-1',\n      };\n\n      const result = await Effect.runPromise(\n        Effect.provide(\n          getStaffAvailability(command),\n          Effect.mergeContexts(\n            Effect.contextFromEnvironment(() => mockCalendarSync),\n            Effect.contextFromEnvironment(() => mockPolicyRepo)\n          )\n        )\n      );\n\n      // All slots should be between 9 and 17\n      for (const slot of result) {\n        expect(slot.startTime.getUTCHours()).toBeGreaterThanOrEqual(9);\n        expect(slot.endTime.getUTCHours()).toBeLessThanOrEqual(17);\n      }\n    });\n\n    it('should respect extended working hours - Permissive Policy (8-6)', async () => {\n      mockCalendarSync.getAvailability = () => Effect.succeed([]);\n      const policy = createMockPolicy({\n        policyName: 'Permissive',\n        workingHoursStartTime: '08:00',\n        workingHoursEndTime: '18:00', // Extended\n      });\n      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);\n\n      const start = new Date('2025-12-01T07:00:00Z');\n      const end = new Date('2025-12-01T19:00:00Z');\n\n      const command: GetStaffAvailabilityCommand = {\n        userId: 'user-1',\n        provider: 'microsoft',\n        startDate: start,\n        endDate: end,\n        funeralHomeId: 'home-1',\n      };\n\n      const result = await Effect.runPromise(\n        Effect.provide(\n          getStaffAvailability(command),\n          Effect.mergeContexts(\n            Effect.contextFromEnvironment(() => mockCalendarSync),\n            Effect.contextFromEnvironment(() => mockPolicyRepo)\n          )\n        )\n      );\n\n      // Should have slots from 8-18 (not 7-19)\n      expect(result.length).toBeGreaterThan(0);\n      expect(result.some((s) => s.startTime.getUTCHours() === 8)).toBe(true);\n    });\n  });\n\n  describe('Multiple Busy Periods', () => {\n    it('should handle multiple non-overlapping meetings correctly', async () => {\n      mockCalendarSync.getAvailability = () =>\n        Effect.succeed([\n          {\n            startTime: new Date('2025-12-01T10:00:00Z'),\n            endTime: new Date('2025-12-01T11:00:00Z'),\n            status: 'busy',\n          },\n          {\n            startTime: new Date('2025-12-01T13:00:00Z'),\n            endTime: new Date('2025-12-01T14:00:00Z'),\n            status: 'busy',\n          },\n        ]);\n\n      const policy = createMockPolicy({\n        blockOutTimePerEventMinutes: 15,\n        workingHoursStartTime: '09:00',\n        workingHoursEndTime: '17:00',\n      });\n      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);\n\n      const start = new Date('2025-12-01T09:00:00Z');\n      const end = new Date('2025-12-01T17:00:00Z');\n\n      const command: GetStaffAvailabilityCommand = {\n        userId: 'user-1',\n        provider: 'microsoft',\n        startDate: start,\n        endDate: end,\n        funeralHomeId: 'home-1',\n      };\n\n      const result = await Effect.runPromise(\n        Effect.provide(\n          getStaffAvailability(command),\n          Effect.mergeContexts(\n            Effect.contextFromEnvironment(() => mockCalendarSync),\n            Effect.contextFromEnvironment(() => mockPolicyRepo)\n          )\n        )\n      );\n\n      // Should have 3 free slots: before first meeting, between meetings, after second meeting\n      expect(result.length).toBeGreaterThanOrEqual(3);\n    });\n\n    it('should merge overlapping busy periods', async () => {\n      mockCalendarSync.getAvailability = () =>\n        Effect.succeed([\n          {\n            startTime: new Date('2025-12-01T10:00:00Z'),\n            endTime: new Date('2025-12-01T10:45:00Z'),\n            status: 'busy',\n          },\n          {\n            startTime: new Date('2025-12-01T10:30:00Z'),\n            endTime: new Date('2025-12-01T11:30:00Z'),\n            status: 'busy',\n          },\n        ]);\n\n      const policy = createMockPolicy({\n        blockOutTimePerEventMinutes: 0,\n        workingHoursStartTime: '09:00',\n        workingHoursEndTime: '17:00',\n      });\n      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);\n\n      const start = new Date('2025-12-01T09:00:00Z');\n      const end = new Date('2025-12-01T12:00:00Z');\n\n      const command: GetStaffAvailabilityCommand = {\n        userId: 'user-1',\n        provider: 'microsoft',\n        startDate: start,\n        endDate: end,\n        funeralHomeId: 'home-1',\n      };\n\n      const result = await Effect.runPromise(\n        Effect.provide(\n          getStaffAvailability(command),\n          Effect.mergeContexts(\n            Effect.contextFromEnvironment(() => mockCalendarSync),\n            Effect.contextFromEnvironment(() => mockPolicyRepo)\n          )\n        )\n      );\n\n      // Should treat overlapping meetings as single busy block\n      expect(result.length).toBe(2); // Before and after merged block\n    });\n  });\n\n  describe('Multi-Provider Support', () => {\n    it('should work with Microsoft provider', async () => {\n      mockCalendarSync.getAvailability = () => Effect.succeed([]);\n      const policy = createMockPolicy();\n      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);\n\n      const command: GetStaffAvailabilityCommand = {\n        userId: 'user-1',\n        provider: 'microsoft',\n        startDate: new Date('2025-12-01T09:00:00Z'),\n        endDate: new Date('2025-12-01T17:00:00Z'),\n        funeralHomeId: 'home-1',\n      };\n\n      const result = await Effect.runPromise(\n        Effect.provide(\n          getStaffAvailability(command),\n          Effect.mergeContexts(\n            Effect.contextFromEnvironment(() => mockCalendarSync),\n            Effect.contextFromEnvironment(() => mockPolicyRepo)\n          )\n        )\n      );\n\n      expect(result).toEqual(expect.any(Array));\n    });\n\n    it('should work with Google provider', async () => {\n      mockCalendarSync.getAvailability = () => Effect.succeed([]);\n      const policy = createMockPolicy();\n      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);\n\n      const command: GetStaffAvailabilityCommand = {\n        userId: 'user-1',\n        provider: 'google',\n        startDate: new Date('2025-12-01T09:00:00Z'),\n        endDate: new Date('2025-12-01T17:00:00Z'),\n        funeralHomeId: 'home-1',\n      };\n\n      const result = await Effect.runPromise(\n        Effect.provide(\n          getStaffAvailability(command),\n          Effect.mergeContexts(\n            Effect.contextFromEnvironment(() => mockCalendarSync),\n            Effect.contextFromEnvironment(() => mockPolicyRepo)\n          )\n        )\n      );\n\n      expect(result).toEqual(expect.any(Array));\n    });\n  });\n});\n
+import { describe, it, expect, beforeEach } from 'vitest';
+import { Effect } from 'effect';
+import { getStaffAvailability, type GetStaffAvailabilityCommand } from '../get-staff-availability';
+import { type CalendarSyncServicePort, type AvailabilitySlot } from '../../../ports/calendar-sync-port';
+import { type EmailCalendarSyncPolicyRepositoryService } from '../../../ports/email-calendar-sync-policy-repository';
+import { type EmailCalendarSyncPolicy } from '../../../../domain/src/entities/email-sync/email-calendar-sync-policy';
+
+const createMockPolicy = (overrides?: Partial<EmailCalendarSyncPolicy>): EmailCalendarSyncPolicy => ({
+  id: 'policy-1',
+  funeralHomeId: 'home-1',
+  policyName: 'Standard',
+  emailSyncFrequencyMinutes: 15,
+  maxRetries: 3,
+  retryDelaySeconds: 5,
+  emailMatchingStrategy: 'exact_with_fallback',
+  fuzzyMatchThreshold: 85,
+  emailFallbackStrategies: ['exact', 'domain'],
+  calendarFieldMappings: {
+    subject: true,
+    startTime: true,
+    endTime: true,
+    attendees: true,
+    description: true,
+    location: true,
+  },
+  timezoneHandling: 'local',
+  calendarSyncRetryPolicy: 'exponential',
+  availabilityLookAheadDays: 30,
+  blockOutTimePerEventMinutes: 15,
+  meetingDurationMinutes: 60,
+  timeSlotSuggestionCount: 5,
+  minimumBufferMinutes: 15,
+  workingHoursStartTime: '09:00',
+  workingHoursEndTime: '17:00',
+  notificationDelayMinutes: 5,
+  enableSyncNotifications: true,
+  version: 1,
+  validFrom: new Date(),
+  validTo: null,
+  isActive: true,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  ...overrides,
+});
+
+describe('Get Staff Availability - Policy-Driven', () => {
+  let mockCalendarSync: CalendarSyncServicePort;
+  let mockPolicyRepo: EmailCalendarSyncPolicyRepositoryService;
+
+  beforeEach(() => {
+    mockCalendarSync = {
+      createEvent: () => Effect.succeed({ externalId: '', calendarEvent: {} as any }),
+      updateEvent: () => Effect.succeed(void 0),
+      deleteEvent: () => Effect.succeed(void 0),
+      getEvent: () => Effect.succeed(null),
+      listEvents: () => Effect.succeed([]),
+      getAvailability: () => Effect.succeed([]),
+      refreshToken: () => Effect.succeed(void 0),
+    };
+
+    mockPolicyRepo = {
+      findByFuneralHome: () => Effect.succeed(createMockPolicy()),
+      findById: () => Effect.succeed(createMockPolicy()),
+      create: () => Effect.succeed(createMockPolicy()),
+      update: () => Effect.succeed(createMockPolicy()),
+      delete: () => Effect.succeed(void 0),
+    };
+  });
+
+  describe('No Busy Events - Standard Policy', () => {
+    it('should return entire working window when calendar is free', async () => {
+      mockCalendarSync.getAvailability = () => Effect.succeed([]);
+      const policy = createMockPolicy({
+        availabilityLookAheadDays: 7,
+        workingHoursStartTime: '09:00',
+        workingHoursEndTime: '17:00',
+      });
+      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);
+
+      const start = new Date('2025-12-01T00:00:00Z');
+      const end = new Date('2025-12-05T23:59:59Z');
+
+      const command: GetStaffAvailabilityCommand = {
+        userId: 'user-1',
+        provider: 'microsoft',
+        startDate: start,
+        endDate: end,
+        funeralHomeId: 'home-1',
+      };
+
+      const result = await Effect.runPromise(
+        Effect.provide(
+          getStaffAvailability(command),
+          Effect.mergeContexts(
+            Effect.contextFromEnvironment(() => mockCalendarSync),
+            Effect.contextFromEnvironment(() => mockPolicyRepo)
+          )
+        )
+      );
+
+      // Should have slots for each working day (Mon-Fri)
+      expect(result.length).toBeGreaterThan(0);
+      expect(result[0]?.status).toBe('free');
+      // First slot should start at 09:00
+      expect(result[0]?.startTime.getUTCHours()).toBe(9);
+    });
+  });
+
+  describe('Busy Event with Block-Out Buffer', () => {
+    it('should exclude meeting plus block-out buffer from availability - Standard Policy', async () => {
+      const meetingStart = new Date('2025-12-01T10:00:00Z');
+      const meetingEnd = new Date('2025-12-01T11:00:00Z');
+
+      mockCalendarSync.getAvailability = () =>
+        Effect.succeed([
+          {
+            startTime: meetingStart,
+            endTime: meetingEnd,
+            status: 'busy',
+          },
+        ]);
+
+      const policy = createMockPolicy({
+        blockOutTimePerEventMinutes: 15, // 15 min before and after
+        workingHoursStartTime: '09:00',
+        workingHoursEndTime: '17:00',
+      });
+      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);
+
+      const start = new Date('2025-12-01T09:00:00Z');
+      const end = new Date('2025-12-01T17:00:00Z');
+
+      const command: GetStaffAvailabilityCommand = {
+        userId: 'user-1',
+        provider: 'microsoft',
+        startDate: start,
+        endDate: end,
+        funeralHomeId: 'home-1',
+      };
+
+      const result = await Effect.runPromise(
+        Effect.provide(
+          getStaffAvailability(command),
+          Effect.mergeContexts(
+            Effect.contextFromEnvironment(() => mockCalendarSync),
+            Effect.contextFromEnvironment(() => mockPolicyRepo)
+          )
+        )
+      );
+
+      // Should have morning slot (9:00 to 9:45) and afternoon slot (11:15 to 17:00)
+      expect(result.length).toBeGreaterThanOrEqual(2);
+      // First free slot ends before meeting start minus buffer
+      expect(result[0]!.endTime.getTime()).toBeLessThanOrEqual(new Date('2025-12-01T09:45:00Z').getTime());
+      // Second free slot starts after meeting end plus buffer
+      expect(result[1]!.startTime.getTime()).toBeGreaterThanOrEqual(new Date('2025-12-01T11:15:00Z').getTime());
+    });
+
+    it('should respect different block-out buffers per policy - Strict vs Permissive', async () => {
+      const meetingStart = new Date('2025-12-01T10:00:00Z');
+      const meetingEnd = new Date('2025-12-01T11:00:00Z');
+
+      mockCalendarSync.getAvailability = () =>
+        Effect.succeed([
+          {
+            startTime: meetingStart,
+            endTime: meetingEnd,
+            status: 'busy',
+          },
+        ]);
+
+      const strictPolicy = createMockPolicy({
+        policyName: 'Strict',
+        blockOutTimePerEventMinutes: 30, // Conservative
+        workingHoursStartTime: '09:00',
+        workingHoursEndTime: '17:00',
+      });
+
+      const permissivePolicy = createMockPolicy({
+        policyName: 'Permissive',
+        blockOutTimePerEventMinutes: 5, // Aggressive
+        workingHoursStartTime: '09:00',
+        workingHoursEndTime: '17:00',
+      });
+
+      const start = new Date('2025-12-01T09:00:00Z');
+      const end = new Date('2025-12-01T17:00:00Z');
+
+      // Test Strict policy
+      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(strictPolicy);
+      const strictCommand: GetStaffAvailabilityCommand = {
+        userId: 'user-1',
+        provider: 'microsoft',
+        startDate: start,
+        endDate: end,
+        funeralHomeId: 'home-1',
+      };
+
+      const strictResult = await Effect.runPromise(
+        Effect.provide(
+          getStaffAvailability(strictCommand),
+          Effect.mergeContexts(
+            Effect.contextFromEnvironment(() => mockCalendarSync),
+            Effect.contextFromEnvironment(() => mockPolicyRepo)
+          )
+        )
+      );
+
+      // Test Permissive policy
+      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(permissivePolicy);
+      const permCommand: GetStaffAvailabilityCommand = {
+        userId: 'user-1',
+        provider: 'microsoft',
+        startDate: start,
+        endDate: end,
+        funeralHomeId: 'home-1',
+      };
+
+      const permResult = await Effect.runPromise(
+        Effect.provide(
+          getStaffAvailability(permCommand),
+          Effect.mergeContexts(
+            Effect.contextFromEnvironment(() => mockCalendarSync),
+            Effect.contextFromEnvironment(() => mockPolicyRepo)
+          )
+        )
+      );
+
+      // Permissive should have more total free time (smaller buffer)
+      const permTotalFree = permResult.reduce((sum, s) => sum + (s.endTime.getTime() - s.startTime.getTime()), 0);
+      const strictTotalFree = strictResult.reduce((sum, s) => sum + (s.endTime.getTime() - s.startTime.getTime()), 0);
+      expect(permTotalFree).toBeGreaterThan(strictTotalFree);
+    });
+  });
+
+  describe('Lookahead Window Enforcement', () => {
+    it('should limit results to lookahead days - Standard Policy (30 days)', async () => {
+      mockCalendarSync.getAvailability = () => Effect.succeed([]);
+      const policy = createMockPolicy({
+        availabilityLookAheadDays: 7, // Only 7 days ahead
+        workingHoursStartTime: '09:00',
+        workingHoursEndTime: '17:00',
+      });
+      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);
+
+      const start = new Date('2025-12-01T09:00:00Z');
+      const end = new Date('2025-12-31T17:00:00Z'); // Request 30 days
+
+      const command: GetStaffAvailabilityCommand = {
+        userId: 'user-1',
+        provider: 'microsoft',
+        startDate: start,
+        endDate: end,
+        funeralHomeId: 'home-1',
+      };
+
+      const result = await Effect.runPromise(
+        Effect.provide(
+          getStaffAvailability(command),
+          Effect.mergeContexts(
+            Effect.contextFromEnvironment(() => mockCalendarSync),
+            Effect.contextFromEnvironment(() => mockPolicyRepo)
+          )
+        )
+      );
+
+      // All results should be within 7 days
+      const maxDate = new Date(start.getTime() + 7 * 24 * 60 * 60 * 1000);
+      expect(result.every((s) => s.endTime <= maxDate)).toBe(true);
+    });
+
+    it('should return earlier end date if within lookahead - Strict Policy', async () => {
+      mockCalendarSync.getAvailability = () => Effect.succeed([]);
+      const policy = createMockPolicy({
+        policyName: 'Strict',
+        availabilityLookAheadDays: 14,
+        workingHoursStartTime: '09:00',
+        workingHoursEndTime: '17:00',
+      });
+      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);
+
+      const start = new Date('2025-12-01T09:00:00Z');
+      const end = new Date('2025-12-05T17:00:00Z'); // 4 days (within 14 day lookahead)
+
+      const command: GetStaffAvailabilityCommand = {
+        userId: 'user-1',
+        provider: 'microsoft',
+        startDate: start,
+        endDate: end,
+        funeralHomeId: 'home-1',
+      };
+
+      const result = await Effect.runPromise(
+        Effect.provide(
+          getStaffAvailability(command),
+          Effect.mergeContexts(
+            Effect.contextFromEnvironment(() => mockCalendarSync),
+            Effect.contextFromEnvironment(() => mockPolicyRepo)
+          )
+        )
+      );
+
+      // Should not exceed requested end date
+      expect(result.every((s) => s.endTime <= end)).toBe(true);
+    });
+  });
+
+  describe('Working Hours Enforcement', () => {
+    it('should only return time within working hours - Standard Policy (9-5)', async () => {
+      mockCalendarSync.getAvailability = () => Effect.succeed([]);
+      const policy = createMockPolicy({
+        workingHoursStartTime: '09:00',
+        workingHoursEndTime: '17:00',
+      });
+      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);
+
+      const start = new Date('2025-12-01T06:00:00Z'); // Before working hours
+      const end = new Date('2025-12-01T20:00:00Z'); // After working hours
+
+      const command: GetStaffAvailabilityCommand = {
+        userId: 'user-1',
+        provider: 'microsoft',
+        startDate: start,
+        endDate: end,
+        funeralHomeId: 'home-1',
+      };
+
+      const result = await Effect.runPromise(
+        Effect.provide(
+          getStaffAvailability(command),
+          Effect.mergeContexts(
+            Effect.contextFromEnvironment(() => mockCalendarSync),
+            Effect.contextFromEnvironment(() => mockPolicyRepo)
+          )
+        )
+      );
+
+      // All slots should be between 9 and 17
+      for (const slot of result) {
+        expect(slot.startTime.getUTCHours()).toBeGreaterThanOrEqual(9);
+        expect(slot.endTime.getUTCHours()).toBeLessThanOrEqual(17);
+      }
+    });
+
+    it('should respect extended working hours - Permissive Policy (8-6)', async () => {
+      mockCalendarSync.getAvailability = () => Effect.succeed([]);
+      const policy = createMockPolicy({
+        policyName: 'Permissive',
+        workingHoursStartTime: '08:00',
+        workingHoursEndTime: '18:00', // Extended
+      });
+      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);
+
+      const start = new Date('2025-12-01T07:00:00Z');
+      const end = new Date('2025-12-01T19:00:00Z');
+
+      const command: GetStaffAvailabilityCommand = {
+        userId: 'user-1',
+        provider: 'microsoft',
+        startDate: start,
+        endDate: end,
+        funeralHomeId: 'home-1',
+      };
+
+      const result = await Effect.runPromise(
+        Effect.provide(
+          getStaffAvailability(command),
+          Effect.mergeContexts(
+            Effect.contextFromEnvironment(() => mockCalendarSync),
+            Effect.contextFromEnvironment(() => mockPolicyRepo)
+          )
+        )
+      );
+
+      // Should have slots from 8-18 (not 7-19)
+      expect(result.length).toBeGreaterThan(0);
+      expect(result.some((s) => s.startTime.getUTCHours() === 8)).toBe(true);
+    });
+  });
+
+  describe('Multiple Busy Periods', () => {
+    it('should handle multiple non-overlapping meetings correctly', async () => {
+      mockCalendarSync.getAvailability = () =>
+        Effect.succeed([
+          {
+            startTime: new Date('2025-12-01T10:00:00Z'),
+            endTime: new Date('2025-12-01T11:00:00Z'),
+            status: 'busy',
+          },
+          {
+            startTime: new Date('2025-12-01T13:00:00Z'),
+            endTime: new Date('2025-12-01T14:00:00Z'),
+            status: 'busy',
+          },
+        ]);
+
+      const policy = createMockPolicy({
+        blockOutTimePerEventMinutes: 15,
+        workingHoursStartTime: '09:00',
+        workingHoursEndTime: '17:00',
+      });
+      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);
+
+      const start = new Date('2025-12-01T09:00:00Z');
+      const end = new Date('2025-12-01T17:00:00Z');
+
+      const command: GetStaffAvailabilityCommand = {
+        userId: 'user-1',
+        provider: 'microsoft',
+        startDate: start,
+        endDate: end,
+        funeralHomeId: 'home-1',
+      };
+
+      const result = await Effect.runPromise(
+        Effect.provide(
+          getStaffAvailability(command),
+          Effect.mergeContexts(
+            Effect.contextFromEnvironment(() => mockCalendarSync),
+            Effect.contextFromEnvironment(() => mockPolicyRepo)
+          )
+        )
+      );
+
+      // Should have 3 free slots: before first meeting, between meetings, after second meeting
+      expect(result.length).toBeGreaterThanOrEqual(3);
+    });
+
+    it('should merge overlapping busy periods', async () => {
+      mockCalendarSync.getAvailability = () =>
+        Effect.succeed([
+          {
+            startTime: new Date('2025-12-01T10:00:00Z'),
+            endTime: new Date('2025-12-01T10:45:00Z'),
+            status: 'busy',
+          },
+          {
+            startTime: new Date('2025-12-01T10:30:00Z'),
+            endTime: new Date('2025-12-01T11:30:00Z'),
+            status: 'busy',
+          },
+        ]);
+
+      const policy = createMockPolicy({
+        blockOutTimePerEventMinutes: 0,
+        workingHoursStartTime: '09:00',
+        workingHoursEndTime: '17:00',
+      });
+      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);
+
+      const start = new Date('2025-12-01T09:00:00Z');
+      const end = new Date('2025-12-01T12:00:00Z');
+
+      const command: GetStaffAvailabilityCommand = {
+        userId: 'user-1',
+        provider: 'microsoft',
+        startDate: start,
+        endDate: end,
+        funeralHomeId: 'home-1',
+      };
+
+      const result = await Effect.runPromise(
+        Effect.provide(
+          getStaffAvailability(command),
+          Effect.mergeContexts(
+            Effect.contextFromEnvironment(() => mockCalendarSync),
+            Effect.contextFromEnvironment(() => mockPolicyRepo)
+          )
+        )
+      );
+
+      // Should treat overlapping meetings as single busy block
+      expect(result.length).toBe(2); // Before and after merged block
+    });
+  });
+
+  describe('Multi-Provider Support', () => {
+    it('should work with Microsoft provider', async () => {
+      mockCalendarSync.getAvailability = () => Effect.succeed([]);
+      const policy = createMockPolicy();
+      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);
+
+      const command: GetStaffAvailabilityCommand = {
+        userId: 'user-1',
+        provider: 'microsoft',
+        startDate: new Date('2025-12-01T09:00:00Z'),
+        endDate: new Date('2025-12-01T17:00:00Z'),
+        funeralHomeId: 'home-1',
+      };
+
+      const result = await Effect.runPromise(
+        Effect.provide(
+          getStaffAvailability(command),
+          Effect.mergeContexts(
+            Effect.contextFromEnvironment(() => mockCalendarSync),
+            Effect.contextFromEnvironment(() => mockPolicyRepo)
+          )
+        )
+      );
+
+      expect(result).toEqual(expect.any(Array));
+    });
+
+    it('should work with Google provider', async () => {
+      mockCalendarSync.getAvailability = () => Effect.succeed([]);
+      const policy = createMockPolicy();
+      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);
+
+      const command: GetStaffAvailabilityCommand = {
+        userId: 'user-1',
+        provider: 'google',
+        startDate: new Date('2025-12-01T09:00:00Z'),
+        endDate: new Date('2025-12-01T17:00:00Z'),
+        funeralHomeId: 'home-1',
+      };
+
+      const result = await Effect.runPromise(
+        Effect.provide(
+          getStaffAvailability(command),
+          Effect.mergeContexts(
+            Effect.contextFromEnvironment(() => mockCalendarSync),
+            Effect.contextFromEnvironment(() => mockPolicyRepo)
+          )
+        )
+      );
+
+      expect(result).toEqual(expect.any(Array));
+    });
+  });
+});
