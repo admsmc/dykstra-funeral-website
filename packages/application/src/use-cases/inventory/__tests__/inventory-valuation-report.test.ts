@@ -17,35 +17,50 @@ const mockItems: GoInventoryItem[] = [
   {
     id: 'item-1',
     sku: 'CASK-001',
-    name: 'Casket Model A',
-    description: 'Premium casket',
+    description: 'Casket Model A',
     category: 'Caskets',
     unitOfMeasure: 'each',
-    isActive: true,
+    currentCost: 2000,
+    retailPrice: 4000,
+    isSerialTracked: false,
     reorderPoint: 5,
     reorderQuantity: 10,
+    status: 'active',
+    glAccountId: 'gl-inventory-caskets',
+    createdAt: new Date(),
+    updatedAt: new Date(),
   },
   {
     id: 'item-2',
     sku: 'URN-001',
-    name: 'Urn Model B',
-    description: 'Bronze urn',
+    description: 'Urn Model B',
     category: 'Urns',
     unitOfMeasure: 'each',
-    isActive: true,
+    currentCost: 500,
+    retailPrice: 1000,
+    isSerialTracked: false,
     reorderPoint: 10,
     reorderQuantity: 20,
+    status: 'active',
+    glAccountId: 'gl-inventory-urns',
+    createdAt: new Date(),
+    updatedAt: new Date(),
   },
   {
     id: 'item-3',
     sku: 'CASK-002',
-    name: 'Casket Model C',
-    description: 'Standard casket',
+    description: 'Casket Model C',
     category: 'Caskets',
     unitOfMeasure: 'each',
-    isActive: true,
+    currentCost: 1500,
+    retailPrice: 3000,
+    isSerialTracked: false,
     reorderPoint: 3,
     reorderQuantity: 5,
+    status: 'active',
+    glAccountId: 'gl-inventory-caskets',
+    createdAt: new Date(),
+    updatedAt: new Date(),
   },
 ];
 
@@ -58,45 +73,39 @@ describe('Use Case 7.3: Inventory Valuation Report', () => {
     it('should generate valuation report with multiple items and categories', async () => {
       const mockInventoryPort: GoInventoryPortService = {
         listItems: () => Effect.succeed(mockItems),
-        getBalance: (cmd) => {
+        getBalance: (itemId, locationId) => {
           // Return different balances for each item
-          if (cmd.itemId === 'item-1') {
+          if (itemId === 'item-1') {
             return Effect.succeed({
               itemId: 'item-1',
-              itemName: 'Casket Model A',
-              itemSku: 'CASK-001',
               locationId: 'loc-main',
               locationName: 'Main Warehouse',
               quantityOnHand: 10,
               quantityAvailable: 8,
               quantityReserved: 2,
-              unitCost: 2000,
+              weightedAverageCost: 2000,
               totalValue: 20000,
             });
-          } else if (cmd.itemId === 'item-2') {
+          } else if (itemId === 'item-2') {
             return Effect.succeed({
               itemId: 'item-2',
-              itemName: 'Urn Model B',
-              itemSku: 'URN-001',
               locationId: 'loc-main',
               locationName: 'Main Warehouse',
               quantityOnHand: 25,
               quantityAvailable: 25,
               quantityReserved: 0,
-              unitCost: 500,
+              weightedAverageCost: 500,
               totalValue: 12500,
             });
           } else {
             return Effect.succeed({
               itemId: 'item-3',
-              itemName: 'Casket Model C',
-              itemSku: 'CASK-002',
               locationId: 'loc-main',
               locationName: 'Main Warehouse',
               quantityOnHand: 5,
               quantityAvailable: 5,
               quantityReserved: 0,
-              unitCost: 1500,
+              weightedAverageCost: 1500,
               totalValue: 7500,
             });
           }
@@ -166,15 +175,12 @@ describe('Use Case 7.3: Inventory Valuation Report', () => {
         listItems: () => Effect.succeed([mockItems[0]]),
         getBalance: () =>
           Effect.succeed({
-            itemId: 'item-1',
-            itemName: 'Casket Model A',
-            itemSku: 'CASK-001',
-            locationId: 'loc-warehouse',
+            itemId: 'item-1',            locationId: 'loc-warehouse',
             locationName: 'Warehouse',
             quantityOnHand: 10,
             quantityAvailable: 10,
             quantityReserved: 0,
-            unitCost: 2000,
+            weightedAverageCost: 2000,
             totalValue: 20000,
           }),
         getItem: () => Effect.fail(new NetworkError('Not implemented')),
@@ -213,31 +219,25 @@ describe('Use Case 7.3: Inventory Valuation Report', () => {
           expect(cmd.category).toBe('Caskets');
           return Effect.succeed(casketItems);
         },
-        getBalance: (cmd) => {
-          if (cmd.itemId === 'item-1') {
+        getBalance: (itemId, locationId) => {
+          if (itemId === 'item-1') {
             return Effect.succeed({
-              itemId: 'item-1',
-              itemName: 'Casket Model A',
-              itemSku: 'CASK-001',
-              locationId: 'loc-main',
+              itemId: 'item-1',              locationId: 'loc-main',
               locationName: 'Main Warehouse',
               quantityOnHand: 10,
               quantityAvailable: 10,
               quantityReserved: 0,
-              unitCost: 2000,
+              weightedAverageCost: 2000,
               totalValue: 20000,
             });
           } else {
             return Effect.succeed({
-              itemId: 'item-3',
-              itemName: 'Casket Model C',
-              itemSku: 'CASK-002',
-              locationId: 'loc-main',
+              itemId: 'item-3',              locationId: 'loc-main',
               locationName: 'Main Warehouse',
               quantityOnHand: 5,
               quantityAvailable: 5,
               quantityReserved: 0,
-              unitCost: 1500,
+              weightedAverageCost: 1500,
               totalValue: 7500,
             });
           }
@@ -269,44 +269,35 @@ describe('Use Case 7.3: Inventory Valuation Report', () => {
     it('should exclude zero-balance items by default', async () => {
       const mockInventoryPort: GoInventoryPortService = {
         listItems: () => Effect.succeed(mockItems),
-        getBalance: (cmd) => {
-          if (cmd.itemId === 'item-1') {
+        getBalance: (itemId, locationId) => {
+          if (itemId === 'item-1') {
             return Effect.succeed({
-              itemId: 'item-1',
-              itemName: 'Casket Model A',
-              itemSku: 'CASK-001',
-              locationId: 'loc-main',
+              itemId: 'item-1',              locationId: 'loc-main',
               locationName: 'Main Warehouse',
               quantityOnHand: 10,
               quantityAvailable: 10,
               quantityReserved: 0,
-              unitCost: 2000,
+              weightedAverageCost: 2000,
               totalValue: 20000,
             });
-          } else if (cmd.itemId === 'item-2') {
+          } else if (itemId === 'item-2') {
             return Effect.succeed({
-              itemId: 'item-2',
-              itemName: 'Urn Model B',
-              itemSku: 'URN-001',
-              locationId: 'loc-main',
+              itemId: 'item-2',              locationId: 'loc-main',
               locationName: 'Main Warehouse',
               quantityOnHand: 0, // Zero balance
               quantityAvailable: 0,
               quantityReserved: 0,
-              unitCost: 500,
+              weightedAverageCost: 500,
               totalValue: 0,
             });
           } else {
             return Effect.succeed({
-              itemId: 'item-3',
-              itemName: 'Casket Model C',
-              itemSku: 'CASK-002',
-              locationId: 'loc-main',
+              itemId: 'item-3',              locationId: 'loc-main',
               locationName: 'Main Warehouse',
               quantityOnHand: 5,
               quantityAvailable: 5,
               quantityReserved: 0,
-              unitCost: 1500,
+              weightedAverageCost: 1500,
               totalValue: 7500,
             });
           }
@@ -342,44 +333,35 @@ describe('Use Case 7.3: Inventory Valuation Report', () => {
 
       const mockInventoryPort: GoInventoryPortService = {
         listItems: () => Effect.succeed(mockItems),
-        getBalance: (cmd) => {
-          if (cmd.itemId === 'item-1') {
+        getBalance: (itemId, locationId) => {
+          if (itemId === 'item-1') {
             return Effect.succeed({
-              itemId: 'item-1',
-              itemName: 'Casket Model A',
-              itemSku: 'CASK-001',
-              locationId: 'loc-main',
+              itemId: 'item-1',              locationId: 'loc-main',
               locationName: 'Main Warehouse',
               quantityOnHand: 10,
               quantityAvailable: 10,
               quantityReserved: 0,
-              unitCost: 2000,
+              weightedAverageCost: 2000,
               totalValue: 20000,
             });
-          } else if (cmd.itemId === 'item-2') {
+          } else if (itemId === 'item-2') {
             return Effect.succeed({
-              itemId: 'item-2',
-              itemName: 'Urn Model B',
-              itemSku: 'URN-001',
-              locationId: 'loc-main',
+              itemId: 'item-2',              locationId: 'loc-main',
               locationName: 'Main Warehouse',
               quantityOnHand: 0, // Zero balance
               quantityAvailable: 0,
               quantityReserved: 0,
-              unitCost: 500,
+              weightedAverageCost: 500,
               totalValue: 0,
             });
           } else {
             return Effect.succeed({
-              itemId: 'item-3',
-              itemName: 'Casket Model C',
-              itemSku: 'CASK-002',
-              locationId: 'loc-main',
+              itemId: 'item-3',              locationId: 'loc-main',
               locationName: 'Main Warehouse',
               quantityOnHand: 5,
               quantityAvailable: 5,
               quantityReserved: 0,
-              unitCost: 1500,
+              weightedAverageCost: 1500,
               totalValue: 7500,
             });
           }

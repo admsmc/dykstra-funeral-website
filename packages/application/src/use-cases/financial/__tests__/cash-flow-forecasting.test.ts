@@ -21,12 +21,17 @@ const mockAccountBalances = [
   },
 ];
 
-const mockARAging: AgingBucket[] = [
-  { ageRange: '0-30', amount: 25000, expectedCollectionRate: 95, expectedCollectionDays: 21 },
-  { ageRange: '31-60', amount: 15000, expectedCollectionRate: 85, expectedCollectionDays: 49 },
-  { ageRange: '61-90', amount: 8000, expectedCollectionRate: 70, expectedCollectionDays: 77 },
-  { ageRange: '90+', amount: 5000, expectedCollectionRate: 40, expectedCollectionDays: 120 },
-];
+const mockARAgingReport = {
+  asOfDate: new Date(),
+  customers: [],
+  buckets: [
+    { category: 'current' as const, invoiceCount: 5, totalAmount: 25000 },
+    { category: '1-30' as const, invoiceCount: 3, totalAmount: 15000 },
+    { category: '31-60' as const, invoiceCount: 2, totalAmount: 8000 },
+    { category: '90+' as const, invoiceCount: 1, totalAmount: 5000 },
+  ],
+  totalOutstanding: 53000,
+};
 
 const baseCommand: GenerateCashFlowForecastCommand = {
   forecastDays: 90,
@@ -40,7 +45,7 @@ describe('Use Case 7.6: Cash Flow Forecasting', () => {
     it('should generate 90-day cash flow forecast', async () => {
       const mockFinancialPort: GoFinancialPortService = {
         getAccountBalances: () => Effect.succeed(mockAccountBalances),
-        getARAgingReport: () => Effect.succeed(mockARAging),
+        getARAgingReport: () => Effect.succeed(mockARAgingReport),
         getGLAccount: () => Effect.fail(new NetworkError('Not implemented')),
         getGLAccountByNumber: () => Effect.fail(new NetworkError('Not implemented')),
         createJournalEntry: () => Effect.fail(new NetworkError('Not implemented')),
@@ -84,7 +89,7 @@ describe('Use Case 7.6: Cash Flow Forecasting', () => {
       
       // Verify AR aging included
       expect(result.arAging.length).toBe(4);
-      expect(result.arAging[0].ageRange).toBe('0-30');
+      expect(result.arAging[0].ageRange).toBe('current'); // Go backend category names
       
       // Verify AP aging included
       expect(result.apAging.length).toBeGreaterThan(0);
@@ -116,7 +121,7 @@ describe('Use Case 7.6: Cash Flow Forecasting', () => {
 
       const mockFinancialPort: GoFinancialPortService = {
         getAccountBalances: () => Effect.succeed(mockAccountBalances),
-        getARAgingReport: () => Effect.succeed(mockARAging),
+        getARAgingReport: () => Effect.succeed(mockARAgingReport),
         getGLAccount: () => Effect.fail(new NetworkError('Not implemented')),
         getGLAccountByNumber: () => Effect.fail(new NetworkError('Not implemented')),
         createJournalEntry: () => Effect.fail(new NetworkError('Not implemented')),
@@ -166,7 +171,7 @@ describe('Use Case 7.6: Cash Flow Forecasting', () => {
 
       const mockFinancialPort: GoFinancialPortService = {
         getAccountBalances: () => Effect.succeed(mockAccountBalances),
-        getARAgingReport: () => Effect.succeed(mockARAging),
+        getARAgingReport: () => Effect.succeed(mockARAgingReport),
         getGLAccount: () => Effect.fail(new NetworkError('Not implemented')),
         getGLAccountByNumber: () => Effect.fail(new NetworkError('Not implemented')),
         createJournalEntry: () => Effect.fail(new NetworkError('Not implemented')),
@@ -220,7 +225,7 @@ describe('Use Case 7.6: Cash Flow Forecasting', () => {
 
       const mockFinancialPort: GoFinancialPortService = {
         getAccountBalances: () => Effect.succeed(mockAccountBalances),
-        getARAgingReport: () => Effect.succeed(mockARAging),
+        getARAgingReport: () => Effect.succeed(mockARAgingReport),
         getGLAccount: () => Effect.fail(new NetworkError('Not implemented')),
         getGLAccountByNumber: () => Effect.fail(new NetworkError('Not implemented')),
         createJournalEntry: () => Effect.fail(new NetworkError('Not implemented')),

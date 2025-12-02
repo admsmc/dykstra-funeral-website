@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { Effect } from 'effect';
+import { Effect, Layer } from 'effect';
 import { matchEmailToEntity, type MatchEmailCommand } from '../match-email-to-entity';
-import { type ContactRepositoryService } from '../../../ports/contact-repository';
-import { type LeadRepositoryService } from '../../../ports/lead-repository';
-import { type EmailCalendarSyncPolicyRepositoryService } from '../../../ports/email-calendar-sync-policy-repository';
+import { ContactRepository, type ContactRepositoryService } from '../../../ports/contact-repository';
+import { LeadRepository, type LeadRepositoryService } from '../../../ports/lead-repository';
+import { EmailCalendarSyncPolicyRepository, type EmailCalendarSyncPolicyRepositoryService } from '../../../ports/email-calendar-sync-policy-repository';
 import { type EmailCalendarSyncPolicy } from '../../../../domain/src/entities/email-sync/email-calendar-sync-policy';
 import { type Contact } from '../../../../domain/src/entities/contact';
 import { type Lead } from '../../../../domain/src/entities/lead';
@@ -64,27 +64,39 @@ describe('Match Email To Entity - Policy-Driven', () => {
   beforeEach(() => {
     // Default mock implementations
     mockContactRepo = {
-      findByFuneralHome: () => Effect.succeed([]),
       findById: () => Effect.succeed(createMockContact()),
-      create: () => Effect.succeed(createMockContact()),
+      findByBusinessKey: () => Effect.succeed(null),
+      findHistory: () => Effect.succeed([]),
+      findByFuneralHome: () => Effect.succeed([]),
+      findByTag: () => Effect.succeed([]),
+      findByEmail: () => Effect.succeed([]),
+      findByPhone: () => Effect.succeed([]),
+      findMergedContacts: () => Effect.succeed([]),
+      save: () => Effect.succeed(void 0),
       update: () => Effect.succeed(createMockContact()),
       delete: () => Effect.succeed(void 0),
     };
 
     mockLeadRepo = {
-      findByFuneralHome: () => Effect.succeed([]),
       findById: () => Effect.succeed(createMockLead()),
-      create: () => Effect.succeed(createMockLead()),
+      findByBusinessKey: () => Effect.succeed(null),
+      findHistory: () => Effect.succeed([]),
+      findByFuneralHome: () => Effect.succeed([]),
+      findHotLeads: () => Effect.succeed([]),
+      findNeedingFollowUp: () => Effect.succeed([]),
+      findByReferralSource: () => Effect.succeed([]),
+      save: () => Effect.succeed(void 0),
       update: () => Effect.succeed(createMockLead()),
       delete: () => Effect.succeed(void 0),
     };
 
     mockPolicyRepo = {
-      findByFuneralHome: () => Effect.succeed(createMockPolicy()),
+      findCurrentByFuneralHomeId: () => Effect.succeed(createMockPolicy()),
+      findAllVersionsByFuneralHomeId: () => Effect.succeed([createMockPolicy()]),
       findById: () => Effect.succeed(createMockPolicy()),
       create: () => Effect.succeed(createMockPolicy()),
       update: () => Effect.succeed(createMockPolicy()),
-      delete: () => Effect.succeed(void 0),
+      listCurrentPolicies: () => Effect.succeed([createMockPolicy()]),
     };
   });
 
@@ -99,16 +111,15 @@ describe('Match Email To Entity - Policy-Driven', () => {
       };
 
       const result = await Effect.runPromise(
+        matchEmailToEntity(command).pipe(
         Effect.provide(
-          matchEmailToEntity(command),
-          Effect.mergeContexts(
-            Effect.contextFromEnvironment(() => mockContactRepo),
-            Effect.mergeContexts(
-              Effect.contextFromEnvironment(() => mockLeadRepo),
-              Effect.contextFromEnvironment(() => mockPolicyRepo)
-            )
+          Layer.mergeAll(
+            Layer.succeed(ContactRepository, mockContactRepo),
+            Layer.succeed(LeadRepository, mockLeadRepo),
+            Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
           )
         )
+      )
       );
 
       expect(result.contactId).toBe('contact-1');
@@ -127,16 +138,15 @@ describe('Match Email To Entity - Policy-Driven', () => {
       };
 
       const result = await Effect.runPromise(
+        matchEmailToEntity(command).pipe(
         Effect.provide(
-          matchEmailToEntity(command),
-          Effect.mergeContexts(
-            Effect.contextFromEnvironment(() => mockContactRepo),
-            Effect.mergeContexts(
-              Effect.contextFromEnvironment(() => mockLeadRepo),
-              Effect.contextFromEnvironment(() => mockPolicyRepo)
-            )
+          Layer.mergeAll(
+            Layer.succeed(ContactRepository, mockContactRepo),
+            Layer.succeed(LeadRepository, mockLeadRepo),
+            Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
           )
         )
+      )
       );
 
       expect(result.leadId).toBe('lead-1');
@@ -155,16 +165,15 @@ describe('Match Email To Entity - Policy-Driven', () => {
       };
 
       const result = await Effect.runPromise(
+        matchEmailToEntity(command).pipe(
         Effect.provide(
-          matchEmailToEntity(command),
-          Effect.mergeContexts(
-            Effect.contextFromEnvironment(() => mockContactRepo),
-            Effect.mergeContexts(
-              Effect.contextFromEnvironment(() => mockLeadRepo),
-              Effect.contextFromEnvironment(() => mockPolicyRepo)
-            )
+          Layer.mergeAll(
+            Layer.succeed(ContactRepository, mockContactRepo),
+            Layer.succeed(LeadRepository, mockLeadRepo),
+            Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
           )
         )
+      )
       );
 
       expect(result.contactId).toBe('contact-1');
@@ -179,7 +188,7 @@ describe('Match Email To Entity - Policy-Driven', () => {
       const policy = createMockPolicy({
         emailFallbackStrategies: ['exact', 'domain'],
       });
-      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);
+      mockPolicyRepo.findCurrentByFuneralHomeId = () => Effect.succeed(policy);
 
       const command: MatchEmailCommand = {
         emailAddress: 'alice@acmecorp.com',
@@ -187,16 +196,15 @@ describe('Match Email To Entity - Policy-Driven', () => {
       };
 
       const result = await Effect.runPromise(
+        matchEmailToEntity(command).pipe(
         Effect.provide(
-          matchEmailToEntity(command),
-          Effect.mergeContexts(
-            Effect.contextFromEnvironment(() => mockContactRepo),
-            Effect.mergeContexts(
-              Effect.contextFromEnvironment(() => mockLeadRepo),
-              Effect.contextFromEnvironment(() => mockPolicyRepo)
-            )
+          Layer.mergeAll(
+            Layer.succeed(ContactRepository, mockContactRepo),
+            Layer.succeed(LeadRepository, mockLeadRepo),
+            Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
           )
         )
+      )
       );
 
       expect(result.contactId).toBe('contact-1');
@@ -210,7 +218,7 @@ describe('Match Email To Entity - Policy-Driven', () => {
       const policy = createMockPolicy({
         emailFallbackStrategies: ['exact', 'domain'],
       });
-      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);
+      mockPolicyRepo.findCurrentByFuneralHomeId = () => Effect.succeed(policy);
 
       const command: MatchEmailCommand = {
         emailAddress: 'alice@gmail.com',
@@ -218,16 +226,15 @@ describe('Match Email To Entity - Policy-Driven', () => {
       };
 
       const result = await Effect.runPromise(
+        matchEmailToEntity(command).pipe(
         Effect.provide(
-          matchEmailToEntity(command),
-          Effect.mergeContexts(
-            Effect.contextFromEnvironment(() => mockContactRepo),
-            Effect.mergeContexts(
-              Effect.contextFromEnvironment(() => mockLeadRepo),
-              Effect.contextFromEnvironment(() => mockPolicyRepo)
-            )
+          Layer.mergeAll(
+            Layer.succeed(ContactRepository, mockContactRepo),
+            Layer.succeed(LeadRepository, mockLeadRepo),
+            Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
           )
         )
+      )
       );
 
       expect(result.confidence).toBe(0);
@@ -244,7 +251,7 @@ describe('Match Email To Entity - Policy-Driven', () => {
         emailFallbackStrategies: ['fuzzy', 'exact', 'domain'],
         fuzzyMatchThreshold: 70,
       });
-      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);
+      mockPolicyRepo.findCurrentByFuneralHomeId = () => Effect.succeed(policy);
 
       const command: MatchEmailCommand = {
         emailAddress: 'jon.doe@example.com', // Similar to john.doe
@@ -252,16 +259,15 @@ describe('Match Email To Entity - Policy-Driven', () => {
       };
 
       const result = await Effect.runPromise(
+        matchEmailToEntity(command).pipe(
         Effect.provide(
-          matchEmailToEntity(command),
-          Effect.mergeContexts(
-            Effect.contextFromEnvironment(() => mockContactRepo),
-            Effect.mergeContexts(
-              Effect.contextFromEnvironment(() => mockLeadRepo),
-              Effect.contextFromEnvironment(() => mockPolicyRepo)
-            )
+          Layer.mergeAll(
+            Layer.succeed(ContactRepository, mockContactRepo),
+            Layer.succeed(LeadRepository, mockLeadRepo),
+            Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
           )
         )
+      )
       );
 
       expect(result.contactId).toBe('contact-1');
@@ -277,7 +283,7 @@ describe('Match Email To Entity - Policy-Driven', () => {
         emailFallbackStrategies: ['fuzzy', 'exact'],
         fuzzyMatchThreshold: 70,
       });
-      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);
+      mockPolicyRepo.findCurrentByFuneralHomeId = () => Effect.succeed(policy);
 
       const command: MatchEmailCommand = {
         emailAddress: 'zyxwvutsrqponmlkjih@example.com', // Very different
@@ -285,16 +291,15 @@ describe('Match Email To Entity - Policy-Driven', () => {
       };
 
       const result = await Effect.runPromise(
+        matchEmailToEntity(command).pipe(
         Effect.provide(
-          matchEmailToEntity(command),
-          Effect.mergeContexts(
-            Effect.contextFromEnvironment(() => mockContactRepo),
-            Effect.mergeContexts(
-              Effect.contextFromEnvironment(() => mockLeadRepo),
-              Effect.contextFromEnvironment(() => mockPolicyRepo)
-            )
+          Layer.mergeAll(
+            Layer.succeed(ContactRepository, mockContactRepo),
+            Layer.succeed(LeadRepository, mockLeadRepo),
+            Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
           )
         )
+      )
       );
 
       // Should not match as similarity is way below 70%
@@ -312,7 +317,7 @@ describe('Match Email To Entity - Policy-Driven', () => {
         emailFallbackStrategies: ['exact'],
         fuzzyMatchThreshold: 100,
       });
-      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);
+      mockPolicyRepo.findCurrentByFuneralHomeId = () => Effect.succeed(policy);
 
       const command: MatchEmailCommand = {
         emailAddress: 'jon@example.com', // Similar but not exact
@@ -320,16 +325,15 @@ describe('Match Email To Entity - Policy-Driven', () => {
       };
 
       const result = await Effect.runPromise(
+        matchEmailToEntity(command).pipe(
         Effect.provide(
-          matchEmailToEntity(command),
-          Effect.mergeContexts(
-            Effect.contextFromEnvironment(() => mockContactRepo),
-            Effect.mergeContexts(
-              Effect.contextFromEnvironment(() => mockLeadRepo),
-              Effect.contextFromEnvironment(() => mockPolicyRepo)
-            )
+          Layer.mergeAll(
+            Layer.succeed(ContactRepository, mockContactRepo),
+            Layer.succeed(LeadRepository, mockLeadRepo),
+            Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
           )
         )
+      )
       );
 
       expect(result.confidence).toBe(0);
@@ -344,7 +348,7 @@ describe('Match Email To Entity - Policy-Driven', () => {
         emailFallbackStrategies: ['exact'],
         fuzzyMatchThreshold: 100,
       });
-      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);
+      mockPolicyRepo.findCurrentByFuneralHomeId = () => Effect.succeed(policy);
 
       const command: MatchEmailCommand = {
         emailAddress: 'alice@acmecorp.com', // Same domain, different exact email
@@ -352,16 +356,15 @@ describe('Match Email To Entity - Policy-Driven', () => {
       };
 
       const result = await Effect.runPromise(
+        matchEmailToEntity(command).pipe(
         Effect.provide(
-          matchEmailToEntity(command),
-          Effect.mergeContexts(
-            Effect.contextFromEnvironment(() => mockContactRepo),
-            Effect.mergeContexts(
-              Effect.contextFromEnvironment(() => mockLeadRepo),
-              Effect.contextFromEnvironment(() => mockPolicyRepo)
-            )
+          Layer.mergeAll(
+            Layer.succeed(ContactRepository, mockContactRepo),
+            Layer.succeed(LeadRepository, mockLeadRepo),
+            Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
           )
         )
+      )
       );
 
       expect(result.confidence).toBe(0);
@@ -376,7 +379,7 @@ describe('Match Email To Entity - Policy-Driven', () => {
       const policy = createMockPolicy({
         emailFallbackStrategies: ['domain', 'exact'], // Domain first (unusual)
       });
-      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);
+      mockPolicyRepo.findCurrentByFuneralHomeId = () => Effect.succeed(policy);
 
       const command: MatchEmailCommand = {
         emailAddress: 'alice@acmecorp.com',
@@ -384,16 +387,15 @@ describe('Match Email To Entity - Policy-Driven', () => {
       };
 
       const result = await Effect.runPromise(
+        matchEmailToEntity(command).pipe(
         Effect.provide(
-          matchEmailToEntity(command),
-          Effect.mergeContexts(
-            Effect.contextFromEnvironment(() => mockContactRepo),
-            Effect.mergeContexts(
-              Effect.contextFromEnvironment(() => mockLeadRepo),
-              Effect.contextFromEnvironment(() => mockPolicyRepo)
-            )
+          Layer.mergeAll(
+            Layer.succeed(ContactRepository, mockContactRepo),
+            Layer.succeed(LeadRepository, mockLeadRepo),
+            Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
           )
         )
+      )
       );
 
       // Should match via domain strategy (first in order)
@@ -409,13 +411,14 @@ describe('Match Email To Entity - Policy-Driven', () => {
       });
       const contact2 = createMockContact({
         id: 'contact-2',
-        email: 'john.doe@example.com', // Would be better fuzzy match
+        email: 'john.doe@example.com', // Fuzzy match: ~81% similarity
       });
       mockContactRepo.findByFuneralHome = () => Effect.succeed([contact1, contact2]);
       const policy = createMockPolicy({
         emailFallbackStrategies: ['exact', 'fuzzy'],
+        fuzzyMatchThreshold: 75, // Lower threshold to allow ~81% match
       });
-      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);
+      mockPolicyRepo.findCurrentByFuneralHomeId = () => Effect.succeed(policy);
 
       const command: MatchEmailCommand = {
         emailAddress: 'john@example.com',
@@ -423,16 +426,15 @@ describe('Match Email To Entity - Policy-Driven', () => {
       };
 
       const result = await Effect.runPromise(
+        matchEmailToEntity(command).pipe(
         Effect.provide(
-          matchEmailToEntity(command),
-          Effect.mergeContexts(
-            Effect.contextFromEnvironment(() => mockContactRepo),
-            Effect.mergeContexts(
-              Effect.contextFromEnvironment(() => mockLeadRepo),
-              Effect.contextFromEnvironment(() => mockPolicyRepo)
-            )
+          Layer.mergeAll(
+            Layer.succeed(ContactRepository, mockContactRepo),
+            Layer.succeed(LeadRepository, mockLeadRepo),
+            Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
           )
         )
+      )
       );
 
       // Returns fuzzy match (via exact strategy) not better match from fuzzy strategy
@@ -451,16 +453,15 @@ describe('Match Email To Entity - Policy-Driven', () => {
       };
 
       const result = await Effect.runPromise(
+        matchEmailToEntity(command).pipe(
         Effect.provide(
-          matchEmailToEntity(command),
-          Effect.mergeContexts(
-            Effect.contextFromEnvironment(() => mockContactRepo),
-            Effect.mergeContexts(
-              Effect.contextFromEnvironment(() => mockLeadRepo),
-              Effect.contextFromEnvironment(() => mockPolicyRepo)
-            )
+          Layer.mergeAll(
+            Layer.succeed(ContactRepository, mockContactRepo),
+            Layer.succeed(LeadRepository, mockLeadRepo),
+            Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
           )
         )
+      )
       );
 
       expect(result.contactId).toBeNull();
@@ -479,16 +480,15 @@ describe('Match Email To Entity - Policy-Driven', () => {
       };
 
       const result = await Effect.runPromise(
+        matchEmailToEntity(command).pipe(
         Effect.provide(
-          matchEmailToEntity(command),
-          Effect.mergeContexts(
-            Effect.contextFromEnvironment(() => mockContactRepo),
-            Effect.mergeContexts(
-              Effect.contextFromEnvironment(() => mockLeadRepo),
-              Effect.contextFromEnvironment(() => mockPolicyRepo)
-            )
+          Layer.mergeAll(
+            Layer.succeed(ContactRepository, mockContactRepo),
+            Layer.succeed(LeadRepository, mockLeadRepo),
+            Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
           )
         )
+      )
       );
 
       expect(result.contactId).toBe('contact-1');
@@ -509,16 +509,15 @@ describe('Match Email To Entity - Policy-Driven', () => {
       };
 
       const result = await Effect.runPromise(
+        matchEmailToEntity(command).pipe(
         Effect.provide(
-          matchEmailToEntity(command),
-          Effect.mergeContexts(
-            Effect.contextFromEnvironment(() => mockContactRepo),
-            Effect.mergeContexts(
-              Effect.contextFromEnvironment(() => mockLeadRepo),
-              Effect.contextFromEnvironment(() => mockPolicyRepo)
-            )
+          Layer.mergeAll(
+            Layer.succeed(ContactRepository, mockContactRepo),
+            Layer.succeed(LeadRepository, mockLeadRepo),
+            Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
           )
         )
+      )
       );
 
       // Contact is checked first in exact matching
@@ -544,12 +543,13 @@ describe('Match Email To Entity - Policy-Driven', () => {
       });
 
       const mockPolicyRepoMulti: EmailCalendarSyncPolicyRepositoryService = {
-        findByFuneralHome: (homeId) =>
+        findCurrentByFuneralHomeId: (homeId) =>
           Effect.succeed(homeId === 'home-1' ? policy1 : policy2),
+        findAllVersionsByFuneralHomeId: () => Effect.succeed([policy1]),
         findById: () => Effect.succeed(policy1),
         create: () => Effect.succeed(policy1),
         update: () => Effect.succeed(policy1),
-        delete: () => Effect.succeed(void 0),
+        listCurrentPolicies: () => Effect.succeed([policy1]),
       };
 
       // home-1 with exact-only policy should not match domain
@@ -559,13 +559,12 @@ describe('Match Email To Entity - Policy-Driven', () => {
       };
 
       const result1 = await Effect.runPromise(
-        Effect.provide(
-          matchEmailToEntity(command1),
-          Effect.mergeContexts(
-            Effect.contextFromEnvironment(() => mockContactRepo),
-            Effect.mergeContexts(
-              Effect.contextFromEnvironment(() => mockLeadRepo),
-              Effect.contextFromEnvironment(() => mockPolicyRepoMulti)
+        matchEmailToEntity(command1).pipe(
+          Effect.provide(
+            Layer.mergeAll(
+              Layer.succeed(ContactRepository, mockContactRepo),
+              Layer.succeed(LeadRepository, mockLeadRepo),
+              Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepoMulti)
             )
           )
         )
@@ -580,13 +579,12 @@ describe('Match Email To Entity - Policy-Driven', () => {
       };
 
       const result2 = await Effect.runPromise(
-        Effect.provide(
-          matchEmailToEntity(command2),
-          Effect.mergeContexts(
-            Effect.contextFromEnvironment(() => mockContactRepo),
-            Effect.mergeContexts(
-              Effect.contextFromEnvironment(() => mockLeadRepo),
-              Effect.contextFromEnvironment(() => mockPolicyRepoMulti)
+        matchEmailToEntity(command2).pipe(
+          Effect.provide(
+            Layer.mergeAll(
+              Layer.succeed(ContactRepository, mockContactRepo),
+              Layer.succeed(LeadRepository, mockLeadRepo),
+              Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepoMulti)
             )
           )
         )
@@ -605,16 +603,15 @@ describe('Match Email To Entity - Policy-Driven', () => {
       };
 
       const result = await Effect.runPromise(
+        matchEmailToEntity(command).pipe(
         Effect.provide(
-          matchEmailToEntity(command),
-          Effect.mergeContexts(
-            Effect.contextFromEnvironment(() => mockContactRepo),
-            Effect.mergeContexts(
-              Effect.contextFromEnvironment(() => mockLeadRepo),
-              Effect.contextFromEnvironment(() => mockPolicyRepo)
-            )
+          Layer.mergeAll(
+            Layer.succeed(ContactRepository, mockContactRepo),
+            Layer.succeed(LeadRepository, mockLeadRepo),
+            Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
           )
         )
+      )
       );
 
       expect(result.confidence).toBe(0);
@@ -630,16 +627,15 @@ describe('Match Email To Entity - Policy-Driven', () => {
       };
 
       const result = await Effect.runPromise(
+        matchEmailToEntity(command).pipe(
         Effect.provide(
-          matchEmailToEntity(command),
-          Effect.mergeContexts(
-            Effect.contextFromEnvironment(() => mockContactRepo),
-            Effect.mergeContexts(
-              Effect.contextFromEnvironment(() => mockLeadRepo),
-              Effect.contextFromEnvironment(() => mockPolicyRepo)
-            )
+          Layer.mergeAll(
+            Layer.succeed(ContactRepository, mockContactRepo),
+            Layer.succeed(LeadRepository, mockLeadRepo),
+            Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
           )
         )
+      )
       );
 
       expect(result.confidence).toBe(0);
@@ -655,29 +651,27 @@ describe('Match Email To Entity - Policy-Driven', () => {
       };
 
       const result1 = await Effect.runPromise(
+        matchEmailToEntity(command).pipe(
         Effect.provide(
-          matchEmailToEntity(command),
-          Effect.mergeContexts(
-            Effect.contextFromEnvironment(() => mockContactRepo),
-            Effect.mergeContexts(
-              Effect.contextFromEnvironment(() => mockLeadRepo),
-              Effect.contextFromEnvironment(() => mockPolicyRepo)
-            )
+          Layer.mergeAll(
+            Layer.succeed(ContactRepository, mockContactRepo),
+            Layer.succeed(LeadRepository, mockLeadRepo),
+            Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
           )
         )
+      )
       );
 
       const result2 = await Effect.runPromise(
+        matchEmailToEntity(command).pipe(
         Effect.provide(
-          matchEmailToEntity(command),
-          Effect.mergeContexts(
-            Effect.contextFromEnvironment(() => mockContactRepo),
-            Effect.mergeContexts(
-              Effect.contextFromEnvironment(() => mockLeadRepo),
-              Effect.contextFromEnvironment(() => mockPolicyRepo)
-            )
+          Layer.mergeAll(
+            Layer.succeed(ContactRepository, mockContactRepo),
+            Layer.succeed(LeadRepository, mockLeadRepo),
+            Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
           )
         )
+      )
       );
 
       expect(result1).toEqual(result2);

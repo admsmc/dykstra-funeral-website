@@ -1,8 +1,577 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { Effect } from 'effect';
+import { Effect, Layer } from 'effect';
 import { suggestMeetingTimes, type SuggestMeetingTimesCommand } from '../suggest-meeting-times';
-import { type CalendarSyncServicePort, type AvailabilitySlot } from '../../../ports/calendar-sync-port';
-import { type EmailCalendarSyncPolicyRepositoryService } from '../../../ports/email-calendar-sync-policy-repository';
+import { CalendarSyncPort, type CalendarSyncServicePort, type AvailabilitySlot } from '../../../ports/calendar-sync-port';
+import { EmailCalendarSyncPolicyRepository, type EmailCalendarSyncPolicyRepositoryService } from '../../../ports/email-calendar-sync-policy-repository';
 import { type EmailCalendarSyncPolicy } from '../../../../domain/src/entities/email-sync/email-calendar-sync-policy';
 
-const createMockPolicy = (overrides?: Partial<EmailCalendarSyncPolicy>): EmailCalendarSyncPolicy => ({\n  id: 'policy-1',\n  funeralHomeId: 'home-1',\n  policyName: 'Standard',\n  emailSyncFrequencyMinutes: 15,\n  maxRetries: 3,\n  retryDelaySeconds: 5,\n  emailMatchingStrategy: 'exact_with_fallback',\n  fuzzyMatchThreshold: 85,\n  emailFallbackStrategies: ['exact', 'domain'],\n  calendarFieldMappings: {\n    subject: true,\n    startTime: true,\n    endTime: true,\n    attendees: true,\n    description: true,\n    location: true,\n  },\n  timezoneHandling: 'local',\n  calendarSyncRetryPolicy: 'exponential',\n  availabilityLookAheadDays: 30,\n  blockOutTimePerEventMinutes: 15,\n  meetingDurationMinutes: 60, // Default 1 hour\n  timeSlotSuggestionCount: 5, // Return up to 5 suggestions\n  minimumBufferMinutes: 15, // 15 min buffer between suggestions\n  workingHoursStartTime: '09:00',\n  workingHoursEndTime: '17:00',\n  notificationDelayMinutes: 5,\n  enableSyncNotifications: true,\n  version: 1,\n  validFrom: new Date(),\n  validTo: null,\n  isActive: true,\n  createdAt: new Date(),\n  updatedAt: new Date(),\n  ...overrides,\n});\n\ndescribe('Suggest Meeting Times - Policy-Driven', () => {\n  let mockCalendarSync: CalendarSyncServicePort;\n  let mockPolicyRepo: EmailCalendarSyncPolicyRepositoryService;\n\n  beforeEach(() => {\n    mockCalendarSync = {\n      createEvent: () => Effect.succeed({ externalId: '', calendarEvent: {} as any }),\n      updateEvent: () => Effect.succeed(void 0),\n      deleteEvent: () => Effect.succeed(void 0),\n      getEvent: () => Effect.succeed(null),\n      listEvents: () => Effect.succeed([]),\n      getAvailability: () => Effect.succeed([]),\n      refreshToken: () => Effect.succeed(void 0),\n    };\n\n    mockPolicyRepo = {\n      findByFuneralHome: () => Effect.succeed(createMockPolicy()),\n      findById: () => Effect.succeed(createMockPolicy()),\n      create: () => Effect.succeed(createMockPolicy()),\n      update: () => Effect.succeed(createMockPolicy()),\n      delete: () => Effect.succeed(void 0),\n    };\n  });\n\n  describe('Single Attendee - Standard Policy', () => {\n    it('should suggest available time slots for single attendee', async () => {\n      mockCalendarSync.getAvailability = () =>\n        Effect.succeed([\n          {\n            startTime: new Date('2025-12-01T09:00:00Z'),\n            endTime: new Date('2025-12-01T17:00:00Z'),\n            status: 'free',\n          },\n        ]);\n\n      const policy = createMockPolicy({\n        meetingDurationMinutes: 60,\n        timeSlotSuggestionCount: 5,\n        minimumBufferMinutes: 15,\n      });\n      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);\n\n      const command: SuggestMeetingTimesCommand = {\n        attendeeUserIds: ['user-1'],\n        provider: 'microsoft',\n        startDate: new Date('2025-12-01T09:00:00Z'),\n        endDate: new Date('2025-12-01T17:00:00Z'),\n        funeralHomeId: 'home-1',\n      };\n\n      const result = await Effect.runPromise(\n        Effect.provide(\n          suggestMeetingTimes(command),\n          Effect.mergeContexts(\n            Effect.contextFromEnvironment(() => mockCalendarSync),\n            Effect.contextFromEnvironment(() => mockPolicyRepo)\n          )\n        )\n      );\n\n      // Should suggest multiple 1-hour slots with 15-min buffer\n      expect(result.length).toBeGreaterThan(0);\n      expect(result.length).toBeLessThanOrEqual(5); // Policy limit\n      expect(result[0]?.startTime.getUTCHours()).toBe(9);\n      expect(result[0]?.endTime.getUTCHours()).toBe(10);\n    });\n\n    it('should respect policy meeting duration (60 min)', async () => {\n      mockCalendarSync.getAvailability = () =>\n        Effect.succeed([\n          {\n            startTime: new Date('2025-12-01T09:00:00Z'),\n            endTime: new Date('2025-12-01T12:00:00Z'),\n            status: 'free',\n          },\n        ]);\n\n      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(createMockPolicy());\n\n      const command: SuggestMeetingTimesCommand = {\n        attendeeUserIds: ['user-1'],\n        provider: 'microsoft',\n        startDate: new Date('2025-12-01T09:00:00Z'),\n        endDate: new Date('2025-12-01T12:00:00Z'),\n        funeralHomeId: 'home-1',\n      };\n\n      const result = await Effect.runPromise(\n        Effect.provide(\n          suggestMeetingTimes(command),\n          Effect.mergeContexts(\n            Effect.contextFromEnvironment(() => mockCalendarSync),\n            Effect.contextFromEnvironment(() => mockPolicyRepo)\n          )\n        )\n      );\n\n      // All suggestions should be 60 minutes long\n      for (const slot of result) {\n        expect(slot.endTime.getTime() - slot.startTime.getTime()).toBe(60 * 60 * 1000);\n      }\n    });\n  });\n\n  describe('Multi-Attendee Intersection - Standard Policy', () => {\n    it('should find common free time for multiple attendees', async () => {\n      const user1Availability: AvailabilitySlot[] = [\n        {\n          startTime: new Date('2025-12-01T09:00:00Z'),\n          endTime: new Date('2025-12-01T12:00:00Z'),\n          status: 'free',\n        },\n        {\n          startTime: new Date('2025-12-01T14:00:00Z'),\n          endTime: new Date('2025-12-01T17:00:00Z'),\n          status: 'free',\n        },\n      ];\n\n      const user2Availability: AvailabilitySlot[] = [\n        {\n          startTime: new Date('2025-12-01T10:00:00Z'),\n          endTime: new Date('2025-12-01T15:00:00Z'),\n          status: 'free',\n        },\n      ];\n\n      let callCount = 0;\n      mockCalendarSync.getAvailability = () => {\n        const result = callCount === 0 ? user1Availability : user2Availability;\n        callCount++;\n        return Effect.succeed(result);\n      };\n\n      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(createMockPolicy());\n\n      const command: SuggestMeetingTimesCommand = {\n        attendeeUserIds: ['user-1', 'user-2'],\n        provider: 'microsoft',\n        startDate: new Date('2025-12-01T09:00:00Z'),\n        endDate: new Date('2025-12-01T17:00:00Z'),\n        funeralHomeId: 'home-1',\n      };\n\n      const result = await Effect.runPromise(\n        Effect.provide(\n          suggestMeetingTimes(command),\n          Effect.mergeContexts(\n            Effect.contextFromEnvironment(() => mockCalendarSync),\n            Effect.contextFromEnvironment(() => mockPolicyRepo)\n          )\n        )\n      );\n\n      // Should suggest times only when both are free (10:00-12:00 and 14:00-15:00 overlap)\n      expect(result.length).toBeGreaterThan(0);\n      // First suggestion should be 10:00-11:00 (common free time)\n      expect(result[0]?.startTime.getUTCHours()).toBe(10);\n    });\n\n    it('should return empty when attendees have no common availability', async () => {\n      const user1Availability: AvailabilitySlot[] = [\n        {\n          startTime: new Date('2025-12-01T09:00:00Z'),\n          endTime: new Date('2025-12-01T11:00:00Z'),\n          status: 'free',\n        },\n      ];\n\n      const user2Availability: AvailabilitySlot[] = [\n        {\n          startTime: new Date('2025-12-01T13:00:00Z'),\n          endTime: new Date('2025-12-01T15:00:00Z'),\n          status: 'free',\n        },\n      ];\n\n      let callCount = 0;\n      mockCalendarSync.getAvailability = () => {\n        const result = callCount === 0 ? user1Availability : user2Availability;\n        callCount++;\n        return Effect.succeed(result);\n      };\n\n      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(createMockPolicy());\n\n      const command: SuggestMeetingTimesCommand = {\n        attendeeUserIds: ['user-1', 'user-2'],\n        provider: 'microsoft',\n        startDate: new Date('2025-12-01T09:00:00Z'),\n        endDate: new Date('2025-12-01T17:00:00Z'),\n        funeralHomeId: 'home-1',\n      };\n\n      const result = await Effect.runPromise(\n        Effect.provide(\n          suggestMeetingTimes(command),\n          Effect.mergeContexts(\n            Effect.contextFromEnvironment(() => mockCalendarSync),\n            Effect.contextFromEnvironment(() => mockPolicyRepo)\n          )\n        )\n      );\n\n      expect(result.length).toBe(0);\n    });\n  });\n\n  describe('Duration Override', () => {\n    it('should use command duration over policy default', async () => {\n      mockCalendarSync.getAvailability = () =>\n        Effect.succeed([\n          {\n            startTime: new Date('2025-12-01T09:00:00Z'),\n            endTime: new Date('2025-12-01T12:00:00Z'),\n            status: 'free',\n          },\n        ]);\n\n      const policy = createMockPolicy({ meetingDurationMinutes: 60 });\n      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);\n\n      const command: SuggestMeetingTimesCommand = {\n        attendeeUserIds: ['user-1'],\n        provider: 'microsoft',\n        durationMinutes: 30, // Override to 30 min\n        startDate: new Date('2025-12-01T09:00:00Z'),\n        endDate: new Date('2025-12-01T12:00:00Z'),\n        funeralHomeId: 'home-1',\n      };\n\n      const result = await Effect.runPromise(\n        Effect.provide(\n          suggestMeetingTimes(command),\n          Effect.mergeContexts(\n            Effect.contextFromEnvironment(() => mockCalendarSync),\n            Effect.contextFromEnvironment(() => mockPolicyRepo)\n          )\n        )\n      );\n\n      // Should suggest 30-minute slots, allowing more suggestions\n      expect(result.length).toBeGreaterThan(0);\n      for (const slot of result) {\n        expect(slot.endTime.getTime() - slot.startTime.getTime()).toBe(30 * 60 * 1000);\n      }\n    });\n  });\n\n  describe('Suggestion Count - Policy Limits', () => {\n    it('should respect timeSlotSuggestionCount from policy - Standard (5)', async () => {\n      mockCalendarSync.getAvailability = () =>\n        Effect.succeed([\n          {\n            startTime: new Date('2025-12-01T09:00:00Z'),\n            endTime: new Date('2025-12-01T17:00:00Z'),\n            status: 'free',\n          },\n        ]);\n\n      const policy = createMockPolicy({\n        meetingDurationMinutes: 30,\n        timeSlotSuggestionCount: 5,\n        minimumBufferMinutes: 15,\n      });\n      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);\n\n      const command: SuggestMeetingTimesCommand = {\n        attendeeUserIds: ['user-1'],\n        provider: 'microsoft',\n        startDate: new Date('2025-12-01T09:00:00Z'),\n        endDate: new Date('2025-12-01T17:00:00Z'),\n        funeralHomeId: 'home-1',\n      };\n\n      const result = await Effect.runPromise(\n        Effect.provide(\n          suggestMeetingTimes(command),\n          Effect.mergeContexts(\n            Effect.contextFromEnvironment(() => mockCalendarSync),\n            Effect.contextFromEnvironment(() => mockPolicyRepo)\n          )\n        )\n      );\n\n      expect(result.length).toBeLessThanOrEqual(5);\n    });\n\n    it('should limit to 3 suggestions with Strict policy', async () => {\n      mockCalendarSync.getAvailability = () =>\n        Effect.succeed([\n          {\n            startTime: new Date('2025-12-01T09:00:00Z'),\n            endTime: new Date('2025-12-01T17:00:00Z'),\n            status: 'free',\n          },\n        ]);\n\n      const policy = createMockPolicy({\n        policyName: 'Strict',\n        meetingDurationMinutes: 30,\n        timeSlotSuggestionCount: 3, // Strict: only 3 suggestions\n        minimumBufferMinutes: 15,\n      });\n      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);\n\n      const command: SuggestMeetingTimesCommand = {\n        attendeeUserIds: ['user-1'],\n        provider: 'microsoft',\n        startDate: new Date('2025-12-01T09:00:00Z'),\n        endDate: new Date('2025-12-01T17:00:00Z'),\n        funeralHomeId: 'home-1',\n      };\n\n      const result = await Effect.runPromise(\n        Effect.provide(\n          suggestMeetingTimes(command),\n          Effect.mergeContexts(\n            Effect.contextFromEnvironment(() => mockCalendarSync),\n            Effect.contextFromEnvironment(() => mockPolicyRepo)\n          )\n        )\n      );\n\n      expect(result.length).toBeLessThanOrEqual(3);\n    });\n  });\n\n  describe('Buffer Between Suggestions', () => {\n    it('should respect minimumBufferMinutes between suggestions - Standard (15 min)', async () => {\n      mockCalendarSync.getAvailability = () =>\n        Effect.succeed([\n          {\n            startTime: new Date('2025-12-01T09:00:00Z'),\n            endTime: new Date('2025-12-01T12:00:00Z'),\n            status: 'free',\n          },\n        ]);\n\n      const policy = createMockPolicy({\n        meetingDurationMinutes: 30,\n        minimumBufferMinutes: 15,\n      });\n      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);\n\n      const command: SuggestMeetingTimesCommand = {\n        attendeeUserIds: ['user-1'],\n        provider: 'microsoft',\n        startDate: new Date('2025-12-01T09:00:00Z'),\n        endDate: new Date('2025-12-01T12:00:00Z'),\n        funeralHomeId: 'home-1',\n      };\n\n      const result = await Effect.runPromise(\n        Effect.provide(\n          suggestMeetingTimes(command),\n          Effect.mergeContexts(\n            Effect.contextFromEnvironment(() => mockCalendarSync),\n            Effect.contextFromEnvironment(() => mockPolicyRepo)\n          )\n        )\n      );\n\n      // Check buffer between consecutive suggestions\n      for (let i = 1; i < result.length; i++) {\n        const gapMs = result[i]!.startTime.getTime() - result[i - 1]!.endTime.getTime();\n        const gapMinutes = gapMs / (60 * 1000);\n        expect(gapMinutes).toBeGreaterThanOrEqual(15); // At least 15 min buffer\n      }\n    });\n\n    it('should allow tighter packing with Permissive policy (5 min buffer)', async () => {\n      mockCalendarSync.getAvailability = () =>\n        Effect.succeed([\n          {\n            startTime: new Date('2025-12-01T09:00:00Z'),\n            endTime: new Date('2025-12-01T12:00:00Z'),\n            status: 'free',\n          },\n        ]);\n\n      const policy = createMockPolicy({\n        policyName: 'Permissive',\n        meetingDurationMinutes: 30,\n        minimumBufferMinutes: 5, // Tight packing\n      });\n      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);\n\n      const command: SuggestMeetingTimesCommand = {\n        attendeeUserIds: ['user-1'],\n        provider: 'microsoft',\n        startDate: new Date('2025-12-01T09:00:00Z'),\n        endDate: new Date('2025-12-01T12:00:00Z'),\n        funeralHomeId: 'home-1',\n      };\n\n      const result = await Effect.runPromise(\n        Effect.provide(\n          suggestMeetingTimes(command),\n          Effect.mergeContexts(\n            Effect.contextFromEnvironment(() => mockCalendarSync),\n            Effect.contextFromEnvironment(() => mockPolicyRepo)\n          )\n        )\n      );\n\n      // Permissive should allow more suggestions due to smaller buffer\n      expect(result.length).toBeGreaterThan(0);\n    });\n  });\n\n  describe('Confidence Scoring - Mid-Day Preference', () => {\n    it('should rank mid-day slots higher than early/late slots', async () => {\n      mockCalendarSync.getAvailability = () =>\n        Effect.succeed([\n          {\n            startTime: new Date('2025-12-01T09:00:00Z'),\n            endTime: new Date('2025-12-01T17:00:00Z'),\n            status: 'free',\n          },\n        ]);\n\n      const policy = createMockPolicy({\n        meetingDurationMinutes: 60,\n        timeSlotSuggestionCount: 5,\n        minimumBufferMinutes: 0, // No buffer for testing\n        workingHoursStartTime: '09:00',\n        workingHoursEndTime: '17:00',\n      });\n      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);\n\n      const command: SuggestMeetingTimesCommand = {\n        attendeeUserIds: ['user-1'],\n        provider: 'microsoft',\n        startDate: new Date('2025-12-01T09:00:00Z'),\n        endDate: new Date('2025-12-01T17:00:00Z'),\n        funeralHomeId: 'home-1',\n      };\n\n      const result = await Effect.runPromise(\n        Effect.provide(\n          suggestMeetingTimes(command),\n          Effect.mergeContexts(\n            Effect.contextFromEnvironment(() => mockCalendarSync),\n            Effect.contextFromEnvironment(() => mockPolicyRepo)\n          )\n        )\n      );\n\n      // First suggestion should be mid-day (around 13:00/1pm)\n      expect(result[0]?.startTime.getUTCHours()).toBeGreaterThan(9);\n      expect(result[0]?.startTime.getUTCHours()).toBeLessThan(17);\n      // Confidence should decrease for early suggestions\n      expect(result[0]?.confidence).toBeGreaterThanOrEqual(50);\n    });\n  });\n\n  describe('Multi-Provider Support', () => {\n    it('should work with Microsoft provider', async () => {\n      mockCalendarSync.getAvailability = () =>\n        Effect.succeed([\n          {\n            startTime: new Date('2025-12-01T09:00:00Z'),\n            endTime: new Date('2025-12-01T17:00:00Z'),\n            status: 'free',\n          },\n        ]);\n\n      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(createMockPolicy());\n\n      const command: SuggestMeetingTimesCommand = {\n        attendeeUserIds: ['user-1'],\n        provider: 'microsoft',\n        startDate: new Date('2025-12-01T09:00:00Z'),\n        endDate: new Date('2025-12-01T17:00:00Z'),\n        funeralHomeId: 'home-1',\n      };\n\n      const result = await Effect.runPromise(\n        Effect.provide(\n          suggestMeetingTimes(command),\n          Effect.mergeContexts(\n            Effect.contextFromEnvironment(() => mockCalendarSync),\n            Effect.contextFromEnvironment(() => mockPolicyRepo)\n          )\n        )\n      );\n\n      expect(result).toEqual(expect.any(Array));\n    });\n\n    it('should work with Google provider', async () => {\n      mockCalendarSync.getAvailability = () =>\n        Effect.succeed([\n          {\n            startTime: new Date('2025-12-01T09:00:00Z'),\n            endTime: new Date('2025-12-01T17:00:00Z'),\n            status: 'free',\n          },\n        ]);\n\n      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(createMockPolicy());\n\n      const command: SuggestMeetingTimesCommand = {\n        attendeeUserIds: ['user-1'],\n        provider: 'google',\n        startDate: new Date('2025-12-01T09:00:00Z'),\n        endDate: new Date('2025-12-01T17:00:00Z'),\n        funeralHomeId: 'home-1',\n      };\n\n      const result = await Effect.runPromise(\n        Effect.provide(\n          suggestMeetingTimes(command),\n          Effect.mergeContexts(\n            Effect.contextFromEnvironment(() => mockCalendarSync),\n            Effect.contextFromEnvironment(() => mockPolicyRepo)\n          )\n        )\n      );\n\n      expect(result).toEqual(expect.any(Array));\n    });\n  });\n});\n
+const createMockPolicy = (overrides?: Partial<EmailCalendarSyncPolicy>): EmailCalendarSyncPolicy => ({
+  id: 'policy-1',
+  funeralHomeId: 'home-1',
+  policyName: 'Standard',
+  emailSyncFrequencyMinutes: 15,
+  maxRetries: 3,
+  retryDelaySeconds: 5,
+  emailMatchingStrategy: 'exact_with_fallback',
+  fuzzyMatchThreshold: 85,
+  emailFallbackStrategies: ['exact', 'domain'],
+  calendarFieldMappings: {
+    subject: true,
+    startTime: true,
+    endTime: true,
+    attendees: true,
+    description: true,
+    location: true,
+  },
+  timezoneHandling: 'local',
+  calendarSyncRetryPolicy: 'exponential',
+  availabilityLookAheadDays: 30,
+  blockOutTimePerEventMinutes: 15,
+  meetingDurationMinutes: 60, // Default 1 hour
+  timeSlotSuggestionCount: 5, // Return up to 5 suggestions
+  minimumBufferMinutes: 15, // 15 min buffer between suggestions
+  workingHoursStartTime: '09:00',
+  workingHoursEndTime: '17:00',
+  notificationDelayMinutes: 5,
+  enableSyncNotifications: true,
+  version: 1,
+  validFrom: new Date(),
+  validTo: null,
+  isActive: true,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  ...overrides,
+});
+
+describe('Suggest Meeting Times - Policy-Driven', () => {
+  let mockCalendarSync: CalendarSyncServicePort;
+  let mockPolicyRepo: EmailCalendarSyncPolicyRepositoryService;
+
+  beforeEach(() => {
+    mockCalendarSync = {
+      createEvent: () => Effect.succeed({ externalId: '', calendarEvent: {} as any }),
+      updateEvent: () => Effect.succeed(void 0),
+      deleteEvent: () => Effect.succeed(void 0),
+      getEvent: () => Effect.succeed(null),
+      listEvents: () => Effect.succeed([]),
+      getAvailability: () => Effect.succeed([]),
+      refreshToken: () => Effect.succeed(void 0),
+    };
+
+    mockPolicyRepo = {
+      findCurrentByFuneralHomeId: () => Effect.succeed(createMockPolicy()),
+      findAllVersionsByFuneralHomeId: () => Effect.succeed([createMockPolicy()]),
+      findById: () => Effect.succeed(createMockPolicy()),
+      create: () => Effect.succeed(createMockPolicy()),
+      update: () => Effect.succeed(createMockPolicy()),
+      listCurrentPolicies: () => Effect.succeed([createMockPolicy()]),
+    };
+  });
+
+  describe('Single Attendee - Standard Policy', () => {
+    it('should suggest available time slots for single attendee', async () => {
+      mockCalendarSync.getAvailability = () =>
+        Effect.succeed([
+          {
+            startTime: new Date('2025-12-01T09:00:00Z'),
+            endTime: new Date('2025-12-01T17:00:00Z'),
+            status: 'free',
+          },
+        ]);
+
+      const policy = createMockPolicy({
+        meetingDurationMinutes: 60,
+        timeSlotSuggestionCount: 5,
+        minimumBufferMinutes: 15,
+      });
+      mockPolicyRepo.findCurrentByFuneralHomeId = () => Effect.succeed(policy);
+
+      const command: SuggestMeetingTimesCommand = {
+        attendeeUserIds: ['user-1'],
+        provider: 'microsoft',
+        startDate: new Date('2025-12-01T09:00:00Z'),
+        endDate: new Date('2025-12-01T17:00:00Z'),
+        funeralHomeId: 'home-1',
+      };
+
+      const layer = Layer.mergeAll(
+        Layer.succeed(CalendarSyncPort, mockCalendarSync),
+        Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
+      );
+
+      const result = await Effect.runPromise(
+        suggestMeetingTimes(command).pipe(Effect.provide(layer))
+      );
+
+      // Should suggest multiple 1-hour slots with 15-min buffer
+      expect(result.length).toBeGreaterThan(0);
+      expect(result.length).toBeLessThanOrEqual(5); // Policy limit
+      
+      // Results are sorted by confidence (mid-day preference), not chronologically
+      // First suggestion should be mid-day with highest confidence
+      expect(result[0]?.confidence).toBeGreaterThan(0);
+      
+      // All slots should be 1 hour (60 min)
+      for (const slot of result) {
+        expect(slot.endTime.getTime() - slot.startTime.getTime()).toBe(60 * 60 * 1000);
+      }
+      
+      // At least one slot should exist in the 9-17 range
+      const allInRange = result.every(s => {
+        const hour = s.startTime.getUTCHours();
+        return hour >= 9 && hour < 17;
+      });
+      expect(allInRange).toBe(true);
+    });
+
+    it('should respect policy meeting duration (60 min)', async () => {
+      mockCalendarSync.getAvailability = () =>
+        Effect.succeed([
+          {
+            startTime: new Date('2025-12-01T09:00:00Z'),
+            endTime: new Date('2025-12-01T12:00:00Z'),
+            status: 'free',
+          },
+        ]);
+
+      const layer = Layer.mergeAll(
+        Layer.succeed(CalendarSyncPort, mockCalendarSync),
+        Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
+      );
+
+      const command: SuggestMeetingTimesCommand = {
+        attendeeUserIds: ['user-1'],
+        provider: 'microsoft',
+        startDate: new Date('2025-12-01T09:00:00Z'),
+        endDate: new Date('2025-12-01T12:00:00Z'),
+        funeralHomeId: 'home-1',
+      };
+
+      const result = await Effect.runPromise(
+        suggestMeetingTimes(command).pipe(Effect.provide(layer))
+      );
+
+      // All suggestions should be 60 minutes long
+      for (const slot of result) {
+        expect(slot.endTime.getTime() - slot.startTime.getTime()).toBe(60 * 60 * 1000);
+      }
+    });
+  });
+
+  describe('Multi-Attendee Intersection - Standard Policy', () => {
+    it('should find common free time for multiple attendees', async () => {
+      const user1Availability: AvailabilitySlot[] = [
+        {
+          startTime: new Date('2025-12-01T09:00:00Z'),
+          endTime: new Date('2025-12-01T12:00:00Z'),
+          status: 'free',
+        },
+        {
+          startTime: new Date('2025-12-01T14:00:00Z'),
+          endTime: new Date('2025-12-01T17:00:00Z'),
+          status: 'free',
+        },
+      ];
+
+      const user2Availability: AvailabilitySlot[] = [
+        {
+          startTime: new Date('2025-12-01T10:00:00Z'),
+          endTime: new Date('2025-12-01T15:00:00Z'),
+          status: 'free',
+        },
+      ];
+
+      let callCount = 0;
+      mockCalendarSync.getAvailability = () => {
+        const result = callCount === 0 ? user1Availability : user2Availability;
+        callCount++;
+        return Effect.succeed(result);
+      };
+
+      const layer = Layer.mergeAll(
+        Layer.succeed(CalendarSyncPort, mockCalendarSync),
+        Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
+      );
+
+      const command: SuggestMeetingTimesCommand = {
+        attendeeUserIds: ['user-1', 'user-2'],
+        provider: 'microsoft',
+        startDate: new Date('2025-12-01T09:00:00Z'),
+        endDate: new Date('2025-12-01T17:00:00Z'),
+        funeralHomeId: 'home-1',
+      };
+
+      const result = await Effect.runPromise(
+        suggestMeetingTimes(command).pipe(Effect.provide(layer))
+      );
+
+      // Should suggest times only when both are free (10:00-12:00 and 14:00-15:00 overlap)
+      expect(result.length).toBeGreaterThan(0);
+      
+      // All suggestions should be within common free time
+      // User1: 09:00-12:00, 14:00-17:00 | User2: 10:00-15:00
+      // Overlap: 10:00-12:00, 14:00-15:00
+      for (const slot of result) {
+        const hour = slot.startTime.getUTCHours();
+        const inMorningOverlap = hour >= 10 && hour < 12;
+        const inAfternoonOverlap = hour >= 14 && hour < 15;
+        expect(inMorningOverlap || inAfternoonOverlap).toBe(true);
+      }
+    });
+
+    it('should return empty when attendees have no common availability', async () => {
+      const user1Availability: AvailabilitySlot[] = [
+        {
+          startTime: new Date('2025-12-01T09:00:00Z'),
+          endTime: new Date('2025-12-01T11:00:00Z'),
+          status: 'free',
+        },
+      ];
+
+      const user2Availability: AvailabilitySlot[] = [
+        {
+          startTime: new Date('2025-12-01T13:00:00Z'),
+          endTime: new Date('2025-12-01T15:00:00Z'),
+          status: 'free',
+        },
+      ];
+
+      let callCount = 0;
+      mockCalendarSync.getAvailability = () => {
+        const result = callCount === 0 ? user1Availability : user2Availability;
+        callCount++;
+        return Effect.succeed(result);
+      };
+
+      const layer = Layer.mergeAll(
+        Layer.succeed(CalendarSyncPort, mockCalendarSync),
+        Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
+      );
+
+      const command: SuggestMeetingTimesCommand = {
+        attendeeUserIds: ['user-1', 'user-2'],
+        provider: 'microsoft',
+        startDate: new Date('2025-12-01T09:00:00Z'),
+        endDate: new Date('2025-12-01T17:00:00Z'),
+        funeralHomeId: 'home-1',
+      };
+
+      const result = await Effect.runPromise(
+        suggestMeetingTimes(command).pipe(Effect.provide(layer))
+      );
+
+      expect(result.length).toBe(0);
+    });
+  });
+
+  describe('Duration Override', () => {
+    it('should use command duration over policy default', async () => {
+      mockCalendarSync.getAvailability = () =>
+        Effect.succeed([
+          {
+            startTime: new Date('2025-12-01T09:00:00Z'),
+            endTime: new Date('2025-12-01T12:00:00Z'),
+            status: 'free',
+          },
+        ]);
+
+      const policy = createMockPolicy({ meetingDurationMinutes: 60 });
+      mockPolicyRepo.findCurrentByFuneralHomeId = () => Effect.succeed(policy);
+
+      const layer = Layer.mergeAll(
+        Layer.succeed(CalendarSyncPort, mockCalendarSync),
+        Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
+      );
+
+      const command: SuggestMeetingTimesCommand = {
+        attendeeUserIds: ['user-1'],
+        provider: 'microsoft',
+        durationMinutes: 30, // Override to 30 min
+        startDate: new Date('2025-12-01T09:00:00Z'),
+        endDate: new Date('2025-12-01T12:00:00Z'),
+        funeralHomeId: 'home-1',
+      };
+
+      const result = await Effect.runPromise(
+        suggestMeetingTimes(command).pipe(Effect.provide(layer))
+      );
+
+      // Should suggest 30-minute slots, allowing more suggestions
+      expect(result.length).toBeGreaterThan(0);
+      for (const slot of result) {
+        expect(slot.endTime.getTime() - slot.startTime.getTime()).toBe(30 * 60 * 1000);
+      }
+    });
+  });
+
+  describe('Suggestion Count - Policy Limits', () => {
+    it('should respect timeSlotSuggestionCount from policy - Standard (5)', async () => {
+      mockCalendarSync.getAvailability = () =>
+        Effect.succeed([
+          {
+            startTime: new Date('2025-12-01T09:00:00Z'),
+            endTime: new Date('2025-12-01T17:00:00Z'),
+            status: 'free',
+          },
+        ]);
+
+      const policy = createMockPolicy({
+        meetingDurationMinutes: 30,
+        timeSlotSuggestionCount: 5,
+        minimumBufferMinutes: 15,
+      });
+      mockPolicyRepo.findCurrentByFuneralHomeId = () => Effect.succeed(policy);
+
+      const layer = Layer.mergeAll(
+        Layer.succeed(CalendarSyncPort, mockCalendarSync),
+        Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
+      );
+
+      const command: SuggestMeetingTimesCommand = {
+        attendeeUserIds: ['user-1'],
+        provider: 'microsoft',
+        startDate: new Date('2025-12-01T09:00:00Z'),
+        endDate: new Date('2025-12-01T17:00:00Z'),
+        funeralHomeId: 'home-1',
+      };
+
+      const result = await Effect.runPromise(
+        suggestMeetingTimes(command).pipe(Effect.provide(layer))
+      );
+
+      expect(result.length).toBeLessThanOrEqual(5);
+    });
+
+    it('should limit to 3 suggestions with Strict policy', async () => {
+      mockCalendarSync.getAvailability = () =>
+        Effect.succeed([
+          {
+            startTime: new Date('2025-12-01T09:00:00Z'),
+            endTime: new Date('2025-12-01T17:00:00Z'),
+            status: 'free',
+          },
+        ]);
+
+      const policy = createMockPolicy({
+        policyName: 'Strict',
+        meetingDurationMinutes: 30,
+        timeSlotSuggestionCount: 3, // Strict: only 3 suggestions
+        minimumBufferMinutes: 15,
+      });
+      mockPolicyRepo.findCurrentByFuneralHomeId = () => Effect.succeed(policy);
+
+      const layer = Layer.mergeAll(
+        Layer.succeed(CalendarSyncPort, mockCalendarSync),
+        Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
+      );
+
+      const command: SuggestMeetingTimesCommand = {
+        attendeeUserIds: ['user-1'],
+        provider: 'microsoft',
+        startDate: new Date('2025-12-01T09:00:00Z'),
+        endDate: new Date('2025-12-01T17:00:00Z'),
+        funeralHomeId: 'home-1',
+      };
+
+      const result = await Effect.runPromise(
+        suggestMeetingTimes(command).pipe(Effect.provide(layer))
+      );
+
+      expect(result.length).toBeLessThanOrEqual(3);
+    });
+  });
+
+  describe('Buffer Between Suggestions', () => {
+    it('should respect minimumBufferMinutes between suggestions - Standard (15 min)', async () => {
+      mockCalendarSync.getAvailability = () =>
+        Effect.succeed([
+          {
+            startTime: new Date('2025-12-01T09:00:00Z'),
+            endTime: new Date('2025-12-01T12:00:00Z'),
+            status: 'free',
+          },
+        ]);
+
+      const policy = createMockPolicy({
+        meetingDurationMinutes: 30,
+        minimumBufferMinutes: 15,
+      });
+      mockPolicyRepo.findCurrentByFuneralHomeId = () => Effect.succeed(policy);
+
+      const layer = Layer.mergeAll(
+        Layer.succeed(CalendarSyncPort, mockCalendarSync),
+        Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
+      );
+
+      const command: SuggestMeetingTimesCommand = {
+        attendeeUserIds: ['user-1'],
+        provider: 'microsoft',
+        startDate: new Date('2025-12-01T09:00:00Z'),
+        endDate: new Date('2025-12-01T12:00:00Z'),
+        funeralHomeId: 'home-1',
+      };
+
+      const result = await Effect.runPromise(
+        suggestMeetingTimes(command).pipe(Effect.provide(layer))
+      );
+
+      // Results are sorted by confidence, not chronologically
+      // To check buffer, we need to sort by time first
+      const chronological = [...result].sort((a, b) => 
+        a.startTime.getTime() - b.startTime.getTime()
+      );
+
+      // Check buffer between consecutive suggestions (in chronological order)
+      for (let i = 1; i < chronological.length; i++) {
+        const gapMs = chronological[i]!.startTime.getTime() - chronological[i - 1]!.endTime.getTime();
+        const gapMinutes = gapMs / (60 * 1000);
+        expect(gapMinutes).toBeGreaterThanOrEqual(15); // At least 15 min buffer
+      }
+    });
+
+    it('should allow tighter packing with Permissive policy (5 min buffer)', async () => {
+      mockCalendarSync.getAvailability = () =>
+        Effect.succeed([
+          {
+            startTime: new Date('2025-12-01T09:00:00Z'),
+            endTime: new Date('2025-12-01T12:00:00Z'),
+            status: 'free',
+          },
+        ]);
+
+      const policy = createMockPolicy({
+        policyName: 'Permissive',
+        meetingDurationMinutes: 30,
+        minimumBufferMinutes: 5, // Tight packing
+      });
+      mockPolicyRepo.findCurrentByFuneralHomeId = () => Effect.succeed(policy);
+
+      const layer = Layer.mergeAll(
+        Layer.succeed(CalendarSyncPort, mockCalendarSync),
+        Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
+      );
+
+      const command: SuggestMeetingTimesCommand = {
+        attendeeUserIds: ['user-1'],
+        provider: 'microsoft',
+        startDate: new Date('2025-12-01T09:00:00Z'),
+        endDate: new Date('2025-12-01T12:00:00Z'),
+        funeralHomeId: 'home-1',
+      };
+
+      const result = await Effect.runPromise(
+        suggestMeetingTimes(command).pipe(Effect.provide(layer))
+      );
+
+      // Permissive should allow more suggestions due to smaller buffer
+      expect(result.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('Confidence Scoring - Mid-Day Preference', () => {
+    it('should rank mid-day slots higher than early/late slots', async () => {
+      mockCalendarSync.getAvailability = () =>
+        Effect.succeed([
+          {
+            startTime: new Date('2025-12-01T09:00:00Z'),
+            endTime: new Date('2025-12-01T17:00:00Z'),
+            status: 'free',
+          },
+        ]);
+
+      const policy = createMockPolicy({
+        meetingDurationMinutes: 60,
+        timeSlotSuggestionCount: 5,
+        minimumBufferMinutes: 0, // No buffer for testing
+        workingHoursStartTime: '09:00',
+        workingHoursEndTime: '17:00',
+      });
+      mockPolicyRepo.findCurrentByFuneralHomeId = () => Effect.succeed(policy);
+
+      const layer = Layer.mergeAll(
+        Layer.succeed(CalendarSyncPort, mockCalendarSync),
+        Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
+      );
+
+      const command: SuggestMeetingTimesCommand = {
+        attendeeUserIds: ['user-1'],
+        provider: 'microsoft',
+        startDate: new Date('2025-12-01T09:00:00Z'),
+        endDate: new Date('2025-12-01T17:00:00Z'),
+        funeralHomeId: 'home-1',
+      };
+
+      const result = await Effect.runPromise(
+        suggestMeetingTimes(command).pipe(Effect.provide(layer))
+      );
+
+      // First suggestion should be mid-day (around 13:00/1pm)
+      expect(result[0]?.startTime.getUTCHours()).toBeGreaterThan(9);
+      expect(result[0]?.startTime.getUTCHours()).toBeLessThan(17);
+      // Confidence should decrease for early suggestions
+      expect(result[0]?.confidence).toBeGreaterThanOrEqual(50);
+    });
+  });
+
+  describe('Multi-Provider Support', () => {
+    it('should work with Microsoft provider', async () => {
+      mockCalendarSync.getAvailability = () =>
+        Effect.succeed([
+          {
+            startTime: new Date('2025-12-01T09:00:00Z'),
+            endTime: new Date('2025-12-01T17:00:00Z'),
+            status: 'free',
+          },
+        ]);
+
+      const layer = Layer.mergeAll(
+        Layer.succeed(CalendarSyncPort, mockCalendarSync),
+        Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
+      );
+
+      const command: SuggestMeetingTimesCommand = {
+        attendeeUserIds: ['user-1'],
+        provider: 'microsoft',
+        startDate: new Date('2025-12-01T09:00:00Z'),
+        endDate: new Date('2025-12-01T17:00:00Z'),
+        funeralHomeId: 'home-1',
+      };
+
+      const result = await Effect.runPromise(
+        suggestMeetingTimes(command).pipe(Effect.provide(layer))
+      );
+
+      expect(result).toEqual(expect.any(Array));
+    });
+
+    it('should work with Google provider', async () => {
+      mockCalendarSync.getAvailability = () =>
+        Effect.succeed([
+          {
+            startTime: new Date('2025-12-01T09:00:00Z'),
+            endTime: new Date('2025-12-01T17:00:00Z'),
+            status: 'free',
+          },
+        ]);
+
+      const layer = Layer.mergeAll(
+        Layer.succeed(CalendarSyncPort, mockCalendarSync),
+        Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
+      );
+
+      const command: SuggestMeetingTimesCommand = {
+        attendeeUserIds: ['user-1'],
+        provider: 'google',
+        startDate: new Date('2025-12-01T09:00:00Z'),
+        endDate: new Date('2025-12-01T17:00:00Z'),
+        funeralHomeId: 'home-1',
+      };
+
+      const result = await Effect.runPromise(
+        suggestMeetingTimes(command).pipe(Effect.provide(layer))
+      );
+
+      expect(result).toEqual(expect.any(Array));
+    });
+  });
+});

@@ -529,7 +529,7 @@ describe('Vehicle', () => {
 
       expect(vehicle.isReadyForAssignment()).toBe(false);
     });
-  };
+  });
 
   describe('mileage and age calculations', () => {
     it('should calculate vehicle age correctly', () => {

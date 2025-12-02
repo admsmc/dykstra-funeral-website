@@ -76,7 +76,7 @@ describe('Get Staff Availability - Policy-Driven', () => {
         workingHoursStartTime: '09:00',
         workingHoursEndTime: '17:00',
       });
-      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);
+      mockPolicyRepo.findCurrentByFuneralHomeId = () => Effect.succeed(policy);
 
       const start = new Date('2025-12-01T00:00:00Z');
       const end = new Date('2025-12-05T23:59:59Z');
@@ -125,7 +125,7 @@ describe('Get Staff Availability - Policy-Driven', () => {
         workingHoursStartTime: '09:00',
         workingHoursEndTime: '17:00',
       });
-      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);
+      mockPolicyRepo.findCurrentByFuneralHomeId = () => Effect.succeed(policy);
 
       const start = new Date('2025-12-01T09:00:00Z');
       const end = new Date('2025-12-01T17:00:00Z');
@@ -186,7 +186,7 @@ describe('Get Staff Availability - Policy-Driven', () => {
       const end = new Date('2025-12-01T17:00:00Z');
 
       // Test Strict policy
-      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(strictPolicy);
+      mockPolicyRepo.findCurrentByFuneralHomeId = () => Effect.succeed(strictPolicy);
       const strictCommand: GetStaffAvailabilityCommand = {
         userId: 'user-1',
         provider: 'microsoft',
@@ -205,7 +205,7 @@ describe('Get Staff Availability - Policy-Driven', () => {
       );
 
       // Test Permissive policy
-      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(permissivePolicy);
+      mockPolicyRepo.findCurrentByFuneralHomeId = () => Effect.succeed(permissivePolicy);
       const permCommand: GetStaffAvailabilityCommand = {
         userId: 'user-1',
         provider: 'microsoft',
@@ -238,7 +238,7 @@ describe('Get Staff Availability - Policy-Driven', () => {
         workingHoursStartTime: '09:00',
         workingHoursEndTime: '17:00',
       });
-      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);
+      mockPolicyRepo.findCurrentByFuneralHomeId = () => Effect.succeed(policy);
 
       const start = new Date('2025-12-01T09:00:00Z');
       const end = new Date('2025-12-31T17:00:00Z'); // Request 30 days
@@ -273,7 +273,7 @@ describe('Get Staff Availability - Policy-Driven', () => {
         workingHoursStartTime: '09:00',
         workingHoursEndTime: '17:00',
       });
-      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);
+      mockPolicyRepo.findCurrentByFuneralHomeId = () => Effect.succeed(policy);
 
       const start = new Date('2025-12-01T09:00:00Z');
       const end = new Date('2025-12-05T17:00:00Z'); // 4 days (within 14 day lookahead)
@@ -307,7 +307,7 @@ describe('Get Staff Availability - Policy-Driven', () => {
         workingHoursStartTime: '09:00',
         workingHoursEndTime: '17:00',
       });
-      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);
+      mockPolicyRepo.findCurrentByFuneralHomeId = () => Effect.succeed(policy);
 
       const start = new Date('2025-12-01T06:00:00Z'); // Before working hours
       const end = new Date('2025-12-01T20:00:00Z'); // After working hours
@@ -343,7 +343,7 @@ describe('Get Staff Availability - Policy-Driven', () => {
         workingHoursStartTime: '08:00',
         workingHoursEndTime: '18:00', // Extended
       });
-      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);
+      mockPolicyRepo.findCurrentByFuneralHomeId = () => Effect.succeed(policy);
 
       const start = new Date('2025-12-01T07:00:00Z');
       const end = new Date('2025-12-01T19:00:00Z');
@@ -392,7 +392,7 @@ describe('Get Staff Availability - Policy-Driven', () => {
         workingHoursStartTime: '09:00',
         workingHoursEndTime: '17:00',
       });
-      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);
+      mockPolicyRepo.findCurrentByFuneralHomeId = () => Effect.succeed(policy);
 
       const start = new Date('2025-12-01T09:00:00Z');
       const end = new Date('2025-12-01T17:00:00Z');
@@ -438,7 +438,7 @@ describe('Get Staff Availability - Policy-Driven', () => {
         workingHoursStartTime: '09:00',
         workingHoursEndTime: '17:00',
       });
-      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);
+      mockPolicyRepo.findCurrentByFuneralHomeId = () => Effect.succeed(policy);
 
       const start = new Date('2025-12-01T09:00:00Z');
       const end = new Date('2025-12-01T12:00:00Z');
@@ -469,7 +469,7 @@ describe('Get Staff Availability - Policy-Driven', () => {
     it('should work with Microsoft provider', async () => {
       mockCalendarSync.getAvailability = () => Effect.succeed([]);
       const policy = createMockPolicy();
-      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);
+      mockPolicyRepo.findCurrentByFuneralHomeId = () => Effect.succeed(policy);
 
       const command: GetStaffAvailabilityCommand = {
         userId: 'user-1',
@@ -494,7 +494,7 @@ describe('Get Staff Availability - Policy-Driven', () => {
     it('should work with Google provider', async () => {
       mockCalendarSync.getAvailability = () => Effect.succeed([]);
       const policy = createMockPolicy();
-      mockPolicyRepo.findByFuneralHome = () => Effect.succeed(policy);
+      mockPolicyRepo.findCurrentByFuneralHomeId = () => Effect.succeed(policy);
 
       const command: GetStaffAvailabilityCommand = {
         userId: 'user-1',

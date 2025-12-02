@@ -235,7 +235,7 @@ describe('Resend Invitation - Policy-Aware SCD2 Implementation', () => {
     it('should validate funeralHomeId is not empty', () => {
       const command = { funeralHomeId: '' };
       const isValid = command.funeralHomeId && command.funeralHomeId.trim().length > 0;
-      expect(isValid).toBe(false);
+      expect(isValid).toBeFalsy();
     });
 
     it('should load policy before generating token', () => {

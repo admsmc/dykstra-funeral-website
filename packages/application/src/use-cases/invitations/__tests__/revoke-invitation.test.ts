@@ -215,7 +215,7 @@ describe('Revoke Invitation - SCD2 Write Operation Implementation', () => {
     it('should fail if businessKey is missing', () => {
       const command = { businessKey: '' };
       const isValid = command.businessKey && command.businessKey.trim().length > 0;
-      expect(isValid).toBe(false);
+      expect(isValid).toBeFalsy();
     });
 
     it('should fail if businessKey does not exist', () => {

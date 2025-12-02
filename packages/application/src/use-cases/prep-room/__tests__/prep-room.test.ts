@@ -239,7 +239,10 @@ describe('Preparation Room Reservation Management', () => {
       expect(confirmed.status).toBe('confirmed');
 
       // Check-in
-      const checkedIn = checkInReservation(confirmed);
+      const checkedIn = {
+        ...checkInReservation(confirmed),
+        checkedInAt: new Date(now.getTime() - 30 * 60 * 1000), // 30 minutes ago
+      };
       expect(checkedIn.status).toBe('in_progress');
       expect(checkedIn.checkedInAt).toBeDefined();
 
@@ -577,13 +580,13 @@ describe('Preparation Room Reservation Management', () => {
         embalmerId: 'embalmer2', // Different embalmer
       };
 
-      const result = await Effect.runPromise(
+      const exit = await Effect.runPromiseExit(
         checkIn(command).pipe(
           Effect.provide(Context.make(PrepRoomRepositoryPort, mockRepo))
         )
       );
 
-      expect(result).toBeDefined();
+      expect(exit._tag).toBe('Failure');
       // Should fail with permission error
     });
 
@@ -600,7 +603,10 @@ describe('Preparation Room Reservation Management', () => {
         'system'
       );
       const confirmed = confirmReservation(reservation);
-      const checkedIn = checkInReservation(confirmed);
+      const checkedIn = {
+        ...checkInReservation(confirmed),
+        checkedInAt: new Date(now.getTime() - 60 * 60 * 1000), // 1 hour ago
+      };
 
       mockRepo.getReservationById = () => Effect.sync(() => checkedIn);
       mockRepo.updateReservation = (res) => Effect.sync(() => res);
@@ -625,6 +631,7 @@ describe('Preparation Room Reservation Management', () => {
 
     it('15. Duration tracking: actual duration vs. scheduled', async () => {
       const now = new Date();
+      const pastTime = new Date(now.getTime() - 60 * 60 * 1000); // 1 hour ago
       const reservation = createPrepRoomReservation(
         createPrepRoomId('room1'),
         'embalmer1',
@@ -639,7 +646,7 @@ describe('Preparation Room Reservation Management', () => {
       const confirmed = confirmReservation(reservation);
       const checkedIn = {
         ...checkInReservation(confirmed),
-        checkedInAt: now, // Override to known time
+        checkedInAt: pastTime, // Override to known time in the past
       };
 
       const checkedOut = checkOutReservation(checkedIn);
@@ -651,16 +658,19 @@ describe('Preparation Room Reservation Management', () => {
   describe('Auto-release (3 tests)', () => {
     it('16. Auto-release timeout: release after 30 minutes without check-in', async () => {
       const pastTime = new Date(Date.now() - 31 * 60 * 1000); // 31 minutes ago
-      const reservation = createPrepRoomReservation(
-        createPrepRoomId('room1'),
-        'embalmer1',
-        'case1',
-        'family1',
-        pastTime,
-        240,
-        'normal',
-        'system'
-      );
+      const reservation = {
+        ...createPrepRoomReservation(
+          createPrepRoomId('room1'),
+          'embalmer1',
+          'case1',
+          'family1',
+          pastTime,
+          240,
+          'normal',
+          'system'
+        ),
+        createdAt: pastTime, // Override createdAt for timeout calculation
+      };
       const confirmed = confirmReservation(reservation);
 
       const now = new Date();
@@ -692,26 +702,32 @@ describe('Preparation Room Reservation Management', () => {
 
     it('18. Auto-release background job: process multiple timeouts', async () => {
       const pastTime = new Date(Date.now() - 31 * 60 * 1000);
-      const res1 = createPrepRoomReservation(
-        createPrepRoomId('room1'),
-        'embalmer1',
-        'case1',
-        'family1',
-        pastTime,
-        240,
-        'normal',
-        'system'
-      );
-      const res2 = createPrepRoomReservation(
-        createPrepRoomId('room2'),
-        'embalmer2',
-        'case2',
-        'family2',
-        pastTime,
-        240,
-        'normal',
-        'system'
-      );
+      const res1 = {
+        ...createPrepRoomReservation(
+          createPrepRoomId('room1'),
+          'embalmer1',
+          'case1',
+          'family1',
+          pastTime,
+          240,
+          'normal',
+          'system'
+        ),
+        createdAt: pastTime, // Override createdAt for timeout calculation
+      };
+      const res2 = {
+        ...createPrepRoomReservation(
+          createPrepRoomId('room2'),
+          'embalmer2',
+          'case2',
+          'family2',
+          pastTime,
+          240,
+          'normal',
+          'system'
+        ),
+        createdAt: pastTime, // Override createdAt for timeout calculation
+      };
 
       const confirmed1 = confirmReservation(res1);
       const confirmed2 = confirmReservation(res2);

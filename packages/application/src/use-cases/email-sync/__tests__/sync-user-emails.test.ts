@@ -421,8 +421,10 @@ describe('Sync User Emails - Policy Variation Tests', () => {
 
   describe('Scenario 5: Error Handling & Edge Cases', () => {
     it('should handle policy not found error gracefully', async () => {
-      const result = await Effect.runPromiseEither(
-        policyAdapter.findCurrentByFuneralHomeId('fh-nonexistent')
+      const result = await Effect.runPromise(
+        policyAdapter.findCurrentByFuneralHomeId('fh-nonexistent').pipe(
+          Effect.either
+        )
       );
 
       expect(result._tag).toBe('Left');

@@ -19,13 +19,13 @@ describe('List Invitations - Read Operation with SCD2 Current State', () => {
     it('should handle missing case gracefully', () => {
       const caseId = '';
       const isValid = caseId && caseId.trim().length > 0;
-      expect(isValid).toBe(false);
+      expect(isValid).toBeFalsy(); // Empty string is falsy but not strict false
     });
 
     it('should handle missing funeralHomeId gracefully', () => {
       const funeralHomeId = '';
       const isValid = funeralHomeId && funeralHomeId.trim().length > 0;
-      expect(isValid).toBe(false);
+      expect(isValid).toBeFalsy(); // Empty string is falsy but not strict false
     });
 
     it('should not list historical versions (only isCurrent)', () => {

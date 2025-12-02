@@ -56,21 +56,21 @@ describe('Record Manual Payment - Policy-Aware Implementation', () => {
       const policy = { requireCheckNumber: true };
       const command = { checkNumber: '12345' };
       const isValid = !policy.requireCheckNumber || command.checkNumber;
-      expect(isValid).toBe(true);
+      expect(isValid).toBeTruthy();
     });
 
     it('should reject missing check number when required', () => {
       const policy = { requireCheckNumber: true };
       const command = { checkNumber: undefined };
       const isValid = !policy.requireCheckNumber || command.checkNumber;
-      expect(isValid).toBe(false);
+      expect(isValid).toBeFalsy();
     });
 
     it('should require check date with Strict policy', () => {
       const policy = { requireCheckDate: true };
       const command = { paymentDate: new Date() };
       const isValid = !policy.requireCheckDate || command.paymentDate;
-      expect(isValid).toBe(true);
+      expect(isValid).toBeTruthy();
     });
 
     it('should reject old checks exceeding maxCheckAgeDays', () => {

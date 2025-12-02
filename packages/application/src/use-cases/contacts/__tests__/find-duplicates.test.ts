@@ -12,18 +12,40 @@ function createTestContact(id: string, firstName: string, lastName: string, emai
   return new Contact({
     id: id as ContactId,
     businessKey: `contact-${id}`,
+    version: 1,
     funeralHomeId: 'fh-test-1',
     firstName,
     lastName,
     email,
     phone,
     alternatePhone: null,
-    isMerged: false,
+    address: null,
+    city: null,
+    state: null,
+    zipCode: null,
+    type: 'primary',
+    relationshipType: null,
+    birthDate: null,
+    notes: null,
+    doNotContact: false,
+    emailOptIn: false,
+    smsOptIn: false,
+    tags: [],
     mergedIntoContactId: null,
+    isVeteran: false,
+    militaryBranch: null,
+    religiousAffiliation: null,
+    culturalPreferences: [],
+    dietaryRestrictions: [],
+    languagePreference: 'en',
+    griefStage: null,
+    griefJourneyStartedAt: null,
+    decedentRelationshipId: null,
+    serviceAnniversaryDate: null,
+    lastGriefCheckIn: null,
     createdAt: new Date(),
     updatedAt: new Date(),
     createdBy: 'test-user',
-    updatedBy: null,
   });
 }
 
@@ -439,8 +461,10 @@ describe('Find Duplicates - Policy Variation Tests', () => {
 
   describe('Scenario 5: Error Handling & Edge Cases', () => {
     it('should handle policy not found error gracefully', async () => {
-      const result = await Effect.runPromiseEither(
-        policyAdapter.findCurrentByFuneralHomeId('fh-nonexistent')
+      const result = await Effect.runPromise(
+        policyAdapter.findCurrentByFuneralHomeId('fh-nonexistent').pipe(
+          Effect.either
+        )
       );
 
       expect(result._tag).toBe('Left');

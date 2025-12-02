@@ -1,7 +1,7 @@
 import { Effect } from 'effect';
 import { ValidationError } from '@dykstra/domain';
 import type { GoInventoryPortService } from '../../ports/go-inventory-port';
-import { GoInventoryPort, type NetworkError } from '../../ports/go-inventory-port';
+import { GoInventoryPort, type NetworkError, type NotFoundError } from '../../ports/go-inventory-port';
 
 /**
  * Use Case 7.2: Inventory Cycle Count
@@ -160,7 +160,7 @@ export function performInventoryCycleCount(
   command: InventoryCycleCountCommand
 ): Effect.Effect<
   InventoryCycleCountResult,
-  ValidationError | NetworkError,
+  ValidationError | NetworkError | NotFoundError,
   GoInventoryPortService
 > {
   return Effect.gen(function* () {
@@ -169,11 +169,11 @@ export function performInventoryCycleCount(
     
     const inventoryPort = yield* GoInventoryPort;
     
-    // Step 2: Get current system balance
-    const balance = yield* inventoryPort.getBalance(
-      command.itemId,
-      command.locationId
-    );
+    // Step 2: Get item details and current system balance
+    const [item, balance] = yield* Effect.all([
+      inventoryPort.getItem(command.itemId),
+      inventoryPort.getBalance(command.itemId, command.locationId)
+    ]);
     
     const systemQuantity = balance.quantityOnHand;
     
@@ -207,9 +207,9 @@ export function performInventoryCycleCount(
     const result: InventoryCycleCountResult = {
       countId,
       item: {
-        id: balance.itemId,
-        name: (balance as typeof balance & { itemName?: string }).itemName || balance.itemId,
-        sku: (balance as typeof balance & { itemSku?: string }).itemSku || balance.itemId,
+        id: item.id,
+        name: item.description, // Go backend uses 'description' field for item name
+        sku: item.sku,
       },
       location: {
         id: balance.locationId,
