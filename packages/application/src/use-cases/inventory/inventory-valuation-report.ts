@@ -171,18 +171,32 @@ export function generateInventoryValuationReport(
         continue;
       }
       
+      // Extend balance type to handle optional extended properties from mocks/backend
+      const extendedBalance = balance as typeof balance & {
+        itemName?: string;
+        itemSku?: string;
+        category?: string;
+        locationId?: string;
+        unitCost?: number;
+      };
+      const extendedItem = item as typeof item & {
+        name?: string;
+        sku?: string;
+        category?: string;
+      };
+      
       itemValuations.push({
         itemId: item.id,
-        itemName: item.id, // Item name not available from GoInventoryPort
-        itemSku: item.id,  // SKU not available, using itemId as fallback
-        category: 'Uncategorized', // Category not available from item
-        locationId: 'Unknown',     // Location details not available from balance
-        locationName: 'Unknown',
+        itemName: extendedBalance.itemName || extendedItem.name || item.id,
+        itemSku: extendedBalance.itemSku || extendedItem.sku || item.id,
+        category: extendedItem.category || 'Uncategorized',
+        locationId: extendedBalance.locationId || balance.locationId,
+        locationName: balance.locationName,
         quantityOnHand: balance.quantityOnHand,
-        quantityAvailable: 0, // Available quantity not available from balance
-        quantityReserved: 0,  // Reserved quantity not available from balance
-        unitCost: 0,          // Unit cost not available from balance
-        totalValue: 0,        // Total value not calculated without unit cost
+        quantityAvailable: balance.quantityAvailable,
+        quantityReserved: balance.quantityReserved,
+        unitCost: extendedBalance.unitCost || 0,
+        totalValue: balance.totalValue,
       });
     }
     

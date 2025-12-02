@@ -208,12 +208,12 @@ export function performInventoryCycleCount(
       countId,
       item: {
         id: balance.itemId,
-        name: balance.itemId, // Backend returns balance only, item name not available
-        sku: balance.itemId,  // Using itemId as fallback SKU
+        name: (balance as typeof balance & { itemName?: string }).itemName || balance.itemId,
+        sku: (balance as typeof balance & { itemSku?: string }).itemSku || balance.itemId,
       },
       location: {
-        id: 'Unknown',        // Location details not available from balance
-        name: 'Unknown Location',
+        id: balance.locationId,
+        name: balance.locationName,
       },
       count: {
         systemQuantity,

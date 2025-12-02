@@ -86,19 +86,21 @@ describe('Use Case 7.2: Inventory Cycle Count', () => {
             totalValue: 67500,
           }),
         adjustInventory: (cmd) => {
-          expect(cmd.quantityChange).toBe(5); // 50 - 45 = +5
+          expect(cmd.quantity).toBe(5); // 50 - 45 = +5
           expect(cmd.itemId).toBe('item-123');
           expect(cmd.locationId).toBe('loc-main');
           return Effect.succeed({
             id: 'adj-001',
             itemId: cmd.itemId,
             locationId: cmd.locationId,
-            quantityChange: cmd.quantityChange,
-            reason: cmd.reason,
-            adjustedBy: cmd.adjustedBy,
-            adjustmentDate: cmd.adjustmentDate,
+            quantity: cmd.quantity,
+            transactionType: 'adjust',
+            unitCost: 0,
+            totalCost: 0,
+            postedAt: new Date(),
+            createdBy: 'system',
+            referenceType: 'cycle_count',
             notes: cmd.notes,
-            newBalance: 50,
           });
         },
         listItems: () => Effect.succeed([]),
@@ -144,18 +146,20 @@ describe('Use Case 7.2: Inventory Cycle Count', () => {
             totalValue: 82500,
           }),
         adjustInventory: (cmd) => {
-          expect(cmd.quantityChange).toBe(-5); // 50 - 55 = -5
+          expect(cmd.quantity).toBe(-5); // 50 - 55 = -5
           expect(cmd.itemId).toBe('item-123');
           return Effect.succeed({
             id: 'adj-002',
             itemId: cmd.itemId,
             locationId: cmd.locationId,
-            quantityChange: cmd.quantityChange,
-            reason: cmd.reason,
-            adjustedBy: cmd.adjustedBy,
-            adjustmentDate: cmd.adjustmentDate,
+            quantity: cmd.quantity,
+            transactionType: 'adjust',
+            unitCost: 0,
+            totalCost: 0,
+            postedAt: new Date(),
+            createdBy: 'system',
+            referenceType: 'cycle_count',
             notes: cmd.notes,
-            newBalance: 50,
           });
         },
         listItems: () => Effect.succeed([]),
@@ -404,17 +408,19 @@ describe('Use Case 7.2: Inventory Cycle Count', () => {
             totalValue: 0,
           }),
         adjustInventory: (cmd) => {
-          expect(cmd.quantityChange).toBe(50);
+          expect(cmd.quantity).toBe(50);
           return Effect.succeed({
             id: 'adj-003',
             itemId: cmd.itemId,
             locationId: cmd.locationId,
-            quantityChange: cmd.quantityChange,
-            reason: cmd.reason,
-            adjustedBy: cmd.adjustedBy,
-            adjustmentDate: cmd.adjustmentDate,
+            quantity: cmd.quantity,
+            transactionType: 'adjust',
+            unitCost: 0,
+            totalCost: 0,
+            postedAt: new Date(),
+            createdBy: 'system',
+            referenceType: 'cycle_count',
             notes: cmd.notes,
-            newBalance: 50,
           });
         },
         listItems: () => Effect.succeed([]),
@@ -464,17 +470,19 @@ describe('Use Case 7.2: Inventory Cycle Count', () => {
             totalValue: 15000,
           }),
         adjustInventory: (cmd) => {
-          expect(cmd.quantityChange).toBe(-10); // 0 - 10 = -10
+          expect(cmd.quantity).toBe(-10); // 0 - 10 = -10
           return Effect.succeed({
             id: 'adj-004',
             itemId: cmd.itemId,
             locationId: cmd.locationId,
-            quantityChange: cmd.quantityChange,
-            reason: cmd.reason,
-            adjustedBy: cmd.adjustedBy,
-            adjustmentDate: cmd.adjustmentDate,
+            quantity: cmd.quantity,
+            transactionType: 'adjust',
+            unitCost: 0,
+            totalCost: 0,
+            postedAt: new Date(),
+            createdBy: 'system',
+            referenceType: 'cycle_count',
             notes: cmd.notes,
-            newBalance: 0,
           });
         },
         listItems: () => Effect.succeed([]),
