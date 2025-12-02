@@ -4,9 +4,9 @@ import type { DriverAssignmentRepositoryService } from '../../ports/driver-assig
 import { VehicleRepository } from '../../ports/vehicle-repository';
 import { DriverAssignmentRepository } from '../../ports/driver-assignment-repository';
 import { AssignmentValidationError } from './assign-driver';
-import { DriverAssignmentNotFoundError, DriverAssignmentRepositoryError } from '../../ports/driver-assignment-repository';
-import { VehicleNotFoundError, VehicleRepositoryError } from '../../ports/vehicle-repository';
-import { AssignmentId, VehicleId } from '@dykstra/domain';
+import { type DriverAssignmentNotFoundError, type DriverAssignmentRepositoryError } from '../../ports/driver-assignment-repository';
+import { type VehicleNotFoundError, type VehicleRepositoryError } from '../../ports/vehicle-repository';
+import { type AssignmentId, type VehicleId } from '@dykstra/domain';
 
 /**
  * Input for record mileage use case

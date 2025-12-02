@@ -1,9 +1,9 @@
 import { Effect } from 'effect';
-import { AppointmentStatus, PrePlanningAppointment } from '@dykstra/domain';
+import { type AppointmentStatus, type PrePlanningAppointment } from '@dykstra/domain';
 import type { PrePlanningAppointmentRepository } from '../../ports/pre-planning-appointment-repository';
 import {
   PrePlanningAppointmentRepositoryTag,
-  RepositoryError,
+  type RepositoryError,
 } from '../../ports/pre-planning-appointment-repository';
 
 /**
@@ -125,7 +125,7 @@ export const listAppointments = (
 
     // Sort by appointment date
     const sorted = [...filtered].sort(
-      (a: any, b: any) => a.startTime.getTime() - b.startTime.getTime()
+      (a, b) => a.startTime.getTime() - b.startTime.getTime()
     );
 
     // Convert to summaries

@@ -1,4 +1,4 @@
-import { CaseId } from './case';
+import { type CaseId } from './case';
 
 export type AssignmentId = string & { readonly __brand: 'AssignmentId' };
 export const AssignmentId = (value: string): AssignmentId => value as AssignmentId;

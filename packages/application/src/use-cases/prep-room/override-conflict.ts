@@ -6,7 +6,7 @@
 import { Effect } from 'effect';
 import type { PrepRoomId, ReservationId } from '@dykstra/domain';
 import { createPrepRoomReservation, type ReservationPriority } from '@dykstra/domain';
-import { PrepRoomRepositoryPort } from '../../ports/prep-room-repository';
+import { PrepRoomRepositoryPort, type PrepRoomRepositoryService } from '../../ports/prep-room-repository';
 
 /**
  * Override Conflict
@@ -41,7 +41,7 @@ export interface OverrideConflictResult {
 
 export const overrideConflict = (
   command: OverrideConflictCommand
-): Effect.Effect<OverrideConflictResult, Error, typeof PrepRoomRepositoryPort> =>
+): Effect.Effect<OverrideConflictResult, Error, PrepRoomRepositoryService> =>
   Effect.gen(function* () {
     const repo = yield* PrepRoomRepositoryPort;
 

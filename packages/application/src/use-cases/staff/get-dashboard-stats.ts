@@ -1,5 +1,5 @@
 import { Effect } from 'effect';
-import { CaseRepository, PersistenceError } from '../../ports/case-repository';
+import { CaseRepository, type PersistenceError } from '../../ports/case-repository';
 import { TaskRepository } from '../../ports/task-repository';
 import { PaymentRepository } from '../../ports/payment-repository';
 

@@ -1,7 +1,7 @@
 import { Effect } from 'effect';
 import { ValidationError } from '@dykstra/domain';
 import type { GoInventoryPortService } from '../../ports/go-inventory-port';
-import { GoInventoryPort, NetworkError } from '../../ports/go-inventory-port';
+import { GoInventoryPort, type NetworkError } from '../../ports/go-inventory-port';
 
 /**
  * Use Case 7.2: Inventory Cycle Count
@@ -208,12 +208,12 @@ export function performInventoryCycleCount(
       countId,
       item: {
         id: balance.itemId,
-        name: (balance as any).itemName || balance.itemId,
-        sku: (balance as any).itemSku || balance.itemId,
+        name: balance.itemId, // Backend returns balance only, item name not available
+        sku: balance.itemId,  // Using itemId as fallback SKU
       },
       location: {
-        id: (balance as any).locationId || 'Unknown',
-        name: (balance as any).locationName || 'Unknown Location',
+        id: 'Unknown',        // Location details not available from balance
+        name: 'Unknown Location',
       },
       count: {
         systemQuantity,

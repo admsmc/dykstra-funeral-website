@@ -1,6 +1,6 @@
 import { Effect } from 'effect';
-import { Tribute, type MemorialId } from '@dykstra/domain';
-import { TributeRepository, PersistenceError } from '../ports/tribute-repository';
+import { type Tribute, type MemorialId } from '@dykstra/domain';
+import { TributeRepository, type PersistenceError } from '../ports/tribute-repository';
 
 /**
  * Get Tributes query

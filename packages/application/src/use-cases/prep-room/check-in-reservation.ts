@@ -6,7 +6,7 @@
 import { Effect } from 'effect';
 import type { ReservationId, PrepRoomReservation } from '@dykstra/domain';
 import { checkInReservation } from '@dykstra/domain';
-import { PrepRoomRepositoryPort } from '../../ports/prep-room-repository';
+import { PrepRoomRepositoryPort, type PrepRoomRepositoryService } from '../../ports/prep-room-repository';
 
 /**
  * Check In Reservation
@@ -34,7 +34,7 @@ export interface CheckInResult {
 
 export const checkIn = (
   command: CheckInCommand
-): Effect.Effect<CheckInResult, Error, typeof PrepRoomRepositoryPort> =>
+): Effect.Effect<CheckInResult, Error, PrepRoomRepositoryService> =>
   Effect.gen(function* () {
     const repo = yield* PrepRoomRepositoryPort;
 

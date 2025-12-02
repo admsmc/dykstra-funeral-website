@@ -1980,3 +1980,72 @@ model NoteManagementPolicy {
   @@index([funeralHomeId, isCurrent])
   @@map("note_management_policies")
 }
+
+// Interaction Management Policy
+// SCD Type 2: Tracks historical interaction management policies per funeral home
+model InteractionManagementPolicy {
+  id            String    @id @default(cuid())
+  businessKey   String    @default(cuid()) // Policy identifier
+  version       Int       @default(1)
+  validFrom     DateTime  @default(now())
+  validTo       DateTime?
+  isCurrent     Boolean   @default(true)
+  funeralHomeId String
+
+  // Interaction Management Rules
+  maxSubjectLength                 Int     @default(200)
+  minSubjectLength                 Int     @default(1)
+  maxOutcomeLength                 Int     @default(1000)
+  maxDurationMinutes               Int? // null = no limit
+  requireAssociation               Boolean @default(true)
+  allowScheduledInteractions       Boolean @default(true)
+  autoCompleteUncompletedAfterDays Int? // null = disabled
+  allowOutcomeUpdate               Boolean @default(false)
+  autoArchiveCompletedAfterDays    Int? // null = disabled
+
+  // Audit Trail
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String
+  updatedBy String?
+  reason    String?  @db.Text // Reason for policy change
+
+  @@unique([businessKey, version])
+  @@index([businessKey, isCurrent])
+  @@index([validFrom, validTo])
+  @@index([funeralHomeId, isCurrent])
+  @@map("interaction_management_policies")
+}
+
+// Invitation Management Policy
+// SCD Type 2: Tracks historical invitation management policies per funeral home
+model InvitationManagementPolicy {
+  id            String    @id @default(cuid())
+  businessKey   String    @default(cuid()) // Policy identifier
+  version       Int       @default(1)
+  validFrom     DateTime  @default(now())
+  validTo       DateTime?
+  isCurrent     Boolean   @default(true)
+  funeralHomeId String
+
+  // Invitation Management Rules
+  tokenLengthBytes                 Int     @default(32)
+  expirationDays                   Int     @default(7)
+  requireStrictEmailValidation     Boolean @default(true)
+  allowMultipleInvitationsPerEmail Boolean @default(false)
+  autoRevokeExpiredAfterDays       Int? // null = disabled
+  requirePhoneNumber               Boolean @default(false)
+
+  // Audit Trail
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String
+  updatedBy String?
+  reason    String?  @db.Text // Reason for policy change
+
+  @@unique([businessKey, version])
+  @@index([businessKey, isCurrent])
+  @@index([validFrom, validTo])
+  @@index([funeralHomeId, isCurrent])
+  @@map("invitation_management_policies")
+}

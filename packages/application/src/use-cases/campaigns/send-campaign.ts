@@ -1,9 +1,9 @@
 import { Effect } from 'effect';
-import { Campaign, InvalidStateTransitionError } from '@dykstra/domain';
-import { CampaignRepository, type CampaignRepositoryService, NotFoundError, PersistenceError } from '../../ports/campaign-repository';
+import { type Campaign, type InvalidStateTransitionError } from '@dykstra/domain';
+import { CampaignRepository, type CampaignRepositoryService, NotFoundError, type PersistenceError } from '../../ports/campaign-repository';
 import { ContactRepository, type ContactRepositoryService } from '../../ports/contact-repository';
-import { EmailMarketingService, type EmailMarketingServicePort, EmailError } from '../../ports/email-marketing-port';
-import { SMSService, type SMSServicePort, SMSError } from '../../ports/sms-port';
+import { EmailMarketingService, type EmailMarketingServicePort, type EmailError } from '../../ports/email-marketing-port';
+import { SMSService, type SMSServicePort, type SMSError } from '../../ports/sms-port';
 
 /**
  * Send Campaign

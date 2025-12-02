@@ -221,10 +221,11 @@ export const paymentRouter = router({
         includeHistory: z.boolean().default(true),
       })
     )
-    .query(async ({ input }) => {
+    .query(async ({ ctx, input }) => {
       return await runEffect(
         getPaymentById({
           paymentId: input.paymentId,
+          funeralHomeId: ctx.user.funeralHomeId!,
           includeHistory: input.includeHistory,
         })
       );
@@ -249,6 +250,7 @@ export const paymentRouter = router({
       return await runEffect(
         recordManualPayment({
           caseId: input.caseId,
+          funeralHomeId: ctx.user.funeralHomeId!,
           amount: input.amount,
           method: input.method,
           checkNumber: input.checkNumber,
@@ -275,6 +277,7 @@ export const paymentRouter = router({
       return await runEffect(
         processRefund({
           paymentBusinessKey: input.paymentBusinessKey,
+          funeralHomeId: ctx.user.funeralHomeId!,
           refundAmount: input.refundAmount,
           reason: input.reason,
           notes: input.notes,

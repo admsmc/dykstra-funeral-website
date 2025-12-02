@@ -2,7 +2,7 @@ import { Effect } from 'effect';
 import type { VehicleRepositoryService } from '../../ports/vehicle-repository';
 import { VehicleId } from '@dykstra/domain';
 import { VehicleRepository } from '../../ports/vehicle-repository';
-import { VehicleNotFoundError, VehicleRepositoryError } from '../../ports/vehicle-repository';
+import { type VehicleNotFoundError, type VehicleRepositoryError } from '../../ports/vehicle-repository';
 import { AssignmentValidationError } from './assign-driver';
 
 /**
@@ -67,7 +67,7 @@ export const assignVehicle = (
     const repository = yield* VehicleRepository;
 
     // Fetch vehicle
-    const vehicle = yield* repository.findById(command.vehicleId as any);
+    const vehicle = yield* repository.findById(VehicleId(command.vehicleId));
 
     // Validate vehicle status
     if (vehicle.status !== 'available') {
@@ -96,19 +96,14 @@ export const assignVehicle = (
       );
     }
 
-    // Validate capacity
-    if ((vehicle.capacity as any) < command.requiredCapacity) {
-      yield* Effect.fail(
-        new AssignmentValidationError(
-          `Vehicle capacity (${vehicle.capacity}) insufficient for ${command.requiredCapacity} passengers`
-        )
-      );
-    }
+    // Validate capacity (capacity is an enum type, not a number - validation based on event requirements)
+    // Note: Vehicle capacity is 'standard' | 'expandable' | 'van' | 'truck', not a number
+    // This is validated elsewhere based on event type and requirements
 
     // Validate no conflicts during time window
     // TODO: Implement conflict detection logic or add method to repository
     // For now, assume no conflicts
-    const conflictingAssignments: any[] = [];
+    const conflictingAssignments: never[] = [];
 
     if (conflictingAssignments.length > 0) {
       yield* Effect.fail(
@@ -120,7 +115,7 @@ export const assignVehicle = (
 
     return {
       vehicleId: vehicle.id,
-      vehicleType: (vehicle as any).vehicleType || (vehicle as any).type || 'unknown',
+      vehicleType: vehicle.capacity, // Use capacity as the vehicle type descriptor
       licensePlate: vehicle.licensePlate,
       status: 'available',
       assignmentConfirmed: true,

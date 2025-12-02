@@ -1,5 +1,5 @@
-import { Effect, Context } from 'effect';
-import { DriverAssignment, AssignmentId } from '@dykstra/domain';
+import { type Effect, Context } from 'effect';
+import { type DriverAssignment, type AssignmentId } from '@dykstra/domain';
 
 /**
  * Notification error - failure to send notification

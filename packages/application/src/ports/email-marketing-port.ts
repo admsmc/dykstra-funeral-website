@@ -1,4 +1,4 @@
-import { Effect, Context } from 'effect';
+import { type Effect, Context } from 'effect';
 import { EmailError } from './email-port';
 
 // Re-export for convenience

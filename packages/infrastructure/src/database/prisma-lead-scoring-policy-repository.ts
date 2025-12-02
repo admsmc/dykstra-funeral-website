@@ -100,11 +100,11 @@ export const PrismaLeadScoringPolicyRepository: LeadScoringPolicyRepository = {
         });
 
         if (!row) {
-          throw new NotFoundError(
-            `No current lead scoring policy found for funeral home ${funeralHomeId}`,
-            'LeadScoringPolicy',
-            funeralHomeId
-          );
+          throw new NotFoundError({
+            message: `No current lead scoring policy found for funeral home ${funeralHomeId}`,
+            entityType: 'LeadScoringPolicy',
+            entityId: funeralHomeId
+          });
         }
 
         return toDomain(row);
@@ -148,11 +148,11 @@ export const PrismaLeadScoringPolicyRepository: LeadScoringPolicyRepository = {
         });
 
         if (!row) {
-          throw new NotFoundError(
-            `Lead scoring policy version ${version} not found for business key ${businessKey}`,
-            'LeadScoringPolicy',
-            businessKey
-          );
+          throw new NotFoundError({
+            message: `Lead scoring policy version ${version} not found for business key ${businessKey}`,
+            entityType: 'LeadScoringPolicy',
+            entityId: businessKey
+          });
         }
 
         return toDomain(row);
@@ -222,11 +222,11 @@ export const PrismaLeadScoringPolicyRepository: LeadScoringPolicyRepository = {
         });
 
         if (result.count === 0) {
-          throw new NotFoundError(
-            `Lead scoring policy with business key ${businessKey} not found`,
-            'LeadScoringPolicy',
-            businessKey
-          );
+          throw new NotFoundError({
+            message: `Lead scoring policy with business key ${businessKey} not found`,
+            entityType: 'LeadScoringPolicy',
+            entityId: businessKey
+          });
         }
 
         return undefined;

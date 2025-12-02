@@ -1,4 +1,4 @@
-import { Effect, Context } from 'effect';
+import { type Effect, Context } from 'effect';
 import type { PersistenceError } from './case-repository';
 
 export type { PersistenceError } from './case-repository';

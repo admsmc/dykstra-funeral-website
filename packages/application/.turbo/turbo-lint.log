@@ -1,5 +1,16 @@
 
+
 > @dykstra/application@0.1.0 lint /Users/andrewmathers/projects/dykstra-funeral-website/packages/application
 > eslint .
 
 Pages directory cannot be found at /Users/andrewmathers/projects/dykstra-funeral-website/packages/application/pages or /Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/pages. If using a custom path, please configure with the `no-html-link-for-pages` rule in your eslint config file.
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/use-cases/financial/vendor-bill-processing.ts[24m[0m
+[0m  [2m318:7[22m   [33mwarning[39m  `import()` type annotations are forbidden  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m  [2m319:22[22m  [33mwarning[39m  `import()` type annotations are forbidden  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application/src/use-cases/payroll/create-payroll-run-from-timesheets.ts[24m[0m
+[0m  [2m50:36[22m  [33mwarning[39m  `import()` type annotations are forbidden  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[33m[1m✖ 3 problems (0 errors, 3 warnings)[22m[39m[0m
+[0m[33m[1m[22m[39m[0m

@@ -4,7 +4,7 @@
  */
 
 import { Effect } from 'effect';
-import { PrepRoomRepositoryPort, type RoomUtilization } from '../../ports/prep-room-repository';
+import { PrepRoomRepositoryPort, type PrepRoomRepositoryService, type RoomUtilization } from '../../ports/prep-room-repository';
 
 /**
  * List Schedule
@@ -34,7 +34,7 @@ export interface ListScheduleResult {
 
 export const listSchedule = (
   query: ListScheduleQuery
-): Effect.Effect<ListScheduleResult, Error, typeof PrepRoomRepositoryPort> =>
+): Effect.Effect<ListScheduleResult, Error, PrepRoomRepositoryService> =>
   Effect.gen(function* () {
     const repo = yield* PrepRoomRepositoryPort;
 

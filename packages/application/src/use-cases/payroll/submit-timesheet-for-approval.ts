@@ -1,5 +1,5 @@
 import { Effect } from 'effect';
-import { GoPayrollPort, type GoPayrollPortService, NetworkError } from '../../ports/go-payroll-port';
+import { GoPayrollPort, type GoPayrollPortService, type NetworkError } from '../../ports/go-payroll-port';
 import { ValidationError } from '@dykstra/domain';
 
 /**

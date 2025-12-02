@@ -351,7 +351,7 @@ export function calculateNextAvailableSlot(
   duration: number = 60
 ): AvailabilitySlot | null {
   // Start from 8am on the given date
-  let slotStart = new Date(fromDate);
+  const slotStart = new Date(fromDate);
   slotStart.setHours(8, 0, 0, 0);
 
   // Check for next 30 days

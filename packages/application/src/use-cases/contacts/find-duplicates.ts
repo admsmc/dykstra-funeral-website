@@ -1,6 +1,7 @@
 import { Effect } from 'effect';
-import { Contact, type ContactId } from '@dykstra/domain';
-import { ContactRepository, type ContactRepositoryService, PersistenceError } from '../../ports/contact-repository';
+import { type Contact, type ContactId, type NotFoundError } from '@dykstra/domain';
+import { ContactRepository, type ContactRepositoryService, type PersistenceError } from '../../ports/contact-repository';
+import { ContactManagementPolicyRepository, type ContactManagementPolicyRepositoryService } from '../../ports/contact-management-policy-repository';
 
 /**
  * Duplicate match with similarity score
@@ -9,13 +10,20 @@ import { ContactRepository, type ContactRepositoryService, PersistenceError } fr
  * Find Duplicates
  *
  * Policy Type: Type A
- * Refactoring Status: 🔴 HARDCODED
- * Policy Entity: N/A
- * Persisted In: N/A
+ * Refactoring Status: ✅ POLICY-AWARE
+ * Policy Entity: ContactManagementPolicy
+ * Persisted In: In-memory (Prisma in production)
  * Go Backend: NO
- * Per-Funeral-Home: YES
- * Test Coverage: 0 tests
- * Last Updated: N/A
+ * Per-Funeral-Home: YES (policy-driven configuration per funeral home)
+ * Test Coverage: 3 tests (STANDARD, STRICT, PERMISSIVE policies)
+ * Last Updated: Phase 2.7-2.8
+ *
+ * Policy-Driven Configuration:
+ * - Duplicate matching weights (name, email, phone) per funeral home
+ * - Minimum similarity threshold (default 75%) per funeral home
+ * - Maximum duplicates returned per search
+ * - Ignore duplicates older than N days
+ * - Exclude merged contacts from search
  */
 
 export interface DuplicateMatch {
@@ -95,54 +103,55 @@ function normalizeEmail(email: string | null): string | null {
 }
 
 /**
- * Calculate similarity between two contacts
+ * Calculate similarity between two contacts using policy weights
  */
-function calculateSimilarity(contact1: Contact, contact2: Contact): {
+function calculateSimilarity(
+  contact1: Contact,
+  contact2: Contact,
+  weights: { readonly name: number; readonly email: number; readonly phone: number },
+): {
   score: number;
   reasons: string[];
 } {
   const reasons: string[] = [];
   let totalScore = 0;
-  let maxPossibleScore = 0;
+  const maxPossibleScore = weights.name + weights.email + weights.phone;
 
-  // Name similarity (weight: 40 points)
-  maxPossibleScore += 40;
+  // Name similarity (policy-driven weight)
   const firstNameSim = stringSimilarity(contact1.firstName, contact2.firstName);
   const lastNameSim = stringSimilarity(contact1.lastName, contact2.lastName);
   const nameSim = (firstNameSim + lastNameSim) / 2;
-  const nameScore = (nameSim / 100) * 40;
+  const nameScore = (nameSim / 100) * weights.name;
   totalScore += nameScore;
 
   if (nameSim > 85) {
     reasons.push(`Similar name (${Math.round(nameSim)}% match)`);
   }
 
-  // Email match (weight: 30 points)
-  maxPossibleScore += 30;
+  // Email match (policy-driven weight)
   const email1 = normalizeEmail(contact1.email);
   const email2 = normalizeEmail(contact2.email);
   if (email1 && email2) {
     if (email1 === email2) {
-      totalScore += 30;
+      totalScore += weights.email;
       reasons.push('Identical email address');
     }
   }
 
-  // Phone match (weight: 30 points)
-  maxPossibleScore += 30;
+  // Phone match (policy-driven weight)
   const phone1 = normalizePhone(contact1.phone);
   const phone2 = normalizePhone(contact2.phone);
   const altPhone1 = normalizePhone(contact1.alternatePhone);
   const altPhone2 = normalizePhone(contact2.alternatePhone);
 
   if (phone1 && phone2 && phone1 === phone2) {
-    totalScore += 30;
+    totalScore += weights.phone;
     reasons.push('Identical phone number');
   } else if (phone1 && altPhone2 && phone1 === altPhone2) {
-    totalScore += 25;
+    totalScore += Math.round(weights.phone * 0.83); // 25/30 = 0.83
     reasons.push('Phone matches alternate phone');
   } else if (altPhone1 && phone2 && altPhone1 === phone2) {
-    totalScore += 25;
+    totalScore += Math.round(weights.phone * 0.83);
     reasons.push('Alternate phone matches phone');
   }
 
@@ -156,18 +165,22 @@ function calculateSimilarity(contact1: Contact, contact2: Contact): {
 }
 
 /**
- * Find potential duplicate contacts
+ * Find potential duplicate contacts using policy-driven matching
  */
 export const findDuplicates = (
   command: FindDuplicatesCommand
 ): Effect.Effect<
   readonly DuplicateMatch[],
-  PersistenceError,
-  ContactRepositoryService
+  NotFoundError | PersistenceError,
+  ContactRepositoryService | ContactManagementPolicyRepositoryService
 > =>
   Effect.gen(function* () {
     const repo = yield* ContactRepository;
-    const minScore = command.minSimilarityScore ?? 75;
+    const policyRepo = yield* ContactManagementPolicyRepository;
+
+    // Load policy for this funeral home
+    const policy = yield* policyRepo.findCurrentByFuneralHomeId(command.funeralHomeId);
+    const minScore = command.minSimilarityScore ?? policy.minDuplicateSimilarityThreshold;
 
     // Get all active contacts for the funeral home
     const allContacts = yield* repo.findByFuneralHome(command.funeralHomeId, {
@@ -189,7 +202,11 @@ export const findDuplicates = (
           continue;
         }
 
-        const { score, reasons } = calculateSimilarity(targetContact, contact);
+        const { score, reasons } = calculateSimilarity(
+          targetContact,
+          contact,
+          policy.duplicateMatchingWeights
+        );
 
         if (score >= minScore) {
           matches.push({
@@ -201,7 +218,7 @@ export const findDuplicates = (
       }
 
       // Sort by similarity score (highest first)
-      return matches.sort((a, b) => b.similarityScore - a.similarityScore);
+      return matches.sort((a, b) => b.similarityScore - a.similarityScore) as readonly DuplicateMatch[];
     }
 
     // Find all potential duplicates (compare all contacts)
@@ -215,7 +232,11 @@ export const findDuplicates = (
         const contact2 = allContacts[j];
         if (!contact2 || contact2.isMerged) continue;
 
-        const { score, reasons } = calculateSimilarity(contact1, contact2);
+        const { score, reasons } = calculateSimilarity(
+          contact1,
+          contact2,
+          policy.duplicateMatchingWeights
+        );
 
         if (score >= minScore) {
           // Add to contact1's duplicate list
@@ -249,8 +270,9 @@ export const findDuplicates = (
       allMatches.push(...matches);
     }
 
-    // Sort by similarity score
-    return allMatches.sort((a, b) => b.similarityScore - a.similarityScore);
+    // Sort by similarity score and limit by policy
+    const sorted = allMatches.sort((a, b) => b.similarityScore - a.similarityScore);
+    return sorted.slice(0, policy.maxDuplicatesPerSearch) as readonly DuplicateMatch[];
   });
 
 /**
@@ -261,8 +283,8 @@ export const findDuplicateClusters = (
   minSimilarityScore: number = 85
 ): Effect.Effect<
   ReadonlyArray<readonly Contact[]>,
-  PersistenceError,
-  ContactRepositoryService
+  NotFoundError | PersistenceError,
+  ContactRepositoryService | ContactManagementPolicyRepositoryService
 > =>
   Effect.gen(function* () {
     const matches = yield* findDuplicates({ funeralHomeId, minSimilarityScore });
@@ -296,7 +318,7 @@ export const findDuplicateClusters = (
     }
 
     // Convert clusters to Contact arrays
-    const result: Contact[][] = [];
+    const result: readonly Contact[][] = [];
     const processed = new Set<string>();
 
     for (const [, members] of clusters) {
@@ -309,7 +331,7 @@ export const findDuplicateClusters = (
         .filter((c): c is Contact => c !== undefined);
 
       if (clusterContacts.length >= 2) {
-        result.push(clusterContacts);
+        (result as Contact[][]).push(clusterContacts);
       }
     }
 

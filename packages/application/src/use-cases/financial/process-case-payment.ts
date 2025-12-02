@@ -1,10 +1,10 @@
 import { Effect } from 'effect';
-import { Case, ValidationError } from '@dykstra/domain';
+import { type Case, ValidationError } from '@dykstra/domain';
 import { 
   CaseRepository, 
   type CaseRepository as CaseRepositoryService,
   NotFoundError,
-  PersistenceError,
+  type PersistenceError,
 } from '../../ports/case-repository';
 // Note: PaymentRepository would be needed for proper payment tracking
 // Currently stubbed out - see TODO comments below
@@ -13,7 +13,7 @@ import {
   type GoFinancialPortService,
   type RecordPaymentCommand,
   type GoPayment,
-  NetworkError,
+  type NetworkError,
 } from '../../ports/go-financial-port';
 
 /**

@@ -1,11 +1,11 @@
 import { Effect } from 'effect';
 import {
-  AvailabilitySlot,
+  type AvailabilitySlot,
 } from '@dykstra/domain';
 import type { PrePlanningAppointmentRepository } from '../../ports/pre-planning-appointment-repository';
 import {
   PrePlanningAppointmentRepositoryTag,
-  RepositoryError,
+  type RepositoryError,
 } from '../../ports/pre-planning-appointment-repository';
 
 /**

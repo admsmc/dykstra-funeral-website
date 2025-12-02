@@ -1,10 +1,10 @@
 import { Effect } from 'effect';
 import {
   ContractTemplateRepository,
-  ContractTemplateWithCreator,
+  type ContractTemplateWithCreator,
   TemplateNotFoundError,
 } from '../../ports/contract-template-repository';
-import { CatalogServiceType } from '../../ports/catalog-repository';
+import { type CatalogServiceType } from '../../ports/catalog-repository';
 import { ValidationError } from '@dykstra/domain';
 
 /**

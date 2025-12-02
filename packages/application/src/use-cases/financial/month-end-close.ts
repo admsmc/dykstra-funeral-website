@@ -2,7 +2,7 @@ import { Effect } from 'effect';
 import { 
   GoFinancialPort,
   type GoFinancialPortService,
-  NetworkError
+  type NetworkError
 } from '../../ports/go-financial-port';
 import { GoFixedAssetsPort, type GoFixedAssetsPortService } from '../../ports/go-fixed-assets-port';
 import { GoReconciliationsPort, type GoReconciliationsPortService } from '../../ports/go-reconciliations-port';

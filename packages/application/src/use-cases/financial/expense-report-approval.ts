@@ -3,7 +3,7 @@ import { ValidationError } from '@dykstra/domain';
 import {
   GoApprovalWorkflowPort,
   type GoApprovalWorkflowPortService,
-  NetworkError,
+  type NetworkError,
 } from '../../ports/go-approval-workflow-port';
 import {
   GoFinancialPort,

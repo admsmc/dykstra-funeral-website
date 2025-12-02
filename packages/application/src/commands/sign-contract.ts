@@ -1,7 +1,7 @@
 import { Effect } from 'effect';
-import { Contract, ContractSigned, ValidationError, BusinessRuleViolationError, NotFoundError, InvalidStateTransitionError } from '@dykstra/domain';
-import { ContractRepository, PersistenceError } from '../ports/contract-repository';
-import { EventPublisher, EventPublishError } from '../ports/event-publisher';
+import { type Contract, ContractSigned, ValidationError, BusinessRuleViolationError, type NotFoundError, type InvalidStateTransitionError } from '@dykstra/domain';
+import { ContractRepository, type PersistenceError } from '../ports/contract-repository';
+import { EventPublisher, type EventPublishError } from '../ports/event-publisher';
 
 /**
  * Sign Contract command

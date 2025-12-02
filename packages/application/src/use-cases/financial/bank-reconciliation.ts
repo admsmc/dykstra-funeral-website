@@ -2,8 +2,8 @@ import { Effect } from 'effect';
 import { 
   GoReconciliationsPort,
   type GoReconciliationsPortService,
-  NetworkError, 
-  NotFoundError,
+  type NetworkError, 
+  type NotFoundError,
   type GoReconciliationItem
 } from '../../ports/go-reconciliations-port';
 import { GoFinancialPort, type GoFinancialPortService } from '../../ports/go-financial-port';

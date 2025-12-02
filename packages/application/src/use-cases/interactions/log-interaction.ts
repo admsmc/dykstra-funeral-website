@@ -1,6 +1,6 @@
 import { Effect } from 'effect';
-import { Interaction, ValidationError, NotFoundError } from '@dykstra/domain';
-import { InteractionRepository, type InteractionRepositoryService, PersistenceError } from '../../ports/interaction-repository';
+import { Interaction, ValidationError, type NotFoundError } from '@dykstra/domain';
+import { InteractionRepository, type InteractionRepositoryService, type PersistenceError } from '../../ports/interaction-repository';
 import { InteractionManagementPolicyRepository, type InteractionManagementPolicyRepositoryService } from '../../ports/interaction-management-policy-repository';
 
 /**

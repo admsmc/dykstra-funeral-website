@@ -1,6 +1,6 @@
 import { Effect } from 'effect';
-import { CaseRepository, PersistenceError } from '../../ports/case-repository';
-import { TaskRepository, TaskWithUsers } from '../../ports/task-repository';
+import { CaseRepository, type PersistenceError } from '../../ports/case-repository';
+import { TaskRepository, type TaskWithUsers } from '../../ports/task-repository';
 
 /**
  * Get Task Dashboard

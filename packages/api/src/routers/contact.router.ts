@@ -463,9 +463,10 @@ export const contactRouter = router({
         mergedBy: z.string(),
       })
     )
-    .mutation(async ({ input }) => {
-      const targetContact = await runEffect(
+    .mutation(async ({ ctx, input }) => {
+      const result = await runEffect(
         mergeContacts({
+          funeralHomeId: ctx.user.funeralHomeId!,
           sourceContactBusinessKey: input.sourceContactId,
           targetContactBusinessKey: input.targetContactId,
         })
@@ -473,12 +474,15 @@ export const contactRouter = router({
 
       return {
         targetContact: {
-          id: targetContact.id,
-          firstName: targetContact.firstName,
-          lastName: targetContact.lastName,
-          email: targetContact.email,
-          phone: targetContact.phone,
+          id: result.mergedContact.id,
+          firstName: result.mergedContact.firstName,
+          lastName: result.mergedContact.lastName,
+          email: result.mergedContact.email,
+          phone: result.mergedContact.phone,
         },
+        requiresApproval: result.requiresApproval,
+        fieldPrecedenceStrategy: result.fieldPrecedenceStrategy,
+        mergeRetentionDays: result.mergeRetentionDays,
       };
     }),
 

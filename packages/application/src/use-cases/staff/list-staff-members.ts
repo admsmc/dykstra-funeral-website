@@ -1,5 +1,5 @@
 import { Effect } from 'effect';
-import { StaffRepository, type StaffMember, PersistenceError } from '../../ports/staff-repository';
+import { StaffRepository, type StaffMember, type PersistenceError } from '../../ports/staff-repository';
 
 /**
  * List Staff Members

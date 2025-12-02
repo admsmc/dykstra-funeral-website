@@ -21,9 +21,11 @@ export * from './entities/lead';
 export * from './entities/lead-scoring-policy';
 export * from './entities/lead-to-case-conversion-policy';
 export * from './entities/note-management-policy';
+export * from './entities/payment-management-policy';
 export * from './entities/interaction-management-policy';
 export * from './entities/invitation-management-policy';
 export * from './entities/contact';
+export * from './entities/contact-management-policy';
 export * from './entities/campaign';
 export * from './entities/interaction';
 export * from './entities/referral-source';
@@ -38,6 +40,7 @@ export * from './entities/prep-room-reservation';
 export * from './entities/pto-management';
 export * from './entities/scheduling/on-call-policy';
 export * from './entities/scheduling/service-coverage-policy';
+export * from './entities/email-sync/email-calendar-sync-policy';
 
 // Events
 export * from './events/domain-events';

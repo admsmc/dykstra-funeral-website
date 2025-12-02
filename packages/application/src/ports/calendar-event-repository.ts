@@ -1,4 +1,4 @@
-import { Effect, Context } from 'effect';
+import { type Effect, Context } from 'effect';
 import type { CalendarEvent, CalendarProvider } from '@dykstra/domain';
 import type { PersistenceError } from '../errors';
 

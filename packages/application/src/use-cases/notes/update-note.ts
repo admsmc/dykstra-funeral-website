@@ -1,7 +1,8 @@
 import { Effect } from 'effect';
+import { ValidationError, type NotFoundError } from '@dykstra/domain';
+import { type PersistenceError } from '../../errors';
 import { NoteRepository, NoteNotFoundError } from '../../ports/note-repository';
-import { NoteManagementPolicyRepository } from '../../ports/note-management-policy-repository';
-import { ValidationError } from '@dykstra/domain';
+import { NoteManagementPolicyRepository, type NoteManagementPolicyRepositoryService } from '../../ports/note-management-policy-repository';
 
 /**
  * Update Note
@@ -42,8 +43,8 @@ export interface UpdateNoteResult {
  */
 export const updateNote = (command: UpdateNoteCommand): Effect.Effect<
   UpdateNoteResult,
-  ValidationError | NoteNotFoundError,
-  NoteRepository | NoteManagementPolicyRepository
+  ValidationError | NoteNotFoundError | NotFoundError | PersistenceError,
+  NoteRepository | NoteManagementPolicyRepositoryService
 > =>
   Effect.gen(function* () {
     const noteRepo = yield* NoteRepository;

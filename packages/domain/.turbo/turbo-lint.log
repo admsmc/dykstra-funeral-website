@@ -1,16 +1,6 @@
 
+
 > @dykstra/domain@0.1.0 lint /Users/andrewmathers/projects/dykstra-funeral-website/packages/domain
 > eslint .
 
 Pages directory cannot be found at /Users/andrewmathers/projects/dykstra-funeral-website/packages/domain/pages or /Users/andrewmathers/projects/dykstra-funeral-website/packages/domain/src/pages. If using a custom path, please configure with the `no-html-link-for-pages` rule in your eslint config file.
-
-/Users/andrewmathers/projects/dykstra-funeral-website/packages/domain/src/entities/driver-assignment.ts
-  1:1  warning  All imports in the declaration are only used as types. Use `import type`  @typescript-eslint/consistent-type-imports
-
-/Users/andrewmathers/projects/dykstra-funeral-website/packages/domain/src/entities/pre-planning-appointment.ts
-  354:7  error  'slotStart' is never reassigned. Use 'const' instead  prefer-const
-
-✖ 2 problems (1 error, 1 warning)
-  1 error and 1 warning potentially fixable with the `--fix` option.
-
- ELIFECYCLE  Command failed with exit code 1.

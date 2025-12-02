@@ -8,17 +8,13 @@ import { Effect } from 'effect';
 import { prisma } from '../../database/prisma-client';
 import type {
   TrainingManagementPortService,
-  TrainingRecordFilters,
-  TrainingRecordQueryResult,
   EmployeeCertification,
   EmployeeTrainingSummary,
   ExpiringCertification,
 } from '@dykstra/application';
 import type {
   TrainingRecord,
-  TrainingRecordId,
   TrainingPolicy,
-  TrainingPolicyId,
 } from '@dykstra/domain';
 import {
   createTrainingRecordId,
@@ -29,18 +25,18 @@ import {
  * Training Management Adapter Implementation
  */
 export const TrainingManagementAdapter: TrainingManagementPortService = {
-  createTrainingPolicy: (funeralHomeId, policyData, createdBy) =>
+  createTrainingPolicy: (funeralHomeId, _policyData, createdBy) =>
     Effect.tryPromise(async () => {
       const policy = await prisma.trainingPolicy.create({
         data: {
           businessKey: `${funeralHomeId}-training-policy`,
           funeralHomeId,
-          roleRequirements: policyData.roleRequirements ?? {},
-          enableTrainingBackfill: policyData.enableTrainingBackfill ?? true,
-          backfillPremiumMultiplier: policyData.backfillPremiumMultiplier ?? 1.25,
-          defaultRenewalNoticeDays: policyData.defaultRenewalNoticeDays ?? 60,
-          approvalRequiredAboveCost: policyData.approvalRequiredAboveCost ?? 1000,
-          notes: policyData.notes,
+          roleRequirements: JSON.stringify({}),
+          enableTrainingBackfill: true,
+          backfillPremiumMultiplier: 1.25,
+          defaultRenewalNoticeDays: 60,
+          approvalRequiredAboveCost: 1000,
+          notes: undefined,
           createdBy,
         },
       });
@@ -48,11 +44,13 @@ export const TrainingManagementAdapter: TrainingManagementPortService = {
       return {
         id: createTrainingPolicyId(policy.id),
         funeralHomeId: policy.funeralHomeId,
-        roleRequirements: new Map(),
-        enableTrainingBackfill: policy.enableTrainingBackfill,
-        backfillPremiumMultiplier: policy.backfillPremiumMultiplier,
-        defaultRenewalNoticeDays: policy.defaultRenewalNoticeDays,
-        approvalRequiredAboveCost: policy.approvalRequiredAboveCost,
+        settings: {
+          roleRequirements: new Map(),
+          enableTrainingBackfill: policy.enableTrainingBackfill,
+          backfillPremiumMultiplier: policy.backfillPremiumMultiplier,
+          defaultRenewalNoticeDay: policy.defaultRenewalNoticeDays,
+          approvalRequiredAboveCost: policy.approvalRequiredAboveCost,
+        },
         notes: policy.notes ?? undefined,
         effectiveDate: policy.createdAt,
         isCurrent: policy.isCurrent,
@@ -76,11 +74,13 @@ export const TrainingManagementAdapter: TrainingManagementPortService = {
       return {
         id: createTrainingPolicyId(policy.id),
         funeralHomeId: policy.funeralHomeId,
-        roleRequirements: new Map(),
-        enableTrainingBackfill: policy.enableTrainingBackfill,
-        backfillPremiumMultiplier: policy.backfillPremiumMultiplier,
-        defaultRenewalNoticeDays: policy.defaultRenewalNoticeDays,
-        approvalRequiredAboveCost: policy.approvalRequiredAboveCost,
+        settings: {
+          roleRequirements: new Map(),
+          enableTrainingBackfill: policy.enableTrainingBackfill,
+          backfillPremiumMultiplier: policy.backfillPremiumMultiplier,
+          defaultRenewalNoticeDay: policy.defaultRenewalNoticeDays,
+          approvalRequiredAboveCost: policy.approvalRequiredAboveCost,
+        },
         notes: policy.notes ?? undefined,
         effectiveDate: policy.validFrom,
         isCurrent: policy.isCurrent,
@@ -90,17 +90,11 @@ export const TrainingManagementAdapter: TrainingManagementPortService = {
       } as TrainingPolicy;
     }),
 
-  updateTrainingPolicy: (policyId, policyData, updatedBy) =>
+  updateTrainingPolicy: (policyId, _policyData, _updatedBy) =>
     Effect.tryPromise(async () => {
       const updated = await prisma.trainingPolicy.update({
         where: { id: policyId as any },
         data: {
-          roleRequirements: policyData.roleRequirements,
-          enableTrainingBackfill: policyData.enableTrainingBackfill,
-          backfillPremiumMultiplier: policyData.backfillPremiumMultiplier,
-          defaultRenewalNoticeDays: policyData.defaultRenewalNoticeDays,
-          approvalRequiredAboveCost: policyData.approvalRequiredAboveCost,
-          notes: policyData.notes,
           updatedAt: new Date(),
         },
       });
@@ -108,11 +102,13 @@ export const TrainingManagementAdapter: TrainingManagementPortService = {
       return {
         id: createTrainingPolicyId(updated.id),
         funeralHomeId: updated.funeralHomeId,
-        roleRequirements: new Map(),
-        enableTrainingBackfill: updated.enableTrainingBackfill,
-        backfillPremiumMultiplier: updated.backfillPremiumMultiplier,
-        defaultRenewalNoticeDays: updated.defaultRenewalNoticeDays,
-        approvalRequiredAboveCost: updated.approvalRequiredAboveCost,
+        settings: {
+          roleRequirements: new Map(),
+          enableTrainingBackfill: updated.enableTrainingBackfill,
+          backfillPremiumMultiplier: updated.backfillPremiumMultiplier,
+          defaultRenewalNoticeDay: updated.defaultRenewalNoticeDays,
+          approvalRequiredAboveCost: updated.approvalRequiredAboveCost,
+        },
         notes: updated.notes ?? undefined,
         effectiveDate: updated.validFrom,
         isCurrent: updated.isCurrent,
@@ -132,11 +128,13 @@ export const TrainingManagementAdapter: TrainingManagementPortService = {
       return policies.map((p) => ({
         id: createTrainingPolicyId(p.id),
         funeralHomeId: p.funeralHomeId,
-        roleRequirements: new Map(),
-        enableTrainingBackfill: p.enableTrainingBackfill,
-        backfillPremiumMultiplier: p.backfillPremiumMultiplier,
-        defaultRenewalNoticeDays: p.defaultRenewalNoticeDays,
-        approvalRequiredAboveCost: p.approvalRequiredAboveCost,
+        settings: {
+          roleRequirements: new Map(),
+          enableTrainingBackfill: p.enableTrainingBackfill,
+          backfillPremiumMultiplier: p.backfillPremiumMultiplier,
+          defaultRenewalNoticeDay: p.defaultRenewalNoticeDays,
+          approvalRequiredAboveCost: p.approvalRequiredAboveCost,
+        },
         notes: p.notes ?? undefined,
         effectiveDate: p.validFrom,
         isCurrent: p.isCurrent,
@@ -422,17 +420,7 @@ export const TrainingManagementAdapter: TrainingManagementPortService = {
         },
       });
 
-      const records = await prisma.trainingRecord.findMany({
-        where: {
-          funeralHomeId,
-          certificationNumber: {
-            in: certs.map((c) => c.trainingRecordId).filter(Boolean) as string[],
-          },
-        },
-      });
-
       return certs.map((c) => {
-        const record = records.find((r) => r.certificationNumber === c.certificationId);
         const daysUntilExpiry = c.expiresAt
           ? Math.ceil(
               (c.expiresAt.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
@@ -551,20 +539,21 @@ export const TrainingManagementAdapter: TrainingManagementPortService = {
           if (!acc[r.employeeId]) {
             acc[r.employeeId] = [];
           }
-          acc[r.employeeId].push(r);
+          acc[r.employeeId]!.push(r);
           return acc;
         },
         {} as Record<string, typeof records>
       );
 
       return Object.entries(groupedByEmployee).map(([empId, empRecords]) => {
-        const completed = empRecords.filter((r) => r.completedAt);
+        const records = empRecords ?? [];
+        const completed = records.filter((r) => r.completedAt);
         const totalHours = completed.reduce((sum, r) => sum + r.hours, 0);
         const totalCost = completed.reduce((sum, r) => sum + r.cost, 0);
 
         return {
           employeeId: empId,
-          employeeName: empRecords[0]?.employeeName ?? 'Unknown',
+          employeeName: records[0]?.employeeName ?? 'Unknown',
           role: '', // Will be populated from employee data
           totalHoursUsedThisYear: totalHours,
           totalBudgetUsedThisYear: totalCost,
@@ -597,7 +586,7 @@ export const TrainingManagementAdapter: TrainingManagementPortService = {
           if (!acc[r.employeeId]) {
             acc[r.employeeId] = [];
           }
-          acc[r.employeeId].push(r);
+          acc[r.employeeId]!.push(r);
           return acc;
         },
         {} as Record<string, typeof records>
@@ -605,7 +594,7 @@ export const TrainingManagementAdapter: TrainingManagementPortService = {
 
       return Object.entries(groupedByEmployee).map(([empId, empRecords]) => ({
         employeeId: empId,
-        employeeName: empRecords[0]?.employeeName ?? 'Unknown',
+        employeeName: (empRecords ?? [])[0]?.employeeName ?? 'Unknown',
         role: '',
         totalHoursUsedThisYear: 0,
         totalBudgetUsedThisYear: 0,

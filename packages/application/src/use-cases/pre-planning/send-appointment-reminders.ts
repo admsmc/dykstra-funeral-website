@@ -2,10 +2,10 @@ import { Effect } from 'effect';
 import type { PrePlanningAppointmentRepository } from '../../ports/pre-planning-appointment-repository';
 import {
   PrePlanningAppointmentRepositoryTag,
-  RepositoryError,
+  type RepositoryError,
 } from '../../ports/pre-planning-appointment-repository';
 import type { EmailService } from '../../ports/email-service-port';
-import { EmailServiceTag, EmailServiceError } from '../../ports/email-service-port';
+import { EmailServiceTag, type EmailServiceError } from '../../ports/email-service-port';
 
 /**
  * Send Appointment Reminders Use Case
@@ -103,7 +103,7 @@ export const sendAppointmentReminders = (
         const hoursUntil = (appointment.startTime.getTime() - now.getTime()) / (1000 * 60 * 60);
 
         let emailSent = false;
-        let smsSent = false;
+        const smsSent = false;
 
         // Don't actually send in dry-run mode
         if (!command.dryRun) {

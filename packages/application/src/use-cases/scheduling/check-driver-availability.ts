@@ -1,8 +1,8 @@
 import { Effect } from 'effect';
 import type { DriverAssignmentRepositoryService } from '../../ports/driver-assignment-repository';
 import { DriverAssignmentRepository } from '../../ports/driver-assignment-repository';
-import { DriverAssignmentNotFoundError, DriverAssignmentRepositoryError } from '../../ports/driver-assignment-repository';
-import { AssignmentValidationError } from './assign-driver';
+import { type DriverAssignmentNotFoundError, type DriverAssignmentRepositoryError } from '../../ports/driver-assignment-repository';
+import { type AssignmentValidationError } from './assign-driver';
 
 /**
  * Represents a conflict in driver schedule

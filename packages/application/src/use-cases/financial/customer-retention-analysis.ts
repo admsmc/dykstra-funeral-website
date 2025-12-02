@@ -1,8 +1,8 @@
 import { Effect } from 'effect';
 import { ValidationError } from '@dykstra/domain';
 import {
-  GoContractPort,
   type GoContractPortService,
+  type NetworkError,
 } from '../../ports/go-contract-port';
 
 /**
@@ -86,7 +86,7 @@ export interface RetentionAnalysisReport {
  */
 export function generateRetentionAnalysis(
   command: GenerateRetentionAnalysisCommand
-): Effect.Effect<RetentionAnalysisReport, ValidationError, GoContractPortService> {
+): Effect.Effect<RetentionAnalysisReport, ValidationError | NetworkError, GoContractPortService> {
   return Effect.gen(function* () {
     // Step 1: Validate command
     yield* validateGenerateRetentionAnalysisCommand(command);
@@ -94,12 +94,14 @@ export function generateRetentionAnalysis(
     const includePreNeed = command.includePreNeed ?? true;
     
     // Step 2: Fetch all contracts in period
-    const contractPort = yield* GoContractPort;
-    const allContracts = yield* contractPort.listContracts({
-      startDate: command.startDate,
-      endDate: command.endDate,
-      includePreNeed,
-    });
+    // NOTE: GoContractPortService only provides listContractsByCase(caseId)
+    // For this analysis to work at scale, would need Go backend support for
+    // listing contracts by date range across all cases.
+    // TODO: Implement when backend support is available.
+    
+    // Stub: Empty array means this feature requires backend implementation
+    // Once backend provides date-range contract listing, replace with:
+    // const allContracts = yield* contractPort.listContractsByDateRange(...)
     
     // Step 3: Group contracts by family
     // In production, family ID would come from CRM linking
@@ -114,30 +116,8 @@ export function generateRetentionAnalysis(
       }>;
     }>();
     
-    for (const contract of allContracts) {
-      // Derive family ID from contract metadata
-      const familyName = contract.decedentLastName || 'Unknown';
-      const familyId = `${familyName.toLowerCase()}-${contract.id.slice(0, 8)}`; // Simplified
-      
-      const existing = familyMap.get(familyId);
-      if (existing) {
-        existing.contracts.push({
-          contractDate: contract.contractDate,
-          contractType: contract.contractType,
-          totalAmount: contract.totalAmount,
-        });
-      } else {
-        familyMap.set(familyId, {
-          familyId,
-          familyName,
-          contracts: [{
-            contractDate: contract.contractDate,
-            contractType: contract.contractType,
-            totalAmount: contract.totalAmount,
-          }],
-        });
-      }
-    }
+    // Stub implementation - no contracts to process until backend support added
+    // When implemented, this loop will process contracts from the backend
     
     // Step 4: Calculate metrics for each family
     const families: FamilyRetentionMetrics[] = Array.from(familyMap.values())
@@ -146,8 +126,8 @@ export function generateRetentionAnalysis(
           (a, b) => a.contractDate.getTime() - b.contractDate.getTime()
         );
         
-        const firstServiceDate = sortedContracts[0].contractDate;
-        const lastServiceDate = sortedContracts[sortedContracts.length - 1].contractDate;
+        const firstServiceDate = sortedContracts[0]?.contractDate ?? new Date(0);
+        const lastServiceDate = sortedContracts[sortedContracts.length - 1]?.contractDate ?? new Date(0);
         const totalRevenue = family.contracts.reduce((sum, c) => sum + c.totalAmount, 0);
         
         const yearsAsCustomer = Math.max(

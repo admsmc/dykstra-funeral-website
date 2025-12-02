@@ -1,6 +1,6 @@
 import { Effect } from 'effect';
-import { GuestbookEntry, ValidationError } from '@dykstra/domain';
-import { GuestbookRepository, PersistenceError } from '../ports/guestbook-repository';
+import { GuestbookEntry, type ValidationError } from '@dykstra/domain';
+import { GuestbookRepository, type PersistenceError } from '../ports/guestbook-repository';
 
 /**
  * Sign Guestbook command

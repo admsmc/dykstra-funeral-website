@@ -94,16 +94,17 @@ export {
  * (from this package)
  */
 export { PrepRoomAdapter } from './adapters/prep-room/prep-room-adapter';
-export { prepRoomRouter } from './routers/prep-room-router';
-export type { PrepRoomRouter } from './routers/prep-room-router';
+// NOTE: prep-room-router requires tRPC which is not set up in this project yet
+// export { prepRoomRouter } from './routers/prep-room-router';
+// export type { PrepRoomRouter } from './routers/prep-room-router';
 
-export type {
-  ReserveRoomInput,
-  CheckAvailabilityInput,
-  CheckInInput,
-  CheckOutInput,
-  ListScheduleInput,
-  OverrideConflictInput,
-} from './routers/prep-room-router';
+// export type {
+//   ReserveRoomInput,
+//   CheckAvailabilityInput,
+//   CheckInInput,
+//   CheckOutInput,
+//   ListScheduleInput,
+//   OverrideConflictInput,
+// } from './routers/prep-room-router';
 
 export { PrepRoomLayer, createPrepRoomLayer } from './layers/prep-room-layer';

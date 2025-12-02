@@ -4,7 +4,7 @@
  */
 
 import { Effect } from 'effect';
-import { PrepRoomRepositoryPort, type AvailableSlot } from '../../ports/prep-room-repository';
+import { PrepRoomRepositoryPort, type PrepRoomRepositoryService, type AvailableSlot } from '../../ports/prep-room-repository';
 
 /**
  * Check Availability
@@ -35,7 +35,7 @@ export interface CheckAvailabilityResult {
 
 export const checkAvailability = (
   query: CheckAvailabilityQuery
-): Effect.Effect<CheckAvailabilityResult, Error, typeof PrepRoomRepositoryPort> =>
+): Effect.Effect<CheckAvailabilityResult, Error, PrepRoomRepositoryService> =>
   Effect.gen(function* () {
     const repo = yield* PrepRoomRepositoryPort;
 

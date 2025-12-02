@@ -1,6 +1,6 @@
 import { Effect } from 'effect';
-import { Case, type CaseId, NotFoundError, UnauthorizedError } from '@dykstra/domain';
-import { CaseRepository, PersistenceError } from '../ports/case-repository';
+import { type Case, type CaseId, type NotFoundError, type UnauthorizedError } from '@dykstra/domain';
+import { CaseRepository, type PersistenceError } from '../ports/case-repository';
 
 /**
  * Get Case Details query

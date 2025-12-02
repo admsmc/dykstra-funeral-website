@@ -1,5 +1,6 @@
-import { Effect, Context } from 'effect';
-import { LeadScoringPolicy } from '@dykstra/domain';
+import { type Effect, Context } from 'effect';
+import { type LeadScoringPolicy, type NotFoundError } from '@dykstra/domain';
+import { type PersistenceError } from '../errors';
 
 /**
  * LeadScoringPolicyRepository Port
@@ -46,35 +47,6 @@ export interface LeadScoringPolicyRepository {
    * Closes all versions of the policy
    */
   readonly delete: (businessKey: string) => Effect.Effect<void, NotFoundError | PersistenceError>;
-}
-
-/**
- * Error: Policy not found
- */
-export class NotFoundError extends Error {
-  readonly _tag = 'NotFoundError';
-  constructor(
-    override readonly message: string,
-    readonly entityType: string = 'LeadScoringPolicy',
-    readonly entityId: string = ''
-  ) {
-    super(message);
-    this.name = 'NotFoundError';
-  }
-}
-
-/**
- * Error: Database operation failed
- */
-export class PersistenceError extends Error {
-  readonly _tag = 'PersistenceError';
-  constructor(
-    override readonly message: string,
-    readonly cause?: unknown
-  ) {
-    super(message);
-    this.name = 'PersistenceError';
-  }
 }
 
 /**

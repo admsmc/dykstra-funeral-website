@@ -1,6 +1,6 @@
 import { Effect } from "effect";
 import { ValidationError } from "../errors";
-import { PaymentPlanPort, PaymentPlanError, PaymentFrequency } from '../ports/payment-plan-port';
+import { PaymentPlanPort, type PaymentPlanError, type PaymentFrequency } from '../ports/payment-plan-port';
 
 interface CreatePaymentPlanInput {
   caseId: string;

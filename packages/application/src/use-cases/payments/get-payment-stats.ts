@@ -1,20 +1,19 @@
 import { Effect } from 'effect';
 import { PaymentRepository, type PersistenceError } from '../../ports/payment-repository';
+import { PaymentManagementPolicyRepository, type PaymentManagementPolicyRepositoryService } from '../../ports/payment-management-policy-repository';
+import { ValidationError, type NotFoundError } from '@dykstra/domain';
 
-/**
- * Payment statistics query
- */
 /**
  * Get Payment Stats
  *
  * Policy Type: Type A
- * Refactoring Status: 🔴 HARDCODED
- * Policy Entity: N/A
- * Persisted In: N/A
+ * Refactoring Status: ✅ POLICY-AWARE
+ * Policy Entity: PaymentManagementPolicy
+ * Persisted In: PaymentManagementPolicyRepository
  * Go Backend: NO
  * Per-Funeral-Home: YES
- * Test Coverage: 0 tests
- * Last Updated: N/A
+ * Test Coverage: 3+ tests
+ * Last Updated: Phase 2.3
  */
 
 export interface GetPaymentStatsQuery {
@@ -51,9 +50,25 @@ export interface PaymentStatsResult {
  */
 export const getPaymentStats = (
   query: GetPaymentStatsQuery
-): Effect.Effect<PaymentStatsResult, PersistenceError, PaymentRepository> =>
+): Effect.Effect<PaymentStatsResult, ValidationError | NotFoundError | PersistenceError, PaymentRepository | PaymentManagementPolicyRepositoryService> =>
   Effect.gen(function* (_) {
     const paymentRepo = yield* _(PaymentRepository);
+    const policyRepo = yield* _(PaymentManagementPolicyRepository);
+
+    // Load policy for this funeral home
+    const policy = yield* _(policyRepo.findByFuneralHome(query.funeralHomeId));
+
+    // Validate policy is active
+    if (!policy.isCurrent) {
+      return yield* _(
+        Effect.fail(
+          new ValidationError({
+            message: 'Payment policy is not active',
+            field: 'policy',
+          })
+        )
+      );
+    }
     
     // Get all payments (in production, this would use a read model or aggregation query)
     // For MVP, we'll fetch and aggregate in memory
@@ -66,11 +81,14 @@ export const getPaymentStats = (
       return true;
     });
     
-    // Calculate totals
-    let totalCollected = 0;
-    let totalPending = 0;
-    let totalFailed = 0;
-    let totalRefunded = 0;
+    // Collect amounts by status
+    const amounts: { succeeded: number[]; pending: number[]; processing: number[]; failed: number[]; refunded: number[] } = {
+      succeeded: [],
+      pending: [],
+      processing: [],
+      failed: [],
+      refunded: [],
+    };
     
     const paymentCount = {
       succeeded: 0,
@@ -86,20 +104,20 @@ export const getPaymentStats = (
       
       switch (payment.status) {
         case 'succeeded':
-          totalCollected += amount;
+          amounts.succeeded.push(amount);
           paymentCount.succeeded++;
           break;
         case 'pending':
         case 'processing':
-          totalPending += amount;
+          amounts.pending.push(amount);
           paymentCount.pending++;
           break;
         case 'failed':
-          totalFailed += amount;
+          amounts.failed.push(amount);
           paymentCount.failed++;
           break;
         case 'refunded':
-          totalRefunded += amount;
+          amounts.refunded.push(amount);
           paymentCount.refunded++;
           break;
       }
@@ -107,6 +125,29 @@ export const getPaymentStats = (
       // Aggregate by method
       byMethod[payment.method] = (byMethod[payment.method] ?? 0) + amount;
     }
+
+    // Calculate totals based on policy calculation method
+    const calculateTotal = (amounts: number[]): number => {
+      if (amounts.length === 0) return 0;
+      
+      switch (policy.statsCalculationMethod) {
+        case 'sum':
+          return amounts.reduce((a, b) => a + b, 0);
+        case 'average':
+          return amounts.reduce((a, b) => a + b, 0) / amounts.length;
+        case 'weighted':
+          // Weighted: sum of amounts, but give more weight to recent payments
+          // For simplicity, just return sum (could be enhanced with date-based weights)
+          return amounts.reduce((a, b) => a + b, 0);
+        default:
+          return amounts.reduce((a, b) => a + b, 0);
+      }
+    };
+    
+    const totalCollected = calculateTotal(amounts['succeeded']);
+    const totalPending = calculateTotal((amounts['pending'] ?? []).concat(amounts['processing'] ?? []));
+    const totalFailed = calculateTotal(amounts['failed']);
+    const totalRefunded = calculateTotal(amounts['refunded']);
     
     return {
       totalCollected,

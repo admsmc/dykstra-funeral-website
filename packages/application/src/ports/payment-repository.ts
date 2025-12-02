@@ -1,5 +1,5 @@
-import { Effect, Context } from 'effect';
-import { Payment, type PaymentId, NotFoundError } from '@dykstra/domain';
+import { type Effect, Context } from 'effect';
+import { type Payment, type PaymentId, type NotFoundError } from '@dykstra/domain';
 import type { PersistenceError } from './case-repository';
 
 export type { PersistenceError } from './case-repository';

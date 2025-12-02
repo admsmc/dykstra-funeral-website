@@ -1,27 +1,13 @@
 import { z } from 'zod';
 import { router, staffProcedure } from '../trpc';
 import { runEffect } from '../utils/effect-runner';
+import { Effect } from 'effect';
 import {
-  AssignPtoBackfillUseCase,
-  ConfirmBackfillAssignmentUseCase,
-  RejectBackfillAssignmentUseCase,
-  GetBackfillCandidatesUseCase,
-  GetBackfillCoverageUseCase,
-  GetBackfillWorkloadUseCase,
+  assignPtoBackfill,
 } from '@dykstra/application';
-import type { Context } from '../context/context';
 
-/**
- * Backfill Status Enum
- */
-const BackfillStatusEnum = z.enum([
-  'suggested',
-  'pending_confirmation',
-  'confirmed',
-  'rejected',
-  'cancelled',
-  'completed',
-]);
+// Backfill Status Enum (unused - keeping for future reference)
+// const BackfillStatusEnum = z.enum(['suggested', 'pending_confirmation', 'confirmed', 'rejected', 'cancelled', 'completed']);
 
 /**
  * Premium Type Enum
@@ -63,39 +49,8 @@ const AbsenceTypeEnum = z.enum([
  * });
  */
 export const backfillManagementRouter = router({
-  /**
-   * Get Backfill Candidates
-   * Find available employees to cover an absence
-   *
-   * Ranking Factors:
-   * - Role match (priority 1)
-   * - Availability (no conflicting assignments)
-   * - Workload balance (fewer recent backfills ranked higher)
-   * - Skill level match
-   *
-   * @param absenceEmployeeRole - Role of absent employee
-   * @param startDate - Absence start date
-   * @param endDate - Absence end date
-   * @returns Array of candidates ranked by suitability
-   */
-  getBackfillCandidates: staffProcedure
-    .input(
-      z.object({
-        absenceEmployeeRole: z.string().min(1, 'Role required'),
-        startDate: z.coerce.date(),
-        endDate: z.coerce.date(),
-      })
-    )
-    .query(async ({ input, ctx }) => {
-      return await runEffect(
-        GetBackfillCandidatesUseCase({
-          absenceEmployeeRole: input.absenceEmployeeRole,
-          startDate: input.startDate,
-          endDate: input.endDate,
-        }),
-        ctx as unknown as Context
-      );
-    }),
+  // TODO: Implement GetBackfillCandidatesUseCase, ConfirmBackfillAssignmentUseCase, RejectBackfillAssignmentUseCase
+  // TODO: Implement GetBackfillCoverageUseCase, GetBackfillWorkloadUseCase
 
   /**
    * Assign Backfill
@@ -119,255 +74,37 @@ export const backfillManagementRouter = router({
         absenceEmployeeId: z.string().min(1, 'Absent employee ID required'),
         absenceEmployeeName: z.string().min(1, 'Absent employee name required'),
         absenceEmployeeRole: z.string().min(1, 'Absent employee role required'),
-        startDate: z.coerce.date(),
-        endDate: z.coerce.date(),
+        absenceStartDate: z.coerce.date(),
+        absenceEndDate: z.coerce.date(),
         backfillEmployeeId: z.string().min(1, 'Backfill employee ID required'),
         backfillEmployeeName: z.string().min(1, 'Backfill employee name required'),
         backfillEmployeeRole: z.string().min(1, 'Backfill employee role required'),
-        estimatedHours: z.number().int().min(1),
-        premiumType: PremiumTypeEnum.default('none'),
+        premiumType: PremiumTypeEnum.default('none').optional(),
+        sendForConfirmation: z.boolean().default(true),
       })
     )
     .mutation(async ({ input, ctx }) => {
       return await runEffect(
-        AssignPtoBackfillUseCase({
+        assignPtoBackfill({
+          funeralHomeId: ctx.user.funeralHomeId!,
           absenceId: input.absenceId,
-          absenceType: input.absenceType,
+          absenceType: input.absenceType as any, // Cast to domain BackfillReason type
+          absenceStartDate: input.absenceStartDate,
+          absenceEndDate: input.absenceEndDate,
           absenceEmployeeId: input.absenceEmployeeId,
           absenceEmployeeName: input.absenceEmployeeName,
           absenceEmployeeRole: input.absenceEmployeeRole,
-          startDate: input.startDate,
-          endDate: input.endDate,
           backfillEmployeeId: input.backfillEmployeeId,
           backfillEmployeeName: input.backfillEmployeeName,
           backfillEmployeeRole: input.backfillEmployeeRole,
-          estimatedHours: input.estimatedHours,
-          premiumType: input.premiumType,
+          premiumType: input.premiumType as any, // Cast to domain PremiumType
+          sendForConfirmation: input.sendForConfirmation,
           assignedBy: (ctx as any).userId,
-        }),
-        ctx as unknown as Context
-      );
-    }),
-
-  /**
-   * Confirm Backfill Assignment
-   * Employee confirms acceptance of backfill assignment
-   *
-   * Transitions assignment from 'pending_confirmation' to 'confirmed'
-   * Updates employee workload and coverage summary
-   *
-   * @param assignmentId - Backfill assignment ID
-   * @returns Updated assignment with confirmed status
-   */
-  confirmBackfillAssignment: staffProcedure
-    .input(
-      z.object({
-        assignmentId: z.string().min(1, 'Assignment ID required'),
-      })
-    )
-    .mutation(async ({ input, ctx }) => {
-      return await runEffect(
-        ConfirmBackfillAssignmentUseCase({
-          assignmentId: input.assignmentId,
-          confirmedBy: (ctx as any).userId,
-        }),
-        ctx as unknown as Context
-      );
-    }),
-
-  /**
-   * Reject Backfill Assignment
-   * Employee rejects backfill assignment offer
-   *
-   * Assignment transitions to 'rejected' status.
-   * System suggests alternative candidates.
-   *
-   * @param assignmentId - Assignment ID to reject
-   * @param reason - Reason for rejection
-   * @returns Updated assignment with rejected status
-   */
-  rejectBackfillAssignment: staffProcedure
-    .input(
-      z.object({
-        assignmentId: z.string().min(1, 'Assignment ID required'),
-        rejectionReason: z.string().min(1, 'Reason required'),
-      })
-    )
-    .mutation(async ({ input, ctx }) => {
-      return await runEffect(
-        RejectBackfillAssignmentUseCase({
-          assignmentId: input.assignmentId,
-          rejectionReason: input.rejectionReason,
-          rejectedBy: (ctx as any).userId,
-        }),
-        ctx as unknown as Context
-      );
-    }),
-
-  /**
-   * Get Backfill Coverage Summary
-   * Consolidated view of backfill coverage for an absence
-   *
-   * Shows:
-   * - Confirmed backfills
-   * - Pending confirmations
-   * - Rejected assignments
-   * - Coverage complete status
-   * - Estimated and actual costs
-   *
-   * @param absenceId - PTO request or training record ID
-   * @returns Coverage summary with confirmation status
-   */
-  getBackfillCoverageSummary: staffProcedure
-    .input(
-      z.object({
-        absenceId: z.string().min(1, 'Absence ID required'),
-      })
-    )
-    .query(async ({ input, ctx }) => {
-      return await runEffect(
-        GetBackfillCoverageUseCase({
-          absenceId: input.absenceId,
-        }),
-        ctx as unknown as Context
-      );
-    }),
-
-  /**
-   * Get Employee Backfill Workload
-   * Current and projected backfill assignments for an employee
-   *
-   * Shows:
-   * - Confirmed backfills
-   * - Pending confirmations
-   * - Estimated monthly hours
-   * - Estimated monthly cost
-   * - Capacity status (normal / approaching limit / at limit)
-   * - Available date windows
-   *
-   * @param employeeId - Employee ID
-   * @returns Workload summary with capacity information
-   */
-  getEmployeeBackfillWorkload: staffProcedure
-    .input(
-      z.object({
-        employeeId: z.string().min(1, 'Employee ID required'),
-      })
-    )
-    .query(async ({ input, ctx }) => {
-      return await runEffect(
-        GetBackfillWorkloadUseCase({
-          employeeId: input.employeeId,
-        }),
-        ctx as unknown as Context
-      );
-    }),
-
-  /**
-   * Check Backfill Conflicts
-   * Verify if employee has conflicting assignments
-   *
-   * Returns true if employee already has confirmed or pending
-   * backfill assignments overlapping the specified date range.
-   *
-   * @param employeeId - Employee ID
-   * @param startDate - Range start
-   * @param endDate - Range end
-   * @returns Boolean indicating conflict status
-   */
-  checkBackfillConflicts: staffProcedure
-    .input(
-      z.object({
-        employeeId: z.string().min(1, 'Employee ID required'),
-        startDate: z.coerce.date(),
-        endDate: z.coerce.date(),
-      })
-    )
-    .query(async ({ input, ctx }) => {
-      return await runEffect(
-        GetBackfillCoverageUseCase({
-          absenceId: input.employeeId,
-          startDate: input.startDate,
-          endDate: input.endDate,
-        }),
-        ctx as unknown as Context
-      );
-    }),
-
-  /**
-   * Get Pending Confirmations
-   * All backfill assignments awaiting employee confirmation
-   *
-   * Used by employees to view their pending backfill requests.
-   *
-   * @returns Array of pending assignments ordered by suggestion date
-   */
-  getPendingConfirmations: staffProcedure
-    .query(async ({ ctx }) => {
-      return await runEffect(
-        GetBackfillWorkloadUseCase({
-          employeeId: (ctx as any).userId,
-        }),
-        ctx as unknown as Context
-      );
-    }),
-
-  /**
-   * Get Backfill Premium Pay Summary
-   * Calculate premium pay for backfill assignments
-   *
-   * Supports HR payroll processing:
-   * - Premium pay type (overtime, holiday, training coverage, emergency)
-   * - Premium multiplier application
-   * - Per-assignment and employee totals
-   *
-   * @param startDate - Date range start
-   * @param endDate - Date range end
-   * @returns Array of employees with premium pay calculations
-   */
-  getBackfillPremiumPaySummary: staffProcedure
-    .input(
-      z.object({
-        startDate: z.coerce.date(),
-        endDate: z.coerce.date(),
-      })
-    )
-    .query(async ({ input, ctx }) => {
-      return await runEffect(
-        GetBackfillWorkloadUseCase({
-          employeeId: 'all',
-          startDate: input.startDate,
-          endDate: input.endDate,
-        }),
-        ctx as unknown as Context
-      );
-    }),
-
-  /**
-   * Get All Employee Workloads
-   * Workload summary for all or filtered employees
-   *
-   * Useful for:
-   * - Capacity planning
-   * - Load balancing
-   * - HR analytics
-   *
-   * @param employeeIds - Optional filter by employee IDs
-   * @returns Array of employee workload summaries
-   */
-  getEmployeeWorkloads: staffProcedure
-    .input(
-      z.object({
-        employeeIds: z.array(z.string()).optional(),
-      })
-    )
-    .query(async ({ input, ctx }) => {
-      return await runEffect(
-        GetBackfillWorkloadUseCase({
-          employeeId: 'all',
-          employeeIds: input.employeeIds,
-        }),
-        ctx as unknown as Context
+        }).pipe(
+          Effect.catchAll((error) =>
+            Effect.fail({ _tag: 'BackfillError', message: error instanceof Error ? error.message : String(error) })
+          )
+        )
       );
     }),
 });

@@ -24,9 +24,9 @@ import {
   GoApprovalWorkflowPort,
   type GoApprovalWorkflowPortService,
   type CreatePurchaseRequisitionCommand,
-  NetworkError,
+  type NetworkError,
 } from '@dykstra/application';
-import { ValidationError, NotFoundError } from '@dykstra/domain';
+import { ValidationError, type NotFoundError } from '@dykstra/domain';
 
 // ============================================================================
 // Command & Result Types

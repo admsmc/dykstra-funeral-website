@@ -3,7 +3,7 @@ import { ValidationError } from '@dykstra/domain';
 import {
   GoInventoryPort,
   type GoInventoryPortService,
-  NetworkError,
+  type NetworkError,
   type GoInventoryBalance,
   type GoInventoryTransaction,
 } from '../../ports/go-inventory-port';

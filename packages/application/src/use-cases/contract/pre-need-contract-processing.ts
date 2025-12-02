@@ -3,7 +3,7 @@ import { ValidationError, NotFoundError, type CaseId } from '@dykstra/domain';
 import {
   GoContractPort,
   type GoContractPortService,
-  NetworkError,
+  type NetworkError,
   type GoContract,
   type GoContractItem,
 } from '../../ports/go-contract-port';

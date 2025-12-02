@@ -1,7 +1,7 @@
 import { Effect } from "effect";
-import { ValidationError, NotFoundError } from "../errors";
-import { PaymentPort, PaymentProcessingError } from '../ports/payment-port';
-import { CaseRepository, PersistenceError } from '../ports/case-repository';
+import { ValidationError, type NotFoundError } from "../errors";
+import { PaymentPort, type PaymentProcessingError } from '../ports/payment-port';
+import { CaseRepository, type PersistenceError } from '../ports/case-repository';
 
 interface CreatePaymentIntentInput {
   caseId: string;

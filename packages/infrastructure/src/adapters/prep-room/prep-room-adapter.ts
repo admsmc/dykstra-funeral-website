@@ -22,11 +22,8 @@ import type {
 import {
   createPrepRoomId,
   createReservationId,
-  hasTimeOverlap,
-  getDurationWithBuffer,
 } from '@dykstra/domain';
 import {
-  PrepRoomRepositoryPort,
   type PrepRoomRepositoryService,
   PrepRoomRepositoryError,
   PrepRoomNotFoundError,
@@ -172,8 +169,8 @@ export const PrepRoomAdapter: PrepRoomRepositoryService = {
             embalmerId: reservation.embalmerId,
             caseId: reservation.caseId,
             familyId: reservation.familyId,
-            status: reservation.status.toUpperCase(),
-            priority: reservation.priority.toUpperCase(),
+            status: reservation.status.toUpperCase() as any,
+            priority: reservation.priority.toUpperCase() as any,
             reservedFrom: reservation.reservedFrom,
             reservedTo: reservation.reservedTo,
             notes: reservation.notes,
@@ -281,7 +278,7 @@ export const PrepRoomAdapter: PrepRoomRepositoryService = {
       try: async () => {
         const reservations = await prisma.prepRoomReservation.findMany({
           where: {
-            status: status.toUpperCase(),
+            status: status.toUpperCase() as any,
             isCurrent: true,
           },
           orderBy: { createdAt: 'asc' },
@@ -362,7 +359,7 @@ export const PrepRoomAdapter: PrepRoomRepositoryService = {
     prepRoomId: PrepRoomId,
     startTime: Date,
     endTime: Date,
-    priority: 'normal' | 'urgent'
+    _priority: 'normal' | 'urgent'
   ) =>
     Effect.tryPromise({
       try: async () => {
@@ -431,8 +428,8 @@ export const PrepRoomAdapter: PrepRoomRepositoryService = {
             embalmerId: reservation.embalmerId,
             caseId: reservation.caseId,
             familyId: reservation.familyId,
-            status: reservation.status.toUpperCase(),
-            priority: reservation.priority.toUpperCase(),
+            status: reservation.status.toUpperCase() as any,
+            priority: reservation.priority.toUpperCase() as any,
             reservedFrom: reservation.reservedFrom,
             reservedTo: reservation.reservedTo,
             checkedInAt: reservation.checkedInAt,

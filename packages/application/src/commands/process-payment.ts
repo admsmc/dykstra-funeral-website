@@ -1,9 +1,9 @@
 import { Effect } from 'effect';
-import { Payment, PaymentReceived, ValidationError, NotFoundError, BusinessRuleViolationError, InvalidStateTransitionError } from '@dykstra/domain';
+import { Payment, PaymentReceived, type ValidationError, type NotFoundError, type BusinessRuleViolationError, type InvalidStateTransitionError } from '@dykstra/domain';
 import type { PaymentMethod } from '@dykstra/shared';
-import { PaymentRepository, PersistenceError } from '../ports/payment-repository';
-import { PaymentPort, PaymentProcessingError } from '../ports/payment-port';
-import { EventPublisher, EventPublishError } from '../ports/event-publisher';
+import { PaymentRepository, type PersistenceError } from '../ports/payment-repository';
+import { PaymentPort, type PaymentProcessingError } from '../ports/payment-port';
+import { EventPublisher, type EventPublishError } from '../ports/event-publisher';
 
 /**
  * Process Payment command

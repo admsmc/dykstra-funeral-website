@@ -5,7 +5,7 @@
  * inter-company eliminations and consolidated reporting.
  */
 
-import { Effect, Context } from 'effect';
+import { type Effect, Context } from 'effect';
 import { NetworkError } from './go-contract-port';
 
 // Re-export for convenience

@@ -42,6 +42,7 @@ export const invitationRouter = router({
       return await runEffect(
         createInvitation({
           caseId: input.caseId,
+          funeralHomeId: ctx.user.funeralHomeId!,
           email: input.email,
           name: input.name,
           phone: input.phone,
@@ -65,10 +66,11 @@ export const invitationRouter = router({
         status: z.enum(['PENDING', 'ACCEPTED', 'EXPIRED', 'REVOKED']).optional(),
       })
     )
-    .query(async ({ input }) => {
+    .query(async ({ ctx, input }) => {
       return await runEffect(
         listInvitations({
           caseId: input.caseId,
+          funeralHomeId: ctx.user.funeralHomeId!,
           status: input.status,
         })
       );
@@ -90,6 +92,7 @@ export const invitationRouter = router({
       return await runEffect(
         resendInvitation({
           businessKey: input.businessKey,
+          funeralHomeId: ctx.user.funeralHomeId!,
           sentBy: ctx.user.id,
           baseUrl,
         })
@@ -106,10 +109,11 @@ export const invitationRouter = router({
         businessKey: z.string(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       return await runEffect(
         revokeInvitation({
           businessKey: input.businessKey,
+          funeralHomeId: ctx.user.funeralHomeId!,
         })
       );
     }),
@@ -124,10 +128,11 @@ export const invitationRouter = router({
         businessKey: z.string(),
       })
     )
-    .query(async ({ input }) => {
+    .query(async ({ ctx, input }) => {
       return await runEffect(
         getInvitationHistory({
           businessKey: input.businessKey,
+          funeralHomeId: ctx.user.funeralHomeId!,
         })
       );
     }),

@@ -1,5 +1,5 @@
 import { Effect } from 'effect';
-import { GoBudgetPort, type GoBudgetPortService, NetworkError } from '../../ports/go-budget-port';
+import { GoBudgetPort, type GoBudgetPortService, type NetworkError } from '../../ports/go-budget-port';
 
 /**
  * Use Case 1.11: Budget vs. Actual Variance Report

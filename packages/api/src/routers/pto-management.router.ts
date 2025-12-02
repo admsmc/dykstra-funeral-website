@@ -1,27 +1,15 @@
 import { z } from 'zod';
 import { router, staffProcedure } from '../trpc';
 import { runEffect } from '../utils/effect-runner';
+import { Effect } from 'effect';
 import {
-  RequestPtoUseCase,
-  ApprovePtoRequestUseCase,
-  RejectPtoRequestUseCase,
-  GetPtoRequestUseCase,
-  GetPtoBalanceUseCase,
-  GetPtoSummaryUseCase,
+  requestPto,
+  approvePtoRequest,
+  rejectPtoRequest,
 } from '@dykstra/application';
-import type { Context } from '../context/context';
 
-/**
- * PTO Request Status Enum
- */
-const PtoStatusEnum = z.enum([
-  'draft',
-  'pending',
-  'approved',
-  'rejected',
-  'taken',
-  'cancelled',
-]);
+// PTO Request Status Enum (unused - keeping for future reference)
+// const PtoStatusEnum = z.enum(['draft', 'pending', 'approved', 'rejected', 'taken', 'cancelled']);
 
 /**
  * PTO Type Enum
@@ -76,23 +64,25 @@ export const ptoManagementRouter = router({
         ptoType: PtoTypeEnum,
         startDate: z.coerce.date(),
         endDate: z.coerce.date(),
-        requestedDays: z.number().int().min(1, 'At least 1 day required'),
         reason: z.string().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
       return await runEffect(
-        RequestPtoUseCase({
+        requestPto({
+          funeralHomeId: ctx.user.funeralHomeId!,
           employeeId: input.employeeId,
           employeeName: input.employeeName,
           ptoType: input.ptoType,
           startDate: input.startDate,
           endDate: input.endDate,
-          requestedDays: input.requestedDays,
           reason: input.reason,
           requestedBy: (ctx as any).userId,
-        }),
-        ctx as unknown as Context
+        }).pipe(
+          Effect.catchAll((error) =>
+            Effect.fail({ _tag: 'PtoError', message: error instanceof Error ? error.message : String(error) })
+          )
+        )
       );
     }),
 
@@ -107,15 +97,22 @@ export const ptoManagementRouter = router({
     .input(
       z.object({
         ptoRequestId: z.string().min(1, 'PTO request ID required'),
+        backfillVerified: z.boolean().default(false),
+        comments: z.string().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
       return await runEffect(
-        ApprovePtoRequestUseCase({
-          ptoRequestId: input.ptoRequestId,
+        approvePtoRequest({
+          ptoRequestId: input.ptoRequestId as any, // Cast to PtoRequestId branded type
           approvedBy: (ctx as any).userId,
-        }),
-        ctx as unknown as Context
+          backfillVerified: input.backfillVerified,
+          comments: input.comments,
+        }).pipe(
+          Effect.catchAll((error) =>
+            Effect.fail({ _tag: 'PtoError', message: error instanceof Error ? error.message : String(error) })
+          )
+        )
       );
     }),
 
@@ -136,135 +133,138 @@ export const ptoManagementRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       return await runEffect(
-        RejectPtoRequestUseCase({
-          ptoRequestId: input.ptoRequestId,
+        rejectPtoRequest({
+          ptoRequestId: input.ptoRequestId as any, // Cast to PtoRequestId branded type
           rejectionReason: input.rejectionReason,
           rejectedBy: (ctx as any).userId,
-        }),
-        ctx as unknown as Context
+        }).pipe(
+          Effect.catchAll((error) =>
+            Effect.fail({ _tag: 'PtoError', message: error instanceof Error ? error.message : String(error) })
+          )
+        )
       );
     }),
 
-  /**
-   * Get PTO Request Details
-   * Retrieve a specific PTO request with full details
-   *
-   * @param id - PTO request ID
-   * @returns PTO request details including status, dates, and approvals
-   */
-  getPtoRequest: staffProcedure
-    .input(
-      z.object({
-        ptoRequestId: z.string().min(1, 'PTO request ID required'),
-      })
-    )
-    .query(async ({ input, ctx }) => {
-      return await runEffect(
-        GetPtoRequestUseCase({
-          ptoRequestId: input.ptoRequestId,
-        }),
-        ctx as unknown as Context
-      );
-    }),
+  // TODO: Implement GetPtoRequestUseCase
+  // /**
+  //  * Get PTO Request Details
+  //  * Retrieve a specific PTO request with full details
+  //  *
+  //  * @param id - PTO request ID
+  //  * @returns PTO request details including status, dates, and approvals
+  //  */
+  // getPtoRequest: staffProcedure
+  //   .input(
+  //     z.object({
+  //       ptoRequestId: z.string().min(1, 'PTO request ID required'),
+  //     })
+  //   )
+  //   .query(async ({ input }) => {
+  //     return await runEffect(
+  //       GetPtoRequestUseCase({
+  //         ptoRequestId: input.ptoRequestId,
+  //       })
+  //     );
+  //   }),
 
-  /**
-   * Get Employee PTO Balance
-   * Current PTO balance for an employee
-   *
-   * Returns:
-   * - Annual allowance (configurable per funeral home)
-   * - Days used this year
-   * - Days remaining
-   * - Pending approval count
-   * - Current on-PTO status
-   *
-   * @param employeeId - Employee ID
-   * @returns Balance information with usage breakdown
-   */
-  getEmployeeBalance: staffProcedure
-    .input(
-      z.object({
-        employeeId: z.string().min(1, 'Employee ID required'),
-      })
-    )
-    .query(async ({ input, ctx }) => {
-      return await runEffect(
-        GetPtoBalanceUseCase({
-          employeeId: input.employeeId,
-        }),
-        ctx as unknown as Context
-      );
-    }),
+  // TODO: Implement GetPtoBalanceUseCase
+  // /**
+  //  * Get Employee PTO Balance
+  //  * Current PTO balance for an employee
+  //  *
+  //  * Returns:
+  //  * - Annual allowance (configurable per funeral home)
+  //  * - Days used this year
+  //  * - Days remaining
+  //  * - Pending approval count
+  //  * - Current on-PTO status
+  //  *
+  //  * @param employeeId - Employee ID
+  //  * @returns Balance information with usage breakdown
+  //  */
+  // getEmployeeBalance: staffProcedure
+  //   .input(
+  //     z.object({
+  //       employeeId: z.string().min(1, 'Employee ID required'),
+  //     })
+  //   )
+  //   .query(async ({ input }) => {
+  //     return await runEffect(
+  //       GetPtoBalanceUseCase({
+  //         employeeId: input.employeeId,
+  //       })
+  //     );
+  //   }),
 
-  /**
-   * Get Funeral Home PTO Summary
-   * High-level overview of PTO coverage for funeral home
-   *
-   * Returns:
-   * - Current employees on PTO
-   * - Pending approvals
-   * - Approval deadlines
-   * - Coverage adequacy status
-   *
-   * @returns Summary of PTO status across all staff
-   */
-  getFuneralHomeSummary: staffProcedure
-    .query(async ({ ctx }) => {
-      return await runEffect(
-        GetPtoSummaryUseCase({}),
-        ctx as unknown as Context
-      );
-    }),
+  // TODO: Implement GetPtoSummaryUseCase
+  // /**
+  //  * Get Funeral Home PTO Summary
+  //  * High-level overview of PTO coverage for funeral home
+  //  *
+  //  * Returns:
+  //  * - Current employees on PTO
+  //  * - Pending approvals
+  //  * - Approval deadlines
+  //  * - Coverage adequacy status
+  //  *
+  //  * @returns Summary of PTO status across all staff
+  //  */
+  // getFuneralHomeSummary: staffProcedure
+  //   .query(async () => {
+  //     return await runEffect(
+  //       GetPtoSummaryUseCase({})
+  //     );
+  //   }),
 
-  /**
-   * Get Pending PTO Approvals
-   * List of all pending PTO requests awaiting manager approval
-   *
-   * @returns Array of pending PTO requests ordered by request date
-   */
-  getPendingApprovals: staffProcedure
-    .query(async ({ ctx }) => {
-      return await runEffect(
-        GetPtoRequestUseCase({
-          ptoRequestId: 'pending',
-        }),
-        ctx as unknown as Context
-      );
-    }),
+  // TODO: Implement GetPtoRequestUseCase
+  // /**
+  //  * Get Pending PTO Approvals
+  //  * List of all pending PTO requests awaiting manager approval
+  //  *
+  //  * @returns Array of pending PTO requests ordered by request date
+  //  */
+  // getPendingApprovals: staffProcedure
+  //   .query(async () => {
+  //     return await runEffect(
+  //       GetPtoRequestUseCase({
+  //         ptoRequestId: 'pending',
+  //       })
+  //     );
+  //   }),
 
-  /**
-   * Get Concurrent PTO Requests
-   * Find all PTO requests overlapping a date range
-   *
-   * Useful for:
-   * - Scheduling backfill coverage
-   * - Checking availability for specific roles
-   * - Ensuring coverage requirements are met
-   *
-   * @param startDate - Range start
-   * @param endDate - Range end
-   * @param role - Optional role filter
-   * @returns Array of overlapping PTO requests
-   */
-  getConcurrentRequests: staffProcedure
-    .input(
-      z.object({
-        startDate: z.coerce.date(),
-        endDate: z.coerce.date(),
-        role: z.string().optional(),
-      })
-    )
-    .query(async ({ input, ctx }) => {
-      return await runEffect(
-        GetPtoRequestUseCase({
-          ptoRequestId: 'concurrent',
-          startDate: input.startDate,
-          endDate: input.endDate,
-          role: input.role,
-        }),
-        ctx as unknown as Context
-      );
-    }),
+  // TODO: Implement GetPtoRequestUseCase
+  // /**
+  //  * Get Concurrent PTO Requests
+  //  * Find all PTO requests overlapping a date range
+  //  *
+  //  * Useful for:
+  //  * - Scheduling backfill coverage
+  //  * - Checking availability for specific roles
+  //  * - Ensuring coverage requirements are met
+  //  *
+  //  * @param startDate - Range start
+  //  * @param endDate - Range end
+  //  * @param role - Optional role filter
+  //  * @returns Array of overlapping PTO requests
+  //  */
+  // getConcurrentRequests: staffProcedure
+  //   .input(
+  //     z.object({
+  //       startDate: z.coerce.date(),
+  //       endDate: z.coerce.date(),
+  //       role: z.string().optional(),
+  //     })
+  //   )
+  //   .query(async ({ input }) => {
+  //     return await runEffect(
+  //       GetPtoRequestUseCase({
+  //         ptoRequestId: 'concurrent',
+  //         startDate: input.startDate,
+  //         endDate: input.endDate,
+  //         role: input.role,
+  //       })
+  //     );
+  //   }),
 });
 
 export type PtoManagementRouter = typeof ptoManagementRouter;

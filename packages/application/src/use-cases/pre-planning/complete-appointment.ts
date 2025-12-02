@@ -1,10 +1,10 @@
 import { Effect } from 'effect';
-import { AppointmentError } from '@dykstra/domain';
+import { type AppointmentId, type AppointmentError } from '@dykstra/domain';
 import type { PrePlanningAppointmentRepository } from '../../ports/pre-planning-appointment-repository';
 import {
   PrePlanningAppointmentRepositoryTag,
-  RepositoryError,
-  AppointmentNotFoundError,
+  type RepositoryError,
+  type AppointmentNotFoundError,
 } from '../../ports/pre-planning-appointment-repository';
 
 /**
@@ -79,7 +79,7 @@ export const completeAppointment = (
     const repository = yield* PrePlanningAppointmentRepositoryTag;
 
     // Find the appointment
-    const appointment = yield* repository.findById(command.appointmentId as any);
+    const appointment = yield* repository.findById(command.appointmentId as AppointmentId);
 
     // Check if appointment is already completed
     if (appointment.status === 'completed') {

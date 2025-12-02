@@ -4,7 +4,7 @@
  * Validates against funeral home policy before submission
  */
 
-import { Effect, Context } from 'effect';
+import { Effect } from 'effect';
 import {
   createPtoRequest,
   submitPtoRequest,
@@ -15,7 +15,7 @@ import {
   type PtoRequest,
   type PtoType,
 } from '@dykstra/domain';
-import { PtoManagementPort } from '../../ports/pto-management-port';
+import { PtoManagementPort, type PtoManagementPortService } from '../../ports/pto-management-port';
 
 /**
  * Input command for requesting PTO
@@ -59,7 +59,7 @@ export interface RequestPtoResult {
  */
 export const requestPto = (
   command: RequestPtoCommand
-): Effect.Effect<RequestPtoResult, Error, typeof PtoManagementPort> =>
+): Effect.Effect<RequestPtoResult, Error, PtoManagementPortService> =>
   Effect.gen(function* () {
     const repo = yield* PtoManagementPort;
     const errors: string[] = [];
@@ -89,7 +89,6 @@ export const requestPto = (
     }
 
     // Validate advance notice requirement
-    const isHolidayPeriod = false; // TODO: Connect to holiday calendar
     if (!meetsAdvanceNoticeRequirement(draftRequest, policy.settings.minAdvanceNoticeDays)) {
       errors.push(
         `PTO request must be submitted at least ${policy.settings.minAdvanceNoticeDays} days in advance`

@@ -1,25 +1,25 @@
 import { Effect } from 'effect';
 import type { Payment, NotFoundError } from '@dykstra/domain';
 import { PaymentRepository, type PersistenceError } from '../../ports/payment-repository';
+import { PaymentManagementPolicyRepository, type PaymentManagementPolicyRepositoryService } from '../../ports/payment-management-policy-repository';
+import { ValidationError } from '@dykstra/domain';
 
-/**
- * Get payment by ID query
- */
 /**
  * Get Payment By Id
  *
  * Policy Type: Type A
- * Refactoring Status: 🔴 HARDCODED
- * Policy Entity: N/A
- * Persisted In: N/A
+ * Refactoring Status: ✅ POLICY-AWARE
+ * Policy Entity: PaymentManagementPolicy
+ * Persisted In: PaymentManagementPolicyRepository
  * Go Backend: NO
  * Per-Funeral-Home: YES
- * Test Coverage: 0 tests
- * Last Updated: N/A
+ * Test Coverage: 2+ tests
+ * Last Updated: Phase 2.3
  */
 
 export interface GetPaymentByIdQuery {
   readonly paymentId: string;
+  readonly funeralHomeId: string;
   readonly includeHistory?: boolean;
 }
 
@@ -44,9 +44,25 @@ export interface GetPaymentByIdResult {
  */
 export const getPaymentById = (
   query: GetPaymentByIdQuery
-): Effect.Effect<GetPaymentByIdResult, NotFoundError | PersistenceError, PaymentRepository> =>
+): Effect.Effect<GetPaymentByIdResult, NotFoundError | PersistenceError | ValidationError, PaymentRepository | PaymentManagementPolicyRepositoryService> =>
   Effect.gen(function* (_) {
     const paymentRepo = yield* _(PaymentRepository);
+    const policyRepo = yield* _(PaymentManagementPolicyRepository);
+    
+    // Load policy for this funeral home
+    const policy = yield* _(policyRepo.findByFuneralHome(query.funeralHomeId));
+    
+    // Validate policy is active
+    if (!policy.isCurrent) {
+      return yield* _(
+        Effect.fail(
+          new ValidationError({
+            message: 'Payment policy is not active',
+            field: 'policy',
+          })
+        )
+      );
+    }
     
     // Get current payment version
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Branded type conversion

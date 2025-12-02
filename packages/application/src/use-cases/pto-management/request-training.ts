@@ -11,7 +11,7 @@ import {
   type TrainingRecord,
   type TrainingType,
 } from '@dykstra/domain';
-import { TrainingManagementPort } from '../../ports/training-management-port';
+import { TrainingManagementPort, type TrainingManagementPortService } from '../../ports/training-management-port';
 
 /**
  * Input command for requesting training
@@ -60,7 +60,7 @@ export interface RequestTrainingResult {
  */
 export const requestTraining = (
   command: RequestTrainingCommand
-): Effect.Effect<RequestTrainingResult, Error, typeof TrainingManagementPort> =>
+): Effect.Effect<RequestTrainingResult, Error, TrainingManagementPortService> =>
   Effect.gen(function* () {
     const repo = yield* TrainingManagementPort;
     const errors: string[] = [];

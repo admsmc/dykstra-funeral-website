@@ -1,17 +1,17 @@
 import { Effect } from 'effect';
-import { Case, ValidationError } from '@dykstra/domain';
+import { type Case, ValidationError } from '@dykstra/domain';
 import { 
   CaseRepository, 
   type CaseRepository as CaseRepositoryService,
   NotFoundError,
-  PersistenceError,
+  type PersistenceError,
 } from '../../ports/case-repository';
 import {
   GoInventoryPort,
   type GoInventoryPortService,
   type ReserveInventoryCommand,
   type GoInventoryReservation,
-  NetworkError,
+  type NetworkError,
 } from '../../ports/go-inventory-port';
 
 /**

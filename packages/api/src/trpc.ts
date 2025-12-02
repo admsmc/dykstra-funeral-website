@@ -75,7 +75,7 @@ export const staffProcedure = protectedProcedure
   .use(async ({ ctx, next }) => {
     const allowedRoles: typeof ctx.user.role[] = [
       'STAFF',
-      'DIRECTOR',
+       'DIRECTOR',
       'FUNERAL_DIRECTOR', // Legacy
       'ADMIN',
     ];
@@ -94,6 +94,12 @@ export const staffProcedure = protectedProcedure
     const { auditMiddleware } = await import('./middleware/audit');
     return auditMiddleware({ ctx, next, path, type });
   }));
+
+/**
+ * Director procedure - requires director or admin role
+ * Alias for staffProcedure as directors have staff permissions
+ */
+export const directorProcedure = staffProcedure;
 
 /**
  * Admin procedure - requires admin role

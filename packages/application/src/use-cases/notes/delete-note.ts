@@ -1,5 +1,5 @@
 import { Effect } from 'effect';
-import { NoteRepository, NoteNotFoundError } from '../../ports/note-repository';
+import { NoteRepository, type NoteNotFoundError } from '../../ports/note-repository';
 
 /**
  * Delete Note

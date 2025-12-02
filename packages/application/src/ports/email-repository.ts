@@ -1,4 +1,4 @@
-import { Effect, Context } from 'effect';
+import { type Effect, Context } from 'effect';
 import type { Email, EmailId } from '@dykstra/domain';
 
 /**
@@ -97,4 +97,4 @@ export interface EmailRepositoryService {
 export const EmailRepository = Context.GenericTag<EmailRepositoryService>('@dykstra/EmailRepository');
 
 // Import errors from a common location to avoid duplication
-import { NotFoundError, PersistenceError } from './case-repository';
+import { type NotFoundError, type PersistenceError } from './case-repository';

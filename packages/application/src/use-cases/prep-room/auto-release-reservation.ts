@@ -5,7 +5,7 @@
 
 import { Effect } from 'effect';
 import { hasAutoReleaseTimeout, autoReleaseReservation } from '@dykstra/domain';
-import { PrepRoomRepositoryPort } from '../../ports/prep-room-repository';
+import { PrepRoomRepositoryPort, type PrepRoomRepositoryService } from '../../ports/prep-room-repository';
 
 /**
  * Auto Release Reservation
@@ -25,7 +25,7 @@ export interface AutoReleaseResult {
   readonly message: string;
 }
 
-export const autoReleaseReservations = (): Effect.Effect<AutoReleaseResult, Error, typeof PrepRoomRepositoryPort> =>
+export const autoReleaseReservations = (): Effect.Effect<AutoReleaseResult, Error, PrepRoomRepositoryService> =>
   Effect.gen(function* () {
     const repo = yield* PrepRoomRepositoryPort;
 

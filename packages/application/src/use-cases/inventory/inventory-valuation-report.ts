@@ -1,7 +1,7 @@
 import { Effect } from 'effect';
 import { ValidationError } from '@dykstra/domain';
 import type { GoInventoryPortService } from '../../ports/go-inventory-port';
-import { GoInventoryPort, NetworkError } from '../../ports/go-inventory-port';
+import { GoInventoryPort, type NetworkError } from '../../ports/go-inventory-port';
 
 /**
  * Use Case 7.3: Inventory Valuation Report
@@ -173,16 +173,16 @@ export function generateInventoryValuationReport(
       
       itemValuations.push({
         itemId: item.id,
-        itemName: (item as any).name || item.id,
-        itemSku: (item as any).sku || item.id,
-        category: (item as any).category || 'Uncategorized',
-        locationId: (balance as any).locationId || 'Unknown',
-        locationName: (balance as any).locationName || 'Unknown',
+        itemName: item.id, // Item name not available from GoInventoryPort
+        itemSku: item.id,  // SKU not available, using itemId as fallback
+        category: 'Uncategorized', // Category not available from item
+        locationId: 'Unknown',     // Location details not available from balance
+        locationName: 'Unknown',
         quantityOnHand: balance.quantityOnHand,
-        quantityAvailable: (balance as any).quantityAvailable || 0,
-        quantityReserved: (balance as any).quantityReserved || 0,
-        unitCost: (balance as any).unitCost || 0,
-        totalValue: (balance as any).totalValue || 0,
+        quantityAvailable: 0, // Available quantity not available from balance
+        quantityReserved: 0,  // Reserved quantity not available from balance
+        unitCost: 0,          // Unit cost not available from balance
+        totalValue: 0,        // Total value not calculated without unit cost
       });
     }
     

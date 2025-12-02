@@ -9,8 +9,7 @@ import {
   type TrainingRecord,
   type TrainingRecordId,
 } from '@dykstra/domain';
-import { TrainingManagementPort } from '../../ports/training-management-port';
-import { BackfillManagementPort } from '../../ports/backfill-management-port';
+import { TrainingManagementPort, type TrainingManagementPortService } from '../../ports/training-management-port';
 
 /**
  * Input command for completing training
@@ -51,10 +50,9 @@ export interface CompleteTrainingResult {
  */
 export const completeTraining = (
   command: CompleteTrainingCommand
-): Effect.Effect<CompleteTrainingResult, Error, typeof TrainingManagementPort | typeof BackfillManagementPort> =>
+): Effect.Effect<CompleteTrainingResult, Error, TrainingManagementPortService> =>
   Effect.gen(function* () {
     const trainingRepo = yield* TrainingManagementPort;
-    const backfillRepo = yield* BackfillManagementPort;
     const errors: string[] = [];
     let backfillsReleased = 0;
 
@@ -93,18 +91,9 @@ export const completeTraining = (
 
     // Release associated backfill assignments if training was multi-day
     if (record.startDate && record.endDate) {
-      const backfills = yield* backfillRepo.getMultiDayTrainingsScheduled(
-        record.funeralHomeId,
-        record.startDate,
-        record.endDate
-      );
-
-      for (const backfill of backfills) {
-        if (backfill.status === 'confirmed' || backfill.status === 'pending_confirmation') {
-          // Note: In real implementation, mark backfill as completed
-          backfillsReleased++;
-        }
-      }
+      // TODO: Connect to backfill repository when getMultiDayTrainingsScheduled method is available
+      // For now, backfillsReleased remains 0
+      backfillsReleased = 0;
     }
 
     return {

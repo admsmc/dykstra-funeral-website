@@ -3,10 +3,10 @@ import type { DriverAssignmentRepositoryService } from '../../ports/driver-assig
 import type { DriverDispatchServiceService } from '../../ports/driver-dispatch-service';
 import { DriverAssignmentRepository } from '../../ports/driver-assignment-repository';
 import { DriverDispatchService } from '../../ports/driver-dispatch-service';
-import { DriverAssignmentNotFoundError, DriverAssignmentRepositoryError } from '../../ports/driver-assignment-repository';
-import { NotificationError } from '../../ports/driver-dispatch-service';
+import { type DriverAssignmentNotFoundError, type DriverAssignmentRepositoryError } from '../../ports/driver-assignment-repository';
+import { type NotificationError } from '../../ports/driver-dispatch-service';
 import { AssignmentValidationError } from './assign-driver';
-import { AssignmentId } from '@dykstra/domain';
+import { AssignmentId, DriverId, DriverAssignment } from '@dykstra/domain';
 
 /**
  * Input for dispatch driver use case
@@ -66,7 +66,7 @@ export const dispatchDriver = (
     const dispatchService = yield* DriverDispatchService;
 
     // Fetch assignment
-    const assignment = yield* repository.findById(command.assignmentId as AssignmentId);
+    const assignment = yield* repository.findById(AssignmentId(command.assignmentId));
 
     // Validate assignment is in pending status
     if (assignment.status !== 'pending') {
@@ -78,12 +78,11 @@ export const dispatchDriver = (
     }
 
     // Update assignment status to dispatched
-    const updatedAssignment = {
+    const updatedAssignment = new DriverAssignment({
       ...assignment,
       status: 'accepted' as const, // Use 'accepted' instead of 'dispatched' (valid enum value)
       updatedAt: new Date(),
-      updatedBy: command.dispatchedBy,
-    } as any; // Type cast needed for spread update
+    });
 
     yield* repository.update(updatedAssignment);
 
@@ -96,13 +95,13 @@ export const dispatchDriver = (
       const result = yield* Effect.either(
         dispatchService.notifyDriverAssignment(
           assignment,
-          { id: assignment.driverId as any, name: '', notificationPreference: 'email' }
+          { id: DriverId(assignment.driverId), name: '', notificationPreference: 'email' }
         )
       );
 
       if (result._tag === 'Right') {
         notificationSent = true;
-        messageId = (result.right as any) || undefined; // Normalize return value
+        messageId = typeof result.right === 'string' ? result.right : undefined;
       }
     } catch (error) {
       // Notification errors do not fail dispatch

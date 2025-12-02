@@ -1,6 +1,6 @@
-import { Effect, Context } from 'effect';
+import { type Effect, Context } from 'effect';
 import type { Tribute, TributeId, MemorialId } from '@dykstra/domain';
-import { NotFoundError } from '@dykstra/domain';
+import { type NotFoundError } from '@dykstra/domain';
 import type { PersistenceError } from './case-repository';
 
 export type { PersistenceError } from './case-repository';

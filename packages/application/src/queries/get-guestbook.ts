@@ -1,6 +1,6 @@
 import { Effect } from 'effect';
-import { GuestbookEntry, type MemorialId } from '@dykstra/domain';
-import { GuestbookRepository, PersistenceError } from '../ports/guestbook-repository';
+import { type GuestbookEntry, type MemorialId } from '@dykstra/domain';
+import { GuestbookRepository, type PersistenceError } from '../ports/guestbook-repository';
 
 /**
  * Get Guestbook query

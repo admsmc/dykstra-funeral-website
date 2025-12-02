@@ -1,7 +1,7 @@
 import { Effect } from 'effect';
 import { NoteManagementPolicy } from '@dykstra/domain';
 import {
-  NoteManagementPolicyRepository,
+  type NoteManagementPolicyRepositoryService,
   NotFoundError,
   PersistenceError,
 } from '@dykstra/application';
@@ -49,7 +49,7 @@ const toPrisma = (policy: NoteManagementPolicy) => ({
   reason: policy.reason,
 });
 
-export const PrismaNoteManagementPolicyRepository: NoteManagementPolicyRepository = {
+export const PrismaNoteManagementPolicyRepository: NoteManagementPolicyRepositoryService = {
   findCurrentByFuneralHome: (funeralHomeId: string) =>
     Effect.tryPromise({
       try: async () => {
@@ -58,11 +58,11 @@ export const PrismaNoteManagementPolicyRepository: NoteManagementPolicyRepositor
           orderBy: { version: 'desc' },
         });
         if (!row) {
-          throw new NotFoundError(
-            `No current note management policy found for funeral home ${funeralHomeId}`,
-            'NoteManagementPolicy',
-            funeralHomeId
-          );
+          throw new NotFoundError({
+            message: `No current note management policy found for funeral home ${funeralHomeId}`,
+            entityType: 'NoteManagementPolicy',
+            entityId: funeralHomeId
+          });
         }
         return toDomain(row);
       },
@@ -98,11 +98,11 @@ export const PrismaNoteManagementPolicyRepository: NoteManagementPolicyRepositor
           where: { businessKey, version },
         });
         if (!row) {
-          throw new NotFoundError(
-            `Note management policy version ${version} not found for business key ${businessKey}`,
-            'NoteManagementPolicy',
-            businessKey
-          );
+          throw new NotFoundError({
+            message: `Note management policy version ${version} not found for business key ${businessKey}`,
+            entityType: 'NoteManagementPolicy',
+            entityId: businessKey
+          });
         }
         return toDomain(row);
       },
@@ -153,11 +153,11 @@ export const PrismaNoteManagementPolicyRepository: NoteManagementPolicyRepositor
           data: { validTo: now, isCurrent: false },
         });
         if (result.count === 0) {
-          throw new NotFoundError(
-            `Note management policy not found for business key ${businessKey}`,
-            'NoteManagementPolicy',
-            businessKey
-          );
+          throw new NotFoundError({
+            message: `Note management policy ${businessKey} not found`,
+            entityType: 'NoteManagementPolicy',
+            entityId: businessKey
+          });
         }
         return undefined;
       },

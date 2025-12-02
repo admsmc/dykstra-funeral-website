@@ -1,6 +1,6 @@
 import { Effect } from "effect";
 import { ValidationError } from "../errors";
-import { PaymentPort, PaymentProcessingError } from '../ports/payment-port';
+import { PaymentPort, type PaymentProcessingError } from '../ports/payment-port';
 
 interface ProcessACHPaymentInput {
   caseId: string;

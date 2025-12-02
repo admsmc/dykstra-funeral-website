@@ -1,5 +1,5 @@
-import { Effect, Context } from 'effect';
-import { CatalogServiceType } from './catalog-repository';
+import { type Effect, Context } from 'effect';
+import { type CatalogServiceType } from './catalog-repository';
 
 /**
  * Contract Template - Domain Model

@@ -15,7 +15,7 @@
  * ```
  */
 
-import { Layer, Effect, Context } from 'effect';
+import { Layer } from 'effect';
 import {
   PrepRoomRepositoryPort,
   type PrepRoomRepositoryService,

@@ -26,7 +26,7 @@ export class DriverAssignmentRepositoryImpl implements DriverAssignmentRepositor
   /**
    * Save new driver assignment (creates initial version)
    */
-  save(assignment: DriverAssignment): Effect.Effect<void, RepositoryError, never> {
+  save(assignment: DriverAssignment): Effect.Effect<void, DriverAssignmentRepositoryError, never> {
     return Effect.tryPromise({
       try: async () => {
         await this.prisma.driverAssignment.create({
@@ -39,7 +39,7 @@ export class DriverAssignmentRepositoryImpl implements DriverAssignmentRepositor
             funeralHomeId: assignment.funeralHomeId,
             driverId: assignment.driverId,
             vehicleId: assignment.vehicleId,
-            eventType: assignment.eventType,
+            eventType: assignment.eventType.toUpperCase() as any,
             caseId: assignment.caseId,
             pickupLocation: assignment.pickupLocation as any,
             dropoffLocation: assignment.dropoffLocation as any,
@@ -64,7 +64,7 @@ export class DriverAssignmentRepositoryImpl implements DriverAssignmentRepositor
    */
   findById(
     id: AssignmentId
-  ): Effect.Effect<DriverAssignment, NotFoundError | RepositoryError, never> {
+  ): Effect.Effect<DriverAssignment, DriverAssignmentNotFoundError | DriverAssignmentRepositoryError, never> {
     return Effect.tryPromise({
       try: async () => {
         const record = await this.prisma.driverAssignment.findUnique({
@@ -91,8 +91,9 @@ export class DriverAssignmentRepositoryImpl implements DriverAssignmentRepositor
    * Find all assignments for a driver
    */
   findByDriverId(
-    driverId: string
-  ): Effect.Effect<DriverAssignment[], RepositoryError, never> {
+    driverId: string,
+    _date: Date
+  ): Effect.Effect<DriverAssignment[], DriverAssignmentRepositoryError, never> {
     return Effect.tryPromise({
       try: async () => {
         const records = await this.prisma.driverAssignment.findMany({
@@ -117,8 +118,9 @@ export class DriverAssignmentRepositoryImpl implements DriverAssignmentRepositor
    * Find all assignments for a vehicle
    */
   findByVehicleId(
-    vehicleId: string
-  ): Effect.Effect<DriverAssignment[], RepositoryError, never> {
+    vehicleId: string,
+    _date: Date
+  ): Effect.Effect<DriverAssignment[], DriverAssignmentRepositoryError, never> {
     return Effect.tryPromise({
       try: async () => {
         const records = await this.prisma.driverAssignment.findMany({
@@ -144,7 +146,7 @@ export class DriverAssignmentRepositoryImpl implements DriverAssignmentRepositor
    */
   findByStatus(
     status: string
-  ): Effect.Effect<DriverAssignment[], RepositoryError, never> {
+  ): Effect.Effect<DriverAssignment[], DriverAssignmentRepositoryError, never> {
     return Effect.tryPromise({
       try: async () => {
         const records = await this.prisma.driverAssignment.findMany({
@@ -172,7 +174,7 @@ export class DriverAssignmentRepositoryImpl implements DriverAssignmentRepositor
     funeralHomeId: string,
     startDate: Date,
     endDate: Date
-  ): Effect.Effect<DriverAssignment[], RepositoryError, never> {
+  ): Effect.Effect<DriverAssignment[], DriverAssignmentRepositoryError, never> {
     return Effect.tryPromise({
       try: async () => {
         const records = await this.prisma.driverAssignment.findMany({
@@ -202,7 +204,7 @@ export class DriverAssignmentRepositoryImpl implements DriverAssignmentRepositor
    */
   update(
     assignment: DriverAssignment
-  ): Effect.Effect<void, NotFoundError | RepositoryError, never> {
+  ): Effect.Effect<void, DriverAssignmentNotFoundError | DriverAssignmentRepositoryError, never> {
     return Effect.tryPromise({
       try: async () => {
         // Check if current version exists
@@ -214,8 +216,9 @@ export class DriverAssignmentRepositoryImpl implements DriverAssignmentRepositor
         });
 
         if (!current) {
-          throw new NotFoundError(
-            `Cannot update non-existent assignment: ${assignment.businessKey}`
+          throw new DriverAssignmentNotFoundError(
+            `Cannot update non-existent assignment: ${assignment.businessKey}`,
+            assignment.businessKey
           );
         }
 
@@ -239,7 +242,7 @@ export class DriverAssignmentRepositoryImpl implements DriverAssignmentRepositor
             funeralHomeId: assignment.funeralHomeId,
             driverId: assignment.driverId,
             vehicleId: assignment.vehicleId,
-            eventType: assignment.eventType,
+            eventType: assignment.eventType.toUpperCase() as any,
             caseId: assignment.caseId,
             pickupLocation: assignment.pickupLocation as any,
             dropoffLocation: assignment.dropoffLocation as any,
@@ -257,8 +260,8 @@ export class DriverAssignmentRepositoryImpl implements DriverAssignmentRepositor
         });
       },
       catch: (error) => {
-        if (error instanceof NotFoundError) return error;
-        return new RepositoryError(
+        if (error instanceof DriverAssignmentNotFoundError) return error;
+        return new DriverAssignmentRepositoryError(
           `Failed to update assignment: ${(error as Error).message}`,
           error
         );
@@ -269,7 +272,7 @@ export class DriverAssignmentRepositoryImpl implements DriverAssignmentRepositor
   /**
    * Delete assignment (marks as deleted via status, doesn't actually delete)
    */
-  delete(id: AssignmentId): Effect.Effect<void, NotFoundError | RepositoryError, never> {
+  delete(id: AssignmentId): Effect.Effect<void, DriverAssignmentNotFoundError | DriverAssignmentRepositoryError, never> {
     return Effect.tryPromise({
       try: async () => {
         const current = await this.prisma.driverAssignment.findUnique({
@@ -277,7 +280,10 @@ export class DriverAssignmentRepositoryImpl implements DriverAssignmentRepositor
         });
 
         if (!current || !current.isCurrent) {
-          throw new NotFoundError(`Assignment not found: ${id}`);
+          throw new DriverAssignmentNotFoundError(
+            `Assignment not found: ${id}`,
+            id
+          );
         }
 
         // Soft delete: mark as cancelled
@@ -292,18 +298,33 @@ export class DriverAssignmentRepositoryImpl implements DriverAssignmentRepositor
         // Create cancelled version
         await this.prisma.driverAssignment.create({
           data: {
-            ...current,
-            id: `${id}_cancelled_${Date.now()}`,
+            businessKey: current.businessKey,
             version: current.version + 1,
             validFrom: new Date(),
-            status: 'CANCELLED' as any,
+            isCurrent: true,
+            funeralHomeId: current.funeralHomeId,
+            driverId: current.driverId,
+            vehicleId: current.vehicleId,
+            eventType: current.eventType,
+            caseId: current.caseId,
+            pickupLocation: current.pickupLocation as any,
+            dropoffLocation: current.dropoffLocation as any,
+            scheduledTime: current.scheduledTime,
+            estimatedDuration: current.estimatedDuration,
+            actualDuration: current.actualDuration,
+            status: 'CANCELLED',
+            mileageStart: current.mileageStart,
+            mileageEnd: current.mileageEnd,
+            mileageAllowance: current.mileageAllowance,
+            notes: current.notes,
+            createdBy: current.createdBy,
             updatedBy: current.updatedBy,
           },
         });
       },
       catch: (error) => {
-        if (error instanceof NotFoundError) return error;
-        return new RepositoryError(
+        if (error instanceof DriverAssignmentNotFoundError) return error;
+        return new DriverAssignmentRepositoryError(
           `Failed to delete assignment ${id}: ${(error as Error).message}`,
           error
         );
@@ -316,7 +337,7 @@ export class DriverAssignmentRepositoryImpl implements DriverAssignmentRepositor
    */
   findHistory(
     businessKey: string
-  ): Effect.Effect<DriverAssignment[], NotFoundError | RepositoryError, never> {
+  ): Effect.Effect<DriverAssignment[], DriverAssignmentNotFoundError | DriverAssignmentRepositoryError, never> {
     return Effect.tryPromise({
       try: async () => {
         const records = await this.prisma.driverAssignment.findMany({
@@ -325,14 +346,17 @@ export class DriverAssignmentRepositoryImpl implements DriverAssignmentRepositor
         });
 
         if (records.length === 0) {
-          throw new NotFoundError(`No history found for assignment: ${businessKey}`);
+          throw new DriverAssignmentNotFoundError(
+            `No history found for assignment: ${businessKey}`,
+            businessKey
+          );
         }
 
         return records.map((r) => this.mapToDomain(r));
       },
       catch: (error) => {
-        if (error instanceof NotFoundError) return error;
-        return new RepositoryError(
+        if (error instanceof DriverAssignmentNotFoundError) return error;
+        return new DriverAssignmentRepositoryError(
           `Failed to find assignment history: ${(error as Error).message}`,
           error
         );

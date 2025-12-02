@@ -1,5 +1,5 @@
 import { Effect } from 'effect';
-import { ValidationError, NotFoundError } from '@dykstra/domain';
+import { ValidationError, type NotFoundError } from '@dykstra/domain';
 import {
   GoSchedulingPort,
   type GoSchedulingPortService,
@@ -7,7 +7,7 @@ import {
   type ReviewShiftSwapCommand as GoReviewShiftSwapCommand,
   type GoShiftSwap,
   type GoShiftAssignment,
-  NetworkError,
+  type NetworkError,
 } from '../../ports/go-scheduling-port';
 
 /**

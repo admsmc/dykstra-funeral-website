@@ -8,13 +8,11 @@ import { Effect } from 'effect';
 import {
   createBackfillAssignment,
   sendForConfirmation,
-  calculateCoverageDurationInHours,
-  suggestPremiumType,
   type BackfillAssignment,
   type BackfillReason,
   type PremiumType,
 } from '@dykstra/domain';
-import { BackfillManagementPort } from '../../ports/backfill-management-port';
+import { BackfillManagementPort, type BackfillManagementPortService } from '../../ports/backfill-management-port';
 
 /**
  * Input command for assigning backfill
@@ -66,7 +64,7 @@ export interface AssignPtoBackfillResult {
  */
 export const assignPtoBackfill = (
   command: AssignPtoBackfillCommand
-): Effect.Effect<AssignPtoBackfillResult, Error, typeof BackfillManagementPort> =>
+): Effect.Effect<AssignPtoBackfillResult, Error, BackfillManagementPortService> =>
   Effect.gen(function* () {
     const repo = yield* BackfillManagementPort;
     const errors: string[] = [];
@@ -92,17 +90,13 @@ export const assignPtoBackfill = (
       warnings.push('Backfill employee is at maximum capacity for the month');
     }
 
-    // Suggest premium type if not provided
-    const isHoliday = false; // TODO: Connect to holiday calendar
+    // Use premium type if provided, otherwise default to none
     const premiumType = command.premiumType || 'none';
 
-    // Calculate coverage duration
-    const durationHours = calculateCoverageDurationInHours({
-      absenceStartDate: command.absenceStartDate,
-      absenceEndDate: command.absenceEndDate,
-      premiumMultiplier: 1.5,
-      estimatedHours: 8,
-    } as any);
+    // Calculate coverage duration (assuming 8-hour work days)
+    const durationMs = command.absenceEndDate.getTime() - command.absenceStartDate.getTime();
+    const durationDays = Math.ceil(durationMs / (1000 * 60 * 60 * 24));
+    const durationHours = durationDays * 8;
 
     // Return early if errors
     if (errors.length > 0) {

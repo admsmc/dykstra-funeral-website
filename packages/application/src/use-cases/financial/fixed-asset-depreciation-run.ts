@@ -3,6 +3,7 @@ import { ValidationError } from '@dykstra/domain';
 import {
   GoFixedAssetsPort,
   type GoFixedAssetsPortService,
+  type NetworkError,
 } from '../../ports/go-fixed-assets-port';
 import {
   GoFinancialPort,
@@ -128,7 +129,7 @@ export function runMonthlyDepreciation(
   command: RunMonthlyDepreciationCommand
 ): Effect.Effect<
   RunMonthlyDepreciationResult,
-  ValidationError,
+  ValidationError | NetworkError,
   GoFixedAssetsPortService | GoFinancialPortService
 > {
   return Effect.gen(function* () {
@@ -142,50 +143,48 @@ export function runMonthlyDepreciation(
     
     // Step 2: Run depreciation calculation in Go backend
     // The Go backend handles all the complex depreciation logic
-    const depreciationResult = yield* fixedAssetsPort.runMonthlyDepreciation({
-      periodMonth: command.periodMonth,
-      initiatedBy: command.initiatedBy,
-    });
+    const depreciationResult = yield* fixedAssetsPort.runMonthlyDepreciation(command.periodMonth);
     
-    // Step 3: Extract asset details
-    const assetDetails: AssetDepreciationDetail[] = depreciationResult.assets.map(asset => ({
+    // Step 3: Fetch all active assets to build detail list
+    // Note: In production, might filter by category or status for efficiency
+    const assets = yield* fixedAssetsPort.listAssets({ status: 'active' });
+    
+    // Step 4: Build depreciation details from asset list
+    const assetDetails: AssetDepreciationDetail[] = assets.map((asset) => ({
       assetId: asset.id,
-      assetName: asset.name,
-      assetTag: asset.tag,
+      assetName: asset.description,
+      assetTag: asset.assetNumber,
       acquisitionDate: asset.acquisitionDate,
       acquisitionCost: asset.acquisitionCost,
       depreciationMethod: asset.depreciationMethod,
-      usefulLife: asset.usefulLife,
+      usefulLife: asset.usefulLifeYears * 12, // Convert years to months
       salvageValue: asset.salvageValue,
-      priorAccumulatedDepreciation: asset.priorAccumulatedDepreciation,
-      currentDepreciation: asset.currentDepreciation,
-      newAccumulatedDepreciation: asset.newAccumulatedDepreciation,
-      remainingBookValue: asset.remainingBookValue,
-      isFullyDepreciated: asset.isFullyDepreciated,
+      priorAccumulatedDepreciation: asset.accumulatedDepreciation,
+      currentDepreciation: 0, // Would need detailed calculation from backend
+      newAccumulatedDepreciation: asset.accumulatedDepreciation,
+      remainingBookValue: asset.currentBookValue,
+      isFullyDepreciated: asset.status === 'fully_depreciated',
     }));
     
-    // Step 4: Create journal entry for depreciation expense
+    // Step 5: Create journal entry for depreciation expense
     let journalEntry: { id: string; entryNumber: string; totalDebit: number; totalCredit: number; status: 'draft' | 'posted' } | undefined;
     
-    const totalDepreciation = assetDetails.reduce((sum, asset) => sum + asset.currentDepreciation, 0);
+    const totalDepreciation = depreciationResult.totalDepreciationAmount;
     
     if (totalDepreciation > 0) {
       // Create JE: Debit Depreciation Expense, Credit Accumulated Depreciation
+      // Using CreateJournalEntryCommand structure: entryDate, description, lines
       const je = yield* financialPort.createJournalEntry({
         entryDate: command.periodMonth,
         description: `Monthly depreciation for ${formatMonth(command.periodMonth)}`,
-        reference: `DEP-${formatMonthRef(command.periodMonth)}`,
-        createdBy: command.initiatedBy,
-        lineItems: [
+        lines: [
           {
-            accountNumber: '6500', // Depreciation Expense
-            description: 'Monthly depreciation expense',
+            accountId: '6500', // Depreciation Expense
             debit: totalDepreciation,
             credit: 0,
           },
           {
-            accountNumber: '1750', // Accumulated Depreciation
-            description: 'Monthly accumulated depreciation',
+            accountId: '1750', // Accumulated Depreciation
             debit: 0,
             credit: totalDepreciation,
           },
@@ -195,18 +194,14 @@ export function runMonthlyDepreciation(
       journalEntry = {
         id: je.id,
         entryNumber: je.entryNumber,
-        totalDebit: totalDepreciation,
-        totalCredit: totalDepreciation,
-        status: 'draft',
+        totalDebit: je.totalDebit,
+        totalCredit: je.totalCredit,
+        status: 'draft' as const,
       };
       
-      // Step 5: Post journal entry if auto-post enabled
+      // Step 6: Post journal entry if auto-post enabled
       if (autoPost) {
-        yield* financialPort.postJournalEntry({
-          journalEntryId: je.id,
-          postedBy: command.initiatedBy,
-          postDate: new Date(),
-        });
+        yield* financialPort.postJournalEntry(je.id);
         journalEntry.status = 'posted';
       }
     }
@@ -241,11 +236,3 @@ function formatMonth(date: Date): string {
   return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 }
 
-/**
- * Format month for reference (e.g., "202401")
- */
-function formatMonthRef(date: Date): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  return `${year}${month}`;
-}

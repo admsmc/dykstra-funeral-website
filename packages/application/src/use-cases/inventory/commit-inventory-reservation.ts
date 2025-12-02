@@ -23,10 +23,10 @@ import {
   type GoInventoryPortService,
   GoFinancialPort,
   type GoFinancialPortService,
-  NetworkError,
+  type NetworkError,
 } from '@dykstra/application';
-import { CaseRepository as CaseRepositoryTag, type CaseRepository as CaseRepositoryService, PersistenceError } from '../../ports/case-repository';
-import { ValidationError, NotFoundError, type CaseId, INVENTORY_ACCOUNTS } from '@dykstra/domain';
+import { CaseRepository as CaseRepositoryTag, type CaseRepository as CaseRepositoryService, type PersistenceError } from '../../ports/case-repository';
+import { ValidationError, type NotFoundError, type CaseId, INVENTORY_ACCOUNTS } from '@dykstra/domain';
 
 // ============================================================================
 // Command & Result Types

@@ -5,8 +5,7 @@
 
 import { Effect } from 'effect';
 import { startTraining, type TrainingRecord, type TrainingRecordId } from '@dykstra/domain';
-import { TrainingManagementPort } from '../../ports/training-management-port';
-import { BackfillManagementPort } from '../../ports/backfill-management-port';
+import { TrainingManagementPort, type TrainingManagementPortService } from '../../ports/training-management-port';
 
 /**
  * Input command for approving training
@@ -48,11 +47,11 @@ export interface ApproveTrainingResult {
  */
 export const approveTraining = (
   command: ApproveTrainingCommand
-): Effect.Effect<ApproveTrainingResult, Error, typeof TrainingManagementPort | typeof BackfillManagementPort> =>
+): Effect.Effect<ApproveTrainingResult, Error, TrainingManagementPortService> =>
   Effect.gen(function* () {
     const trainingRepo = yield* TrainingManagementPort;
     const errors: string[] = [];
-    let backfillAssigned = false;
+    const backfillAssigned = false;
 
     // Get training record
     const record = yield* trainingRepo.getTrainingRecord(command.trainingRecordId);

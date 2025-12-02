@@ -1,7 +1,7 @@
 import { Effect } from 'effect';
 import type { DriverAssignmentRepositoryService } from '../../ports/driver-assignment-repository';
 import { DriverAssignmentRepository } from '../../ports/driver-assignment-repository';
-import { DriverAssignmentNotFoundError, DriverAssignmentRepositoryError } from '../../ports/driver-assignment-repository';
+import { type DriverAssignmentNotFoundError, type DriverAssignmentRepositoryError } from '../../ports/driver-assignment-repository';
 import { DriverId } from '@dykstra/domain';
 
 /**
@@ -91,7 +91,7 @@ export const listDriverSchedule = (
     );
 
     // Filter to this driver's assignments
-    const driverId = command.driverId as any as DriverId;
+    const driverId = DriverId(command.driverId);
     const driverAssignments = assignments.filter(
       (a) => a.driverId === driverId
     );
@@ -104,12 +104,12 @@ export const listDriverSchedule = (
     // Convert to summary format
     const scheduledAssignments: ScheduledAssignment[] = driverAssignments.map(
       (a) => ({
-        assignmentId: a.id as any,
+        assignmentId: String(a.id),
         eventType: a.eventType,
         scheduledTime: a.scheduledTime,
         estimatedDuration: a.estimatedDuration,
         status: a.status,
-        caseId: a.caseId as any,
+        caseId: String(a.caseId),
         pickupLocation: `${a.pickupLocation.address}, ${a.pickupLocation.city}`,
         dropoffLocation: `${a.dropoffLocation.address}, ${a.dropoffLocation.city}`,
       })

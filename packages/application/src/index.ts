@@ -30,6 +30,14 @@ export * from './ports/referral-source-repository';
 export * from './ports/email-marketing-port';
 
 // CRM Enhancement Ports
+export * from './ports/contact-management-policy-repository';
+export * from './ports/email-calendar-sync-policy-repository';
+export * from './ports/payment-management-policy-repository';
+export * from './ports/interaction-management-policy-repository';
+export * from './ports/invitation-management-policy-repository';
+export * from './ports/lead-scoring-policy-repository';
+export * from './ports/lead-to-case-conversion-policy-repository';
+export * from './ports/note-management-policy-repository';
 export * from './ports/address-validation-port';
 export * from './ports/phone-validation-port';
 export * from './ports/contact-enrichment-port';
@@ -37,6 +45,7 @@ export * from './ports/family-relationship-repository';
 export * from './ports/sms-port';
 export * from './ports/email-sync-port';
 export * from './ports/email-repository';
+export * from './ports/email-service-port';
 export * from './ports/calendar-sync-port';
 export * from './ports/calendar-event-repository';
 
@@ -62,6 +71,7 @@ export * from './ports/go-rehire-port';
 export * from './ports/go-segment-reporting-port';
 export * from './ports/go-timesheet-port';
 export * from './ports/go-training-port';
+export * from './ports/go-scheduling-port';
 
 // Commands
 export * from './commands/create-case';
@@ -155,6 +165,12 @@ export * from './use-cases/calendar-sync/sync-interaction-to-calendar';
 export * from './use-cases/calendar-sync/get-staff-availability';
 export * from './use-cases/calendar-sync/suggest-meeting-times';
 
+// Staff Scheduling & PTO Management Ports
+export * from './ports/training-management-port';
+export * from './ports/pto-management-port';
+export * from './ports/backfill-management-port';
+export * from './ports/prep-room-repository';
+
 // Pre-Planning Appointment Port
 export * from './ports/pre-planning-appointment-repository';
 
@@ -170,6 +186,12 @@ export * from './use-cases/pre-planning/list-appointments';
 export * from './use-cases/pre-planning/cancel-appointment';
 export * from './use-cases/pre-planning/complete-appointment';
 export * from './use-cases/pre-planning/send-appointment-reminders';
+
+// Prep Room use cases
+export * from './use-cases/prep-room';
+
+// PTO Management use cases
+export * from './use-cases/pto-management';
 
 // Driver/Vehicle Coordination use cases (Scenario 7)
 export * from './use-cases/scheduling/assign-driver';

@@ -8,16 +8,12 @@ import { Effect } from 'effect';
 import { prisma } from '../../database/prisma-client';
 import type {
   PtoManagementPortService,
-  PtoRequestFilters,
-  PtoRequestQueryResult,
   PtoBalance,
   PtoSummary,
 } from '@dykstra/application';
 import type {
   PtoRequest,
-  PtoRequestId,
   PtoPolicy,
-  PtoPolicyId,
 } from '@dykstra/domain';
 import {
   createPtoRequestId,
@@ -39,8 +35,8 @@ export const PtoManagementAdapter: PtoManagementPortService = {
           annualPtoDaysPerEmployee: policyData.settings?.annualPtoDaysPerEmployee ?? 20,
           maxConcurrentEmployeesOnPto: policyData.settings?.maxConcurrentEmployeesOnPto ?? 2,
           maxConsecutivePtoDays: policyData.settings?.maxConsecutivePtoDays ?? 10,
-          roleSpecificPolicies: policyData.settings?.roleSpecificPolicies ?? {},
-          blackoutDates: policyData.settings?.blackoutDates ?? [],
+          roleSpecificPolicies: JSON.stringify(policyData.settings?.roleSpecificPolicies ?? {}),
+          blackoutDates: JSON.stringify(policyData.settings?.blackoutDates ?? []),
           enablePremiumPayForBackfill: policyData.settings?.enablePremiumPayForBackfill ?? true,
           premiumMultiplier: policyData.settings?.premiumMultiplier ?? 1.5,
           createdBy,
@@ -102,7 +98,7 @@ export const PtoManagementAdapter: PtoManagementPortService = {
       } as PtoPolicy;
     }),
 
-  updatePtoPolicy: (policyId, policyData, updatedBy) =>
+  updatePtoPolicy: (policyId, policyData, _updatedBy) =>
     Effect.tryPromise(async () => {
       // In real implementation, would create new version
       const updated = await prisma.ptoPolicy.update({
@@ -433,7 +429,7 @@ export const PtoManagementAdapter: PtoManagementPortService = {
       } as PtoBalance;
     }),
 
-  getEmployeePtoBalances: (funeralHomeId, employeeIds) =>
+  getEmployeePtoBalances: (_funeralHomeId, _employeeIds) =>
     Effect.tryPromise(async () => {
       // Simplified implementation
       return [] as PtoBalance[];
@@ -466,7 +462,7 @@ export const PtoManagementAdapter: PtoManagementPortService = {
       } as PtoSummary;
     }),
 
-  getConcurrentPtoRequests: (funeralHomeId, startDate, endDate, role) =>
+  getConcurrentPtoRequests: (funeralHomeId, startDate, endDate, _role) =>
     Effect.tryPromise(async () => {
       const requests = await prisma.ptoRequest.findMany({
         where: {

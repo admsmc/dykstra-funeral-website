@@ -3,7 +3,7 @@ import { ValidationError } from '@dykstra/domain';
 import {
   GoFinancialPort,
   type GoFinancialPortService,
-  NetworkError,
+  type NetworkError,
 } from '../../ports/go-financial-port';
 
 /**
@@ -136,7 +136,6 @@ export function generateRevenueByServiceType(
     const journalEntries = yield* financialPort.listJournalEntries({
       startDate: command.startDate,
       endDate: command.endDate,
-      accountNumberRange: { start: '4000', end: '4999' },
       status: 'posted', // Only posted entries
     });
     
@@ -151,9 +150,9 @@ export function generateRevenueByServiceType(
     }>();
     
     for (const entry of journalEntries) {
-      // Extract service type from entry description or reference
+      // Extract service type from entry description
       // Simplified: look for keywords in description
-      const serviceType = extractServiceType(entry.description || entry.reference || 'Unknown');
+      const serviceType = extractServiceType(entry.description || 'Unknown');
       
       // Skip if filtering and doesn't match
       if (command.serviceType && serviceType !== command.serviceType) {
@@ -161,9 +160,9 @@ export function generateRevenueByServiceType(
       }
       
       // Calculate revenue (credit amounts for revenue accounts)
-      const revenue = entry.lineItems
-        .filter(li => li.accountNumber.startsWith('4')) // Revenue accounts
-        .reduce((sum, li) => sum + li.credit, 0);
+      const revenue = entry.lines
+        .filter((li: typeof entry.lines[number]) => li.accountNumber.startsWith('4')) // Revenue accounts
+        .reduce((sum: number, li: typeof entry.lines[number]) => sum + li.credit, 0);
       
       const existing = revenueMap.get(serviceType);
       if (existing) {

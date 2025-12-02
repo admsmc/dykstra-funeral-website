@@ -1,11 +1,8 @@
 import { Effect } from 'effect';
-import { Lead, ValidationError } from '@dykstra/domain';
-import { LeadRepository, type LeadRepositoryService, PersistenceError as LeadPersistenceError } from '../../ports/lead-repository';
-import { 
-  LeadScoringPolicyRepository, 
-  NotFoundError as PolicyNotFoundError,
-  PersistenceError as PolicyPersistenceError
-} from '../../ports/lead-scoring-policy-repository';
+import { Lead, type ValidationError, type NotFoundError } from '@dykstra/domain';
+import { type PersistenceError } from '../../errors';
+import { LeadRepository, type LeadRepositoryService } from '../../ports/lead-repository';
+import { LeadScoringPolicyRepository } from '../../ports/lead-scoring-policy-repository';
 
 /**
  * Create Lead
@@ -47,8 +44,8 @@ export const createLead = (
   command: CreateLeadCommand
 ): Effect.Effect<
   Lead,
-  ValidationError | LeadPersistenceError | PolicyNotFoundError | PolicyPersistenceError,
-  LeadRepositoryService | typeof LeadScoringPolicyRepository
+  ValidationError | PersistenceError | NotFoundError,
+  LeadRepositoryService | LeadScoringPolicyRepository
 > =>
   Effect.gen(function* () {
     const leadRepo = yield* LeadRepository;

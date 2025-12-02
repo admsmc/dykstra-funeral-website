@@ -1,5 +1,5 @@
 import { Effect } from "effect";
-import { PaymentRepository, PersistenceError } from '../ports/payment-repository';
+import { PaymentRepository, type PersistenceError } from '../ports/payment-repository';
 
 interface GetPaymentHistoryInput {
   caseId: string;

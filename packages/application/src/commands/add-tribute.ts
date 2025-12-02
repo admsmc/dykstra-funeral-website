@@ -1,7 +1,7 @@
 import { Effect } from 'effect';
-import { Tribute, ValidationError } from '@dykstra/domain';
+import { Tribute, type ValidationError } from '@dykstra/domain';
 import { TributeRepository } from '../ports/tribute-repository';
-import { PersistenceError } from '../ports/case-repository';
+import { type PersistenceError } from '../ports/case-repository';
 
 /**
  * Add Tribute command

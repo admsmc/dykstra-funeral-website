@@ -1,6 +1,6 @@
 import { Effect } from 'effect';
-import { CaseRepository as CaseRepositoryTag, type CaseRepository as CaseRepositoryService, PersistenceError } from '../../ports/case-repository';
-import { GoContractPort, type GoContractPortService, NetworkError, NotFoundError } from '../../ports/go-contract-port';
+import { CaseRepository as CaseRepositoryTag, type CaseRepository as CaseRepositoryService, type PersistenceError } from '../../ports/case-repository';
+import { GoContractPort, type GoContractPortService, type NetworkError, NotFoundError } from '../../ports/go-contract-port';
 import { 
   GoFinancialPort,
   type GoFinancialPortService,

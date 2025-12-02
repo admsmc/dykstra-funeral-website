@@ -1,7 +1,7 @@
 import { Effect } from 'effect';
-import { ContractRepository, PersistenceError } from '../../ports/contract-repository';
+import { ContractRepository, type PersistenceError } from '../../ports/contract-repository';
 import { NotFoundError } from '../../ports/case-repository';
-import { Contract, ValidationError, InvalidStateTransitionError, BusinessRuleViolationError } from '@dykstra/domain';
+import { Contract, type ValidationError, type InvalidStateTransitionError, type BusinessRuleViolationError } from '@dykstra/domain';
 import type { ContractStatus } from '@dykstra/shared';
 
 /**

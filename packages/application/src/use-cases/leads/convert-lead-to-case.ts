@@ -1,11 +1,11 @@
 import { Effect } from 'effect';
-import { Lead, Case, InvalidStateTransitionError, ValidationError } from '@dykstra/domain';
-import { LeadRepository, type LeadRepositoryService, NotFoundError as LeadNotFoundError, PersistenceError as LeadPersistenceError } from '../../ports/lead-repository';
+import { type Lead, Case, type InvalidStateTransitionError, type ValidationError, NotFoundError } from '@dykstra/domain';
+import { type PersistenceError } from '../../errors';
+import { LeadRepository, type LeadRepositoryService } from '../../ports/lead-repository';
 import { CaseRepository, type CaseRepository as CaseRepositoryService } from '../../ports/case-repository';
 import {
   LeadToCaseConversionPolicyRepository,
-  NotFoundError as PolicyNotFoundError,
-  PersistenceError as PolicyPersistenceError,
+  type LeadToCaseConversionPolicyRepositoryService,
 } from '../../ports/lead-to-case-conversion-policy-repository';
 
 /**
@@ -42,8 +42,8 @@ export const convertLeadToCase = (
   command: ConvertLeadToCaseCommand
 ): Effect.Effect<
   { lead: Lead; case: Case },
-  LeadNotFoundError | InvalidStateTransitionError | ValidationError | LeadPersistenceError | PolicyNotFoundError | PolicyPersistenceError,
-  LeadRepositoryService | CaseRepositoryService | typeof LeadToCaseConversionPolicyRepository
+  NotFoundError | InvalidStateTransitionError | ValidationError | PersistenceError,
+  LeadRepositoryService | CaseRepositoryService | LeadToCaseConversionPolicyRepositoryService
 > =>
   Effect.gen(function* () {
     const leadRepo = yield* LeadRepository;
@@ -55,7 +55,7 @@ export const convertLeadToCase = (
     
     if (!lead) {
       return yield* Effect.fail(
-        new LeadNotFoundError({
+        new NotFoundError({
           message: 'Lead not found',
           entityType: 'Lead',
           entityId: command.leadBusinessKey,

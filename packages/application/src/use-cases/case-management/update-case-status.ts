@@ -1,7 +1,7 @@
 import { Effect } from 'effect';
-import { CaseRepository, NotFoundError, PersistenceError } from '../../ports/case-repository';
+import { CaseRepository, NotFoundError, type PersistenceError } from '../../ports/case-repository';
 import type { CaseStatus } from '@dykstra/shared';
-import { InvalidStateTransitionError } from '@dykstra/domain';
+import { type InvalidStateTransitionError } from '@dykstra/domain';
 
 /**
  * Update Case Status

@@ -1,6 +1,6 @@
 import { Effect } from "effect";
 import { ValidationError } from "../errors";
-import { InsurancePort, InsuranceError } from '../ports/insurance-port';
+import { InsurancePort, type InsuranceError } from '../ports/insurance-port';
 
 interface AssignInsuranceInput {
   caseId: string;

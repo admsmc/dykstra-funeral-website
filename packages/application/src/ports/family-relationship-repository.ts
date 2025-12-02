@@ -1,5 +1,5 @@
-import { Effect, Context } from 'effect';
-import { FamilyRelationship, NotFoundError } from '@dykstra/domain';
+import { type Effect, Context } from 'effect';
+import { type FamilyRelationship, NotFoundError } from '@dykstra/domain';
 import { PersistenceError } from './case-repository';
 
 // Re-export for convenience

@@ -1,6 +1,6 @@
 import { Effect } from 'effect';
-import { Interaction, ValidationError, NotFoundError } from '@dykstra/domain';
-import { InteractionRepository, type InteractionRepositoryService, PersistenceError } from '../../ports/interaction-repository';
+import { type Interaction, type InteractionId, ValidationError, type NotFoundError } from '@dykstra/domain';
+import { InteractionRepository, type InteractionRepositoryService, type PersistenceError } from '../../ports/interaction-repository';
 import { InteractionManagementPolicyRepository, type InteractionManagementPolicyRepositoryService } from '../../ports/interaction-management-policy-repository';
 
 /**
@@ -43,7 +43,7 @@ export const completeInteraction = (
     const policy = yield* policyRepo.findByFuneralHome(command.funeralHomeId);
 
     // Load existing interaction
-    const interaction = yield* interactionRepo.findById(command.id as any);
+    const interaction = yield* interactionRepo.findById(command.id as InteractionId);
 
     // Validate policy is active
     if (!policy.isCurrent) {

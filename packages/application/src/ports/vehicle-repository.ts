@@ -1,5 +1,5 @@
-import { Effect, Context } from 'effect';
-import { Vehicle, VehicleId, VehicleStatus } from '@dykstra/domain';
+import { type Effect, Context } from 'effect';
+import { type Vehicle, type VehicleId, type VehicleStatus } from '@dykstra/domain';
 
 /**
  * Repository error - general persistence failure

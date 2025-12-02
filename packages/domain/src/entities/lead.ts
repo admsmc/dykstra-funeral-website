@@ -1,6 +1,6 @@
 import { Effect, Data } from 'effect';
 import { ValidationError, InvalidStateTransitionError, BusinessRuleViolationError } from '../errors/domain-errors';
-import { LeadScoringPolicy } from './lead-scoring-policy';
+import { type LeadScoringPolicy } from './lead-scoring-policy';
 
 /**
  * Lead ID branded type

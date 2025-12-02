@@ -1,5 +1,5 @@
 import { Effect } from 'effect';
-import { TaskRepository, TaskStatus, TaskNotFoundError } from '../../ports/task-repository';
+import { TaskRepository, type TaskStatus, type TaskNotFoundError } from '../../ports/task-repository';
 
 /**
  * Update Task Status

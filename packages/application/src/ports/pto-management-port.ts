@@ -4,7 +4,7 @@
  * Implementation agnostic - database details handled by infrastructure layer
  */
 
-import { Context, Effect } from 'effect';
+import { Context, type Effect } from 'effect';
 import type {
   PtoRequest,
   PtoRequestId,

@@ -27,9 +27,9 @@ export const noteRouter = router({
    */
   listByCaseId: staffProcedure
     .input(z.object({ caseId: z.string() }))
-    .query(async ({ input }) => {
+    .query(async ({ ctx, input }) => {
       const result = await runEffect(
-        listNotes({ caseId: input.caseId })
+        listNotes({ caseId: input.caseId, funeralHomeId: ctx.user.funeralHomeId! })
       );
       return result.notes;
     }),
@@ -39,9 +39,9 @@ export const noteRouter = router({
    */
   getHistory: staffProcedure
     .input(z.object({ businessKey: z.string() }))
-    .query(async ({ input }) => {
+    .query(async ({ ctx, input }) => {
       const result = await runEffect(
-        getNoteHistory({ businessKey: input.businessKey })
+        getNoteHistory({ businessKey: input.businessKey, funeralHomeId: ctx.user.funeralHomeId! })
       );
       return result.history;
     }),
@@ -60,6 +60,7 @@ export const noteRouter = router({
       return await runEffect(
         createNote({
           caseId: input.caseId,
+          funeralHomeId: ctx.user.funeralHomeId!,
           content: input.content,
           createdBy: ctx.user.id,
         })
@@ -80,6 +81,7 @@ export const noteRouter = router({
       return await runEffect(
         updateNote({
           businessKey: input.businessKey,
+          funeralHomeId: ctx.user.funeralHomeId!,
           content: input.content,
           updatedBy: ctx.user.id,
         })
@@ -92,9 +94,9 @@ export const noteRouter = router({
    */
   delete: staffProcedure
     .input(z.object({ businessKey: z.string() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       return await runEffect(
-        deleteNote({ businessKey: input.businessKey })
+        deleteNote({ businessKey: input.businessKey, funeralHomeId: ctx.user.funeralHomeId! })
       );
     }),
 });

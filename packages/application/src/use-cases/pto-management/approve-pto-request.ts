@@ -10,8 +10,8 @@ import {
   type PtoRequest,
   type PtoRequestId,
 } from '@dykstra/domain';
-import { PtoManagementPort } from '../../ports/pto-management-port';
-import { BackfillManagementPort } from '../../ports/backfill-management-port';
+import { PtoManagementPort, type PtoManagementPortService } from '../../ports/pto-management-port';
+import { BackfillManagementPort, type BackfillManagementPortService } from '../../ports/backfill-management-port';
 
 /**
  * Input command for approving PTO
@@ -50,7 +50,7 @@ export interface ApprovePtoRequestResult {
  */
 export const approvePtoRequest = (
   command: ApprovePtoRequestCommand
-): Effect.Effect<ApprovePtoRequestResult, Error, typeof PtoManagementPort | typeof BackfillManagementPort> =>
+): Effect.Effect<ApprovePtoRequestResult, Error, PtoManagementPortService | BackfillManagementPortService> =>
   Effect.gen(function* () {
     const ptoRepo = yield* PtoManagementPort;
     const backfillRepo = yield* BackfillManagementPort;
@@ -75,7 +75,7 @@ export const approvePtoRequest = (
 
     // Check backfill coverage if required
     if (command.backfillVerified) {
-      const coverage = yield* backfillRepo.getBackfillCoverageSummary(existingRequest.id as any);
+      const coverage = yield* backfillRepo.getBackfillCoverageSummary(String(existingRequest.id));
       if (!coverage.coverageComplete) {
         errors.push(
           `Backfill coverage incomplete: ${coverage.pendingBackfills} pending, ${coverage.rejectedBackfills} rejected`

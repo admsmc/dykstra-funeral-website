@@ -1,8 +1,8 @@
 import { Effect } from 'effect';
 import type { DriverAssignmentRepositoryService } from '../../ports/driver-assignment-repository';
-import { DriverAssignment, AssignmentId, EventType, Location } from '@dykstra/domain';
+import { DriverAssignment, AssignmentId, FuneralHomeId, DriverId, type EventType, type Location, type CaseId } from '@dykstra/domain';
 import { DriverAssignmentRepository } from '../../ports/driver-assignment-repository';
-import { DriverAssignmentNotFoundError, DriverAssignmentRepositoryError } from '../../ports/driver-assignment-repository';
+import { type DriverAssignmentNotFoundError, type DriverAssignmentRepositoryError } from '../../ports/driver-assignment-repository';
 
 /**
  * Domain error: Driver validation failed
@@ -118,13 +118,13 @@ export const assignDriver = (
 
     // Create temporary assignment object for overlap checking
     const tempAssignment = new DriverAssignment({
-      id: 'temp' as any,
+      id: AssignmentId('temp'),
       businessKey: '',
       version: 1,
-      funeralHomeId: command.funeralHomeId as any,
-      driverId: command.driverId as any,
+      funeralHomeId: FuneralHomeId(command.funeralHomeId),
+      driverId: DriverId(command.driverId),
       eventType: command.eventType,
-      caseId: command.caseId as any,
+      caseId: command.caseId as CaseId,
       pickupLocation: command.pickupLocation,
       dropoffLocation: command.dropoffLocation,
       scheduledTime: command.scheduledTime,
@@ -151,17 +151,17 @@ export const assignDriver = (
     }
 
     // Create new assignment
-    const assignmentId = `assign_${Date.now()}` as AssignmentId;
+    const assignmentId = AssignmentId(`assign_${Date.now()}`);
     const businessKey = `${command.funeralHomeId}:${command.eventType}_${command.caseId}:${command.driverId}`;
 
     const assignment = new DriverAssignment({
       id: assignmentId,
       businessKey,
       version: 1,
-      funeralHomeId: command.funeralHomeId as any,
-      driverId: command.driverId as any,
+      funeralHomeId: FuneralHomeId(command.funeralHomeId),
+      driverId: DriverId(command.driverId),
       eventType: command.eventType,
-      caseId: command.caseId as any,
+      caseId: command.caseId as CaseId,
       pickupLocation: command.pickupLocation,
       dropoffLocation: command.dropoffLocation,
       scheduledTime: command.scheduledTime,

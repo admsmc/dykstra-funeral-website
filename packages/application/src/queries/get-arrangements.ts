@@ -1,6 +1,6 @@
 import { Effect } from 'effect';
-import { Arrangements, NotFoundError, type CaseId } from '@dykstra/domain';
-import { CaseRepository, PersistenceError } from '../ports/case-repository';
+import { Arrangements, type NotFoundError, type CaseId } from '@dykstra/domain';
+import { CaseRepository, type PersistenceError } from '../ports/case-repository';
 
 /**
  * Get Arrangements query

@@ -1,22 +1,21 @@
 import { Effect } from 'effect';
 import { PaymentRepository, type PersistenceError } from '../../ports/payment-repository';
-import { CaseRepository } from '../../ports/case-repository';
-import { ContractRepository } from '../../ports/contract-repository';
+import { type CaseRepository } from '../../ports/case-repository';
+import { type ContractRepository } from '../../ports/contract-repository';
+import { PaymentManagementPolicyRepository, type PaymentManagementPolicyRepositoryService } from '../../ports/payment-management-policy-repository';
+import { ValidationError, type NotFoundError } from '@dykstra/domain';
 
-/**
- * AR aging report query
- */
 /**
  * Get Ar Aging Report
  *
  * Policy Type: Type A
- * Refactoring Status: 🔴 HARDCODED
- * Policy Entity: N/A
- * Persisted In: N/A
+ * Refactoring Status: ✅ POLICY-AWARE
+ * Policy Entity: PaymentManagementPolicy
+ * Persisted In: PaymentManagementPolicyRepository
  * Go Backend: NO
  * Per-Funeral-Home: YES
- * Test Coverage: 0 tests
- * Last Updated: N/A
+ * Test Coverage: 3+ tests
+ * Last Updated: Phase 2.3
  */
 
 export interface GetArAgingReportQuery {
@@ -70,27 +69,54 @@ export const getArAgingReport = (
   query: GetArAgingReportQuery
 ): Effect.Effect<
   ArAgingReportResult,
-  PersistenceError,
-  PaymentRepository | CaseRepository | ContractRepository
+  ValidationError | NotFoundError | PersistenceError,
+  PaymentRepository | CaseRepository | ContractRepository | PaymentManagementPolicyRepositoryService
 > =>
   Effect.gen(function* (_) {
     const paymentRepo = yield* _(PaymentRepository);
+    const policyRepo = yield* _(PaymentManagementPolicyRepository);
     // Note: caseRepo and contractRepo will be needed in future iteration
     // For MVP, calculating from payment data only
     
     const asOfDate = query.asOfDate ?? new Date();
+
+    // Load policy for this funeral home
+    const policy = yield* _(policyRepo.findByFuneralHome(query.funeralHomeId));
+
+    // Validate policy is active
+    if (!policy.isCurrent) {
+      return yield* _(
+        Effect.fail(
+          new ValidationError({
+            message: 'Payment policy is not active',
+            field: 'policy',
+          })
+        )
+      );
+    }
     
-    // Get all cases with contracts
-    // In production, this would be a dedicated AR read model
-    // For MVP, we'll do basic calculation
+    // Build buckets dynamically from policy configuration
+    const bucketsConfig = policy.agingBuckets;
+    const buckets: AgingBucket[] = [];
     
-    // Initialize buckets
-    const buckets: AgingBucket[] = [
-      { label: 'Current (0-30 days)', minDays: 0, maxDays: 30, totalAmount: 0, accountCount: 0 },
-      { label: '31-60 days', minDays: 31, maxDays: 60, totalAmount: 0, accountCount: 0 },
-      { label: '61-90 days', minDays: 61, maxDays: 90, totalAmount: 0, accountCount: 0 },
-      { label: '90+ days', minDays: 91, maxDays: null, totalAmount: 0, accountCount: 0 },
-    ];
+    // Create buckets based on policy configuration
+    for (let i = 0; i < bucketsConfig.length; i++) {
+      const minDays = i === 0 ? 0 : (bucketsConfig[i - 1] ?? 0);
+      const maxDays = bucketsConfig[i] ?? 0;
+      const label = i === 0 
+        ? `Current (0-${maxDays} days)`
+        : i === bucketsConfig.length - 1
+        ? `${minDays}+ days`
+        : `${minDays}-${maxDays} days`;
+      
+      buckets.push({
+        label,
+        minDays,
+        maxDays: i === bucketsConfig.length - 1 ? null : maxDays,
+        totalAmount: 0,
+        accountCount: 0,
+      });
+    }
     
     // Get all payments
     const allPayments = yield* _(paymentRepo.findByCase('all'));

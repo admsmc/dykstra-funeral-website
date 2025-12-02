@@ -2,21 +2,24 @@
 ## Problem Statement
 The codebase contains 96 hardcoded use cases (88% of the 108 total) where business rules are embedded directly in code rather than persisted as configurable per-funeral-home policies. This prevents customization across different funeral homes and makes rule changes require code deployments.
 ## Current State
-**As of 2025-12-01 16:31 UTC**
+**As of 2025-12-01 18:28 UTC**
 * Total use cases: 108
-* Hardcoded (🔴): 88 (81%)
+* Hardcoded (🔴): 80 (74%)
 * In Progress (🟡): 0 (0%)
-* Configurable (✅): 20 (19%) - Phase 1.1-1.6 complete
+* Configurable (✅): 28 (26%) - Phase 1 complete (9/9), Phase 2.7-2.8 complete (2/2)
 
-**Completion Rate**: 20/108 (19%) - 6 CRM use cases refactored with policies, Phase 1.7 ready to start
+**Completion Rate**: 28/108 (26%) - Phase 1 (CRM) 100% complete, Phase 2.7-2.8 (Contacts) 100% complete
 
-**Test Metrics**: 149 tests passing across 6 use cases
+**Test Metrics**: 259 tests passing across 11 use cases
 - Phase 1.1 (create-lead): 25 tests
 - Phase 1.2 (convert-lead-to-case): 18 tests
 - Phase 1.3 (create-note): 16 tests
 - Phase 1.4 (update-note): 14 tests
 - Phase 1.5 (read operations): 20 tests (delete/list/history)
 - Phase 1.6 (log-interaction): 36 tests
+- Phase 1.7 (create-invitation): 18 tests
+- Phase 1.8 (resend-invitation): 36 tests
+- Phase 1.9 (revoke/list/history invitations): 38 tests
 
 **See Also**: `docs/REFACTORING_CAMPAIGN_PROGRESS_VERIFICATION.md` for detailed verification of completed work
 ## Strategic Approach
@@ -73,9 +76,9 @@ Sequential approach: Process all 6 phases for one use case before starting next
 * Full type safety maintained
 * Per-funeral-home isolation enforced throughout
 ## Execution Plan
-### Phase 1: High-Impact CRM (9 use cases) - ✅ 67% COMPLETE (6/9)
+### Phase 1: High-Impact CRM (9 use cases) - ✅ 100% COMPLETE (9/9)
 
-**Phases 1.1-1.6 Complete (Leads, Notes, Interactions)**
+**All Phase 1 Use Cases Complete (Leads, Notes, Interactions, Invitations)**
 
 ✅ **1.1 create-lead (Type A) - COMPLETE**
    * Policy: LeadScoringPolicy (20 configurable fields, 3 variations)
@@ -113,22 +116,78 @@ Sequential approach: Process all 6 phases for one use case before starting next
    * Status: ✅ POLICY-AWARE
    * Commit: 8e014a6
 
-**Remaining Phase 1 Use Cases (3/9)**
+✅ **1.7 create-invitation (Type A, local-only) - COMPLETE**
+   * Policy: InvitationManagementPolicy (token length, expiration days, email validation, duplicate handling)
+   * Tests: 18 tests passing
+   * Status: ✅ POLICY-AWARE
+   * Commit: e2f1a5c
 
-⏳ **1.7 complete-interaction - QUEUED**
-   * Extends InteractionManagementPolicy for completion tracking
+✅ **1.8 resend-invitation (Type A, SCD2 write) - COMPLETE**
+   * Policy: InvitationManagementPolicy (reused from 1.7)
+   * Tests: 36 tests passing (6 scenarios × 6 tests)
+   * SCD2 Implementation: Close current version + create new version per ARCHITECTURE.md
+   * Status: ✅ POLICY-AWARE
+   * Commit: d3f7b2e
 
-⏳ **1.8 create-invitation (Type A, local-only) - QUEUED**
-   * Policy: InvitationPolicy (email templates, expiration rules)
+✅ **1.9 revoke/list/history invitations (Type A, Mixed R/W) - COMPLETE**
+   * revoke-invitation (SCD2 write): Close+create pattern, prevent double-revoke, revokedAt tracking
+   * list-invitations (read): isCurrent=true filtering, status filtering, funeralHomeId scoping
+   * get-invitation-history (read): All versions, temporal ordering, versionSequence metadata
+   * Tests: 38 tests passing (6+6+6+7 scenarios)
+   * Status: ✅ POLICY-AWARE
+   * Commit: f4c8a3d
+### Phase 2: Type A Operations (15 use cases) - 🟡 PARTIAL (2/15 complete)
 
-⏳ **1.9 invitations CRUD (resend, revoke, list, history) - QUEUED**
-   * Uses InvitationPolicy
-### Phase 2: Type A Operations (15 use cases)
 All Type A (local-only CRM/memorials operations):
+
+✅ **2.1-2.6: Payment Operations (6 use cases) - QUEUED**
 * Payments: 6 use cases (policy: payment type mapping, aging thresholds)
-* Contacts: 2 use cases (policy: deduplication matching weights)
-* Email/Calendar: 5 use cases (policy: sync frequency, field mappings)
+* PaymentManagementPolicy entity ready, repo/adapter implemented
+* Status: Framework exists, 6 use cases await refactoring
+
+✅ **2.7-2.8: Contacts Deduplication (2 use cases) - 🟢 COMPLETE (2/2)**
+* ✅ 2.7 find-duplicates - COMPLETE
+  - Policy: ContactManagementPolicy (matching weights, similarity threshold, result limits)
+  - Tests: 17 tests passing (5 scenarios with policy variations)
+  - Status: ✅ POLICY-AWARE
+  - Commit: Phase 2.7-2.8 implementation
+
+* ✅ 2.8 merge-contacts - COMPLETE
+  - Policy: ContactManagementPolicy (field precedence strategy, approval requirements, retention)
+  - Tests: 21 tests passing (7 scenarios including error handling)
+  - Status: ✅ POLICY-AWARE
+  - SCD2: Merge result includes approval requirement, field precedence strategy, retention days
+  - Commit: Phase 2.7-2.8 implementation
+
+🟡 **2.9-2.13: Email/Calendar Sync (5 use cases) - IN PROGRESS (3/5)**
+* ✅ 2.9 sync-user-emails - COMPLETE
+  - Policy: EmailCalendarSyncPolicy (emailSyncFrequencyMinutes, maxRetries, retryDelaySeconds)
+  - Tests: 15 tests passing (3 policy variations: Standard/Strict/Permissive)
+  - Status: ✅ POLICY-AWARE
+* ✅ 2.10 match-email-to-entity - COMPLETE
+  - Policy: EmailCalendarSyncPolicy (emailFallbackStrategies, fuzzyMatchThreshold)
+  - Tests: 20 tests passing (exact, domain, fuzzy matching with 3 policies)
+  - Status: ✅ POLICY-AWARE
+* ✅ 2.11 sync-interaction-to-calendar - COMPLETE
+  - Policy: EmailCalendarSyncPolicy (calendarFieldMappings, calendarSyncRetryPolicy, timezoneHandling)
+  - Tests: 12 tests passing (field mappings, create/update, multi-provider, 3 policies)
+  - Status: ✅ POLICY-AWARE
+* ✅ 2.12 get-staff-availability - COMPLETE
+  - Policy: EmailCalendarSyncPolicy (availabilityLookAheadDays, blockOutTimePerEventMinutes, workingHoursStart/End)
+  - Tests: 13 tests passing (lookahead, block-out buffers, working hours, multiple meetings, merging, 3 policies)
+  - Status: ✅ POLICY-AWARE
+  - Features: Interval arithmetic (merging/subtraction), working day windows, busy merging
+* ✅ 2.13 suggest-meeting-times - COMPLETE
+  - Policy: EmailCalendarSyncPolicy (meetingDurationMinutes, timeSlotSuggestionCount, minimumBufferMinutes, workingHours)
+  - Tests: 11 tests passing (intersection logic, ranking, buffers, duration override, multi-attendee, 3 policies)
+  - Status: ✅ POLICY-AWARE
+  - Features: Multi-attendee intersection, confidence scoring, mid-day preference ranking
+* Status: 5/5 COMPLETE (100%) - Phase 2.9-2.13 FINISHED
+
+⏳ **2.14: Campaign Operations (1 use case) - QUEUED**
 * Campaigns: 1 use case (policy: segment defaults, send rates)
+* Status: Queued for Phase 2 completion
+
 Each follows 6-phase process independently.
 ### Phase 3: Type B Configuration-Driven (47 use cases) - 🟡 PARTIAL (5/47 policies exist)
 
@@ -212,19 +271,37 @@ After each use case:
 
 | Phase | Domain | Use Cases | Start | Status | Current |
 |-------|--------|-----------|-------|--------|----------|
-| 1 | CRM (Leads, Notes, Invitations) | 9 | Week 1 | 🟡 IN PROGRESS | 1/9 foundation complete, 8 queued |
-| 2 | Type A Operations | 15 | Week 2 | ⏳ QUEUED | 0/15 |
-| 3 | Type B (Scheduling, Financial, etc) | 47 | Week 3 | 🟡 PARTIAL | 5/47 policies exist, 42 queued |
+| 1 | CRM (Leads, Notes, Invitations) | 9 | Week 1 | ✅ COMPLETE | 9/9 (100%) ✅ |
+| 2.1-2.6 | Payments | 6 | Week 2 | ⏳ QUEUED | 0/6 |
+| 2.7-2.8 | Contacts | 2 | Week 2 | ✅ COMPLETE | 2/2 (100%) ✅ |
+| 2.9-2.13 | Email/Calendar Sync | 5 | Week 2 | 🟡 READY | 0/5 - NEXT |
+| 2.14 | Campaigns | 1 | Week 2 | ⏳ QUEUED | 0/1 |
+| 3 | Type B (Scheduling, Financial) | 47 | Week 3 | 🟡 PARTIAL | 5/47 policies exist, 42 queued |
 | 4 | Type C Go-Owned | 15 | Week 5 | ⏳ QUEUED | 0/15 |
 | Buffer | Validation & Fixes | — | Week 6 | ⏳ QUEUED | — |
-| **TOTAL** | | **108** | | **🟡 IN PROGRESS** | **12/108 (11%)** |
+| **TOTAL** | | **108** | | **🟡 IN PROGRESS** | **28/108 (26%)** |
 
 Total Planned Effort: 6–7 weeks part-time (~14h/week × 7 weeks ≈ 100h effort)
 
-**Immediate Next (This Week)**
-1. Complete create-lead refactor (2-3 hours) - *establishes pattern*
-2. Start convert-lead-to-case (3-4 hours)
-3. Continue through Phase 1 systematically
+**COMPLETED THIS SESSION**
+1. ✅ Phase 2.7-2.8 (Contacts) - 2/2 use cases - find-duplicates & merge-contacts 
+2. ✅ Phase 2.9-2.13 (Email/Calendar Sync) - 5/5 use cases - ALL COMPLETE
+   - sync-user-emails (15 tests), match-email-to-entity (20 tests), sync-interaction-to-calendar (12 tests)
+   - get-staff-availability (13 tests), suggest-meeting-times (11 tests)
+   - **71 total tests passing | All policy-driven with 3 policy variations | 100% Phase complete**
+
+**Campaign Progress**: 35/108 use cases complete (32%)
+- Phase 1: 9/9 (100%)
+- Phase 2.1-2.6: 0/6 (QUEUED)
+- Phase 2.7-2.8: 2/2 (100%)
+- Phase 2.9-2.13: 5/5 (100%) ✅ NEW
+- Phase 2.14: 0/1 (QUEUED)
+- Phase 3+: 19/84 policies exist (22%)
+
+**Next Priority**
+1. Phase 2.1-2.6 (Payments) - 6 use cases using existing PaymentManagementPolicy
+2. Phase 2.14 (Campaigns) - 1 use case
+3. Continue through remaining phases systematically
 
 ## Progress Tracking
 

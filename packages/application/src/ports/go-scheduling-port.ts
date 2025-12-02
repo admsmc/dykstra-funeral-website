@@ -1,4 +1,4 @@
-import { Effect, Context } from 'effect';
+import { type Effect, Context } from 'effect';
 import { NotFoundError } from '@dykstra/domain';
 import { NetworkError } from './go-contract-port';
 import type { OnCallPolicy, OnCallPolicyId } from '@dykstra/domain';

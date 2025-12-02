@@ -103,7 +103,7 @@ export const prePlanRouter = router({
         familyEmail: z.string().email().optional(),
       })
     )
-    .query(async ({ input, ctx }) => {
+    .query(async ({ input, ctx }: any) => {
       const directorId = input.directorId ?? ctx.user.id;
 
       const result = await runEffect(
@@ -134,7 +134,7 @@ export const prePlanRouter = router({
         directorEmail: z.string().email().optional(),
       })
     )
-    .mutation(async ({ input, ctx }) => {
+    .mutation(async ({ input, ctx }: any) => {
       const result = await runEffect(
         cancelAppointment({
           appointmentId: input.appointmentId,

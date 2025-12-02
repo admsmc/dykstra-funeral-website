@@ -165,7 +165,11 @@ export const emailSyncRouter = router({
           provider: input.provider,
           since: input.since,
           maxResults: input.maxResults,
-        })
+        }).pipe(
+          Effect.catchAll((error) => 
+            Effect.fail({ _tag: 'EmailSyncError', message: error instanceof Error ? error.message : String(error) })
+          )
+        )
       );
       
       return {
@@ -336,7 +340,11 @@ export const emailSyncRouter = router({
         matchEmailToEntity({
           emailAddress: input.email,
           funeralHomeId,
-        })
+        }).pipe(
+          Effect.catchAll((error) => 
+            Effect.fail({ _tag: 'EmailMatchError', message: error instanceof Error ? error.message : String(error) })
+          )
+        )
       );
       
       return match;

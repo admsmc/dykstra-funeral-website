@@ -2,3 +2,739 @@
 > @dykstra/infrastructure@0.1.0 type-check /Users/andrewmathers/projects/dykstra-funeral-website/packages/infrastructure
 > tsc --noEmit
 
+src/adapters/contact-management-policy-adapter.ts(30,3): error TS2322: Type '(funeralHomeId: string) => Effect.Effect<unknown, PersistenceError, unknown>' is not assignable to type '(funeralHomeId: string) => Effect<ContactManagementPolicy, NotFoundError | PersistenceError, never>'.
+  Type 'Effect<unknown, PersistenceError, unknown>' is not assignable to type 'Effect<ContactManagementPolicy, NotFoundError | PersistenceError, never>'.
+    Type 'unknown' is not assignable to type 'ContactManagementPolicy'.
+src/adapters/contact-management-policy-adapter.ts(37,11): error TS2345: Argument of type 'string' is not assignable to parameter of type '{ readonly message: string; readonly entityType: string; readonly entityId: string; }'.
+src/adapters/contact-management-policy-adapter.ts(43,23): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(...args: [never, ...never[], f: (e: never) => Effect<unknown, unknown, unknown>]): <A, R>(self: Effect<A, never, R>) => Effect<unknown, unknown, unknown>', gave the following error.
+    Argument of type '"NotFoundError"' is not assignable to parameter of type 'never'.
+  Overload 2 of 2, '(self: Effect<unknown, unknown, unknown>, ...args: [never, ...never[], f: (e: never) => Effect<unknown, unknown, unknown>]): Effect<unknown, unknown, unknown>', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type 'Effect<unknown, unknown, unknown>'.
+src/adapters/contact-management-policy-adapter.ts(55,3): error TS2322: Type '(funeralHomeId: string) => Effect.Effect<unknown, PersistenceError, unknown>' is not assignable to type '(funeralHomeId: string) => Effect<ContactManagementPolicy[], NotFoundError | PersistenceError, never>'.
+  Type 'Effect<unknown, PersistenceError, unknown>' is not assignable to type 'Effect<ContactManagementPolicy[], NotFoundError | PersistenceError, never>'.
+    Type 'unknown' is not assignable to type 'ContactManagementPolicy[]'.
+src/adapters/contact-management-policy-adapter.ts(59,33): error TS2345: Argument of type 'string' is not assignable to parameter of type '{ readonly message: string; readonly entityType: string; readonly entityId: string; }'.
+src/adapters/contact-management-policy-adapter.ts(63,23): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(...args: [never, ...never[], f: (e: never) => Effect<unknown, unknown, unknown>]): <A, R>(self: Effect<A, never, R>) => Effect<unknown, unknown, unknown>', gave the following error.
+    Argument of type '"NotFoundError"' is not assignable to parameter of type 'never'.
+  Overload 2 of 2, '(self: Effect<unknown, unknown, unknown>, ...args: [never, ...never[], f: (e: never) => Effect<unknown, unknown, unknown>]): Effect<unknown, unknown, unknown>', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type 'Effect<unknown, unknown, unknown>'.
+src/adapters/contact-management-policy-adapter.ts(74,3): error TS2322: Type '(id: string) => Effect.Effect<unknown, PersistenceError, unknown>' is not assignable to type '(id: string) => Effect<ContactManagementPolicy, NotFoundError | PersistenceError, never>'.
+  Type 'Effect<unknown, PersistenceError, unknown>' is not assignable to type 'Effect<ContactManagementPolicy, NotFoundError | PersistenceError, never>'.
+    Type 'unknown' is not assignable to type 'ContactManagementPolicy'.
+src/adapters/contact-management-policy-adapter.ts(83,31): error TS2345: Argument of type 'string' is not assignable to parameter of type '{ readonly message: string; readonly entityType: string; readonly entityId: string; }'.
+src/adapters/contact-management-policy-adapter.ts(85,23): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(...args: [never, ...never[], f: (e: never) => Effect<unknown, unknown, unknown>]): <A, R>(self: Effect<A, never, R>) => Effect<unknown, unknown, unknown>', gave the following error.
+    Argument of type '"NotFoundError"' is not assignable to parameter of type 'never'.
+  Overload 2 of 2, '(self: Effect<unknown, unknown, unknown>, ...args: [never, ...never[], f: (e: never) => Effect<unknown, unknown, unknown>]): Effect<unknown, unknown, unknown>', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type 'Effect<unknown, unknown, unknown>'.
+src/adapters/contact-management-policy-adapter.ts(114,60): error TS2358: The left-hand side of an 'instanceof' expression must be of type 'any', an object type or a type parameter.
+src/adapters/contact-management-policy-adapter.ts(114,91): error TS2339: Property 'message' does not exist on type 'never'.
+src/adapters/contact-management-policy-adapter.ts(122,3): error TS2719: Type '(funeralHomeId: string, updates: Partial<Omit<import("/Users/andrewmathers/projects/dykstra-funeral-website/packages/domain/src/entities/contact-management-policy").ContactManagementPolicy, "id" | ... 6 more ... | "funeralHomeId">>) => import("/Users/andrewmathers/projects/dykstra-funeral-website/node_modules/.pnpm/...' is not assignable to type '(funeralHomeId: string, updates: Partial<Omit<import("/Users/andrewmathers/projects/dykstra-funeral-website/packages/domain/src/entities/contact-management-policy").ContactManagementPolicy, "id" | ... 6 more ... | "funeralHomeId">>) => import("/Users/andrewmathers/projects/dykstra-funeral-website/node_modules/.pnpm/...'. Two different types with this name exist, but they are unrelated.
+  Type 'Effect<ContactManagementPolicy, PersistenceError, unknown>' is not assignable to type 'Effect<ContactManagementPolicy, NotFoundError | PersistenceError, never>'.
+    Type 'unknown' is not assignable to type 'never'.
+src/adapters/contact-management-policy-adapter.ts(130,35): error TS2345: Argument of type 'string' is not assignable to parameter of type '{ readonly message: string; readonly entityType: string; readonly entityId: string; }'.
+src/adapters/contact-management-policy-adapter.ts(135,25): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(...args: [never, ...never[], f: (e: never) => Effect<unknown, unknown, unknown>]): <A, R>(self: Effect<A, never, R>) => Effect<unknown, unknown, unknown>', gave the following error.
+    Argument of type '"NotFoundError"' is not assignable to parameter of type 'never'.
+  Overload 2 of 2, '(self: Effect<unknown, unknown, unknown>, ...args: [never, ...never[], f: (e: never) => Effect<unknown, unknown, unknown>]): Effect<unknown, unknown, unknown>', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type 'Effect<unknown, unknown, unknown>'.
+src/adapters/contact-management-policy-adapter.ts(146,58): error TS18046: 'current' is of type 'unknown'.
+src/adapters/contact-management-policy-adapter.ts(150,13): error TS2698: Spread types may only be created from object types.
+src/adapters/contact-management-policy-adapter.ts(159,71): error TS2358: The left-hand side of an 'instanceof' expression must be of type 'any', an object type or a type parameter.
+src/adapters/contact-management-policy-adapter.ts(159,102): error TS2339: Property 'message' does not exist on type 'never'.
+src/adapters/contact-management-policy-adapter.ts(166,9): error TS2698: Spread types may only be created from object types.
+src/adapters/contact-management-policy-adapter.ts(169,18): error TS18046: 'current' is of type 'unknown'.
+src/adapters/contact-management-policy-adapter.ts(183,67): error TS2358: The left-hand side of an 'instanceof' expression must be of type 'any', an object type or a type parameter.
+src/adapters/contact-management-policy-adapter.ts(183,98): error TS2339: Property 'message' does not exist on type 'never'.
+src/adapters/contact-management-policy-adapter.ts(193,60): error TS2358: The left-hand side of an 'instanceof' expression must be of type 'any', an object type or a type parameter.
+src/adapters/contact-management-policy-adapter.ts(193,91): error TS2339: Property 'message' does not exist on type 'never'.
+src/adapters/contact-management-policy-adapter.ts(214,64): error TS2358: The left-hand side of an 'instanceof' expression must be of type 'any', an object type or a type parameter.
+src/adapters/contact-management-policy-adapter.ts(214,95): error TS2339: Property 'message' does not exist on type 'never'.
+src/adapters/email-calendar-sync-policy-adapter.ts(30,3): error TS2322: Type '(funeralHomeId: string) => Effect.Effect<unknown, PersistenceError, unknown>' is not assignable to type '(funeralHomeId: string) => Effect<EmailCalendarSyncPolicy, NotFoundError | PersistenceError, never>'.
+  Type 'Effect<unknown, PersistenceError, unknown>' is not assignable to type 'Effect<EmailCalendarSyncPolicy, NotFoundError | PersistenceError, never>'.
+    Type 'unknown' is not assignable to type 'EmailCalendarSyncPolicy'.
+src/adapters/email-calendar-sync-policy-adapter.ts(38,11): error TS2554: Expected 1 arguments, but got 3.
+src/adapters/email-calendar-sync-policy-adapter.ts(45,23): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(...args: [never, ...never[], f: (e: never) => Effect<unknown, unknown, unknown>]): <A, R>(self: Effect<A, never, R>) => Effect<unknown, unknown, unknown>', gave the following error.
+    Argument of type '"NotFoundError"' is not assignable to parameter of type 'never'.
+  Overload 2 of 2, '(self: Effect<unknown, unknown, unknown>, ...args: [never, ...never[], f: (e: never) => Effect<unknown, unknown, unknown>]): Effect<unknown, unknown, unknown>', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type 'Effect<unknown, unknown, unknown>'.
+src/adapters/email-calendar-sync-policy-adapter.ts(57,3): error TS2322: Type '(funeralHomeId: string) => Effect.Effect<unknown, PersistenceError, unknown>' is not assignable to type '(funeralHomeId: string) => Effect<EmailCalendarSyncPolicy[], NotFoundError | PersistenceError, never>'.
+  Type 'Effect<unknown, PersistenceError, unknown>' is not assignable to type 'Effect<EmailCalendarSyncPolicy[], NotFoundError | PersistenceError, never>'.
+    Type 'unknown' is not assignable to type 'EmailCalendarSyncPolicy[]'.
+src/adapters/email-calendar-sync-policy-adapter.ts(61,89): error TS2554: Expected 1 arguments, but got 3.
+src/adapters/email-calendar-sync-policy-adapter.ts(65,23): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(...args: [never, ...never[], f: (e: never) => Effect<unknown, unknown, unknown>]): <A, R>(self: Effect<A, never, R>) => Effect<unknown, unknown, unknown>', gave the following error.
+    Argument of type '"NotFoundError"' is not assignable to parameter of type 'never'.
+  Overload 2 of 2, '(self: Effect<unknown, unknown, unknown>, ...args: [never, ...never[], f: (e: never) => Effect<unknown, unknown, unknown>]): Effect<unknown, unknown, unknown>', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type 'Effect<unknown, unknown, unknown>'.
+src/adapters/email-calendar-sync-policy-adapter.ts(76,3): error TS2322: Type '(id: string) => Effect.Effect<unknown, PersistenceError, unknown>' is not assignable to type '(id: string) => Effect<EmailCalendarSyncPolicy, NotFoundError | PersistenceError, never>'.
+  Type 'Effect<unknown, PersistenceError, unknown>' is not assignable to type 'Effect<EmailCalendarSyncPolicy, NotFoundError | PersistenceError, never>'.
+    Type 'unknown' is not assignable to type 'EmailCalendarSyncPolicy'.
+src/adapters/email-calendar-sync-policy-adapter.ts(85,66): error TS2554: Expected 1 arguments, but got 3.
+src/adapters/email-calendar-sync-policy-adapter.ts(87,23): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(...args: [never, ...never[], f: (e: never) => Effect<unknown, unknown, unknown>]): <A, R>(self: Effect<A, never, R>) => Effect<unknown, unknown, unknown>', gave the following error.
+    Argument of type '"NotFoundError"' is not assignable to parameter of type 'never'.
+  Overload 2 of 2, '(self: Effect<unknown, unknown, unknown>, ...args: [never, ...never[], f: (e: never) => Effect<unknown, unknown, unknown>]): Effect<unknown, unknown, unknown>', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type 'Effect<unknown, unknown, unknown>'.
+src/adapters/email-calendar-sync-policy-adapter.ts(116,60): error TS2358: The left-hand side of an 'instanceof' expression must be of type 'any', an object type or a type parameter.
+src/adapters/email-calendar-sync-policy-adapter.ts(116,91): error TS2339: Property 'message' does not exist on type 'never'.
+src/adapters/email-calendar-sync-policy-adapter.ts(124,3): error TS2719: Type '(funeralHomeId: string, updates: Partial<Omit<import("/Users/andrewmathers/projects/dykstra-funeral-website/packages/domain/src/entities/email-sync/email-calendar-sync-policy").EmailCalendarSyncPolicy, "id" | ... 6 more ... | "funeralHomeId">>) => import("/Users/andrewmathers/projects/dykstra-funeral-website/node_mo...' is not assignable to type '(funeralHomeId: string, updates: Partial<Omit<import("/Users/andrewmathers/projects/dykstra-funeral-website/packages/domain/src/entities/email-sync/email-calendar-sync-policy").EmailCalendarSyncPolicy, "id" | ... 6 more ... | "funeralHomeId">>) => import("/Users/andrewmathers/projects/dykstra-funeral-website/node_mo...'. Two different types with this name exist, but they are unrelated.
+  Type 'Effect<EmailCalendarSyncPolicy, PersistenceError, unknown>' is not assignable to type 'Effect<EmailCalendarSyncPolicy, NotFoundError | PersistenceError, never>'.
+    Type 'unknown' is not assignable to type 'never'.
+src/adapters/email-calendar-sync-policy-adapter.ts(132,96): error TS2554: Expected 1 arguments, but got 3.
+src/adapters/email-calendar-sync-policy-adapter.ts(137,25): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(...args: [never, ...never[], f: (e: never) => Effect<unknown, unknown, unknown>]): <A, R>(self: Effect<A, never, R>) => Effect<unknown, unknown, unknown>', gave the following error.
+    Argument of type '"NotFoundError"' is not assignable to parameter of type 'never'.
+  Overload 2 of 2, '(self: Effect<unknown, unknown, unknown>, ...args: [never, ...never[], f: (e: never) => Effect<unknown, unknown, unknown>]): Effect<unknown, unknown, unknown>', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type 'Effect<unknown, unknown, unknown>'.
+src/adapters/email-calendar-sync-policy-adapter.ts(148,58): error TS18046: 'current' is of type 'unknown'.
+src/adapters/email-calendar-sync-policy-adapter.ts(152,13): error TS2698: Spread types may only be created from object types.
+src/adapters/email-calendar-sync-policy-adapter.ts(161,71): error TS2358: The left-hand side of an 'instanceof' expression must be of type 'any', an object type or a type parameter.
+src/adapters/email-calendar-sync-policy-adapter.ts(161,102): error TS2339: Property 'message' does not exist on type 'never'.
+src/adapters/email-calendar-sync-policy-adapter.ts(168,9): error TS2698: Spread types may only be created from object types.
+src/adapters/email-calendar-sync-policy-adapter.ts(171,18): error TS18046: 'current' is of type 'unknown'.
+src/adapters/email-calendar-sync-policy-adapter.ts(185,67): error TS2358: The left-hand side of an 'instanceof' expression must be of type 'any', an object type or a type parameter.
+src/adapters/email-calendar-sync-policy-adapter.ts(185,98): error TS2339: Property 'message' does not exist on type 'never'.
+src/adapters/email-calendar-sync-policy-adapter.ts(195,60): error TS2358: The left-hand side of an 'instanceof' expression must be of type 'any', an object type or a type parameter.
+src/adapters/email-calendar-sync-policy-adapter.ts(195,91): error TS2339: Property 'message' does not exist on type 'never'.
+src/adapters/email-calendar-sync-policy-adapter.ts(216,64): error TS2358: The left-hand side of an 'instanceof' expression must be of type 'any', an object type or a type parameter.
+src/adapters/email-calendar-sync-policy-adapter.ts(216,95): error TS2339: Property 'message' does not exist on type 'never'.
+src/adapters/go-backend/go-scheduling-adapter.ts(3,3): error TS2305: Module '"@dykstra/application"' has no exported member 'GoSchedulingPortService'.
+src/adapters/go-backend/go-scheduling-adapter.ts(4,3): error TS2305: Module '"@dykstra/application"' has no exported member 'GoShiftTemplate'.
+src/adapters/go-backend/go-scheduling-adapter.ts(5,3): error TS2305: Module '"@dykstra/application"' has no exported member 'GoShiftAssignment'.
+src/adapters/go-backend/go-scheduling-adapter.ts(6,3): error TS2305: Module '"@dykstra/application"' has no exported member 'GoShiftSwap'.
+src/adapters/go-backend/go-scheduling-adapter.ts(7,3): error TS2724: '"@dykstra/application"' has no exported member named 'GoOnCallAssignment'. Did you mean 'GoCaseAssignment'?
+src/adapters/go-backend/go-scheduling-adapter.ts(8,3): error TS2305: Module '"@dykstra/application"' has no exported member 'GoOnCallActivation'.
+src/adapters/go-backend/go-scheduling-adapter.ts(9,3): error TS2305: Module '"@dykstra/application"' has no exported member 'GoStaffSchedule'.
+src/adapters/go-backend/go-scheduling-adapter.ts(10,3): error TS2305: Module '"@dykstra/application"' has no exported member 'GoShiftCoverageStatus'.
+src/adapters/go-backend/go-scheduling-adapter.ts(11,3): error TS2305: Module '"@dykstra/application"' has no exported member 'GoRotatingSchedule'.
+src/adapters/go-backend/go-scheduling-adapter.ts(12,3): error TS2305: Module '"@dykstra/application"' has no exported member 'GoShiftCoverageRule'.
+src/adapters/go-backend/go-scheduling-adapter.ts(13,3): error TS2305: Module '"@dykstra/application"' has no exported member 'CreateShiftTemplateCommand'.
+src/adapters/go-backend/go-scheduling-adapter.ts(14,3): error TS2305: Module '"@dykstra/application"' has no exported member 'AssignShiftCommand'.
+src/adapters/go-backend/go-scheduling-adapter.ts(15,3): error TS2305: Module '"@dykstra/application"' has no exported member 'CompleteShiftCommand'.
+src/adapters/go-backend/go-scheduling-adapter.ts(16,3): error TS2305: Module '"@dykstra/application"' has no exported member 'RequestShiftSwapCommand'.
+src/adapters/go-backend/go-scheduling-adapter.ts(17,3): error TS2305: Module '"@dykstra/application"' has no exported member 'ReviewShiftSwapCommand'.
+src/adapters/go-backend/go-scheduling-adapter.ts(18,3): error TS2305: Module '"@dykstra/application"' has no exported member 'AssignOnCallCommand'.
+src/adapters/go-backend/go-scheduling-adapter.ts(19,3): error TS2305: Module '"@dykstra/application"' has no exported member 'ActivateOnCallCommand'.
+src/adapters/go-backend/go-scheduling-adapter.ts(20,3): error TS2305: Module '"@dykstra/application"' has no exported member 'CreateRotatingScheduleCommand'.
+src/adapters/go-backend/go-scheduling-adapter.ts(23,3): error TS2305: Module '"@dykstra/application"' has no exported member 'ShiftType'.
+src/adapters/go-backend/go-scheduling-adapter.ts(160,3): error TS2739: Type '{ id: any; businessKey: any; version: any; validFrom: Date; validTo: Date | null; isCurrent: any; funeralHomeId: any; minAdvanceNoticeHours: any; maxAdvanceNoticeHours: any; minRestHoursAfterShift: any; ... 7 more ...; updatedBy: any; }' is missing the following properties from type 'OnCallPolicy': maxOnCallPerDirectorPerQuarter, onCallBasePayAmount, callbackHourlyRate
+src/adapters/go-backend/go-scheduling-adapter.ts(244,24): error TS7006: Parameter 'filters' implicitly has an 'any' type.
+src/adapters/go-backend/go-scheduling-adapter.ts(308,26): error TS7006: Parameter 'filters' implicitly has an 'any' type.
+src/adapters/go-backend/go-scheduling-adapter.ts(428,20): error TS7006: Parameter 'filters' implicitly has an 'any' type.
+src/adapters/go-backend/go-scheduling-adapter.ts(515,27): error TS7006: Parameter 'filters' implicitly has an 'any' type.
+src/adapters/interaction-management-policy-adapter.ts(4,15): error TS2724: '"@dykstra/application"' has no exported member named 'InteractionManagementPolicyRepositoryService'. Did you mean 'ContactManagementPolicyRepositoryService'?
+src/adapters/interaction-management-policy-adapter.ts(15,37): error TS2339: Property 'interactionManagementPolicy' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/interaction-management-policy-adapter.ts(23,35): error TS2345: Argument of type '{ message: string; entityType: string; }' is not assignable to parameter of type '{ readonly message: string; readonly entityType: string; readonly entityId: string; }'.
+  Property 'entityId' is missing in type '{ message: string; entityType: string; }' but required in type '{ readonly message: string; readonly entityType: string; readonly entityId: string; }'.
+src/adapters/interaction-management-policy-adapter.ts(33,37): error TS2345: Argument of type '{ message: string; originalError: unknown; }' is not assignable to parameter of type 'string'.
+src/adapters/interaction-management-policy-adapter.ts(43,37): error TS2339: Property 'interactionManagementPolicy' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/interaction-management-policy-adapter.ts(51,35): error TS2345: Argument of type '{ message: string; entityType: string; }' is not assignable to parameter of type '{ readonly message: string; readonly entityType: string; readonly entityId: string; }'.
+  Property 'entityId' is missing in type '{ message: string; entityType: string; }' but required in type '{ readonly message: string; readonly entityType: string; readonly entityId: string; }'.
+src/adapters/interaction-management-policy-adapter.ts(61,37): error TS2345: Argument of type '{ message: string; originalError: unknown; }' is not assignable to parameter of type 'string'.
+src/adapters/interaction-management-policy-adapter.ts(71,39): error TS2339: Property 'interactionManagementPolicy' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/interaction-management-policy-adapter.ts(79,30): error TS2345: Argument of type '{ message: string; originalError: unknown; }' is not assignable to parameter of type 'string'.
+src/adapters/interaction-management-policy-adapter.ts(88,39): error TS2339: Property 'interactionManagementPolicy' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/interaction-management-policy-adapter.ts(96,30): error TS2345: Argument of type '{ message: string; originalError: unknown; }' is not assignable to parameter of type 'string'.
+src/adapters/interaction-management-policy-adapter.ts(105,22): error TS2339: Property 'interactionManagementPolicy' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/interaction-management-policy-adapter.ts(132,30): error TS2345: Argument of type '{ message: string; originalError: unknown; }' is not assignable to parameter of type 'string'.
+src/adapters/interaction-management-policy-adapter.ts(142,22): error TS2339: Property 'interactionManagementPolicy' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/interaction-management-policy-adapter.ts(155,38): error TS2339: Property 'interactionManagementPolicy' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/interaction-management-policy-adapter.ts(198,30): error TS2345: Argument of type '{ message: string; originalError: unknown; }' is not assignable to parameter of type 'string'.
+src/adapters/interaction-management-policy-adapter.ts(207,37): error TS2339: Property 'interactionManagementPolicy' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/interaction-management-policy-adapter.ts(212,35): error TS2345: Argument of type '{ message: string; entityType: string; }' is not assignable to parameter of type '{ readonly message: string; readonly entityType: string; readonly entityId: string; }'.
+  Property 'entityId' is missing in type '{ message: string; entityType: string; }' but required in type '{ readonly message: string; readonly entityType: string; readonly entityId: string; }'.
+src/adapters/interaction-management-policy-adapter.ts(218,22): error TS2339: Property 'interactionManagementPolicy' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/interaction-management-policy-adapter.ts(224,37): error TS2345: Argument of type '{ message: string; originalError: unknown; }' is not assignable to parameter of type 'string'.
+src/adapters/invitation-management-policy-adapter.ts(4,15): error TS2724: '"@dykstra/application"' has no exported member named 'InvitationManagementPolicyRepositoryService'. Did you mean 'ContactManagementPolicyRepositoryService'?
+src/adapters/invitation-management-policy-adapter.ts(15,37): error TS2339: Property 'invitationManagementPolicy' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/invitation-management-policy-adapter.ts(23,35): error TS2345: Argument of type '{ message: string; entityType: string; }' is not assignable to parameter of type '{ readonly message: string; readonly entityType: string; readonly entityId: string; }'.
+  Property 'entityId' is missing in type '{ message: string; entityType: string; }' but required in type '{ readonly message: string; readonly entityType: string; readonly entityId: string; }'.
+src/adapters/invitation-management-policy-adapter.ts(33,37): error TS2345: Argument of type '{ message: string; originalError: unknown; }' is not assignable to parameter of type 'string'.
+src/adapters/invitation-management-policy-adapter.ts(43,37): error TS2339: Property 'invitationManagementPolicy' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/invitation-management-policy-adapter.ts(51,35): error TS2345: Argument of type '{ message: string; entityType: string; }' is not assignable to parameter of type '{ readonly message: string; readonly entityType: string; readonly entityId: string; }'.
+  Property 'entityId' is missing in type '{ message: string; entityType: string; }' but required in type '{ readonly message: string; readonly entityType: string; readonly entityId: string; }'.
+src/adapters/invitation-management-policy-adapter.ts(61,37): error TS2345: Argument of type '{ message: string; originalError: unknown; }' is not assignable to parameter of type 'string'.
+src/adapters/invitation-management-policy-adapter.ts(71,39): error TS2339: Property 'invitationManagementPolicy' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/invitation-management-policy-adapter.ts(79,30): error TS2345: Argument of type '{ message: string; originalError: unknown; }' is not assignable to parameter of type 'string'.
+src/adapters/invitation-management-policy-adapter.ts(88,39): error TS2339: Property 'invitationManagementPolicy' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/invitation-management-policy-adapter.ts(96,30): error TS2345: Argument of type '{ message: string; originalError: unknown; }' is not assignable to parameter of type 'string'.
+src/adapters/invitation-management-policy-adapter.ts(105,22): error TS2339: Property 'invitationManagementPolicy' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/invitation-management-policy-adapter.ts(129,30): error TS2345: Argument of type '{ message: string; originalError: unknown; }' is not assignable to parameter of type 'string'.
+src/adapters/invitation-management-policy-adapter.ts(139,22): error TS2339: Property 'invitationManagementPolicy' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/invitation-management-policy-adapter.ts(152,38): error TS2339: Property 'invitationManagementPolicy' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/invitation-management-policy-adapter.ts(189,30): error TS2345: Argument of type '{ message: string; originalError: unknown; }' is not assignable to parameter of type 'string'.
+src/adapters/invitation-management-policy-adapter.ts(198,37): error TS2339: Property 'invitationManagementPolicy' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/invitation-management-policy-adapter.ts(203,35): error TS2345: Argument of type '{ message: string; entityType: string; }' is not assignable to parameter of type '{ readonly message: string; readonly entityType: string; readonly entityId: string; }'.
+  Property 'entityId' is missing in type '{ message: string; entityType: string; }' but required in type '{ readonly message: string; readonly entityType: string; readonly entityId: string; }'.
+src/adapters/invitation-management-policy-adapter.ts(209,22): error TS2339: Property 'invitationManagementPolicy' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/invitation-management-policy-adapter.ts(215,37): error TS2345: Argument of type '{ message: string; originalError: unknown; }' is not assignable to parameter of type 'string'.
+src/adapters/payment-management-policy-adapter.ts(3,76): error TS2307: Cannot find module '../../application/src/ports/payment-management-policy-repository' or its corresponding type declarations.
+src/adapters/payment-management-policy-adapter.ts(36,11): error TS2345: Argument of type 'string' is not assignable to parameter of type '{ readonly message: string; readonly entityType: string; readonly entityId: string; }'.
+src/adapters/payment-management-policy-adapter.ts(42,23): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(...args: [never, ...never[], f: (e: never) => Effect<unknown, unknown, unknown>]): <A, R>(self: Effect<A, never, R>) => Effect<unknown, unknown, unknown>', gave the following error.
+    Argument of type '"NotFoundError"' is not assignable to parameter of type 'never'.
+  Overload 2 of 2, '(self: Effect<unknown, unknown, unknown>, ...args: [never, ...never[], f: (e: never) => Effect<unknown, unknown, unknown>]): Effect<unknown, unknown, unknown>', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type 'Effect<unknown, unknown, unknown>'.
+src/adapters/payment-management-policy-adapter.ts(65,31): error TS2345: Argument of type 'string' is not assignable to parameter of type '{ readonly message: string; readonly entityType: string; readonly entityId: string; }'.
+src/adapters/payment-management-policy-adapter.ts(67,23): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(...args: [never, ...never[], f: (e: never) => Effect<unknown, unknown, unknown>]): <A, R>(self: Effect<A, never, R>) => Effect<unknown, unknown, unknown>', gave the following error.
+    Argument of type '"NotFoundError"' is not assignable to parameter of type 'never'.
+  Overload 2 of 2, '(self: Effect<unknown, unknown, unknown>, ...args: [never, ...never[], f: (e: never) => Effect<unknown, unknown, unknown>]): Effect<unknown, unknown, unknown>', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type 'Effect<unknown, unknown, unknown>'.
+src/adapters/payment-management-policy-adapter.ts(95,57): error TS2358: The left-hand side of an 'instanceof' expression must be of type 'any', an object type or a type parameter.
+src/adapters/payment-management-policy-adapter.ts(95,88): error TS2339: Property 'message' does not exist on type 'never'.
+src/adapters/payment-management-policy-adapter.ts(119,54): error TS2358: The left-hand side of an 'instanceof' expression must be of type 'any', an object type or a type parameter.
+src/adapters/payment-management-policy-adapter.ts(119,85): error TS2339: Property 'message' does not exist on type 'never'.
+src/adapters/payment-management-policy-adapter.ts(167,48): error TS2358: The left-hand side of an 'instanceof' expression must be of type 'any', an object type or a type parameter.
+src/adapters/payment-management-policy-adapter.ts(167,79): error TS2339: Property 'message' does not exist on type 'never'.
+src/adapters/payment-management-policy-adapter.ts(208,31): error TS2345: Argument of type 'string' is not assignable to parameter of type '{ readonly message: string; readonly entityType: string; readonly entityId: string; }'.
+src/adapters/payment-management-policy-adapter.ts(210,23): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(...args: [never, ...never[], f: (e: never) => Effect<unknown, unknown, unknown>]): <A, R>(self: Effect<A, never, R>) => Effect<unknown, unknown, unknown>', gave the following error.
+    Argument of type '"NotFoundError"' is not assignable to parameter of type 'never'.
+  Overload 2 of 2, '(self: Effect<unknown, unknown, unknown>, ...args: [never, ...never[], f: (e: never) => Effect<unknown, unknown, unknown>]): Effect<unknown, unknown, unknown>', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type 'Effect<unknown, unknown, unknown>'.
+src/adapters/prep-room/prep-room-adapter.ts(25,3): error TS6133: 'hasTimeOverlap' is declared but its value is never read.
+src/adapters/prep-room/prep-room-adapter.ts(26,3): error TS6133: 'getDurationWithBuffer' is declared but its value is never read.
+src/adapters/prep-room/prep-room-adapter.ts(29,3): error TS2305: Module '"@dykstra/application"' has no exported member 'PrepRoomRepositoryPort'.
+src/adapters/prep-room/prep-room-adapter.ts(29,3): error TS6133: 'PrepRoomRepositoryPort' is declared but its value is never read.
+src/adapters/prep-room/prep-room-adapter.ts(30,8): error TS2724: '"@dykstra/application"' has no exported member named 'PrepRoomRepositoryService'. Did you mean 'EmailRepositoryService'?
+src/adapters/prep-room/prep-room-adapter.ts(31,3): error TS2305: Module '"@dykstra/application"' has no exported member 'PrepRoomRepositoryError'.
+src/adapters/prep-room/prep-room-adapter.ts(32,3): error TS2305: Module '"@dykstra/application"' has no exported member 'PrepRoomNotFoundError'.
+src/adapters/prep-room/prep-room-adapter.ts(33,3): error TS2724: '"@dykstra/application"' has no exported member named 'ReservationNotFoundError'. Did you mean 'InvitationNotFoundError'?
+src/adapters/prep-room/prep-room-adapter.ts(34,8): error TS2724: '"@dykstra/application"' has no exported member named 'AvailableSlot'. Did you mean 'AvailabilitySlot'?
+src/adapters/prep-room/prep-room-adapter.ts(35,8): error TS2305: Module '"@dykstra/application"' has no exported member 'ConflictInfo'.
+src/adapters/prep-room/prep-room-adapter.ts(36,8): error TS2305: Module '"@dykstra/application"' has no exported member 'FindAvailableSlotsQuery'.
+src/adapters/prep-room/prep-room-adapter.ts(37,8): error TS2305: Module '"@dykstra/application"' has no exported member 'RoomUtilization'.
+src/adapters/prep-room/prep-room-adapter.ts(95,35): error TS2339: Property 'prepRoom' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/prep-room/prep-room-adapter.ts(122,36): error TS2339: Property 'prepRoom' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/prep-room/prep-room-adapter.ts(144,36): error TS2339: Property 'prepRoom' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/prep-room/prep-room-adapter.ts(167,38): error TS2339: Property 'prepRoomReservation' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/prep-room/prep-room-adapter.ts(198,42): error TS2339: Property 'prepRoomReservation' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/prep-room/prep-room-adapter.ts(228,43): error TS2339: Property 'prepRoomReservation' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/prep-room/prep-room-adapter.ts(254,43): error TS2339: Property 'prepRoomReservation' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/prep-room/prep-room-adapter.ts(282,43): error TS2339: Property 'prepRoomReservation' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/prep-room/prep-room-adapter.ts(306,36): error TS2339: Property 'prepRoom' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/prep-room/prep-room-adapter.ts(323,44): error TS2339: Property 'prepRoomReservation' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/prep-room/prep-room-adapter.ts(365,5): error TS6133: 'priority' is declared but its value is never read.
+src/adapters/prep-room/prep-room-adapter.ts(370,40): error TS2339: Property 'prepRoomReservation' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/prep-room/prep-room-adapter.ts(393,62): error TS7006: Parameter 'conflict' implicitly has an 'any' type.
+src/adapters/prep-room/prep-room-adapter.ts(414,22): error TS2339: Property 'prepRoomReservation' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/prep-room/prep-room-adapter.ts(426,38): error TS2339: Property 'prepRoomReservation' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/prep-room/prep-room-adapter.ts(466,36): error TS2339: Property 'prepRoom' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/prep-room/prep-room-adapter.ts(477,45): error TS2339: Property 'prepRoomReservation' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/backfill-management-adapter.ts(10,3): error TS2305: Module '"@dykstra/application"' has no exported member 'BackfillManagementPortService'.
+src/adapters/pto-management/backfill-management-adapter.ts(11,3): error TS2305: Module '"@dykstra/application"' has no exported member 'BackfillAssignmentFilters'.
+src/adapters/pto-management/backfill-management-adapter.ts(11,3): error TS6196: 'BackfillAssignmentFilters' is declared but never used.
+src/adapters/pto-management/backfill-management-adapter.ts(12,3): error TS2305: Module '"@dykstra/application"' has no exported member 'BackfillAssignmentQueryResult'.
+src/adapters/pto-management/backfill-management-adapter.ts(12,3): error TS6196: 'BackfillAssignmentQueryResult' is declared but never used.
+src/adapters/pto-management/backfill-management-adapter.ts(13,3): error TS2305: Module '"@dykstra/application"' has no exported member 'BackfillCandidate'.
+src/adapters/pto-management/backfill-management-adapter.ts(14,3): error TS2305: Module '"@dykstra/application"' has no exported member 'BackfillCoverageSummary'.
+src/adapters/pto-management/backfill-management-adapter.ts(15,3): error TS2305: Module '"@dykstra/application"' has no exported member 'BackfillEmployeeWorkload'.
+src/adapters/pto-management/backfill-management-adapter.ts(19,3): error TS6196: 'BackfillAssignmentId' is declared but never used.
+src/adapters/pto-management/backfill-management-adapter.ts(29,30): error TS7006: Parameter 'assignment' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(29,42): error TS7006: Parameter 'createdBy' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(31,36): error TS2339: Property 'backfillAssignment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/backfill-management-adapter.ts(93,27): error TS7006: Parameter 'id' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(95,39): error TS2339: Property 'backfillAssignment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/backfill-management-adapter.ts(135,28): error TS7006: Parameter 'filters' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(137,40): error TS2339: Property 'backfillAssignment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/backfill-management-adapter.ts(151,34): error TS2339: Property 'backfillAssignment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/backfill-management-adapter.ts(162,33): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(196,37): error TS7006: Parameter 'absenceId' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(198,40): error TS2339: Property 'backfillAssignment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/backfill-management-adapter.ts(205,31): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(236,46): error TS7006: Parameter 'funeralHomeId' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(236,61): error TS7006: Parameter 'employeeId' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(238,40): error TS2339: Property 'backfillAssignment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/backfill-management-adapter.ts(247,31): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(278,48): error TS7006: Parameter 'funeralHomeId' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(278,63): error TS7006: Parameter 'employeeId' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(278,75): error TS7006: Parameter 'startDate' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(278,86): error TS7006: Parameter 'endDate' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(280,40): error TS2339: Property 'backfillAssignment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/backfill-management-adapter.ts(291,31): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(322,30): error TS7006: Parameter 'id' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(322,34): error TS7006: Parameter 'assignment' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(324,36): error TS2339: Property 'backfillAssignment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/backfill-management-adapter.ts(370,27): error TS7006: Parameter 'funeralHomeId' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(370,42): error TS7006: Parameter 'absenceEmployeeRole' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(370,63): error TS7006: Parameter 'absenceStartDate' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(370,81): error TS7006: Parameter 'absenceEndDate' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(373,40): error TS2339: Property 'backfillAssignment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/backfill-management-adapter.ts(383,28): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(397,42): error TS2339: Property 'backfillAssignment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/backfill-management-adapter.ts(400,35): error TS18046: 'c' is of type 'unknown'.
+src/adapters/pto-management/backfill-management-adapter.ts(408,48): error TS2339: Property 'backfillAssignment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/backfill-management-adapter.ts(411,35): error TS18046: 'c' is of type 'unknown'.
+src/adapters/pto-management/backfill-management-adapter.ts(418,25): error TS18046: 'c' is of type 'unknown'.
+src/adapters/pto-management/backfill-management-adapter.ts(419,27): error TS18046: 'c' is of type 'unknown'.
+src/adapters/pto-management/backfill-management-adapter.ts(420,19): error TS18046: 'c' is of type 'unknown'.
+src/adapters/pto-management/backfill-management-adapter.ts(430,27): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(430,30): error TS7006: Parameter 'b' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(433,32): error TS7006: Parameter 'absenceId' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(435,40): error TS2339: Property 'backfillAssignment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/backfill-management-adapter.ts(460,45): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(461,43): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(462,44): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(463,49): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(463,54): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(464,46): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(464,51): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(482,33): error TS7006: Parameter 'funeralHomeId' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(482,48): error TS7006: Parameter 'employeeId' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(484,40): error TS2339: Property 'backfillAssignment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/backfill-management-adapter.ts(492,45): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(493,43): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(495,48): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(495,53): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(520,34): error TS7006: Parameter 'funeralHomeId' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(520,49): error TS7006: Parameter 'employeeIds' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(522,40): error TS2339: Property 'backfillAssignment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/backfill-management-adapter.ts(533,10): error TS7006: Parameter 'acc' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(533,15): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(544,27): error TS18046: 'empAssignments' is of type 'unknown'.
+src/adapters/pto-management/backfill-management-adapter.ts(544,50): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(545,25): error TS18046: 'empAssignments' is of type 'unknown'.
+src/adapters/pto-management/backfill-management-adapter.ts(545,48): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(547,50): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(547,55): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(553,25): error TS18046: 'empAssignments' is of type 'unknown'.
+src/adapters/pto-management/backfill-management-adapter.ts(564,29): error TS7006: Parameter 'funeralHomeId' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(564,44): error TS7006: Parameter 'employeeId' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(564,56): error TS7006: Parameter 'startDate' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(564,67): error TS7006: Parameter 'endDate' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(566,38): error TS2339: Property 'backfillAssignment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/backfill-management-adapter.ts(580,38): error TS7006: Parameter 'funeralHomeId' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(582,40): error TS2339: Property 'backfillAssignment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/backfill-management-adapter.ts(591,31): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(622,34): error TS7006: Parameter 'funeralHomeId' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(622,49): error TS7006: Parameter 'startDate' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(622,60): error TS7006: Parameter 'endDate' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(624,40): error TS2339: Property 'backfillAssignment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/backfill-management-adapter.ts(635,10): error TS7006: Parameter 'acc' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(635,15): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(678,30): error TS7006: Parameter 'id' implicitly has an 'any' type.
+src/adapters/pto-management/backfill-management-adapter.ts(680,20): error TS2339: Property 'backfillAssignment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/pto-management-adapter.ts(10,3): error TS2724: '"@dykstra/application"' has no exported member named 'PtoManagementPortService'. Did you mean 'GoPositionManagementPortService'?
+src/adapters/pto-management/pto-management-adapter.ts(11,3): error TS2305: Module '"@dykstra/application"' has no exported member 'PtoRequestFilters'.
+src/adapters/pto-management/pto-management-adapter.ts(11,3): error TS6196: 'PtoRequestFilters' is declared but never used.
+src/adapters/pto-management/pto-management-adapter.ts(12,3): error TS2305: Module '"@dykstra/application"' has no exported member 'PtoRequestQueryResult'.
+src/adapters/pto-management/pto-management-adapter.ts(12,3): error TS6196: 'PtoRequestQueryResult' is declared but never used.
+src/adapters/pto-management/pto-management-adapter.ts(13,3): error TS2724: '"@dykstra/application"' has no exported member named 'PtoBalance'. Did you mean 'GoPTOBalance'?
+src/adapters/pto-management/pto-management-adapter.ts(14,3): error TS2305: Module '"@dykstra/application"' has no exported member 'PtoSummary'.
+src/adapters/pto-management/pto-management-adapter.ts(18,3): error TS6196: 'PtoRequestId' is declared but never used.
+src/adapters/pto-management/pto-management-adapter.ts(20,3): error TS6196: 'PtoPolicyId' is declared but never used.
+src/adapters/pto-management/pto-management-adapter.ts(31,21): error TS7006: Parameter 'funeralHomeId' implicitly has an 'any' type.
+src/adapters/pto-management/pto-management-adapter.ts(31,36): error TS7006: Parameter 'policyData' implicitly has an 'any' type.
+src/adapters/pto-management/pto-management-adapter.ts(31,48): error TS7006: Parameter 'createdBy' implicitly has an 'any' type.
+src/adapters/pto-management/pto-management-adapter.ts(33,35): error TS2339: Property 'ptoPolicy' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/pto-management-adapter.ts(72,32): error TS7006: Parameter 'funeralHomeId' implicitly has an 'any' type.
+src/adapters/pto-management/pto-management-adapter.ts(74,35): error TS2339: Property 'ptoPolicy' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/pto-management-adapter.ts(105,21): error TS7006: Parameter 'policyId' implicitly has an 'any' type.
+src/adapters/pto-management/pto-management-adapter.ts(105,31): error TS7006: Parameter 'policyData' implicitly has an 'any' type.
+src/adapters/pto-management/pto-management-adapter.ts(105,43): error TS6133: 'updatedBy' is declared but its value is never read.
+src/adapters/pto-management/pto-management-adapter.ts(105,43): error TS7006: Parameter 'updatedBy' implicitly has an 'any' type.
+src/adapters/pto-management/pto-management-adapter.ts(108,36): error TS2339: Property 'ptoPolicy' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/pto-management-adapter.ts(139,25): error TS7006: Parameter 'funeralHomeId' implicitly has an 'any' type.
+src/adapters/pto-management/pto-management-adapter.ts(141,37): error TS2339: Property 'ptoPolicy' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/pto-management-adapter.ts(146,28): error TS7006: Parameter 'p' implicitly has an 'any' type.
+src/adapters/pto-management/pto-management-adapter.ts(168,22): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/adapters/pto-management/pto-management-adapter.ts(168,31): error TS7006: Parameter 'createdBy' implicitly has an 'any' type.
+src/adapters/pto-management/pto-management-adapter.ts(170,36): error TS2339: Property 'ptoRequest' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/pto-management-adapter.ts(208,19): error TS7006: Parameter 'id' implicitly has an 'any' type.
+src/adapters/pto-management/pto-management-adapter.ts(210,36): error TS2339: Property 'ptoRequest' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/pto-management-adapter.ts(241,20): error TS7006: Parameter 'filters' implicitly has an 'any' type.
+src/adapters/pto-management/pto-management-adapter.ts(243,37): error TS2339: Property 'ptoRequest' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/pto-management-adapter.ts(256,34): error TS2339: Property 'ptoRequest' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/pto-management-adapter.ts(266,30): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/adapters/pto-management/pto-management-adapter.ts(288,30): error TS7006: Parameter 'funeralHomeId' implicitly has an 'any' type.
+src/adapters/pto-management/pto-management-adapter.ts(288,45): error TS7006: Parameter 'employeeId' implicitly has an 'any' type.
+src/adapters/pto-management/pto-management-adapter.ts(290,37): error TS2339: Property 'ptoRequest' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/pto-management-adapter.ts(298,28): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/adapters/pto-management/pto-management-adapter.ts(317,28): error TS7006: Parameter 'funeralHomeId' implicitly has an 'any' type.
+src/adapters/pto-management/pto-management-adapter.ts(319,37): error TS2339: Property 'ptoRequest' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/pto-management-adapter.ts(328,28): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/adapters/pto-management/pto-management-adapter.ts(347,22): error TS7006: Parameter 'id' implicitly has an 'any' type.
+src/adapters/pto-management/pto-management-adapter.ts(347,26): error TS7006: Parameter 'request' implicitly has an 'any' type.
+src/adapters/pto-management/pto-management-adapter.ts(349,36): error TS2339: Property 'ptoRequest' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/pto-management-adapter.ts(383,27): error TS7006: Parameter 'funeralHomeId' implicitly has an 'any' type.
+src/adapters/pto-management/pto-management-adapter.ts(383,42): error TS7006: Parameter 'employeeId' implicitly has an 'any' type.
+src/adapters/pto-management/pto-management-adapter.ts(385,37): error TS2339: Property 'ptoRequest' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/pto-management-adapter.ts(404,37): error TS2339: Property 'ptoRequest' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/pto-management-adapter.ts(414,36): error TS2339: Property 'ptoRequest' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/pto-management-adapter.ts(436,28): error TS6133: 'funeralHomeId' is declared but its value is never read.
+src/adapters/pto-management/pto-management-adapter.ts(436,28): error TS7006: Parameter 'funeralHomeId' implicitly has an 'any' type.
+src/adapters/pto-management/pto-management-adapter.ts(436,43): error TS6133: 'employeeIds' is declared but its value is never read.
+src/adapters/pto-management/pto-management-adapter.ts(436,43): error TS7006: Parameter 'employeeIds' implicitly has an 'any' type.
+src/adapters/pto-management/pto-management-adapter.ts(442,30): error TS7006: Parameter 'funeralHomeId' implicitly has an 'any' type.
+src/adapters/pto-management/pto-management-adapter.ts(444,34): error TS2339: Property 'ptoRequest' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/pto-management-adapter.ts(452,36): error TS2339: Property 'ptoRequest' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/pto-management-adapter.ts(463,40): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/adapters/pto-management/pto-management-adapter.ts(469,30): error TS7006: Parameter 'funeralHomeId' implicitly has an 'any' type.
+src/adapters/pto-management/pto-management-adapter.ts(469,45): error TS7006: Parameter 'startDate' implicitly has an 'any' type.
+src/adapters/pto-management/pto-management-adapter.ts(469,56): error TS7006: Parameter 'endDate' implicitly has an 'any' type.
+src/adapters/pto-management/pto-management-adapter.ts(469,65): error TS6133: 'role' is declared but its value is never read.
+src/adapters/pto-management/pto-management-adapter.ts(469,65): error TS7006: Parameter 'role' implicitly has an 'any' type.
+src/adapters/pto-management/pto-management-adapter.ts(471,37): error TS2339: Property 'ptoRequest' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/pto-management-adapter.ts(481,28): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/adapters/pto-management/pto-management-adapter.ts(500,22): error TS7006: Parameter 'id' implicitly has an 'any' type.
+src/adapters/pto-management/pto-management-adapter.ts(502,20): error TS2339: Property 'ptoRequest' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/training-management-adapter.ts(10,3): error TS2305: Module '"@dykstra/application"' has no exported member 'TrainingManagementPortService'.
+src/adapters/pto-management/training-management-adapter.ts(11,3): error TS2305: Module '"@dykstra/application"' has no exported member 'TrainingRecordFilters'.
+src/adapters/pto-management/training-management-adapter.ts(11,3): error TS6196: 'TrainingRecordFilters' is declared but never used.
+src/adapters/pto-management/training-management-adapter.ts(12,3): error TS2305: Module '"@dykstra/application"' has no exported member 'TrainingRecordQueryResult'.
+src/adapters/pto-management/training-management-adapter.ts(12,3): error TS6196: 'TrainingRecordQueryResult' is declared but never used.
+src/adapters/pto-management/training-management-adapter.ts(13,3): error TS2305: Module '"@dykstra/application"' has no exported member 'EmployeeCertification'.
+src/adapters/pto-management/training-management-adapter.ts(14,3): error TS2305: Module '"@dykstra/application"' has no exported member 'EmployeeTrainingSummary'.
+src/adapters/pto-management/training-management-adapter.ts(15,3): error TS2305: Module '"@dykstra/application"' has no exported member 'ExpiringCertification'.
+src/adapters/pto-management/training-management-adapter.ts(19,3): error TS6196: 'TrainingRecordId' is declared but never used.
+src/adapters/pto-management/training-management-adapter.ts(21,3): error TS6196: 'TrainingPolicyId' is declared but never used.
+src/adapters/pto-management/training-management-adapter.ts(32,26): error TS7006: Parameter 'funeralHomeId' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(32,41): error TS7006: Parameter 'policyData' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(32,53): error TS7006: Parameter 'createdBy' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(34,35): error TS2339: Property 'trainingPolicy' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/training-management-adapter.ts(48,14): error TS2352: Conversion of type '{ id: TrainingPolicyId; funeralHomeId: any; roleRequirements: Map<any, any>; enableTrainingBackfill: any; backfillPremiumMultiplier: any; defaultRenewalNoticeDays: any; ... 6 more ...; createdBy: any; }' to type 'TrainingPolicy' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Property 'settings' is missing in type '{ id: TrainingPolicyId; funeralHomeId: any; roleRequirements: Map<any, any>; enableTrainingBackfill: any; backfillPremiumMultiplier: any; defaultRenewalNoticeDays: any; ... 6 more ...; createdBy: any; }' but required in type 'TrainingPolicy'.
+src/adapters/pto-management/training-management-adapter.ts(65,37): error TS7006: Parameter 'funeralHomeId' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(67,35): error TS2339: Property 'trainingPolicy' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/training-management-adapter.ts(76,14): error TS2352: Conversion of type '{ id: TrainingPolicyId; funeralHomeId: any; roleRequirements: Map<any, any>; enableTrainingBackfill: any; backfillPremiumMultiplier: any; defaultRenewalNoticeDays: any; ... 6 more ...; createdBy: any; }' to type 'TrainingPolicy' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Property 'settings' is missing in type '{ id: TrainingPolicyId; funeralHomeId: any; roleRequirements: Map<any, any>; enableTrainingBackfill: any; backfillPremiumMultiplier: any; defaultRenewalNoticeDays: any; ... 6 more ...; createdBy: any; }' but required in type 'TrainingPolicy'.
+src/adapters/pto-management/training-management-adapter.ts(93,26): error TS7006: Parameter 'policyId' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(93,36): error TS7006: Parameter 'policyData' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(93,48): error TS6133: 'updatedBy' is declared but its value is never read.
+src/adapters/pto-management/training-management-adapter.ts(93,48): error TS7006: Parameter 'updatedBy' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(95,36): error TS2339: Property 'trainingPolicy' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/training-management-adapter.ts(108,14): error TS2352: Conversion of type '{ id: TrainingPolicyId; funeralHomeId: any; roleRequirements: Map<any, any>; enableTrainingBackfill: any; backfillPremiumMultiplier: any; defaultRenewalNoticeDays: any; ... 6 more ...; createdBy: any; }' to type 'TrainingPolicy' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Property 'settings' is missing in type '{ id: TrainingPolicyId; funeralHomeId: any; roleRequirements: Map<any, any>; enableTrainingBackfill: any; backfillPremiumMultiplier: any; defaultRenewalNoticeDays: any; ... 6 more ...; createdBy: any; }' but required in type 'TrainingPolicy'.
+src/adapters/pto-management/training-management-adapter.ts(125,30): error TS7006: Parameter 'funeralHomeId' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(127,37): error TS2339: Property 'trainingPolicy' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/training-management-adapter.ts(132,28): error TS7006: Parameter 'p' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(149,26): error TS7006: Parameter 'record' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(149,34): error TS7006: Parameter 'createdBy' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(151,36): error TS2339: Property 'trainingRecord' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/training-management-adapter.ts(204,23): error TS7006: Parameter 'id' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(206,35): error TS2339: Property 'trainingRecord' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/training-management-adapter.ts(239,24): error TS7006: Parameter 'filters' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(241,36): error TS2339: Property 'trainingRecord' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/training-management-adapter.ts(256,34): error TS2339: Property 'trainingRecord' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/training-management-adapter.ts(266,29): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(296,34): error TS7006: Parameter 'funeralHomeId' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(296,49): error TS7006: Parameter 'employeeId' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(298,36): error TS2339: Property 'trainingRecord' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/training-management-adapter.ts(305,27): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(332,26): error TS7006: Parameter 'id' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(332,30): error TS7006: Parameter 'record' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(334,36): error TS2339: Property 'trainingRecord' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/training-management-adapter.ts(380,31): error TS7006: Parameter 'funeralHomeId' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(380,46): error TS7006: Parameter 'employeeId' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(382,34): error TS2339: Property 'certificationStatus' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/training-management-adapter.ts(389,25): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(410,31): error TS7006: Parameter 'funeralHomeId' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(410,46): error TS7006: Parameter 'withinDays' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(415,34): error TS2339: Property 'certificationStatus' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/training-management-adapter.ts(425,36): error TS2339: Property 'trainingRecord' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/training-management-adapter.ts(429,28): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(434,25): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(435,15): error TS6133: 'record' is declared but its value is never read.
+src/adapters/pto-management/training-management-adapter.ts(435,38): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(455,30): error TS7006: Parameter 'funeralHomeId' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(457,34): error TS2339: Property 'certificationStatus' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/training-management-adapter.ts(466,25): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(484,32): error TS7006: Parameter 'funeralHomeId' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(484,47): error TS7006: Parameter 'employeeId' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(486,36): error TS2339: Property 'trainingRecord' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/training-management-adapter.ts(493,34): error TS2339: Property 'certificationStatus' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/training-management-adapter.ts(500,41): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(501,44): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(501,49): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(502,43): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(502,48): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(505,18): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(506,16): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(506,19): error TS7006: Parameter 'b' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(514,36): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(540,34): error TS7006: Parameter 'funeralHomeId' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(540,49): error TS7006: Parameter 'employeeIds' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(542,36): error TS2339: Property 'trainingRecord' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/training-management-adapter.ts(550,10): error TS7006: Parameter 'acc' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(550,15): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(561,27): error TS18046: 'empRecords' is of type 'unknown'.
+src/adapters/pto-management/training-management-adapter.ts(561,46): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(562,46): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(562,51): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(563,45): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(563,50): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(567,25): error TS18046: 'empRecords' is of type 'unknown'.
+src/adapters/pto-management/training-management-adapter.ts(577,32): error TS7006: Parameter 'funeralHomeId' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(579,34): error TS2339: Property 'certificationStatus' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/training-management-adapter.ts(586,44): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(588,36): error TS2339: Property 'trainingRecord' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/training-management-adapter.ts(596,10): error TS7006: Parameter 'acc' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(596,15): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(608,23): error TS18046: 'empRecords' is of type 'unknown'.
+src/adapters/pto-management/training-management-adapter.ts(617,35): error TS7006: Parameter 'funeralHomeId' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(617,50): error TS7006: Parameter 'startDate' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(617,61): error TS7006: Parameter 'endDate' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(619,36): error TS2339: Property 'trainingRecord' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/pto-management/training-management-adapter.ts(632,18): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(639,15): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(666,26): error TS7006: Parameter 'id' implicitly has an 'any' type.
+src/adapters/pto-management/training-management-adapter.ts(668,20): error TS2339: Property 'trainingRecord' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/repositories/driver-assignment-repository.ts(29,59): error TS2304: Cannot find name 'RepositoryError'.
+src/adapters/repositories/driver-assignment-repository.ts(32,27): error TS2339: Property 'driverAssignment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/repositories/driver-assignment-repository.ts(67,38): error TS2304: Cannot find name 'NotFoundError'.
+src/adapters/repositories/driver-assignment-repository.ts(67,54): error TS2304: Cannot find name 'RepositoryError'.
+src/adapters/repositories/driver-assignment-repository.ts(70,42): error TS2339: Property 'driverAssignment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/repositories/driver-assignment-repository.ts(95,40): error TS2304: Cannot find name 'RepositoryError'.
+src/adapters/repositories/driver-assignment-repository.ts(98,43): error TS2339: Property 'driverAssignment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/repositories/driver-assignment-repository.ts(106,29): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/adapters/repositories/driver-assignment-repository.ts(121,40): error TS2304: Cannot find name 'RepositoryError'.
+src/adapters/repositories/driver-assignment-repository.ts(124,43): error TS2339: Property 'driverAssignment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/repositories/driver-assignment-repository.ts(132,29): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/adapters/repositories/driver-assignment-repository.ts(147,40): error TS2304: Cannot find name 'RepositoryError'.
+src/adapters/repositories/driver-assignment-repository.ts(150,43): error TS2339: Property 'driverAssignment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/repositories/driver-assignment-repository.ts(158,29): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/adapters/repositories/driver-assignment-repository.ts(175,40): error TS2304: Cannot find name 'RepositoryError'.
+src/adapters/repositories/driver-assignment-repository.ts(178,43): error TS2339: Property 'driverAssignment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/repositories/driver-assignment-repository.ts(190,29): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/adapters/repositories/driver-assignment-repository.ts(205,26): error TS2304: Cannot find name 'NotFoundError'.
+src/adapters/repositories/driver-assignment-repository.ts(205,42): error TS2304: Cannot find name 'RepositoryError'.
+src/adapters/repositories/driver-assignment-repository.ts(209,43): error TS2339: Property 'driverAssignment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/repositories/driver-assignment-repository.ts(217,21): error TS2304: Cannot find name 'NotFoundError'.
+src/adapters/repositories/driver-assignment-repository.ts(223,27): error TS2339: Property 'driverAssignment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/repositories/driver-assignment-repository.ts(232,27): error TS2339: Property 'driverAssignment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/repositories/driver-assignment-repository.ts(260,30): error TS2304: Cannot find name 'NotFoundError'.
+src/adapters/repositories/driver-assignment-repository.ts(261,20): error TS2304: Cannot find name 'RepositoryError'.
+src/adapters/repositories/driver-assignment-repository.ts(272,49): error TS2304: Cannot find name 'NotFoundError'.
+src/adapters/repositories/driver-assignment-repository.ts(272,65): error TS2304: Cannot find name 'RepositoryError'.
+src/adapters/repositories/driver-assignment-repository.ts(275,43): error TS2339: Property 'driverAssignment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/repositories/driver-assignment-repository.ts(280,21): error TS2304: Cannot find name 'NotFoundError'.
+src/adapters/repositories/driver-assignment-repository.ts(284,27): error TS2339: Property 'driverAssignment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/repositories/driver-assignment-repository.ts(293,27): error TS2339: Property 'driverAssignment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/repositories/driver-assignment-repository.ts(305,30): error TS2304: Cannot find name 'NotFoundError'.
+src/adapters/repositories/driver-assignment-repository.ts(306,20): error TS2304: Cannot find name 'RepositoryError'.
+src/adapters/repositories/driver-assignment-repository.ts(319,40): error TS2304: Cannot find name 'NotFoundError'.
+src/adapters/repositories/driver-assignment-repository.ts(319,56): error TS2304: Cannot find name 'RepositoryError'.
+src/adapters/repositories/driver-assignment-repository.ts(322,43): error TS2339: Property 'driverAssignment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/repositories/driver-assignment-repository.ts(328,21): error TS2304: Cannot find name 'NotFoundError'.
+src/adapters/repositories/driver-assignment-repository.ts(331,29): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/adapters/repositories/driver-assignment-repository.ts(334,30): error TS2304: Cannot find name 'NotFoundError'.
+src/adapters/repositories/driver-assignment-repository.ts(335,20): error TS2304: Cannot find name 'RepositoryError'.
+src/adapters/repositories/vehicle-repository.ts(25,27): error TS2339: Property 'vehicle' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/repositories/vehicle-repository.ts(33,34): error TS2339: Property 'vehicleType' does not exist on type 'Vehicle'.
+src/adapters/repositories/vehicle-repository.ts(39,28): error TS2339: Property 'color' does not exist on type 'Vehicle'.
+src/adapters/repositories/vehicle-repository.ts(43,42): error TS2551: Property 'nextMaintenanceDate' does not exist on type 'Vehicle'. Did you mean 'lastMaintenanceDate'?
+src/adapters/repositories/vehicle-repository.ts(44,41): error TS2551: Property 'nextInspectionDate' does not exist on type 'Vehicle'. Did you mean 'inspectionDueDate'?
+src/adapters/repositories/vehicle-repository.ts(45,38): error TS2339: Property 'acquisitionDate' does not exist on type 'Vehicle'.
+src/adapters/repositories/vehicle-repository.ts(68,42): error TS2339: Property 'vehicle' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/repositories/vehicle-repository.ts(93,36): error TS2304: Cannot find name 'RepositoryError'.
+src/adapters/repositories/vehicle-repository.ts(96,42): error TS2339: Property 'vehicle' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/repositories/vehicle-repository.ts(104,13): error TS2304: Cannot find name 'RepositoryError'.
+src/adapters/repositories/vehicle-repository.ts(114,57): error TS2304: Cannot find name 'RepositoryError'.
+src/adapters/repositories/vehicle-repository.ts(117,42): error TS2339: Property 'vehicle' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/repositories/vehicle-repository.ts(125,13): error TS2304: Cannot find name 'RepositoryError'.
+src/adapters/repositories/vehicle-repository.ts(140,43): error TS2339: Property 'vehicle' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/repositories/vehicle-repository.ts(148,29): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/adapters/repositories/vehicle-repository.ts(166,43): error TS2339: Property 'vehicle' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/repositories/vehicle-repository.ts(178,29): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/adapters/repositories/vehicle-repository.ts(197,43): error TS2339: Property 'vehicle' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/repositories/vehicle-repository.ts(206,29): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/adapters/repositories/vehicle-repository.ts(209,13): error TS2304: Cannot find name 'RepositoryError'.
+src/adapters/repositories/vehicle-repository.ts(221,31): error TS2304: Cannot find name 'RepositoryError'.
+src/adapters/repositories/vehicle-repository.ts(224,43): error TS2339: Property 'vehicle' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/repositories/vehicle-repository.ts(234,29): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/adapters/repositories/vehicle-repository.ts(237,13): error TS2304: Cannot find name 'RepositoryError'.
+src/adapters/repositories/vehicle-repository.ts(249,31): error TS2304: Cannot find name 'RepositoryError'.
+src/adapters/repositories/vehicle-repository.ts(252,43): error TS2339: Property 'vehicle' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/repositories/vehicle-repository.ts(262,29): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/adapters/repositories/vehicle-repository.ts(265,13): error TS2304: Cannot find name 'RepositoryError'.
+src/adapters/repositories/vehicle-repository.ts(275,49): error TS2304: Cannot find name 'NotFoundError'.
+src/adapters/repositories/vehicle-repository.ts(275,65): error TS2304: Cannot find name 'RepositoryError'.
+src/adapters/repositories/vehicle-repository.ts(279,43): error TS2339: Property 'vehicle' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/repositories/vehicle-repository.ts(287,21): error TS2304: Cannot find name 'NotFoundError'.
+src/adapters/repositories/vehicle-repository.ts(293,27): error TS2339: Property 'vehicle' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/repositories/vehicle-repository.ts(302,27): error TS2339: Property 'vehicle' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/repositories/vehicle-repository.ts(310,34): error TS2339: Property 'vehicleType' does not exist on type 'Vehicle'.
+src/adapters/repositories/vehicle-repository.ts(316,28): error TS2339: Property 'color' does not exist on type 'Vehicle'.
+src/adapters/repositories/vehicle-repository.ts(319,42): error TS2339: Property 'mileageCurrentTotal' does not exist on type 'Vehicle'.
+src/adapters/repositories/vehicle-repository.ts(321,42): error TS2551: Property 'nextMaintenanceDate' does not exist on type 'Vehicle'. Did you mean 'lastMaintenanceDate'?
+src/adapters/repositories/vehicle-repository.ts(322,41): error TS2551: Property 'lastInspectionDate' does not exist on type 'Vehicle'. Did you mean 'inspectionDueDate'?
+src/adapters/repositories/vehicle-repository.ts(323,41): error TS2551: Property 'nextInspectionDate' does not exist on type 'Vehicle'. Did you mean 'inspectionDueDate'?
+src/adapters/repositories/vehicle-repository.ts(324,38): error TS2339: Property 'acquisitionDate' does not exist on type 'Vehicle'.
+src/adapters/repositories/vehicle-repository.ts(325,37): error TS2339: Property 'retirementDate' does not exist on type 'Vehicle'.
+src/adapters/repositories/vehicle-repository.ts(333,30): error TS2304: Cannot find name 'NotFoundError'.
+src/adapters/repositories/vehicle-repository.ts(334,20): error TS2304: Cannot find name 'RepositoryError'.
+src/adapters/repositories/vehicle-repository.ts(348,26): error TS2304: Cannot find name 'NotFoundError'.
+src/adapters/repositories/vehicle-repository.ts(348,42): error TS2304: Cannot find name 'RepositoryError'.
+src/adapters/repositories/vehicle-repository.ts(351,43): error TS2339: Property 'vehicle' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/repositories/vehicle-repository.ts(356,21): error TS2304: Cannot find name 'NotFoundError'.
+src/adapters/repositories/vehicle-repository.ts(360,27): error TS2339: Property 'vehicle' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/repositories/vehicle-repository.ts(368,27): error TS2339: Property 'vehicle' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/repositories/vehicle-repository.ts(380,30): error TS2304: Cannot find name 'NotFoundError'.
+src/adapters/repositories/vehicle-repository.ts(381,20): error TS2304: Cannot find name 'RepositoryError'.
+src/adapters/repositories/vehicle-repository.ts(395,26): error TS2304: Cannot find name 'NotFoundError'.
+src/adapters/repositories/vehicle-repository.ts(395,42): error TS2304: Cannot find name 'RepositoryError'.
+src/adapters/repositories/vehicle-repository.ts(398,43): error TS2339: Property 'vehicle' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/repositories/vehicle-repository.ts(403,21): error TS2304: Cannot find name 'NotFoundError'.
+src/adapters/repositories/vehicle-repository.ts(407,27): error TS2339: Property 'vehicle' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/repositories/vehicle-repository.ts(415,27): error TS2339: Property 'vehicle' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/repositories/vehicle-repository.ts(427,30): error TS2304: Cannot find name 'NotFoundError'.
+src/adapters/repositories/vehicle-repository.ts(428,20): error TS2304: Cannot find name 'RepositoryError'.
+src/adapters/repositories/vehicle-repository.ts(441,31): error TS2304: Cannot find name 'NotFoundError'.
+src/adapters/repositories/vehicle-repository.ts(441,47): error TS2304: Cannot find name 'RepositoryError'.
+src/adapters/repositories/vehicle-repository.ts(444,43): error TS2339: Property 'vehicle' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/adapters/repositories/vehicle-repository.ts(450,21): error TS2304: Cannot find name 'NotFoundError'.
+src/adapters/repositories/vehicle-repository.ts(453,29): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/adapters/repositories/vehicle-repository.ts(456,30): error TS2304: Cannot find name 'NotFoundError'.
+src/adapters/repositories/vehicle-repository.ts(457,20): error TS2304: Cannot find name 'RepositoryError'.
+src/adapters/repositories/vehicle-repository.ts(474,7): error TS2353: Object literal may only specify known properties, and 'vehicleType' does not exist in type '{ id: VehicleId; businessKey: string; version: number; funeralHomeId: string; name: string; make: string; model: string; year: number; licensePlate: string; vin: string; capacity: VehicleCapacity; ... 7 more ...; createdBy: string; }'.
+src/database/prisma-lead-scoring-policy-repository.ts(4,3): error TS2305: Module '"@dykstra/application"' has no exported member 'LeadScoringPolicyRepository'.
+src/database/prisma-lead-scoring-policy-repository.ts(92,34): error TS2339: Property 'leadScoringPolicy' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/database/prisma-lead-scoring-policy-repository.ts(105,13): error TS2554: Expected 1 arguments, but got 3.
+src/database/prisma-lead-scoring-policy-repository.ts(124,35): error TS2339: Property 'leadScoringPolicy' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/database/prisma-lead-scoring-policy-repository.ts(143,34): error TS2339: Property 'leadScoringPolicy' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/database/prisma-lead-scoring-policy-repository.ts(153,13): error TS2554: Expected 1 arguments, but got 3.
+src/database/prisma-lead-scoring-policy-repository.ts(177,22): error TS2339: Property 'leadScoringPolicy' does not exist on type 'Omit<PrismaClient<PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">'.
+src/database/prisma-lead-scoring-policy-repository.ts(190,20): error TS2339: Property 'leadScoringPolicy' does not exist on type 'Omit<PrismaClient<PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">'.
+src/database/prisma-lead-scoring-policy-repository.ts(214,37): error TS2339: Property 'leadScoringPolicy' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/database/prisma-lead-scoring-policy-repository.ts(227,13): error TS2554: Expected 1 arguments, but got 3.
+src/database/prisma-lead-to-case-conversion-policy-repository.ts(4,3): error TS2305: Module '"@dykstra/application"' has no exported member 'LeadToCaseConversionPolicyRepository'.
+src/database/prisma-lead-to-case-conversion-policy-repository.ts(66,34): error TS2339: Property 'leadToCaseConversionPolicy' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/database/prisma-lead-to-case-conversion-policy-repository.ts(79,13): error TS2554: Expected 1 arguments, but got 3.
+src/database/prisma-lead-to-case-conversion-policy-repository.ts(98,35): error TS2339: Property 'leadToCaseConversionPolicy' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/database/prisma-lead-to-case-conversion-policy-repository.ts(117,34): error TS2339: Property 'leadToCaseConversionPolicy' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/database/prisma-lead-to-case-conversion-policy-repository.ts(127,13): error TS2554: Expected 1 arguments, but got 3.
+src/database/prisma-lead-to-case-conversion-policy-repository.ts(151,22): error TS2339: Property 'leadToCaseConversionPolicy' does not exist on type 'Omit<PrismaClient<PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">'.
+src/database/prisma-lead-to-case-conversion-policy-repository.ts(164,20): error TS2339: Property 'leadToCaseConversionPolicy' does not exist on type 'Omit<PrismaClient<PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">'.
+src/database/prisma-lead-to-case-conversion-policy-repository.ts(188,37): error TS2339: Property 'leadToCaseConversionPolicy' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/database/prisma-lead-to-case-conversion-policy-repository.ts(202,13): error TS2554: Expected 1 arguments, but got 3.
+src/database/prisma-note-management-policy-repository.ts(4,3): error TS2724: '"@dykstra/application"' has no exported member named 'NoteManagementPolicyRepository'. Did you mean 'ContactManagementPolicyRepository'?
+src/database/prisma-note-management-policy-repository.ts(56,34): error TS2339: Property 'noteManagementPolicy' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/database/prisma-note-management-policy-repository.ts(63,13): error TS2554: Expected 1 arguments, but got 3.
+src/database/prisma-note-management-policy-repository.ts(81,35): error TS2339: Property 'noteManagementPolicy' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/database/prisma-note-management-policy-repository.ts(97,34): error TS2339: Property 'noteManagementPolicy' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/database/prisma-note-management-policy-repository.ts(103,13): error TS2554: Expected 1 arguments, but got 3.
+src/database/prisma-note-management-policy-repository.ts(124,22): error TS2339: Property 'noteManagementPolicy' does not exist on type 'Omit<PrismaClient<PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">'.
+src/database/prisma-note-management-policy-repository.ts(129,20): error TS2339: Property 'noteManagementPolicy' does not exist on type 'Omit<PrismaClient<PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">'.
+src/database/prisma-note-management-policy-repository.ts(151,37): error TS2339: Property 'noteManagementPolicy' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/database/prisma-note-management-policy-repository.ts(158,13): error TS2554: Expected 1 arguments, but got 3.
+src/index.ts(138,3): error TS6133: 'PrePlanningAppointmentRepository' is declared but its value is never read.
+src/index.ts(220,17): error TS2693: 'PrePlanningAppointmentRepository' only refers to a type, but is being used as a value here.
+src/layers/prep-room-layer.ts(18,17): error TS6133: 'Effect' is declared but its value is never read.
+src/layers/prep-room-layer.ts(18,25): error TS6133: 'Context' is declared but its value is never read.
+src/layers/prep-room-layer.ts(20,3): error TS2305: Module '"@dykstra/application"' has no exported member 'PrepRoomRepositoryPort'.
+src/layers/prep-room-layer.ts(21,8): error TS2724: '"@dykstra/application"' has no exported member named 'PrepRoomRepositoryService'. Did you mean 'EmailRepositoryService'?
+src/prep-room-index.ts(50,3): error TS2305: Module '"@dykstra/application"' has no exported member 'ReserveRoomCommand'.
+src/prep-room-index.ts(51,3): error TS2305: Module '"@dykstra/application"' has no exported member 'ReserveRoomResult'.
+src/prep-room-index.ts(52,3): error TS2305: Module '"@dykstra/application"' has no exported member 'ConflictResult'.
+src/prep-room-index.ts(53,3): error TS2305: Module '"@dykstra/application"' has no exported member 'ReserveRoomResponse'.
+src/prep-room-index.ts(54,3): error TS2305: Module '"@dykstra/application"' has no exported member 'CheckAvailabilityQuery'.
+src/prep-room-index.ts(55,3): error TS2724: '"@dykstra/application"' has no exported member named 'CheckAvailabilityResult'. Did you mean 'CheckDriverAvailabilityResult'?
+src/prep-room-index.ts(56,3): error TS2305: Module '"@dykstra/application"' has no exported member 'CheckInCommand'.
+src/prep-room-index.ts(57,3): error TS2305: Module '"@dykstra/application"' has no exported member 'CheckInResult'.
+src/prep-room-index.ts(58,3): error TS2305: Module '"@dykstra/application"' has no exported member 'CheckOutCommand'.
+src/prep-room-index.ts(59,3): error TS2305: Module '"@dykstra/application"' has no exported member 'CheckOutResult'.
+src/prep-room-index.ts(60,3): error TS2305: Module '"@dykstra/application"' has no exported member 'AutoReleaseResult'.
+src/prep-room-index.ts(61,3): error TS2305: Module '"@dykstra/application"' has no exported member 'ListScheduleQuery'.
+src/prep-room-index.ts(62,3): error TS2724: '"@dykstra/application"' has no exported member named 'ListScheduleResult'. Did you mean 'ListDriverScheduleResult'?
+src/prep-room-index.ts(63,3): error TS2305: Module '"@dykstra/application"' has no exported member 'OverrideConflictCommand'.
+src/prep-room-index.ts(64,3): error TS2305: Module '"@dykstra/application"' has no exported member 'OverrideConflictResult'.
+src/prep-room-index.ts(68,3): error TS2305: Module '"@dykstra/application"' has no exported member 'reserveRoom'.
+src/prep-room-index.ts(69,3): error TS2305: Module '"@dykstra/application"' has no exported member 'checkAvailability'.
+src/prep-room-index.ts(70,3): error TS2305: Module '"@dykstra/application"' has no exported member 'checkIn'.
+src/prep-room-index.ts(71,3): error TS2305: Module '"@dykstra/application"' has no exported member 'checkOut'.
+src/prep-room-index.ts(72,3): error TS2305: Module '"@dykstra/application"' has no exported member 'autoReleaseReservations'.
+src/prep-room-index.ts(73,3): error TS2305: Module '"@dykstra/application"' has no exported member 'listSchedule'.
+src/prep-room-index.ts(74,3): error TS2305: Module '"@dykstra/application"' has no exported member 'overrideConflict'.
+src/prep-room-index.ts(75,3): error TS2305: Module '"@dykstra/application"' has no exported member 'PrepRoomRepositoryPort'.
+src/prep-room-index.ts(79,3): error TS2724: '"@dykstra/application"' has no exported member named 'PrepRoomRepositoryService'. Did you mean 'EmailRepositoryService'?
+src/prep-room-index.ts(80,3): error TS2724: '"@dykstra/application"' has no exported member named 'AvailableSlot'. Did you mean 'AvailabilitySlot'?
+src/prep-room-index.ts(81,3): error TS2305: Module '"@dykstra/application"' has no exported member 'ConflictInfo'.
+src/prep-room-index.ts(82,3): error TS2305: Module '"@dykstra/application"' has no exported member 'FindAvailableSlotsQuery'.
+src/prep-room-index.ts(83,3): error TS2305: Module '"@dykstra/application"' has no exported member 'RoomUtilization'.
+src/prep-room-index.ts(87,3): error TS2305: Module '"@dykstra/application"' has no exported member 'PrepRoomRepositoryError'.
+src/prep-room-index.ts(88,3): error TS2305: Module '"@dykstra/application"' has no exported member 'PrepRoomNotFoundError'.
+src/prep-room-index.ts(89,3): error TS2724: '"@dykstra/application"' has no exported member named 'ReservationNotFoundError'. Did you mean 'InvitationNotFoundError'?
+src/repositories/pre-planning-appointment-repository.ts(8,24): error TS2307: Cannot find module './prisma-client' or its corresponding type declarations.
+src/repositories/pre-planning-appointment-repository.ts(24,5): error TS2322: Type '(id: AppointmentId) => Effect.Effect<unknown, AppointmentNotFoundError | UnknownException, unknown>' is not assignable to type '(id: AppointmentId) => Effect<PrePlanningAppointment, AppointmentNotFoundError, never>'.
+  Type 'Effect<unknown, AppointmentNotFoundError | UnknownException, unknown>' is not assignable to type 'Effect<PrePlanningAppointment, AppointmentNotFoundError, never>'.
+    Type 'unknown' is not assignable to type 'PrePlanningAppointment'.
+src/repositories/pre-planning-appointment-repository.ts(42,16): error TS2554: Expected 2-3 arguments, but got 1.
+src/repositories/pre-planning-appointment-repository.ts(53,5): error TS2322: Type '(businessKey: string) => Effect.Effect<unknown, RepositoryError | UnknownException, unknown>' is not assignable to type '(businessKey: string) => Effect<PrePlanningAppointment | null, RepositoryError, never>'.
+  Type 'Effect<unknown, RepositoryError | UnknownException, unknown>' is not assignable to type 'Effect<PrePlanningAppointment | null, RepositoryError, never>'.
+    Type 'unknown' is not assignable to type 'PrePlanningAppointment | null'.
+src/repositories/pre-planning-appointment-repository.ts(64,16): error TS2554: Expected 2-3 arguments, but got 1.
+src/repositories/pre-planning-appointment-repository.ts(64,23): error TS7006: Parameter 'error' implicitly has an 'any' type.
+src/repositories/pre-planning-appointment-repository.ts(75,5): error TS2322: Type '(businessKey: string) => Effect.Effect<unknown, AppointmentNotFoundError | UnknownException, unknown>' is not assignable to type '(businessKey: string) => Effect<readonly PrePlanningAppointment[], AppointmentNotFoundError, never>'.
+  Type 'Effect<unknown, AppointmentNotFoundError | UnknownException, unknown>' is not assignable to type 'Effect<readonly PrePlanningAppointment[], AppointmentNotFoundError, never>'.
+    Type 'unknown' is not assignable to type 'readonly PrePlanningAppointment[]'.
+src/repositories/pre-planning-appointment-repository.ts(90,16): error TS2554: Expected 2-3 arguments, but got 1.
+src/repositories/pre-planning-appointment-repository.ts(90,23): error TS7006: Parameter 'error' implicitly has an 'any' type.
+src/repositories/pre-planning-appointment-repository.ts(103,5): error TS2322: Type '(directorId: string, date: Date) => Effect.Effect<unknown, RepositoryError | UnknownException, unknown>' is not assignable to type '(directorId: string, date: Date) => Effect<readonly PrePlanningAppointment[], RepositoryError, never>'.
+  Type 'Effect<unknown, RepositoryError | UnknownException, unknown>' is not assignable to type 'Effect<readonly PrePlanningAppointment[], RepositoryError, never>'.
+    Type 'unknown' is not assignable to type 'readonly PrePlanningAppointment[]'.
+src/repositories/pre-planning-appointment-repository.ts(124,16): error TS2554: Expected 2-3 arguments, but got 1.
+src/repositories/pre-planning-appointment-repository.ts(124,23): error TS7006: Parameter 'error' implicitly has an 'any' type.
+src/repositories/pre-planning-appointment-repository.ts(135,5): error TS2322: Type '(directorId: string, startDate: Date, endDate: Date) => Effect.Effect<unknown, RepositoryError | UnknownException, unknown>' is not assignable to type '(directorId: string, startDate: Date, endDate: Date) => Effect<readonly PrePlanningAppointment[], RepositoryError, never>'.
+  Type 'Effect<unknown, RepositoryError | UnknownException, unknown>' is not assignable to type 'Effect<readonly PrePlanningAppointment[], RepositoryError, never>'.
+    Type 'unknown' is not assignable to type 'readonly PrePlanningAppointment[]'.
+src/repositories/pre-planning-appointment-repository.ts(160,16): error TS2554: Expected 2-3 arguments, but got 1.
+src/repositories/pre-planning-appointment-repository.ts(160,23): error TS7006: Parameter 'error' implicitly has an 'any' type.
+src/repositories/pre-planning-appointment-repository.ts(171,5): error TS2322: Type '(email: string) => Effect.Effect<unknown, RepositoryError | UnknownException, unknown>' is not assignable to type '(email: string) => Effect<readonly PrePlanningAppointment[], RepositoryError, never>'.
+  Type 'Effect<unknown, RepositoryError | UnknownException, unknown>' is not assignable to type 'Effect<readonly PrePlanningAppointment[], RepositoryError, never>'.
+    Type 'unknown' is not assignable to type 'readonly PrePlanningAppointment[]'.
+src/repositories/pre-planning-appointment-repository.ts(183,16): error TS2554: Expected 2-3 arguments, but got 1.
+src/repositories/pre-planning-appointment-repository.ts(183,23): error TS7006: Parameter 'error' implicitly has an 'any' type.
+src/repositories/pre-planning-appointment-repository.ts(196,7): error TS2322: Type 'Effect<unknown, RepositoryError | UnknownException, unknown>' is not assignable to type 'Effect<readonly PrePlanningAppointment[], RepositoryError, never>'.
+  Type 'unknown' is not assignable to type 'readonly PrePlanningAppointment[]'.
+src/repositories/pre-planning-appointment-repository.ts(216,16): error TS2554: Expected 2-3 arguments, but got 1.
+src/repositories/pre-planning-appointment-repository.ts(216,23): error TS7006: Parameter 'error' implicitly has an 'any' type.
+src/repositories/pre-planning-appointment-repository.ts(227,5): error TS2322: Type '(status: string) => Effect.Effect<unknown, RepositoryError | UnknownException, unknown>' is not assignable to type '(status: "completed" | "cancelled" | "scheduled" | "confirmed" | "no-show") => Effect<readonly PrePlanningAppointment[], RepositoryError, never>'.
+  Type 'Effect<unknown, RepositoryError | UnknownException, unknown>' is not assignable to type 'Effect<readonly PrePlanningAppointment[], RepositoryError, never>'.
+    Type 'unknown' is not assignable to type 'readonly PrePlanningAppointment[]'.
+src/repositories/pre-planning-appointment-repository.ts(239,16): error TS2554: Expected 2-3 arguments, but got 1.
+src/repositories/pre-planning-appointment-repository.ts(239,23): error TS7006: Parameter 'error' implicitly has an 'any' type.
+src/repositories/pre-planning-appointment-repository.ts(250,5): error TS2322: Type '(appointment: PrePlanningAppointment) => Effect.Effect<unknown, RepositoryError | UnknownException, unknown>' is not assignable to type '(appointment: PrePlanningAppointment) => Effect<void, RepositoryError, never>'.
+  Type 'Effect<unknown, RepositoryError | UnknownException, unknown>' is not assignable to type 'Effect<void, RepositoryError, never>'.
+    Type 'unknown' is not assignable to type 'void'.
+src/repositories/pre-planning-appointment-repository.ts(283,16): error TS2554: Expected 2-3 arguments, but got 1.
+src/repositories/pre-planning-appointment-repository.ts(283,23): error TS7006: Parameter 'error' implicitly has an 'any' type.
+src/repositories/pre-planning-appointment-repository.ts(291,5): error TS2322: Type '(appointment: PrePlanningAppointment) => Effect.Effect<unknown, RepositoryError | UnknownException, unknown>' is not assignable to type '(appointment: PrePlanningAppointment) => Effect<void, RepositoryError, never>'.
+  Type 'Effect<unknown, RepositoryError | UnknownException, unknown>' is not assignable to type 'Effect<void, RepositoryError, never>'.
+    Type 'unknown' is not assignable to type 'void'.
+src/repositories/pre-planning-appointment-repository.ts(337,16): error TS2554: Expected 2-3 arguments, but got 1.
+src/repositories/pre-planning-appointment-repository.ts(337,23): error TS7006: Parameter 'error' implicitly has an 'any' type.
+src/repositories/pre-planning-appointment-repository.ts(345,5): error TS2322: Type '(businessKey: string) => Effect.Effect<unknown, AppointmentNotFoundError | RepositoryError | UnknownException, unknown>' is not assignable to type '(businessKey: string) => Effect<void, AppointmentNotFoundError | RepositoryError, never>'.
+  Type 'Effect<unknown, AppointmentNotFoundError | RepositoryError | UnknownException, unknown>' is not assignable to type 'Effect<void, AppointmentNotFoundError | RepositoryError, never>'.
+    Type 'unknown' is not assignable to type 'void'.
+src/repositories/pre-planning-appointment-repository.ts(371,16): error TS2554: Expected 2-3 arguments, but got 1.
+src/repositories/pre-planning-appointment-repository.ts(371,23): error TS7006: Parameter 'error' implicitly has an 'any' type.
+src/routers/prep-room-router.ts(16,41): error TS2307: Cannot find module '../trpc' or its corresponding type declarations.
+src/routers/prep-room-router.ts(18,1): error TS6192: All imports in import declaration are unused.
+src/routers/prep-room-router.ts(24,3): error TS2305: Module '"@dykstra/application"' has no exported member 'reserveRoom'.
+src/routers/prep-room-router.ts(25,3): error TS2305: Module '"@dykstra/application"' has no exported member 'checkAvailability'.
+src/routers/prep-room-router.ts(26,3): error TS2305: Module '"@dykstra/application"' has no exported member 'checkIn'.
+src/routers/prep-room-router.ts(27,3): error TS2305: Module '"@dykstra/application"' has no exported member 'checkOut'.
+src/routers/prep-room-router.ts(28,3): error TS2305: Module '"@dykstra/application"' has no exported member 'autoReleaseReservations'.
+src/routers/prep-room-router.ts(29,3): error TS2305: Module '"@dykstra/application"' has no exported member 'listSchedule'.
+src/routers/prep-room-router.ts(30,3): error TS2305: Module '"@dykstra/application"' has no exported member 'overrideConflict'.
+src/routers/prep-room-router.ts(31,8): error TS2305: Module '"@dykstra/application"' has no exported member 'ReserveRoomCommand'.
+src/routers/prep-room-router.ts(32,8): error TS2305: Module '"@dykstra/application"' has no exported member 'CheckAvailabilityQuery'.
+src/routers/prep-room-router.ts(33,8): error TS2305: Module '"@dykstra/application"' has no exported member 'CheckInCommand'.
+src/routers/prep-room-router.ts(34,8): error TS2305: Module '"@dykstra/application"' has no exported member 'CheckOutCommand'.
+src/routers/prep-room-router.ts(35,8): error TS2305: Module '"@dykstra/application"' has no exported member 'ListScheduleQuery'.
+src/routers/prep-room-router.ts(36,8): error TS2305: Module '"@dykstra/application"' has no exported member 'OverrideConflictCommand'.
+src/routers/prep-room-router.ts(39,3): error TS2305: Module '"@dykstra/application"' has no exported member 'PrepRoomRepositoryPort'.
+src/routers/prep-room-router.ts(40,8): error TS2724: '"@dykstra/application"' has no exported member named 'PrepRoomRepositoryService'. Did you mean 'EmailRepositoryService'?
+src/routers/prep-room-router.ts(40,8): error TS6133: 'PrepRoomRepositoryService' is declared but its value is never read.
+src/routers/prep-room-router.ts(73,22): error TS7031: Binding element 'input' implicitly has an 'any' type.
+src/routers/prep-room-router.ts(106,19): error TS7031: Binding element 'input' implicitly has an 'any' type.
+src/routers/prep-room-router.ts(138,22): error TS7031: Binding element 'input' implicitly has an 'any' type.
+src/routers/prep-room-router.ts(163,22): error TS7031: Binding element 'input' implicitly has an 'any' type.
+src/routers/prep-room-router.ts(201,19): error TS7031: Binding element 'input' implicitly has an 'any' type.
+src/routers/prep-room-router.ts(235,22): error TS7031: Binding element 'input' implicitly has an 'any' type.
+ ELIFECYCLE  Command failed with exit code 2.

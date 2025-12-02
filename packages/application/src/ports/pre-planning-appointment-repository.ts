@@ -1,5 +1,5 @@
-import { Effect } from 'effect';
-import { PrePlanningAppointment, AppointmentId } from '@dykstra/domain';
+import { type Effect } from 'effect';
+import { type PrePlanningAppointment, type AppointmentId } from '@dykstra/domain';
 
 /**
  * Pre-Planning Appointment Repository Port

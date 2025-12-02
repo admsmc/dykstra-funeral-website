@@ -1,5 +1,6 @@
-import { Effect, Context } from 'effect';
-import { NoteManagementPolicy } from '@dykstra/domain';
+import { type Effect, Context } from 'effect';
+import { type NoteManagementPolicy, type NotFoundError } from '@dykstra/domain';
+import { type PersistenceError } from '../errors';
 
 export interface NoteManagementPolicyRepositoryService {
   readonly findCurrentByFuneralHome: (
@@ -18,29 +19,6 @@ export interface NoteManagementPolicyRepositoryService {
   readonly save: (policy: NoteManagementPolicy) => Effect.Effect<void, PersistenceError>;
 
   readonly delete: (businessKey: string) => Effect.Effect<void, NotFoundError | PersistenceError>;
-}
-
-export class NotFoundError extends Error {
-  readonly _tag = 'NotFoundError';
-  constructor(
-    override readonly message: string,
-    readonly entityType: string = 'NoteManagementPolicy',
-    readonly entityId: string = ''
-  ) {
-    super(message);
-    this.name = 'NotFoundError';
-  }
-}
-
-export class PersistenceError extends Error {
-  readonly _tag = 'PersistenceError';
-  constructor(
-    override readonly message: string,
-    override readonly cause?: unknown
-  ) {
-    super(message);
-    this.name = 'PersistenceError';
-  }
 }
 
 export const NoteManagementPolicyRepository = Context.GenericTag<NoteManagementPolicyRepositoryService>(

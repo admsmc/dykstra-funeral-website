@@ -1,7 +1,7 @@
 import { Effect } from 'effect';
 import {
   PrePlanningAppointment,
-  AppointmentError,
+  type AppointmentError,
   AppointmentConflictError,
   AppointmentCapacityError,
   BusinessHoursError,
@@ -9,11 +9,11 @@ import {
 import type { PrePlanningAppointmentRepository } from '../../ports/pre-planning-appointment-repository';
 import {
   PrePlanningAppointmentRepositoryTag,
-  RepositoryError,
-  AppointmentNotFoundError,
+  type RepositoryError,
+  type AppointmentNotFoundError,
 } from '../../ports/pre-planning-appointment-repository';
 import type { EmailService } from '../../ports/email-service-port';
-import { EmailServiceTag, EmailServiceError } from '../../ports/email-service-port';
+import { EmailServiceTag, type EmailServiceError } from '../../ports/email-service-port';
 
 /**
  * Schedule Pre-Planning Appointment Use Case

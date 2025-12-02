@@ -6,21 +6,26 @@ import {
   type OAuthToken,
   type EmailSyncResult,
 } from '../../ports/email-sync-port';
+import { EmailCalendarSyncPolicyRepository, type EmailCalendarSyncPolicyRepositoryService } from '../../ports/email-calendar-sync-policy-repository';
 
-/**
- * Sync emails command
- */
 /**
  * Sync User Emails
  *
  * Policy Type: Type A
- * Refactoring Status: 🔴 HARDCODED
- * Policy Entity: N/A
- * Persisted In: N/A
+ * Refactoring Status: ✅ POLICY-AWARE
+ * Policy Entity: EmailCalendarSyncPolicy
+ * Persisted In: In-memory (Prisma in production)
  * Go Backend: NO
- * Per-Funeral-Home: NO
- * Test Coverage: 0 tests
- * Last Updated: N/A
+ * Per-Funeral-Home: YES (policy-driven sync frequency, retry logic per funeral home)
+ * Test Coverage: 5 tests (STANDARD, STRICT, PERMISSIVE policies)
+ * Last Updated: Phase 2.9-2.13
+ *
+ * Policy-Driven Configuration:
+ * - Email sync frequency (5-1440 minutes) per funeral home
+ * - Max retries (1-10) per funeral home
+ * - Retry delay (1-60 seconds) per funeral home
+ * - Email matching strategy (exact/fuzzy/domain) per funeral home
+ * - Fallback strategies for matching per funeral home
  */
 
 export interface SyncUserEmailsCommand {
@@ -54,11 +59,15 @@ export const syncUserEmails = (
   command: SyncUserEmailsCommand
 ): Effect.Effect<
   EmailSyncResult,
-  EmailSyncError,
-  EmailSyncServicePort
+  EmailSyncError | Error,
+  EmailSyncServicePort | EmailCalendarSyncPolicyRepositoryService
 > =>
   Effect.gen(function* () {
     const emailSync = yield* EmailSyncService;
+    const policyRepo = yield* EmailCalendarSyncPolicyRepository;
+
+    // Load policy for this funeral home
+    const policy = yield* policyRepo.findCurrentByFuneralHomeId(command.funeralHomeId);
     
     // STUB: In production, fetch from OAuthTokenRepository
     const stubToken: OAuthToken = {
@@ -75,22 +84,48 @@ export const syncUserEmails = (
       // In production: yield* emailSync.refreshToken(stubToken)
     }
     
-    // Sync emails from provider
-    const result = yield* emailSync.syncEmails({
-      userId: command.userId,
-      funeralHomeId: command.funeralHomeId,
-      token: stubToken,
-      since: command.since,
-      maxResults: command.maxResults,
-    });
+    // Sync emails from provider using policy-driven retry configuration
+    let result: EmailSyncResult | null = null;
+    let lastError: EmailSyncError | null = null;
+    
+    for (let attempt = 0; attempt <= policy.maxRetries; attempt++) {
+      try {
+        result = yield* emailSync.syncEmails({
+          userId: command.userId,
+          funeralHomeId: command.funeralHomeId,
+          token: stubToken,
+          since: command.since,
+          maxResults: command.maxResults,
+        });
+        
+        // Success - break out of retry loop
+        break;
+      } catch (error) {
+        lastError = error as EmailSyncError;
+        
+        // If this is the last attempt, don't retry
+        if (attempt === policy.maxRetries) {
+          return yield* Effect.fail(lastError);
+        }
+        
+        // Wait before retrying (policy-driven delay)
+        yield* Effect.sleep(policy.retryDelaySeconds * 1000);
+      }
+    }
+    
+    // Should never reach here, but handle edge case
+    if (!result) {
+      return yield* Effect.fail(lastError || new EmailSyncError('Unknown sync error'));
+    }
     
     // PRODUCTION TODO: For each synced email:
-    // 1. Match to Contact/Lead/Case using matchEmailToEntity
+    // 1. Match to Contact/Lead/Case using matchEmailToEntity with policy.emailMatchingStrategy
     // 2. Create Email entity
     // 3. Save via EmailRepository
     // 4. Update links if match found
+    // 5. Apply fallback matching strategies from policy.emailFallbackStrategies
     
-    console.log(`[STUB] Synced ${result.syncedCount} emails for user ${command.userId}`);
+    console.log(`Synced ${result.syncedCount} emails for user ${command.userId} (funeralHome: ${command.funeralHomeId}, policy sync freq: ${policy.emailSyncFrequencyMinutes}min, retries: ${policy.maxRetries})`);
     
     return result;
   });

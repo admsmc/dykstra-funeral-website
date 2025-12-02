@@ -5,7 +5,7 @@ import {
   RepositoryError,
   AppointmentNotFoundError,
 } from '@dykstra/application';
-import { prisma } from './prisma-client';
+import { prisma } from '../database/prisma-client';
 
 /**
  * Prisma-based implementation of PrePlanningAppointmentRepository
@@ -22,112 +22,113 @@ export const PrismaPrePlanningAppointmentRepository: PrePlanningAppointmentRepos
      * Find appointment by ID (always returns current version)
      */
     findById: (id: AppointmentId) =>
-      Effect.tryPromise(async () => {
-        const record = await prisma.prePlanningAppointment.findFirst({
-          where: {
-            id: id as unknown as string,
-            isCurrent: true,
-          },
-        });
+      Effect.tryPromise({
+        try: async () => {
+          const record = await prisma.prePlanningAppointment.findFirst({
+            where: {
+              id: id as unknown as string,
+              isCurrent: true,
+            },
+          });
 
-        if (!record) {
-          throw new AppointmentNotFoundError(
-            `Appointment not found: ${id}`,
-            id
-          );
-        }
+          if (!record) {
+            throw new AppointmentNotFoundError(
+              `Appointment not found: ${id}`,
+              id
+            );
+          }
 
-        return toDomain(record);
-      }).pipe(
-        Effect.catch(() =>
-          new AppointmentNotFoundError(
-            `Appointment not found: ${id}`,
-            id
-          )
-        )
-      ),
+          return toDomain(record);
+        },
+        catch: (error) =>
+          error instanceof AppointmentNotFoundError
+            ? error
+            : new AppointmentNotFoundError(
+                `Appointment not found: ${id}`,
+                id
+              ),
+      }),
 
     /**
      * Find appointment by business key (current version only)
      */
     findByBusinessKey: (businessKey: string) =>
-      Effect.tryPromise(async () => {
-        const record = await prisma.prePlanningAppointment.findFirst({
-          where: {
-            businessKey,
-            isCurrent: true,
-          },
-        });
+      Effect.tryPromise({
+        try: async () => {
+          const record = await prisma.prePlanningAppointment.findFirst({
+            where: {
+              businessKey,
+              isCurrent: true,
+            },
+          });
 
-        return record ? toDomain(record) : null;
-      }).pipe(
-        Effect.catch((error) =>
+          return record ? toDomain(record) : null;
+        },
+        catch: (error) =>
           new RepositoryError(
             `Failed to find appointment by business key: ${businessKey}`,
             error
-          )
-        )
-      ),
+          ),
+      }),
 
     /**
      * Get full history of an appointment (all versions)
      */
     findHistory: (businessKey: string) =>
-      Effect.tryPromise(async () => {
-        const records = await prisma.prePlanningAppointment.findMany({
-          where: { businessKey },
-          orderBy: { version: 'asc' },
-        });
+      Effect.tryPromise({
+        try: async () => {
+          const records = await prisma.prePlanningAppointment.findMany({
+            where: { businessKey },
+            orderBy: { version: 'asc' },
+          });
 
-        if (records.length === 0) {
-          throw new AppointmentNotFoundError(
-            `No appointment history found: ${businessKey}`
-          );
-        }
+          if (records.length === 0) {
+            throw new AppointmentNotFoundError(
+              `No appointment history found: ${businessKey}`
+            );
+          }
 
-        return records.map(toDomain);
-      }).pipe(
-        Effect.catch((error) =>
+          return records.map(toDomain);
+        },
+        catch: (error) =>
           error instanceof AppointmentNotFoundError
             ? error
-            : new RepositoryError(
-                `Failed to find appointment history: ${businessKey}`,
-                error
-              )
-        )
-      ),
+            : new AppointmentNotFoundError(
+                `Failed to find appointment history: ${businessKey}`
+              ),
+      }),
 
     /**
      * Find all appointments for a director on a specific date
      */
     findByDirectorAndDate: (directorId: string, date: Date) =>
-      Effect.tryPromise(async () => {
-        const dayStart = new Date(date);
-        dayStart.setHours(0, 0, 0, 0);
-        const dayEnd = new Date(date);
-        dayEnd.setHours(23, 59, 59, 999);
+      Effect.tryPromise({
+        try: async () => {
+          const dayStart = new Date(date);
+          dayStart.setHours(0, 0, 0, 0);
+          const dayEnd = new Date(date);
+          dayEnd.setHours(23, 59, 59, 999);
 
-        const records = await prisma.prePlanningAppointment.findMany({
-          where: {
-            directorId,
-            appointmentDate: {
-              gte: dayStart,
-              lte: dayEnd,
+          const records = await prisma.prePlanningAppointment.findMany({
+            where: {
+              directorId,
+              appointmentDate: {
+                gte: dayStart,
+                lte: dayEnd,
+              },
+              isCurrent: true,
             },
-            isCurrent: true,
-          },
-          orderBy: { startTime: 'asc' },
-        });
+            orderBy: { startTime: 'asc' },
+          });
 
-        return records.map(toDomain);
-      }).pipe(
-        Effect.catch((error) =>
+          return records.map(toDomain);
+        },
+        catch: (error) =>
           new RepositoryError(
             `Failed to find appointments for director ${directorId} on ${date.toDateString()}`,
             error
-          )
-        )
-      ),
+          ),
+      }),
 
     /**
      * Find all appointments for a director in a date range
@@ -137,243 +138,243 @@ export const PrismaPrePlanningAppointmentRepository: PrePlanningAppointmentRepos
       startDate: Date,
       endDate: Date
     ) =>
-      Effect.tryPromise(async () => {
-        const rangeStart = new Date(startDate);
-        rangeStart.setHours(0, 0, 0, 0);
-        const rangeEnd = new Date(endDate);
-        rangeEnd.setHours(23, 59, 59, 999);
+      Effect.tryPromise({
+        try: async () => {
+          const rangeStart = new Date(startDate);
+          rangeStart.setHours(0, 0, 0, 0);
+          const rangeEnd = new Date(endDate);
+          rangeEnd.setHours(23, 59, 59, 999);
 
-        const records = await prisma.prePlanningAppointment.findMany({
-          where: {
-            directorId,
-            appointmentDate: {
-              gte: rangeStart,
-              lte: rangeEnd,
+          const records = await prisma.prePlanningAppointment.findMany({
+            where: {
+              directorId,
+              appointmentDate: {
+                gte: rangeStart,
+                lte: rangeEnd,
+              },
+              isCurrent: true,
             },
-            isCurrent: true,
-          },
-          orderBy: { startTime: 'asc' },
-        });
+            orderBy: { startTime: 'asc' },
+          });
 
-        return records.map(toDomain);
-      }).pipe(
-        Effect.catch((error) =>
+          return records.map(toDomain);
+        },
+        catch: (error) =>
           new RepositoryError(
             `Failed to find appointments for director ${directorId} in range`,
             error
-          )
-        )
-      ),
+          ),
+      }),
 
     /**
      * Find appointments by family email
      */
     findByFamilyEmail: (email: string) =>
-      Effect.tryPromise(async () => {
-        const records = await prisma.prePlanningAppointment.findMany({
-          where: {
-            familyEmail: email,
-            isCurrent: true,
-          },
-          orderBy: { startTime: 'desc' },
-        });
+      Effect.tryPromise({
+        try: async () => {
+          const records = await prisma.prePlanningAppointment.findMany({
+            where: {
+              familyEmail: email,
+              isCurrent: true,
+            },
+            orderBy: { startTime: 'desc' },
+          });
 
-        return records.map(toDomain);
-      }).pipe(
-        Effect.catch((error) =>
+          return records.map(toDomain);
+        },
+        catch: (error) =>
           new RepositoryError(
             `Failed to find appointments by email: ${email}`,
             error
-          )
-        )
-      ),
+          ),
+      }),
 
     /**
      * Find all upcoming appointments that need reminders
      * (within 1-36 hours and reminder not yet sent)
      */
     findAppointmentsNeedingReminders: () =>
-      Effect.tryPromise(async () => {
-        const now = new Date();
-        const inOneHour = new Date(now.getTime() + 1 * 60 * 60 * 1000);
-        const in36Hours = new Date(now.getTime() + 36 * 60 * 60 * 1000);
+      Effect.tryPromise({
+        try: async () => {
+          const now = new Date();
+          const inOneHour = new Date(now.getTime() + 1 * 60 * 60 * 1000);
+          const in36Hours = new Date(now.getTime() + 36 * 60 * 60 * 1000);
 
-        const records = await prisma.prePlanningAppointment.findMany({
-          where: {
-            status: { in: ['SCHEDULED', 'CONFIRMED'] },
-            startTime: {
-              gte: inOneHour,
-              lte: in36Hours,
+          const records = await prisma.prePlanningAppointment.findMany({
+            where: {
+              status: { in: ['SCHEDULED', 'CONFIRMED'] },
+              startTime: {
+                gte: inOneHour,
+                lte: in36Hours,
+              },
+              reminderEmailSent: false,
+              isCurrent: true,
             },
-            reminderEmailSent: false,
-            isCurrent: true,
-          },
-          orderBy: { startTime: 'asc' },
-        });
+            orderBy: { startTime: 'asc' },
+          });
 
-        return records.map(toDomain);
-      }).pipe(
-        Effect.catch((error) =>
+          return records.map(toDomain);
+        },
+        catch: (error) =>
           new RepositoryError(
             'Failed to find appointments needing reminders',
             error
-          )
-        )
-      ),
+          ),
+      }),
 
     /**
      * Find appointments by status
      */
     findByStatus: (status: string) =>
-      Effect.tryPromise(async () => {
-        const records = await prisma.prePlanningAppointment.findMany({
-          where: {
-            status: status as any,
-            isCurrent: true,
-          },
-          orderBy: { startTime: 'desc' },
-        });
+      Effect.tryPromise({
+        try: async () => {
+          const records = await prisma.prePlanningAppointment.findMany({
+            where: {
+              status: status as any,
+              isCurrent: true,
+            },
+            orderBy: { startTime: 'desc' },
+          });
 
-        return records.map(toDomain);
-      }).pipe(
-        Effect.catch((error) =>
+          return records.map(toDomain);
+        },
+        catch: (error) =>
           new RepositoryError(
             `Failed to find appointments by status: ${status}`,
             error
-          )
-        )
-      ),
+          ),
+      }),
 
     /**
      * Save new appointment (creates version 1)
      */
     save: (appointment: PrePlanningAppointment) =>
-      Effect.tryPromise(async () => {
-        await prisma.prePlanningAppointment.create({
-          data: {
-            id: appointment.id,
-            businessKey: appointment.businessKey,
-            version: appointment.version,
-            validFrom: appointment.createdAt,
-            validTo: null,
-            isCurrent: true,
-            funeralHomeId: appointment.directorId, // Use directorId as funeralHomeId for now
-            directorId: appointment.directorId,
-            directorName: appointment.directorName,
-            familyName: appointment.familyName,
-            familyEmail: appointment.familyEmail,
-            familyPhone: appointment.familyPhone,
-            appointmentDate: appointment.appointmentDate,
-            startTime: appointment.startTime,
-            endTime: appointment.endTime,
-            duration: appointment.duration,
-            notes: appointment.notes,
-            status: appointment.status as any,
-            reminderEmailSent: appointment.reminderEmailSent,
-            reminderSmsSent: appointment.reminderSmsSent,
-            completedAt: appointment.completedAt,
-            cancelledAt: appointment.cancelledAt,
-            cancelReason: appointment.cancelReason,
-            createdAt: appointment.createdAt,
-            updatedAt: appointment.updatedAt,
-            createdBy: appointment.createdBy,
-          },
-        });
-      }).pipe(
-        Effect.catch((error) =>
-          new RepositoryError('Failed to save appointment', error)
-        )
-      ),
+      Effect.tryPromise({
+        try: async () => {
+          await prisma.prePlanningAppointment.create({
+            data: {
+              id: appointment.id,
+              businessKey: appointment.businessKey,
+              version: appointment.version,
+              validFrom: appointment.createdAt,
+              validTo: null,
+              isCurrent: true,
+              funeralHomeId: appointment.directorId, // Use directorId as funeralHomeId for now
+              directorId: appointment.directorId,
+              directorName: appointment.directorName,
+              familyName: appointment.familyName,
+              familyEmail: appointment.familyEmail,
+              familyPhone: appointment.familyPhone,
+              appointmentDate: appointment.appointmentDate,
+              startTime: appointment.startTime,
+              endTime: appointment.endTime,
+              duration: appointment.duration,
+              notes: appointment.notes,
+              status: appointment.status as any,
+              reminderEmailSent: appointment.reminderEmailSent,
+              reminderSmsSent: appointment.reminderSmsSent,
+              completedAt: appointment.completedAt,
+              cancelledAt: appointment.cancelledAt,
+              cancelReason: appointment.cancelReason,
+              createdAt: appointment.createdAt,
+              updatedAt: appointment.updatedAt,
+              createdBy: appointment.createdBy,
+            },
+          });
+        },
+        catch: (error) =>
+          new RepositoryError('Failed to save appointment', error),
+      }),
 
     /**
      * Update appointment (creates new version in SCD2 pattern)
      */
     update: (appointment: PrePlanningAppointment) =>
-      Effect.tryPromise(async () => {
-        // Mark old version as expired
-        await prisma.prePlanningAppointment.updateMany({
-          where: {
-            businessKey: appointment.businessKey,
-            isCurrent: true,
-          },
-          data: {
-            validTo: new Date(),
-            isCurrent: false,
-          },
-        });
+      Effect.tryPromise({
+        try: async () => {
+          // Mark old version as expired
+          await prisma.prePlanningAppointment.updateMany({
+            where: {
+              businessKey: appointment.businessKey,
+              isCurrent: true,
+            },
+            data: {
+              validTo: new Date(),
+              isCurrent: false,
+            },
+          });
 
-        // Insert new version
-        await prisma.prePlanningAppointment.create({
-          data: {
-            id: appointment.id,
-            businessKey: appointment.businessKey,
-            version: appointment.version,
-            validFrom: appointment.updatedAt,
-            validTo: null,
-            isCurrent: true,
-            funeralHomeId: appointment.directorId, // Use directorId as funeralHomeId for now
-            directorId: appointment.directorId,
-            directorName: appointment.directorName,
-            familyName: appointment.familyName,
-            familyEmail: appointment.familyEmail,
-            familyPhone: appointment.familyPhone,
-            appointmentDate: appointment.appointmentDate,
-            startTime: appointment.startTime,
-            endTime: appointment.endTime,
-            duration: appointment.duration,
-            notes: appointment.notes,
-            status: appointment.status as any,
-            reminderEmailSent: appointment.reminderEmailSent,
-            reminderSmsSent: appointment.reminderSmsSent,
-            completedAt: appointment.completedAt,
-            cancelledAt: appointment.cancelledAt,
-            cancelReason: appointment.cancelReason,
-            createdAt: appointment.createdAt,
-            updatedAt: appointment.updatedAt,
-            createdBy: appointment.createdBy,
-          },
-        });
-      }).pipe(
-        Effect.catch((error) =>
-          new RepositoryError('Failed to update appointment', error)
-        )
-      ),
+          // Insert new version
+          await prisma.prePlanningAppointment.create({
+            data: {
+              id: appointment.id,
+              businessKey: appointment.businessKey,
+              version: appointment.version,
+              validFrom: appointment.updatedAt,
+              validTo: null,
+              isCurrent: true,
+              funeralHomeId: appointment.directorId, // Use directorId as funeralHomeId for now
+              directorId: appointment.directorId,
+              directorName: appointment.directorName,
+              familyName: appointment.familyName,
+              familyEmail: appointment.familyEmail,
+              familyPhone: appointment.familyPhone,
+              appointmentDate: appointment.appointmentDate,
+              startTime: appointment.startTime,
+              endTime: appointment.endTime,
+              duration: appointment.duration,
+              notes: appointment.notes,
+              status: appointment.status as any,
+              reminderEmailSent: appointment.reminderEmailSent,
+              reminderSmsSent: appointment.reminderSmsSent,
+              completedAt: appointment.completedAt,
+              cancelledAt: appointment.cancelledAt,
+              cancelReason: appointment.cancelReason,
+              createdAt: appointment.createdAt,
+              updatedAt: appointment.updatedAt,
+              createdBy: appointment.createdBy,
+            },
+          });
+        },
+        catch: (error) =>
+          new RepositoryError('Failed to update appointment', error),
+      }),
 
     /**
      * Delete appointment (marks as deleted via SCD2 validTo)
      */
     delete: (businessKey: string) =>
-      Effect.tryPromise(async () => {
-        const current = await prisma.prePlanningAppointment.findFirst({
-          where: {
-            businessKey,
-            isCurrent: true,
-          },
-        });
+      Effect.tryPromise({
+        try: async () => {
+          const current = await prisma.prePlanningAppointment.findFirst({
+            where: {
+              businessKey,
+              isCurrent: true,
+            },
+          });
 
-        if (!current) {
-          throw new AppointmentNotFoundError(
-            `Appointment not found for deletion: ${businessKey}`
-          );
-        }
+          if (!current) {
+            throw new AppointmentNotFoundError(
+              `Appointment not found for deletion: ${businessKey}`
+            );
+          }
 
-        await prisma.prePlanningAppointment.updateMany({
-          where: {
-            businessKey,
-            isCurrent: true,
-          },
-          data: {
-            validTo: new Date(),
-            isCurrent: false,
-          },
-        });
-      }).pipe(
-        Effect.catch((error) =>
+          await prisma.prePlanningAppointment.updateMany({
+            where: {
+              businessKey,
+              isCurrent: true,
+            },
+            data: {
+              validTo: new Date(),
+              isCurrent: false,
+            },
+          });
+        },
+        catch: (error) =>
           error instanceof AppointmentNotFoundError
             ? error
-            : new RepositoryError('Failed to delete appointment', error)
-        )
-      ),
+            : new RepositoryError('Failed to delete appointment', error),
+      }),
 };
 
 /**

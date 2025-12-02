@@ -2,8 +2,8 @@ import { Effect } from 'effect';
 import { 
   GoFinancialPort,
   type GoFinancialPortService,
-  NetworkError, 
-  NotFoundError,
+  type NetworkError, 
+  type NotFoundError,
   type CreateAPPaymentRunCommand,
   type GoVendorBill
 } from '../../ports/go-financial-port';

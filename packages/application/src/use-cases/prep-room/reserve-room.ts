@@ -6,7 +6,7 @@
 import { Effect } from 'effect';
 import type { PrepRoomId, PrepRoom } from '@dykstra/domain';
 import { createPrepRoomReservation, type ReservationPriority } from '@dykstra/domain';
-import { PrepRoomRepositoryPort, type FindAvailableSlotsQuery, type AvailableSlot } from '../../ports/prep-room-repository';
+import { PrepRoomRepositoryPort, type PrepRoomRepositoryService, type FindAvailableSlotsQuery, type AvailableSlot } from '../../ports/prep-room-repository';
 
 /**
  * Reserve Room
@@ -51,7 +51,7 @@ export type ReserveRoomResponse = ReserveRoomResult | ConflictResult;
 
 export const reserveRoom = (
   command: ReserveRoomCommand
-): Effect.Effect<ReserveRoomResponse, Error, typeof PrepRoomRepositoryPort> =>
+): Effect.Effect<ReserveRoomResponse, Error, PrepRoomRepositoryService> =>
   Effect.gen(function* () {
     const repo = yield* PrepRoomRepositoryPort;
 

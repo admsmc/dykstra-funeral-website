@@ -1,6 +1,6 @@
 import { Effect } from "effect";
-import { NotFoundError, ValidationError } from "../errors";
-import { PaymentRepository, PersistenceError } from '../ports/payment-repository';
+import { type NotFoundError, ValidationError } from "../errors";
+import { PaymentRepository, type PersistenceError } from '../ports/payment-repository';
 import { CaseRepository } from '../ports/case-repository';
 
 interface GetPaymentReceiptInput {

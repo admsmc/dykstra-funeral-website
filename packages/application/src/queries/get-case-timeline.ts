@@ -1,7 +1,7 @@
 import { Effect } from 'effect';
 import type { CaseId } from '@dykstra/domain';
-import { NotFoundError } from '@dykstra/domain';
-import { CaseRepository, PersistenceError } from '../ports/case-repository';
+import { type NotFoundError } from '@dykstra/domain';
+import { CaseRepository, type PersistenceError } from '../ports/case-repository';
 
 /**
  * Timeline Event

@@ -1,5 +1,5 @@
 import { Effect } from 'effect';
-import { ContractRepository, PersistenceError } from '../../ports/contract-repository';
+import { ContractRepository, type PersistenceError } from '../../ports/contract-repository';
 import { PaymentRepository } from '../../ports/payment-repository';
 
 /**

@@ -1,8 +1,8 @@
 import { Effect } from 'effect';
-import { PhotoDeleted, NotFoundError, AuthorizationError, type PhotoId } from '@dykstra/domain';
-import { PhotoRepository, PersistenceError } from '../ports/photo-repository';
-import { StoragePort, StorageError } from '../ports/storage-port';
-import { EventPublisher, EventPublishError } from '../ports/event-publisher';
+import { PhotoDeleted, type NotFoundError, AuthorizationError, type PhotoId } from '@dykstra/domain';
+import { PhotoRepository, type PersistenceError } from '../ports/photo-repository';
+import { StoragePort, type StorageError } from '../ports/storage-port';
+import { EventPublisher, type EventPublishError } from '../ports/event-publisher';
 
 /**
  * Delete Photo command

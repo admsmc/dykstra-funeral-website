@@ -1,5 +1,5 @@
 import { Effect } from 'effect';
-import { GoEmployeeTerminationPort, type GoEmployeeTerminationPortService, NetworkError } from '../../ports/go-employee-termination-port';
+import { GoEmployeeTerminationPort, type GoEmployeeTerminationPortService, type NetworkError } from '../../ports/go-employee-termination-port';
 
 /**
  * Use Case 4.2: Employee Offboarding Workflow

@@ -135,7 +135,7 @@ import {
   AddressValidation,
   PhoneValidation,
   ContactEnrichment,
-  PrePlanningAppointmentRepository,
+  PrePlanningAppointmentRepositoryTag,
   GoContractPort,
   GoInventoryPort,
   GoPayrollPort,
@@ -217,7 +217,7 @@ export const InfrastructureLayer = Layer.mergeAll(
   Layer.succeed(EmailRepository, PrismaEmailRepository),
   
   // Pre-Planning Appointment Repository (Scenario 6)
-  Layer.succeed(PrePlanningAppointmentRepository, PrismaPrePlanningAppointmentRepository),
+  Layer.succeed(PrePlanningAppointmentRepositoryTag, PrismaPrePlanningAppointmentRepository),
   
   // CRM Adapters
   Layer.succeed(EmailMarketingService, SendGridMarketingAdapter),

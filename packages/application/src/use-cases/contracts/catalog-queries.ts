@@ -2,10 +2,10 @@ import { Effect } from 'effect';
 import {
   ProductCatalogRepository,
   ServiceCatalogRepository,
-  Product,
-  Service,
-  ProductCategory,
-  CatalogServiceType,
+  type Product,
+  type Service,
+  type ProductCategory,
+  type CatalogServiceType,
 } from '../../ports/catalog-repository';
 
 /**

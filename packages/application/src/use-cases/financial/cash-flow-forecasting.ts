@@ -3,7 +3,7 @@ import { ValidationError } from '@dykstra/domain';
 import {
   GoFinancialPort,
   type GoFinancialPortService,
-  NetworkError,
+  type NetworkError,
 } from '../../ports/go-financial-port';
 
 /**

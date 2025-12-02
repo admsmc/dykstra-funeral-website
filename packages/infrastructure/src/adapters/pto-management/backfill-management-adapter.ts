@@ -8,15 +8,12 @@ import { Effect } from 'effect';
 import { prisma } from '../../database/prisma-client';
 import type {
   BackfillManagementPortService,
-  BackfillAssignmentFilters,
-  BackfillAssignmentQueryResult,
   BackfillCandidate,
   BackfillCoverageSummary,
   BackfillEmployeeWorkload,
 } from '@dykstra/application';
 import type {
   BackfillAssignment,
-  BackfillAssignmentId,
 } from '@dykstra/domain';
 import {
   createBackfillAssignmentId,
@@ -456,7 +453,7 @@ export const BackfillManagementAdapter: BackfillManagementPortService = {
         } as BackfillCoverageSummary;
       }
 
-      const first = assignments[0];
+      const first = assignments[0]!;
       const confirmed = assignments.filter((a) => a.status === 'confirmed').length;
       const pending = assignments.filter((a) => a.status === 'pending_confirmation').length;
       const rejected = assignments.filter((a) => a.status === 'rejected').length;
@@ -534,7 +531,7 @@ export const BackfillManagementAdapter: BackfillManagementPortService = {
           if (!acc[a.backfillEmployeeId]) {
             acc[a.backfillEmployeeId] = [];
           }
-          acc[a.backfillEmployeeId].push(a);
+          acc[a.backfillEmployeeId]!.push(a);
           return acc;
         },
         {} as Record<string, typeof assignments>
@@ -646,8 +643,8 @@ export const BackfillManagementAdapter: BackfillManagementPortService = {
           const baseCost = hours * 25; // $25/hour base
           const premiumCost = baseCost * (a.premiumMultiplier - 1); // Premium is multiplier - 1
 
-          acc[a.backfillEmployeeId].totalPremiumPay += premiumCost;
-          acc[a.backfillEmployeeId].assignments.push({
+          acc[a.backfillEmployeeId]!.totalPremiumPay += premiumCost;
+          acc[a.backfillEmployeeId]!.assignments.push({
             absenceEmployeeName: a.absenceEmployeeName,
             hours,
             premiumType: a.premiumType,

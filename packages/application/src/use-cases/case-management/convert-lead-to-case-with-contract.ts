@@ -1,10 +1,10 @@
 import { Effect } from 'effect';
-import { Lead, Case, InvalidStateTransitionError, ValidationError } from '@dykstra/domain';
+import { type Lead, Case, type InvalidStateTransitionError, ValidationError } from '@dykstra/domain';
 import { 
   LeadRepository, 
   type LeadRepositoryService, 
   NotFoundError, 
-  PersistenceError 
+  type PersistenceError 
 } from '../../ports/lead-repository';
 import { 
   CaseRepository, 
@@ -15,7 +15,7 @@ import {
   type GoContractPortService,
   type CreateContractCommand,
   type GoContract,
-  NetworkError,
+  type NetworkError,
 } from '../../ports/go-contract-port';
 
 /**

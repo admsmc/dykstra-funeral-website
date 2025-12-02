@@ -1,5 +1,5 @@
 import { Effect } from 'effect';
-import { GoEmployeeOnboardingPort, type GoEmployeeOnboardingPortService, NetworkError } from '../../ports/go-employee-onboarding-port';
+import { GoEmployeeOnboardingPort, type GoEmployeeOnboardingPortService, type NetworkError } from '../../ports/go-employee-onboarding-port';
 
 /**
  * Use Case 4.1: Employee Onboarding Workflow

@@ -1,16 +1,16 @@
 import { Effect, Context } from 'effect';
-import { ValidationError, NotFoundError, type CaseId } from '@dykstra/domain';
+import { ValidationError, type NotFoundError, type CaseId } from '@dykstra/domain';
 import {
   GoContractPort,
   type GoContractPortService,
-  NetworkError,
+  type NetworkError,
   type GoContract,
   type GoContractItem,
 } from '../../ports/go-contract-port';
 import {
   CaseRepository as CaseRepositoryTag,
   type CaseRepository as CaseRepositoryService,
-  PersistenceError,
+  type PersistenceError,
 } from '../../ports/case-repository';
 
 /**

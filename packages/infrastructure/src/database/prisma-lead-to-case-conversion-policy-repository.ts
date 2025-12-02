@@ -1,7 +1,7 @@
 import { Effect } from 'effect';
 import { LeadToCaseConversionPolicy } from '@dykstra/domain';
 import {
-  LeadToCaseConversionPolicyRepository,
+  type LeadToCaseConversionPolicyRepositoryService,
   NotFoundError,
   PersistenceError,
 } from '@dykstra/application';
@@ -59,7 +59,7 @@ const toPrisma = (policy: LeadToCaseConversionPolicy) => {
  * Object-based Prisma adapter for LeadToCaseConversionPolicyRepository
  * Implements SCD Type 2 temporal versioning
  */
-export const PrismaLeadToCaseConversionPolicyRepository: LeadToCaseConversionPolicyRepository = {
+export const PrismaLeadToCaseConversionPolicyRepository: LeadToCaseConversionPolicyRepositoryService = {
   findCurrentByFuneralHome: (funeralHomeId: string) =>
     Effect.tryPromise({
       try: async () => {
@@ -74,11 +74,11 @@ export const PrismaLeadToCaseConversionPolicyRepository: LeadToCaseConversionPol
         });
 
         if (!row) {
-          throw new NotFoundError(
-            `No current lead-to-case conversion policy found for funeral home ${funeralHomeId}`,
-            'LeadToCaseConversionPolicy',
-            funeralHomeId
-          );
+          throw new NotFoundError({
+            message: `No current lead-to-case conversion policy found for funeral home ${funeralHomeId}`,
+            entityType: 'LeadToCaseConversionPolicy',
+            entityId: funeralHomeId
+          });
         }
 
         return toDomain(row);
@@ -122,11 +122,11 @@ export const PrismaLeadToCaseConversionPolicyRepository: LeadToCaseConversionPol
         });
 
         if (!row) {
-          throw new NotFoundError(
-            `Lead-to-case conversion policy version ${version} not found for business key ${businessKey}`,
-            'LeadToCaseConversionPolicy',
-            businessKey
-          );
+          throw new NotFoundError({
+            message: `Lead-to-case conversion policy version ${version} not found for business key ${businessKey}`,
+            entityType: 'LeadToCaseConversionPolicy',
+            entityId: businessKey
+          });
         }
 
         return toDomain(row);
@@ -197,11 +197,11 @@ export const PrismaLeadToCaseConversionPolicyRepository: LeadToCaseConversionPol
         });
 
         if (result.count === 0) {
-          throw new NotFoundError(
-            `Lead-to-case conversion policy ${businessKey} not found`,
-            'LeadToCaseConversionPolicy',
-            businessKey
-          );
+          throw new NotFoundError({
+            message: `Lead-to-case conversion policy ${businessKey} not found`,
+            entityType: 'LeadToCaseConversionPolicy',
+            entityId: businessKey
+          });
         }
 
         return undefined;

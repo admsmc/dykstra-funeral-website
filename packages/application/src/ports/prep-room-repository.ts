@@ -8,7 +8,7 @@
  * - Injected via Effect Context for dependency injection
  */
 
-import { Effect, Context } from 'effect';
+import { type Effect, Context } from 'effect';
 import type { PrepRoom, PrepRoomId } from '@dykstra/domain';
 import type { PrepRoomReservation, ReservationId, ReservationStatus } from '@dykstra/domain';
 

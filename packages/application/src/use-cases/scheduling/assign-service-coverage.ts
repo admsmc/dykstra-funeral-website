@@ -6,7 +6,7 @@ import {
   type AssignShiftCommand,
   type GoShiftAssignment,
   type GoStaffSchedule,
-  NetworkError 
+  type NetworkError 
 } from '../../ports/go-scheduling-port';
 
 /**

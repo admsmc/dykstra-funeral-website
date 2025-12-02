@@ -10,8 +10,8 @@ import {
   type PtoRequest,
   type PtoRequestId,
 } from '@dykstra/domain';
-import { PtoManagementPort } from '../../ports/pto-management-port';
-import { BackfillManagementPort } from '../../ports/backfill-management-port';
+import { PtoManagementPort, type PtoManagementPortService } from '../../ports/pto-management-port';
+import { BackfillManagementPort, type BackfillManagementPortService } from '../../ports/backfill-management-port';
 
 /**
  * Input command for rejecting PTO
@@ -50,7 +50,7 @@ export interface RejectPtoRequestResult {
  */
 export const rejectPtoRequest = (
   command: RejectPtoRequestCommand
-): Effect.Effect<RejectPtoRequestResult, Error, typeof PtoManagementPort | typeof BackfillManagementPort> =>
+): Effect.Effect<RejectPtoRequestResult, Error, PtoManagementPortService | BackfillManagementPortService> =>
   Effect.gen(function* () {
     const ptoRepo = yield* PtoManagementPort;
     const backfillRepo = yield* BackfillManagementPort;
@@ -77,7 +77,7 @@ export const rejectPtoRequest = (
     }
 
     // Cancel associated backfill assignments
-    const backfills = yield* backfillRepo.getBackfillAssignmentsByAbsence(existingRequest.id as any);
+    const backfills = yield* backfillRepo.getBackfillAssignmentsByAbsence(String(existingRequest.id));
     for (const backfill of backfills) {
       if (backfill.status !== 'completed' && backfill.status !== 'cancelled') {
         // Note: In real implementation, update status to 'cancelled' in repository

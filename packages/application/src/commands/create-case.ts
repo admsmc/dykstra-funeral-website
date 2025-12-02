@@ -1,8 +1,8 @@
 import { Effect } from 'effect';
-import { Case, CaseCreated, ValidationError } from '@dykstra/domain';
+import { Case, CaseCreated, type ValidationError } from '@dykstra/domain';
 import type { CaseType } from '@dykstra/shared';
-import { CaseRepository, PersistenceError } from '../ports/case-repository';
-import { EventPublisher, EventPublishError } from '../ports/event-publisher';
+import { CaseRepository, type PersistenceError } from '../ports/case-repository';
+import { EventPublisher, type EventPublishError } from '../ports/event-publisher';
 
 /**
  * Create Case command

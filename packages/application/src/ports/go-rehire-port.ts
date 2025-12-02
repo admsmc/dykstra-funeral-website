@@ -5,7 +5,7 @@
  * Split from GoHCMCommonPort to follow Interface Segregation Principle.
  */
 
-import { Effect, Context } from 'effect';
+import { type Effect, Context } from 'effect';
 import { NetworkError } from './go-contract-port';
 import type { GoEmployee } from './go-employee-onboarding-port';
 

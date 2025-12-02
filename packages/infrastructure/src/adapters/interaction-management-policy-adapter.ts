@@ -13,16 +13,14 @@ export const InteractionManagementPolicyAdapter: InteractionManagementPolicyRepo
     Effect.tryPromise({
       try: async () => {
         const policy = await prisma.interactionManagementPolicy.findFirst({
-          where: {
-            funeralHomeId,
-            isCurrent: true,
-          },
+          where: { funeralHomeId, isCurrent: true },
         });
 
         if (!policy) {
           throw new NotFoundError({
             message: `No active policy found for funeral home: ${funeralHomeId}`,
             entityType: 'InteractionManagementPolicy',
+            entityId: funeralHomeId,
           });
         }
 
@@ -30,10 +28,7 @@ export const InteractionManagementPolicyAdapter: InteractionManagementPolicyRepo
       },
       catch: (error) => {
         if (error instanceof NotFoundError) return error;
-        return new PersistenceError({
-          message: 'Failed to find policy by funeral home',
-          originalError: error,
-        });
+        return new PersistenceError('Failed to find policy by funeral home', error);
       },
     }),
 
@@ -41,16 +36,14 @@ export const InteractionManagementPolicyAdapter: InteractionManagementPolicyRepo
     Effect.tryPromise({
       try: async () => {
         const policy = await prisma.interactionManagementPolicy.findFirst({
-          where: {
-            businessKey,
-            isCurrent: true,
-          },
+          where: { businessKey, isCurrent: true },
         });
 
         if (!policy) {
           throw new NotFoundError({
             message: `No policy found with business key: ${businessKey}`,
             entityType: 'InteractionManagementPolicy',
+            entityId: businessKey,
           });
         }
 
@@ -58,10 +51,7 @@ export const InteractionManagementPolicyAdapter: InteractionManagementPolicyRepo
       },
       catch: (error) => {
         if (error instanceof NotFoundError) return error;
-        return new PersistenceError({
-          message: 'Failed to find policy by business key',
-          originalError: error,
-        });
+        return new PersistenceError('Failed to find policy by business key', error);
       },
     }),
 
@@ -72,14 +62,9 @@ export const InteractionManagementPolicyAdapter: InteractionManagementPolicyRepo
           where: { businessKey },
           orderBy: { version: 'asc' },
         });
-
         return policies.map(mapToDomain);
       },
-      catch: (error) =>
-        new PersistenceError({
-          message: 'Failed to find policy versions',
-          originalError: error,
-        }),
+      catch: (error) => new PersistenceError('Failed to find policy versions', error),
     }),
 
   findAll: () =>
@@ -89,14 +74,9 @@ export const InteractionManagementPolicyAdapter: InteractionManagementPolicyRepo
           where: { isCurrent: true },
           orderBy: { createdAt: 'desc' },
         });
-
         return policies.map(mapToDomain);
       },
-      catch: (error) =>
-        new PersistenceError({
-          message: 'Failed to find all policies',
-          originalError: error,
-        }),
+      catch: (error) => new PersistenceError('Failed to find all policies', error),
     }),
 
   save: (policy: InteractionManagementPolicy) =>
@@ -128,30 +108,17 @@ export const InteractionManagementPolicyAdapter: InteractionManagementPolicyRepo
           },
         });
       },
-      catch: (error) =>
-        new PersistenceError({
-          message: 'Failed to save policy',
-          originalError: error,
-        }),
+      catch: (error) => new PersistenceError('Failed to save policy', error),
     }),
 
   update: (policy: InteractionManagementPolicy) =>
     Effect.tryPromise({
       try: async () => {
-        // Close previous version
         await prisma.interactionManagementPolicy.updateMany({
-          where: {
-            businessKey: policy.businessKey,
-            isCurrent: true,
-            id: { not: policy.id },
-          },
-          data: {
-            isCurrent: false,
-            validTo: new Date(),
-          },
+          where: { businessKey: policy.businessKey, isCurrent: true, id: { not: policy.id } },
+          data: { isCurrent: false, validTo: new Date() },
         });
 
-        // Save new version
         const updated = await prisma.interactionManagementPolicy.upsert({
           where: { id: policy.id },
           create: {
@@ -194,44 +161,31 @@ export const InteractionManagementPolicyAdapter: InteractionManagementPolicyRepo
 
         return mapToDomain(updated);
       },
-      catch: (error) =>
-        new PersistenceError({
-          message: 'Failed to update policy',
-          originalError: error,
-        }),
+      catch: (error) => new PersistenceError('Failed to update policy', error),
     }),
 
   delete: (id: string) =>
     Effect.tryPromise({
       try: async () => {
-        const policy = await prisma.interactionManagementPolicy.findUnique({
-          where: { id },
-        });
+        const policy = await prisma.interactionManagementPolicy.findUnique({ where: { id } });
 
         if (!policy) {
           throw new NotFoundError({
             message: `Policy not found: ${id}`,
             entityType: 'InteractionManagementPolicy',
+            entityId: id,
           });
         }
 
-        await prisma.interactionManagementPolicy.delete({
-          where: { id },
-        });
+        await prisma.interactionManagementPolicy.delete({ where: { id } });
       },
       catch: (error) => {
         if (error instanceof NotFoundError) return error;
-        return new PersistenceError({
-          message: 'Failed to delete policy',
-          originalError: error,
-        });
+        return new PersistenceError('Failed to delete policy', error);
       },
     }),
 };
 
-/**
- * Map Prisma record to domain entity
- */
 function mapToDomain(record: any): InteractionManagementPolicy {
   return new InteractionManagementPolicy({
     id: record.id,

@@ -1,16 +1,17 @@
 import { Effect } from 'effect';
 import {
+  type AppointmentId,
   AppointmentCancellationError,
-  AppointmentError,
+  type AppointmentError,
 } from '@dykstra/domain';
 import type { PrePlanningAppointmentRepository } from '../../ports/pre-planning-appointment-repository';
 import {
   PrePlanningAppointmentRepositoryTag,
-  RepositoryError,
-  AppointmentNotFoundError,
+  type RepositoryError,
+  type AppointmentNotFoundError,
 } from '../../ports/pre-planning-appointment-repository';
 import type { EmailService } from '../../ports/email-service-port';
-import { EmailServiceTag, EmailServiceError } from '../../ports/email-service-port';
+import { EmailServiceTag, type EmailServiceError } from '../../ports/email-service-port';
 
 /**
  * Cancel Appointment Use Case
@@ -87,7 +88,7 @@ export const cancelAppointment = (
     const emailService = yield* EmailServiceTag;
 
     // Find the appointment
-    const appointment = yield* repository.findById(command.appointmentId as any);
+    const appointment = yield* repository.findById(command.appointmentId as AppointmentId);
 
     // Check if appointment can be cancelled (24-hour rule)
     if (!appointment.canBeCancelled()) {

@@ -27,8 +27,8 @@ import { Effect, Context } from 'effect';
 import type {
   GoFinancialPortService,
 } from '@dykstra/application';
-import { ValidationError, NotFoundError } from '@dykstra/domain';
-import { NetworkError } from '../../ports/go-contract-port';
+import { ValidationError, type NotFoundError } from '@dykstra/domain';
+import { type NetworkError } from '../../ports/go-contract-port';
 
 /**
  * Command to process a refund

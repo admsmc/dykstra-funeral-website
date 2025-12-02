@@ -5,7 +5,7 @@ import {
   type GoSchedulingPortService, 
   type AssignOnCallCommand,
   type GoOnCallAssignment,
-  NetworkError 
+  type NetworkError 
 } from '../../ports/go-scheduling-port';
 
 /**
@@ -360,7 +360,7 @@ export const countConsecutiveWeekends = (
 
     // Count consecutive weekends working backwards from proposed date
     let consecutiveWeekends = 1; // Count the proposed assignment
-    let currentWeekStart = new Date(proposedStartTime);
+    const currentWeekStart = new Date(proposedStartTime);
     currentWeekStart.setDate(currentWeekStart.getDate() - 7); // Previous week
 
     for (const assignment of weekendAssignments.reverse()) {
