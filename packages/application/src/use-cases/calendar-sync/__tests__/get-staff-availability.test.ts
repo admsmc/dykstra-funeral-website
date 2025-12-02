@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { Effect } from 'effect';
+import { Effect, Layer } from 'effect';
 import { getStaffAvailability, type GetStaffAvailabilityCommand } from '../get-staff-availability';
-import { type CalendarSyncServicePort, type AvailabilitySlot } from '../../../ports/calendar-sync-port';
-import { type EmailCalendarSyncPolicyRepositoryService } from '../../../ports/email-calendar-sync-policy-repository';
+import { CalendarSyncPort, type CalendarSyncServicePort, type AvailabilitySlot } from '../../../ports/calendar-sync-port';
+import { EmailCalendarSyncPolicyRepository, type EmailCalendarSyncPolicyRepositoryService } from '../../../ports/email-calendar-sync-policy-repository';
 import { type EmailCalendarSyncPolicy } from '../../../../domain/src/entities/email-sync/email-calendar-sync-policy';
 
 const createMockPolicy = (overrides?: Partial<EmailCalendarSyncPolicy>): EmailCalendarSyncPolicy => ({
@@ -59,11 +59,12 @@ describe('Get Staff Availability - Policy-Driven', () => {
     };
 
     mockPolicyRepo = {
-      findByFuneralHome: () => Effect.succeed(createMockPolicy()),
+      findCurrentByFuneralHomeId: () => Effect.succeed(createMockPolicy()),
+      findAllVersionsByFuneralHomeId: () => Effect.succeed([createMockPolicy()]),
       findById: () => Effect.succeed(createMockPolicy()),
       create: () => Effect.succeed(createMockPolicy()),
       update: () => Effect.succeed(createMockPolicy()),
-      delete: () => Effect.succeed(void 0),
+      listCurrentPolicies: () => Effect.succeed([createMockPolicy()]),
     };
   });
 
@@ -88,14 +89,13 @@ describe('Get Staff Availability - Policy-Driven', () => {
         funeralHomeId: 'home-1',
       };
 
+      const layer = Layer.mergeAll(
+        Layer.succeed(CalendarSyncPort, mockCalendarSync),
+        Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
+      );
+
       const result = await Effect.runPromise(
-        Effect.provide(
-          getStaffAvailability(command),
-          Effect.mergeContexts(
-            Effect.contextFromEnvironment(() => mockCalendarSync),
-            Effect.contextFromEnvironment(() => mockPolicyRepo)
-          )
-        )
+        getStaffAvailability(command).pipe(Effect.provide(layer))
       );
 
       // Should have slots for each working day (Mon-Fri)
@@ -138,14 +138,13 @@ describe('Get Staff Availability - Policy-Driven', () => {
         funeralHomeId: 'home-1',
       };
 
+      const layer = Layer.mergeAll(
+        Layer.succeed(CalendarSyncPort, mockCalendarSync),
+        Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
+      );
+
       const result = await Effect.runPromise(
-        Effect.provide(
-          getStaffAvailability(command),
-          Effect.mergeContexts(
-            Effect.contextFromEnvironment(() => mockCalendarSync),
-            Effect.contextFromEnvironment(() => mockPolicyRepo)
-          )
-        )
+        getStaffAvailability(command).pipe(Effect.provide(layer))
       );
 
       // Should have morning slot (9:00 to 9:45) and afternoon slot (11:15 to 17:00)
@@ -196,14 +195,13 @@ describe('Get Staff Availability - Policy-Driven', () => {
         funeralHomeId: 'home-1',
       };
 
+      const strictLayer = Layer.mergeAll(
+        Layer.succeed(CalendarSyncPort, mockCalendarSync),
+        Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
+      );
+
       const strictResult = await Effect.runPromise(
-        Effect.provide(
-          getStaffAvailability(strictCommand),
-          Effect.mergeContexts(
-            Effect.contextFromEnvironment(() => mockCalendarSync),
-            Effect.contextFromEnvironment(() => mockPolicyRepo)
-          )
-        )
+        getStaffAvailability(strictCommand).pipe(Effect.provide(strictLayer))
       );
 
       // Test Permissive policy
@@ -216,14 +214,13 @@ describe('Get Staff Availability - Policy-Driven', () => {
         funeralHomeId: 'home-1',
       };
 
+      const permLayer = Layer.mergeAll(
+        Layer.succeed(CalendarSyncPort, mockCalendarSync),
+        Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
+      );
+
       const permResult = await Effect.runPromise(
-        Effect.provide(
-          getStaffAvailability(permCommand),
-          Effect.mergeContexts(
-            Effect.contextFromEnvironment(() => mockCalendarSync),
-            Effect.contextFromEnvironment(() => mockPolicyRepo)
-          )
-        )
+        getStaffAvailability(permCommand).pipe(Effect.provide(permLayer))
       );
 
       // Permissive should have more total free time (smaller buffer)
@@ -254,14 +251,13 @@ describe('Get Staff Availability - Policy-Driven', () => {
         funeralHomeId: 'home-1',
       };
 
+      const layer = Layer.mergeAll(
+        Layer.succeed(CalendarSyncPort, mockCalendarSync),
+        Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
+      );
+
       const result = await Effect.runPromise(
-        Effect.provide(
-          getStaffAvailability(command),
-          Effect.mergeContexts(
-            Effect.contextFromEnvironment(() => mockCalendarSync),
-            Effect.contextFromEnvironment(() => mockPolicyRepo)
-          )
-        )
+        getStaffAvailability(command).pipe(Effect.provide(layer))
       );
 
       // All results should be within 7 days
@@ -290,14 +286,13 @@ describe('Get Staff Availability - Policy-Driven', () => {
         funeralHomeId: 'home-1',
       };
 
+      const layer = Layer.mergeAll(
+        Layer.succeed(CalendarSyncPort, mockCalendarSync),
+        Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
+      );
+
       const result = await Effect.runPromise(
-        Effect.provide(
-          getStaffAvailability(command),
-          Effect.mergeContexts(
-            Effect.contextFromEnvironment(() => mockCalendarSync),
-            Effect.contextFromEnvironment(() => mockPolicyRepo)
-          )
-        )
+        getStaffAvailability(command).pipe(Effect.provide(layer))
       );
 
       // Should not exceed requested end date
@@ -325,14 +320,13 @@ describe('Get Staff Availability - Policy-Driven', () => {
         funeralHomeId: 'home-1',
       };
 
+      const layer = Layer.mergeAll(
+        Layer.succeed(CalendarSyncPort, mockCalendarSync),
+        Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
+      );
+
       const result = await Effect.runPromise(
-        Effect.provide(
-          getStaffAvailability(command),
-          Effect.mergeContexts(
-            Effect.contextFromEnvironment(() => mockCalendarSync),
-            Effect.contextFromEnvironment(() => mockPolicyRepo)
-          )
-        )
+        getStaffAvailability(command).pipe(Effect.provide(layer))
       );
 
       // All slots should be between 9 and 17
@@ -362,14 +356,13 @@ describe('Get Staff Availability - Policy-Driven', () => {
         funeralHomeId: 'home-1',
       };
 
+      const layer = Layer.mergeAll(
+        Layer.succeed(CalendarSyncPort, mockCalendarSync),
+        Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
+      );
+
       const result = await Effect.runPromise(
-        Effect.provide(
-          getStaffAvailability(command),
-          Effect.mergeContexts(
-            Effect.contextFromEnvironment(() => mockCalendarSync),
-            Effect.contextFromEnvironment(() => mockPolicyRepo)
-          )
-        )
+        getStaffAvailability(command).pipe(Effect.provide(layer))
       );
 
       // Should have slots from 8-18 (not 7-19)
@@ -412,14 +405,13 @@ describe('Get Staff Availability - Policy-Driven', () => {
         funeralHomeId: 'home-1',
       };
 
+      const layer = Layer.mergeAll(
+        Layer.succeed(CalendarSyncPort, mockCalendarSync),
+        Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
+      );
+
       const result = await Effect.runPromise(
-        Effect.provide(
-          getStaffAvailability(command),
-          Effect.mergeContexts(
-            Effect.contextFromEnvironment(() => mockCalendarSync),
-            Effect.contextFromEnvironment(() => mockPolicyRepo)
-          )
-        )
+        getStaffAvailability(command).pipe(Effect.provide(layer))
       );
 
       // Should have 3 free slots: before first meeting, between meetings, after second meeting
@@ -459,14 +451,13 @@ describe('Get Staff Availability - Policy-Driven', () => {
         funeralHomeId: 'home-1',
       };
 
+      const layer = Layer.mergeAll(
+        Layer.succeed(CalendarSyncPort, mockCalendarSync),
+        Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
+      );
+
       const result = await Effect.runPromise(
-        Effect.provide(
-          getStaffAvailability(command),
-          Effect.mergeContexts(
-            Effect.contextFromEnvironment(() => mockCalendarSync),
-            Effect.contextFromEnvironment(() => mockPolicyRepo)
-          )
-        )
+        getStaffAvailability(command).pipe(Effect.provide(layer))
       );
 
       // Should treat overlapping meetings as single busy block
@@ -488,14 +479,13 @@ describe('Get Staff Availability - Policy-Driven', () => {
         funeralHomeId: 'home-1',
       };
 
+      const layer = Layer.mergeAll(
+        Layer.succeed(CalendarSyncPort, mockCalendarSync),
+        Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
+      );
+
       const result = await Effect.runPromise(
-        Effect.provide(
-          getStaffAvailability(command),
-          Effect.mergeContexts(
-            Effect.contextFromEnvironment(() => mockCalendarSync),
-            Effect.contextFromEnvironment(() => mockPolicyRepo)
-          )
-        )
+        getStaffAvailability(command).pipe(Effect.provide(layer))
       );
 
       expect(result).toEqual(expect.any(Array));
@@ -514,14 +504,13 @@ describe('Get Staff Availability - Policy-Driven', () => {
         funeralHomeId: 'home-1',
       };
 
+      const layer = Layer.mergeAll(
+        Layer.succeed(CalendarSyncPort, mockCalendarSync),
+        Layer.succeed(EmailCalendarSyncPolicyRepository, mockPolicyRepo)
+      );
+
       const result = await Effect.runPromise(
-        Effect.provide(
-          getStaffAvailability(command),
-          Effect.mergeContexts(
-            Effect.contextFromEnvironment(() => mockCalendarSync),
-            Effect.contextFromEnvironment(() => mockPolicyRepo)
-          )
-        )
+        getStaffAvailability(command).pipe(Effect.provide(layer))
       );
 
       expect(result).toEqual(expect.any(Array));
