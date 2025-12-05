@@ -39,6 +39,7 @@ async function loadGraphClient() {
  * Initialize Microsoft Graph client for a user
  */
 // Function reserved for production use
+// @ts-expect-error - Stub function reserved for production implementation
 async function _getGraphClient(_userId: string) {
   const sdk = await loadGraphClient();
   if (!sdk) {

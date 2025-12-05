@@ -36,6 +36,7 @@ async function loadGoogleCalendar() {
  * Initialize Google Calendar client for a user
  */
 // Function reserved for production use
+// @ts-expect-error - Stub function reserved for production implementation
 async function _getCalendarClient(_userId: string) {
   const google = await loadGoogleCalendar();
   if (!google) {
