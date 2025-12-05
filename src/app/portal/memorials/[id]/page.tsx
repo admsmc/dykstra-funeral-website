@@ -102,7 +102,7 @@ export default function MemorialPage() {
       toast({
         title: 'Error',
         description: 'Failed to submit tribute. Please try again.',
-        variant: 'destructive',
+        variant: 'error',
       });
     }
   });
@@ -127,7 +127,7 @@ export default function MemorialPage() {
       toast({
         title: 'Error',
         description: 'Failed to sign guestbook. Please try again.',
-        variant: 'destructive',
+        variant: 'error',
       });
     }
   });

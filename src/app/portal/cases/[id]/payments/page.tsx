@@ -70,7 +70,7 @@ export default function PaymentsPage() {
     caseId,
   });
 
-  const { data: currentCase } = trpc.case.getById.useQuery({ id: caseId });
+  const { data: currentCase } = trpc.case.getDetails.useQuery({ caseId });
 
   // Mutations
   const processACHMutation = trpc.payment.processACH.useMutation();
@@ -300,8 +300,8 @@ export default function PaymentsPage() {
           <h1 className="text-3xl font-serif font-bold text-[--navy]">Payments</h1>
           {currentCase && (
             <p className="mt-1 text-gray-600">
-              {currentCase.decedentFirstName} {currentCase.decedentLastName} • Case #
-              {currentCase.caseNumber}
+              {currentCase.case.decedentName} • Case #
+              {currentCase.case.id}
             </p>
           )}
         </div>

@@ -8,49 +8,43 @@ import { ErrorBoundary, PageErrorFallback } from "@/components/error";
 import { Upload, Download, FileText, AlertCircle, Loader2 } from "lucide-react";
 
 type DocumentType =
-  | "contract"
-  | "death_certificate"
-  | "service_program"
-  | "insurance_document"
-  | "receipt"
-  | "other";
-
-type DocumentStatus = "active" | "archived" | "deleted";
+  | "Contract"
+  | "Death Certificate"
+  | "Photo"
+  | "Invoice"
+  | "Permit"
+  | "Other";
 
 interface Document {
   id: string;
-  caseId: string;
-  type: DocumentType;
   name: string;
+  category: DocumentType;
+  tags: string[];
+  uploadedBy: string;
+  uploadedAt: Date;
+  size: number;
   url: string;
-  fileSize: number;
-  mimeType: string;
-  status: DocumentStatus;
-  uploadedBy: {
-    id: string;
-    firstName: string;
-    lastName: string;
-  };
-  createdAt: string;
-  updatedAt: string;
+  caseId?: string;
+  isPublic: boolean;
+  fileType: string;
 }
 
 const DOCUMENT_TYPE_LABELS: Record<DocumentType, string> = {
-  contract: "Contracts & Agreements",
-  death_certificate: "Death Certificates",
-  service_program: "Service Programs",
-  insurance_document: "Insurance Documents",
-  receipt: "Receipts & Invoices",
-  other: "Other Documents",
+  "Contract": "Contracts & Agreements",
+  "Death Certificate": "Death Certificates",
+  "Photo": "Photos",
+  "Invoice": "Invoices",
+  "Permit": "Permits",
+  "Other": "Other Documents",
 };
 
 const DOCUMENT_TYPE_ORDER: DocumentType[] = [
-  "contract",
-  "death_certificate",
-  "service_program",
-  "insurance_document",
-  "receipt",
-  "other",
+  "Contract",
+  "Death Certificate",
+  "Photo",
+  "Invoice",
+  "Permit",
+  "Other",
 ];
 
 const ACCEPTED_FILE_TYPES = [
@@ -130,7 +124,7 @@ function DocumentsPageContent() {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploadDocumentName, setUploadDocumentName] = useState("");
-  const [uploadDocumentType, setUploadDocumentType] = useState<DocumentType>("other");
+  const [uploadDocumentType, setUploadDocumentType] = useState<DocumentType>("Other");
   const [isUploading, setIsUploading] = useState(false);
 
   // tRPC queries and mutations
@@ -143,15 +137,16 @@ function DocumentsPageContent() {
   const { data: currentCase } = trpc.case.getDetails.useQuery({ caseId });
   const { data: currentUser } = trpc.user.getProfile.useQuery();
 
-  const documents = documentsData?.documents ?? [];
+  const documents = (documentsData?.documents ?? []) as Document[];
   const isFuneralDirector = currentUser?.role === "funeral_director";
 
-  // Group documents by type
+  // Group documents by category
   const documentsByType = documents.reduce((acc, doc) => {
-    if (!acc[doc.type]) {
-      acc[doc.type] = [];
+    const docType = doc.category as DocumentType;
+    if (!acc[docType]) {
+      acc[docType] = [];
     }
-    acc[doc.type].push(doc);
+    acc[docType].push(doc);
     return acc;
   }, {} as Record<DocumentType, Document[]>);
 
@@ -257,7 +252,7 @@ function DocumentsPageContent() {
       // Reset form
       setUploadFile(null);
       setUploadDocumentName("");
-      setUploadDocumentType("other");
+      setUploadDocumentType("Other");
       setIsUploadModalOpen(false);
       
       // Refresh documents list
@@ -282,8 +277,7 @@ function DocumentsPageContent() {
               </h1>
               {currentCase && (
                 <p className="mt-1 text-gray-600">
-                  {currentCase.decedentFirstName} {currentCase.decedentLastName} •{" "}
-                  Case #{currentCase.caseNumber}
+                  {currentCase.case.decedentName} • Case #{currentCase.case.id}
                 </p>
               )}
             </div>
@@ -386,7 +380,7 @@ function DocumentsPageContent() {
                       >
                         <div className="flex items-start gap-4">
                           {/* File Icon */}
-                          {getFileIcon(doc.mimeType)}
+                          {getFileIcon(doc.fileType)}
 
                           {/* Document Info */}
                           <div className="flex-1 min-w-0">
@@ -394,17 +388,16 @@ function DocumentsPageContent() {
                               {doc.name}
                             </h3>
                             <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-600">
-                              <span>{formatFileSize(doc.fileSize)}</span>
+                              <span>{formatFileSize(doc.size)}</span>
                               <span>•</span>
                               <span>{getFileExtension(doc.name)}</span>
                               <span>•</span>
                               <span>
-                                Uploaded by {doc.uploadedBy.firstName}{" "}
-                                {doc.uploadedBy.lastName}
+                                Uploaded by {doc.uploadedBy}
                               </span>
                               <span>•</span>
                               <span>
-                                {new Date(doc.createdAt).toLocaleDateString("en-US", {
+                                {new Date(doc.uploadedAt).toLocaleDateString("en-US", {
                                   month: "short",
                                   day: "numeric",
                                   year: "numeric",
@@ -516,7 +509,7 @@ function DocumentsPageContent() {
                   setIsUploadModalOpen(false);
                   setUploadFile(null);
                   setUploadDocumentName("");
-                  setUploadDocumentType("other");
+                  setUploadDocumentType("Other");
                 }}
                 disabled={isUploading}
                 className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
