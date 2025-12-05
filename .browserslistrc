@@ -1,0 +1,11 @@
+# Browsers that we support
+# Modern browsers with ES2017+ support
+
+# Production
+> 0.5%
+last 2 versions
+not dead
+not ie 11
+
+# Development
+not op_mini all

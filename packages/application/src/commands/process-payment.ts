@@ -2,7 +2,7 @@ import { Effect } from 'effect';
 import { Payment, PaymentReceived, type ValidationError, type NotFoundError, type BusinessRuleViolationError, type InvalidStateTransitionError } from '@dykstra/domain';
 import type { PaymentMethod } from '@dykstra/shared';
 import { PaymentRepository, type PersistenceError } from '../ports/payment-repository';
-import { PaymentPort, type PaymentProcessingError } from '../ports/payment-port';
+import { PaymentPort, type PaymentPortService, type PaymentProcessingError } from '../ports/payment-port';
 import { EventPublisher, type EventPublishError } from '../ports/event-publisher';
 
 /**
@@ -33,7 +33,7 @@ export const processPayment = (
 ): Effect.Effect<
   { payment: Payment; clientSecret: string },
   ValidationError | PersistenceError | PaymentProcessingError | EventPublishError,
-  PaymentRepository | PaymentPort | EventPublisher
+  PaymentRepository | PaymentPortService | EventPublisher
 > =>
   Effect.gen(function* (_) {
     // Get dependencies

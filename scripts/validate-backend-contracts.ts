@@ -53,16 +53,28 @@ function extractPortMethods(portFile: string): PortMethod[] {
   const content = fs.readFileSync(portFile, 'utf-8');
   const methods: PortMethod[] = [];
   
-  // Match interface definitions
-  const interfaceRegex = /export interface (\w+PortService) \{([^}]+)\}/gs;
-  const matches = content.matchAll(interfaceRegex);
+  // Find interface start
+  const interfaceStartRegex = /export interface (\w+PortService)\s*\{/g;
+  const matches = [...content.matchAll(interfaceStartRegex)];
   
   for (const match of matches) {
     const interfaceName = match[1];
-    const interfaceBody = match[2];
+    const startIndex = match.index! + match[0].length;
+    
+    // Find matching closing brace by counting braces
+    let braceCount = 1;
+    let endIndex = startIndex;
+    
+    while (braceCount > 0 && endIndex < content.length) {
+      if (content[endIndex] === '{') braceCount++;
+      if (content[endIndex] === '}') braceCount--;
+      endIndex++;
+    }
+    
+    const interfaceBody = content.slice(startIndex, endIndex - 1);
     
     // Extract method signatures
-    const methodRegex = /readonly (\w+):\s*\([^)]*\)\s*=>/g;
+    const methodRegex = /readonly\s+(\w+):\s*\([^)]*\)\s*=>/g;
     const methodMatches = interfaceBody.matchAll(methodRegex);
     
     for (const methodMatch of methodMatches) {

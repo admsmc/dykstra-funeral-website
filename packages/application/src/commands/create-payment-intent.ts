@@ -1,6 +1,6 @@
 import { Effect } from "effect";
 import { ValidationError, type NotFoundError } from "../errors";
-import { PaymentPort, type PaymentProcessingError } from '../ports/payment-port';
+import { PaymentPort, type PaymentPortService, type PaymentProcessingError } from '../ports/payment-port';
 import { CaseRepository, type PersistenceError } from '../ports/case-repository';
 
 interface CreatePaymentIntentInput {
@@ -31,7 +31,7 @@ export const createPaymentIntent = ({
 }: CreatePaymentIntentInput): Effect.Effect<
   CreatePaymentIntentResult,
   ValidationError | NotFoundError | PaymentProcessingError | PersistenceError,
-  PaymentPort | CaseRepository
+  PaymentPortService | CaseRepository
 > =>
   Effect.gen(function* (_) {
     // Validate amount

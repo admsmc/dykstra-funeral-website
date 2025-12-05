@@ -5,6 +5,8 @@
 ## Table of Contents
 - [Overview](#overview)
 - [Layer Boundaries](#layer-boundaries)
+- [State Management](#state-management)
+- [Testing](#testing)
 - [Repository Pattern](#repository-pattern)
 - [SCD2 Temporal Pattern](#scd2-temporal-pattern)
 - [Error Handling](#error-handling)
@@ -231,6 +233,441 @@ export const caseRouter = router({
       );
     }),
 });
+```
+
+---
+
+## State Management
+
+**Critical Rule**: **NEVER store backend data in Zustand stores.**
+
+### Two-Layer State Management
+
+This application uses two distinct state management systems:
+
+```
+┌─────────────────────────────────────────────────────┐
+│  Client State (Zustand)         Server State (tRPC) │
+│  • UI preferences               • Cases             │
+│  • Workflow position            • Payments          │
+│  • Drag-and-drop state          • Shifts            │
+│  • Optimistic placeholders      • Contracts         │
+│                                 • ALL backend data  │
+└─────────────────────────────────────────────────────┘
+```
+
+### 1. Server State (tRPC + React Query) - Primary Source of Truth
+
+**Purpose**: ALL backend data
+
+**Rules**:
+- ✅ Use tRPC queries for ALL backend data
+- ✅ Automatic caching via React Query
+- ✅ Automatic cache invalidation on mutations
+- ✅ Background refetching
+- ❌ NEVER duplicate this data in Zustand
+
+**Example**:
+```typescript
+// ✅ CORRECT: Backend data from tRPC
+function PaymentList({ caseId }: { caseId: string }) {
+  const { data: payments } = trpc.payment.list.useQuery({ caseId });
+  
+  return <PaymentTable data={payments} />;
+}
+```
+
+### 2. Client State (Zustand) - UI-Only State
+
+**Purpose**: Transient UI state that doesn't need backend persistence
+
+**Rules**:
+- ✅ User preferences (theme, sidebar state)
+- ✅ UI state (modals, tooltips, drag-and-drop)
+- ✅ Workflow position (current step in wizard)
+- ✅ Temporary optimistic placeholders
+- ❌ NEVER store backend entities
+- ❌ NEVER store lists of data from backend
+
+### Zustand Store Patterns
+
+#### Pattern 1: Pure Client State ✅
+**Use Case**: Settings, preferences, UI state
+
+```typescript
+// ✅ CORRECT: Pure client state
+interface PreferencesState {
+  theme: 'light' | 'dark' | 'system';
+  sidebarCollapsed: boolean;
+  tablePageSize: number;
+  setTheme: (theme: Theme) => void;
+  toggleSidebar: () => void;
+}
+
+export const usePreferencesStore = createPersistedStore<PreferencesState>(
+  'preferences',
+  (set) => ({
+    theme: 'system',
+    sidebarCollapsed: false,
+    tablePageSize: 25,
+    setTheme: (theme) => set({ theme }),
+    toggleSidebar: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
+  })
+);
+```
+
+#### Pattern 2: Workflow UI State ✅
+**Use Case**: Multi-step forms, wizards
+
+```typescript
+// ✅ CORRECT: Workflow position only, no data
+interface CaseWorkflowState {
+  currentStep: WorkflowStep; // Which step user is on
+  completedSteps: Set<WorkflowStep>; // Progress tracking
+  stepValidations: Map<WorkflowStep, StepValidation>; // UI validation state
+  caseId: string | null; // Which case (NOT the case data itself)
+}
+
+// Usage - combine with tRPC
+function CaseCreationWizard() {
+  // Backend data from tRPC
+  const { data: draftCase } = trpc.case.getDraft.useQuery({ id });
+  const updateMutation = trpc.case.update.useMutation();
+  
+  // UI state from Zustand
+  const { currentStep, nextStep } = useCaseWorkflowStore();
+  
+  // Update backend via tRPC
+  const handleUpdate = (data) => updateMutation.mutate({ id, ...data });
+}
+```
+
+#### Pattern 3: Optimistic Updates ✅
+**Use Case**: Instant UI feedback during mutations
+
+```typescript
+// ✅ CORRECT: Only temporary optimistic state
+interface FinancialTransactionState {
+  optimisticTransactions: Map<string, OptimisticTransaction>; // Temporary only!
+  addOptimisticPayment: (payment: Payment) => string; // Returns temp ID
+  confirmPayment: (tempId: string) => void; // Remove after success
+  rollbackPayment: (tempId: string) => void; // Remove on error
+}
+
+// Usage - merge optimistic with real data
+function PaymentList({ caseId }: { caseId: string }) {
+  // PRIMARY: Real transactions from tRPC
+  const { data: transactions } = trpc.payment.list.useQuery({ caseId });
+  
+  // SECONDARY: Optimistic placeholders from Zustand
+  const { optimisticTransactions } = useFinancialTransactionSelectors();
+  
+  // Merge for display
+  const allTransactions = [...(transactions || []), ...optimisticTransactions];
+  
+  return <TransactionTable data={allTransactions} />;
+}
+```
+
+### Anti-Patterns ❌
+
+**❌ WRONG: Storing Backend Data in Zustand**
+```typescript
+// ❌ BAD - Don't do this!
+interface BadPaymentState {
+  payments: Payment[]; // ❌ Duplicates backend data!
+  cases: Case[]; // ❌ Gets out of sync!
+  addPayment: (payment: Payment) => void; // ❌ Manual sync!
+}
+```
+
+**Problems**:
+- Data gets stale (no auto-refetch)
+- Manual cache invalidation is error-prone
+- Duplicates what tRPC + React Query already does
+- Complex synchronization logic
+
+**✅ CORRECT: Use tRPC Instead**
+```typescript
+// ✅ Good - Let tRPC handle it
+function PaymentList() {
+  const { data: payments } = trpc.payment.list.useQuery();
+  const addMutation = trpc.payment.create.useMutation({
+    onSuccess: () => {
+      // tRPC automatically invalidates and refetches!
+    }
+  });
+}
+```
+
+### Quick Decision Guide
+
+**Store in Zustand if**:
+- ✅ It's UI-only state (theme, sidebar, modals)
+- ✅ It's workflow position (current step)
+- ✅ It's temporary (optimistic placeholders)
+- ✅ It doesn't need backend persistence
+
+**Use tRPC if**:
+- ✅ It's backend data (cases, payments, shifts)
+- ✅ It needs to sync across tabs/devices
+- ✅ It needs to persist to database
+- ✅ Multiple users need to see it
+
+**See Also**: [ZUSTAND_TRPC_INTEGRATION.md](./docs/ZUSTAND_TRPC_INTEGRATION.md) for detailed patterns and examples.
+
+---
+
+## Testing
+
+**Critical Rule**: **Frontend and backend tests are SEPARATE with different configurations.**
+
+### Two Testing Environments
+
+This application uses separate test setups for frontend and backend:
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│  Frontend Tests              Backend Tests                     │
+│  • Location: src/**          • Location: packages/**           │
+│  • Config: root vitest       • Config: per-package vitest     │
+│  • Environment: happy-dom    • Environment: node              │
+│  • Tools: React Testing      • Tools: Vitest only             │
+│    Library, MSW                                                │
+└────────────────────────────────────────────────────────────────┘
+```
+
+### Frontend Tests (Next.js App)
+
+**Location**: `src/**/*.{test,spec}.{ts,tsx}`
+
+**Configuration**: Root `vitest.config.ts` (uses happy-dom)
+
+**What to Test**:
+- ✅ React components (UI behavior)
+- ✅ Custom hooks (state logic)
+- ✅ Zustand stores (client state)
+- ✅ ViewModels (data transformation)
+- ✅ Integration with tRPC (using MSW mocks)
+
+**Commands**:
+```bash
+pnpm test:frontend          # Run once
+pnpm test:frontend:watch    # Watch mode
+pnpm test:frontend:ui       # Visual UI
+pnpm test:frontend:coverage # Coverage report
+```
+
+**Example Component Test**:
+```typescript
+import { render, screen, userEvent } from '@/test-utils';
+import { Button } from '@/components/Button';
+
+describe('Button', () => {
+  it('calls onClick when clicked', async () => {
+    const handleClick = vi.fn();
+    render(<Button onClick={handleClick}>Click me</Button>);
+    
+    await userEvent.click(screen.getByRole('button'));
+    expect(handleClick).toHaveBeenCalledOnce();
+  });
+});
+```
+
+**Example Store Test**:
+```typescript
+import { renderHook, act } from '@testing-library/react';
+import { usePreferencesStore } from '@/stores';
+
+describe('usePreferencesStore', () => {
+  it('sets theme correctly', () => {
+    const { result } = renderHook(() => usePreferencesStore());
+    
+    act(() => {
+      result.current.setTheme('dark');
+    });
+    
+    expect(result.current.theme).toBe('dark');
+  });
+});
+```
+
+**Example Integration Test with MSW**:
+```typescript
+import { render, screen, waitFor } from '@/test-utils';
+import { server } from '@/test-utils/msw-server';
+import { http, HttpResponse } from 'msw';
+
+describe('TemplateList', () => {
+  it('displays templates from API', async () => {
+    render(<TemplateList />);
+    
+    await waitFor(() => {
+      expect(screen.getByText('Classic Memorial Program')).toBeInTheDocument();
+    });
+  });
+  
+  it('displays error on API failure', async () => {
+    // Override MSW handler for this test
+    server.use(
+      http.get('/api/trpc/template.list', () => {
+        return HttpResponse.json({ error: 'Failed' }, { status: 500 });
+      })
+    );
+    
+    render(<TemplateList />);
+    
+    await waitFor(() => {
+      expect(screen.getByText(/error/i)).toBeInTheDocument();
+    });
+  });
+});
+```
+
+### Backend Tests (Clean Architecture Layers)
+
+**Location**: `packages/**/*.test.ts`
+
+**Configuration**: Per-package `vitest.config.ts` (uses node environment)
+
+**What to Test**:
+- ✅ Domain entities (business rules)
+- ✅ Use cases (orchestration)
+- ✅ Repositories (data access)
+- ✅ Adapters (external services)
+
+**Commands**:
+```bash
+pnpm test:backend           # Run all backend tests (via turbo)
+```
+
+**Example Domain Test** (`packages/domain/`):
+```typescript
+import { Case } from '@dykstra/domain';
+import { Effect } from 'effect';
+
+describe('Case entity', () => {
+  it('allows valid status transition', async () => {
+    const case_ = new Case({ status: 'inquiry', ...otherFields });
+    
+    const result = await Effect.runPromise(
+      case_.transitionStatus('active')
+    );
+    
+    expect(result.status).toBe('active');
+  });
+  
+  it('prevents invalid status transition', async () => {
+    const case_ = new Case({ status: 'completed', ...otherFields });
+    
+    await expect(
+      Effect.runPromise(case_.transitionStatus('inquiry'))
+    ).rejects.toThrow('InvalidStateTransitionError');
+  });
+});
+```
+
+**Example Use Case Test** (`packages/application/`):
+```typescript
+import { updateCaseStatus } from '@dykstra/application';
+import { Effect, Layer } from 'effect';
+
+describe('updateCaseStatus use case', () => {
+  it('updates case status successfully', async () => {
+    // Create mock repository layer
+    const mockRepo = Layer.succeed(CaseRepository, {
+      findByBusinessKey: () => Effect.succeed(mockCase),
+      update: () => Effect.succeed(undefined),
+    });
+    
+    const result = await Effect.runPromise(
+      updateCaseStatus({ businessKey: 'case-001', newStatus: 'active' })
+        .pipe(Effect.provide(mockRepo))
+    );
+    
+    expect(result.status).toBe('active');
+  });
+});
+```
+
+**Example Repository Test** (`packages/infrastructure/`):
+```typescript
+import { PrismaCaseRepository } from '@dykstra/infrastructure';
+import { Effect } from 'effect';
+
+describe('PrismaCaseRepository', () => {
+  it('finds case by ID', async () => {
+    const result = await Effect.runPromise(
+      PrismaCaseRepository.findById('case-001')
+    );
+    
+    expect(result.businessKey).toBe('case-001');
+    expect(result.status).toBe('active');
+  });
+});
+```
+
+### Test Utilities
+
+**Frontend Utilities** (`src/test-utils/`):
+- `render.tsx` - Custom render with React Query provider
+- `factories.ts` - Mock data generators
+- `msw-handlers.ts` - API mock handlers
+- `msw-server.ts` - MSW server instance
+- `setup.ts` - Global test setup
+
+**Usage**:
+```typescript
+import { render, screen, mockTemplate } from '@/test-utils';
+
+test('displays template', () => {
+  const template = mockTemplate({ name: 'Custom Name' });
+  render(<TemplateCard template={template} />);
+  expect(screen.getByText('Custom Name')).toBeInTheDocument();
+});
+```
+
+### Testing Best Practices
+
+**DO**:
+- ✅ Test behavior, not implementation
+- ✅ Use accessible queries (`getByRole`, `getByLabelText`)
+- ✅ Test user interactions (clicks, form submissions)
+- ✅ Test error states and edge cases
+- ✅ Keep tests simple and focused
+- ✅ Use MSW for API mocking (not fetch mocks)
+- ✅ Test domain logic with Effect-based tests
+
+**DON'T**:
+- ❌ Test implementation details (internal state)
+- ❌ Use snapshots excessively
+- ❌ Test third-party libraries
+- ❌ Make tests too complex
+- ❌ Ignore accessibility in tests
+- ❌ Mix frontend and backend test concerns
+
+### Running All Tests
+
+```bash
+# Run everything (frontend + backend)
+pnpm test
+
+# Or run separately
+pnpm test:frontend  # Only React/UI tests
+pnpm test:backend   # Only domain/use case/repository tests
+```
+
+### CI/CD Integration
+
+Both test suites should run in CI:
+```yaml
+# .github/workflows/test.yml
+steps:
+  - name: Test Frontend
+    run: pnpm test:frontend
+    
+  - name: Test Backend
+    run: pnpm test:backend
 ```
 
 ---

@@ -1,12 +1,19 @@
 'use client';
 
 import { trpc } from '@/lib/trpc/client';
-import { useState, use, Suspense } from 'react';
+import { Suspense } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { portalPaymentSchema, type PortalPaymentForm } from '@dykstra/domain/validation';
+import { Form } from '@/components/form';
+import { FormCurrencyInput, FormTextarea } from '@/components/form-fields';
 
 /**
  * Payment Form Page
+ * 
+ * Refactored with react-hook-form + domain validation schemas.
  * 
  * Stripe Integration Features:
  * - Secure payment processing
@@ -23,8 +30,14 @@ function PaymentFormContent() {
   const searchParams = useSearchParams();
   const caseId = searchParams.get('caseId');
   
-  const [amount, setAmount] = useState('');
-  const [notes, setNotes] = useState('');
+  // Initialize form with react-hook-form + domain validation
+  const form = useForm<PortalPaymentForm>({
+    resolver: zodResolver(portalPaymentSchema),
+    defaultValues: {
+      amount: 0,
+      notes: '',
+    },
+  });
 
   // Process payment mutation
   const processPayment = trpc.payment.processPayment.useMutation({
@@ -37,31 +50,29 @@ function PaymentFormContent() {
       // 5. Show success/receipt page
       console.log('Payment intent created:', data.clientSecret);
       alert('Payment flow would continue with Stripe Elements');
+      form.reset();
+    },
+    onError: (error) => {
+      form.setError('amount', { message: error.message });
     },
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!amount || parseFloat(amount) <= 0) {
-      alert('Please enter a valid amount');
-      return;
-    }
-
+  // Handle form submission (validation automatic via react-hook-form)
+  const onSubmit = form.handleSubmit((data) => {
     if (!caseId) {
       alert('Case ID is required');
       return;
     }
 
-    await processPayment.mutateAsync({
+    processPayment.mutate({
       id: crypto.randomUUID(),
       caseId,
-      amount: parseFloat(amount),
+      amount: data.amount,
       method: 'credit_card',
-      notes,
+      notes: data.notes,
       createdBy: 'current-user-id', // From auth context
     });
-  };
+  });
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -80,27 +91,19 @@ function PaymentFormContent() {
       </div>
 
       {/* Payment Form */}
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Amount */}
-        <section className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-2xl font-serif text-[--navy] mb-4">Payment Amount</h2>
-          <div>
-            <label htmlFor="amount" className="block text-sm font-medium text-[--charcoal] mb-2">
-              Amount ($)
-            </label>
-            <input
-              type="number"
-              id="amount"
-              value={amount}
-              onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setAmount(e.target.value)}
+      <Form {...form}>
+        <form onSubmit={onSubmit} className="space-y-6">
+          {/* Amount */}
+          <section className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-2xl font-serif text-[--navy] mb-4">Payment Amount</h2>
+            <FormCurrencyInput
+              name="amount"
+              label="Amount ($)"
               placeholder="0.00"
-              step="0.01"
-              min="0"
-              className="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[--sage]"
+              min={0.01}
               required
             />
-          </div>
-        </section>
+          </section>
 
         {/* Payment Method (Stripe Elements Placeholder) */}
         <section className="bg-white rounded-lg shadow-md p-6">
@@ -164,49 +167,51 @@ function PaymentFormContent() {
           </div>
         </section>
 
-        {/* Notes */}
-        <section className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-2xl font-serif text-[--navy] mb-4">Notes (Optional)</h2>
-          <textarea
-            value={notes}
-            onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setNotes(e.target.value)}
-            placeholder="Add any notes about this payment..."
-            rows={3}
-            className="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[--sage]"
-          />
-        </section>
+          {/* Notes */}
+          <section className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-2xl font-serif text-[--navy] mb-4">Notes (Optional)</h2>
+            <FormTextarea
+              name="notes"
+              label=""
+              placeholder="Add any notes about this payment..."
+              rows={3}
+              maxLength={2000}
+              showCharacterCount
+            />
+          </section>
 
-        {/* Security Notice */}
-        <div className="bg-[--cream] border-l-4 border-[--gold] p-4 rounded">
-          <div className="flex gap-3">
-            <span className="text-2xl">🔒</span>
-            <div>
-              <p className="font-medium text-[--navy]">Secure Payment Processing</p>
-              <p className="text-sm text-[--charcoal]">
-                All payments are processed securely through Stripe. We never store your 
-                card information.
-              </p>
+          {/* Security Notice */}
+          <div className="bg-[--cream] border-l-4 border-[--gold] p-4 rounded">
+            <div className="flex gap-3">
+              <span className="text-2xl">🔒</span>
+              <div>
+                <p className="font-medium text-[--navy]">Secure Payment Processing</p>
+                <p className="text-sm text-[--charcoal]">
+                  All payments are processed securely through Stripe. We never store your 
+                  card information.
+                </p>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Submit */}
-        <div className="flex gap-4 justify-end">
-          <Link
-            href={`/portal/cases/${caseId}`}
-            className="px-6 py-3 border border-[--navy] text-[--navy] rounded hover:bg-[--cream] transition"
-          >
-            Cancel
-          </Link>
-          <button
-            type="submit"
-            disabled={processPayment.isPending}
-            className="px-6 py-3 bg-[--sage] text-white rounded hover:bg-[--navy] transition disabled:bg-gray-300 disabled:cursor-not-allowed"
-          >
-            {processPayment.isPending ? 'Processing...' : 'Process Payment'}
-          </button>
-        </div>
-      </form>
+          {/* Submit */}
+          <div className="flex gap-4 justify-end">
+            <Link
+              href={`/portal/cases/${caseId}`}
+              className="px-6 py-3 border border-[--navy] text-[--navy] rounded hover:bg-[--cream] transition"
+            >
+              Cancel
+            </Link>
+            <button
+              type="submit"
+              disabled={processPayment.isPending}
+              className="px-6 py-3 bg-[--sage] text-white rounded hover:bg-[--navy] transition disabled:bg-gray-300 disabled:cursor-not-allowed"
+            >
+              {processPayment.isPending ? 'Processing...' : 'Process Payment'}
+            </button>
+          </div>
+        </form>
+      </Form>
 
       {/* Payment Flow Note */}
       <div className="text-xs text-gray-500 text-center pb-8">

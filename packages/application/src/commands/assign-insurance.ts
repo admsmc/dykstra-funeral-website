@@ -1,6 +1,6 @@
 import { Effect } from "effect";
 import { ValidationError } from "../errors";
-import { InsurancePort, type InsuranceError } from '../ports/insurance-port';
+import { InsurancePort, type InsurancePortService, type InsuranceError } from '../ports/insurance-port';
 
 interface AssignInsuranceInput {
   caseId: string;
@@ -35,7 +35,7 @@ export const assignInsurance = ({
 }: AssignInsuranceInput): Effect.Effect<
   AssignInsuranceResult,
   ValidationError | InsuranceError,
-  InsurancePort
+  InsurancePortService
 > =>
   Effect.gen(function* (_) {
     // Validate assigned amount

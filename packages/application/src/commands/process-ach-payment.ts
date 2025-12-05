@@ -1,6 +1,6 @@
 import { Effect } from "effect";
 import { ValidationError } from "../errors";
-import { PaymentPort, type PaymentProcessingError } from '../ports/payment-port';
+import { PaymentPort, type PaymentPortService, type PaymentProcessingError } from '../ports/payment-port';
 
 interface ProcessACHPaymentInput {
   caseId: string;
@@ -33,7 +33,7 @@ export const processACHPayment = ({
 }: ProcessACHPaymentInput): Effect.Effect<
   ProcessACHPaymentResult,
   ValidationError | PaymentProcessingError,
-  PaymentPort
+  PaymentPortService
 > =>
   Effect.gen(function* (_) {
     // Validate amount

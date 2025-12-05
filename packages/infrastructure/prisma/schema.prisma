@@ -139,6 +139,9 @@ model Case {
   @@index([funeralHomeId])
   @@index([status])
   @@index([serviceDate])
+  @@index([funeralHomeId, status, isCurrent]) // Composite for filtered list queries
+  @@index([funeralHomeId, isCurrent, decedentName]) // Optimized for sorted case lists
+  @@index([createdBy]) // Index on createdBy for user activity queries
   @@map("cases")
 }
 
@@ -220,6 +223,8 @@ model Contract {
   @@index([validFrom, validTo]) // Temporal queries
   @@index([caseId])
   @@index([status])
+  @@index([caseId, status, isCurrent]) // Composite for contract queries by case
+  @@index([createdBy]) // Index on createdBy for audit queries
   @@map("contracts")
 }
 
@@ -587,6 +592,9 @@ model Task {
   @@index([caseId])
   @@index([status])
   @@index([assignedTo])
+  @@index([assignedTo, status, dueDate]) // Composite for user task lists with sorting
+  @@index([caseId, status]) // Composite for case task queries
+  @@index([dueDate]) // Index for overdue task queries
   @@map("tasks")
 }
 
@@ -2048,4 +2056,146 @@ model InvitationManagementPolicy {
   @@index([validFrom, validTo])
   @@index([funeralHomeId, isCurrent])
   @@map("invitation_management_policies")
+}
+
+// Memorial Template (SCD Type 2)
+// Manages versioned document templates for service programs, prayer cards, etc.
+// Business Rules:
+// - Templates can be system-wide (funeralHomeId = null) or custom per funeral home
+// - Each template version has unique ID but shares businessKey across versions
+// - Current version: validTo = null, isCurrent = true
+// - Historical versions: validTo = timestamp, isCurrent = false
+// - Page sizes: letter, a4, legal, 4x6, 5x7
+// - Print quality: 150, 300, 600 DPI
+model MemorialTemplate {
+  id          String    @id @default(cuid()) // Row ID (technical key)
+  businessKey String // Immutable business identifier (e.g., 'classic-program-001')
+  version     Int       @default(1) // Version number (increments on each change)
+  validFrom   DateTime  @default(now()) // When this version became effective
+  validTo     DateTime? // When this version was superseded (null = current)
+  isCurrent   Boolean   @default(true) // Fast lookup for current version
+
+  // Metadata
+  funeralHomeId String? // null = system template, specific ID = custom template
+  name          String // Display name (e.g., "Classic Elegant Program")
+  category      String // service_program, prayer_card, bookmark, acknowledgement_card, memorial_folder
+  status        String // draft, active, deprecated
+  createdBy     String // User ID who created template
+
+  // Content
+  htmlTemplate    String  @db.Text // Handlebars template HTML
+  cssStyles       String  @db.Text // CSS for styling
+  previewImageUrl String? // URL to preview thumbnail
+
+  // Settings
+  pageSize     String // letter, a4, legal, 4x6, 5x7
+  orientation  String // portrait, landscape
+  marginTop    Float // in inches
+  marginRight  Float // in inches
+  marginBottom Float // in inches
+  marginLeft   Float // in inches
+  printQuality Int // 150, 300, 600 DPI
+
+  // Temporal tracking
+  changeReason String?  @db.Text // Why this version was created
+  createdAt    DateTime @default(now()) // When this version was created
+  updatedAt    DateTime @updatedAt
+
+  @@unique([businessKey, version]) // Each version is unique
+  @@index([businessKey, isCurrent]) // Fast current version lookup
+  @@index([validFrom, validTo]) // Temporal queries
+  @@index([funeralHomeId, category, isCurrent]) // Find templates by funeral home and category
+  @@index([category, isCurrent]) // Find system templates by category
+  @@index([status]) // Find by status
+  @@map("memorial_templates")
+}
+
+// Template Generation Log
+// Analytics tracking for template usage and performance metrics
+model TemplateGenerationLog {
+  id                  String   @id @default(cuid())
+  templateBusinessKey String // Links to MemorialTemplate.businessKey
+  templateName        String
+  templateCategory    String // service_program, prayer_card, etc.
+  templateVersion     Int
+  generationType      String // 'service_program', 'prayer_card', etc.
+  status              String // 'success', 'error'
+  durationMs          Int // Generation time in milliseconds
+  pdfSizeBytes        Int? // PDF file size (null if generation failed)
+  errorMessage        String?  @db.Text // Error message if status = 'error'
+  errorStack          String?  @db.Text // Stack trace for debugging
+  userId              String? // User who generated the document
+  funeralHomeId       String? // Funeral home context
+  createdAt           DateTime @default(now())
+  metadata            Json? // Additional contextual data
+
+  @@index([templateBusinessKey])
+  @@index([templateCategory])
+  @@index([status])
+  @@index([createdAt(sort: Desc)])
+  @@index([funeralHomeId])
+  @@index([templateCategory, status, createdAt(sort: Desc)]) // Composite for common queries
+  @@map("template_generation_log")
+}
+
+// Template Approval Workflow
+// Manages multi-stage approval processes for templates
+// Workflow Statuses: 'in_progress', 'approved', 'rejected'
+model TemplateApprovalWorkflow {
+  id                  String                  @id @default(cuid())
+  templateBusinessKey String // Links to MemorialTemplate.businessKey
+  templateVersion     Int
+  workflowName        String                  @default("Standard Review")
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
+  submittedBy         String // User ID who submitted for approval
+  status              String                  @default("in_progress") // 'in_progress', 'approved', 'rejected'
+  completedAt         DateTime?
+  stages              TemplateApprovalStage[]
+
+  @@index([templateBusinessKey])
+  @@index([status])
+  @@index([submittedBy])
+  @@map("template_approval_workflows")
+}
+
+// Template Approval Stage
+// Represents one stage in a multi-stage approval workflow
+// Stage Statuses: 'pending', 'in_review', 'approved', 'rejected'
+model TemplateApprovalStage {
+  id                String                   @id @default(cuid())
+  workflowId        String
+  workflow          TemplateApprovalWorkflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  stageName         String // 'Designer Review', 'Manager Approval', 'Director Final Approval'
+  stageOrder        Int // 1, 2, 3, etc.
+  requiredReviewers Int                      @default(1) // How many approvals needed to pass this stage
+  status            String                   @default("pending") // 'pending', 'in_review', 'approved', 'rejected'
+  createdAt         DateTime                 @default(now())
+  updatedAt         DateTime                 @updatedAt
+  reviews           TemplateApprovalReview[]
+
+  @@unique([workflowId, stageOrder])
+  @@index([workflowId])
+  @@index([status])
+  @@map("template_approval_stages")
+}
+
+// Template Approval Review
+// Individual review/decision from a reviewer within a stage
+// Decisions: 'approved', 'rejected', 'request_changes'
+model TemplateApprovalReview {
+  id         String                @id @default(cuid())
+  stageId    String
+  stage      TemplateApprovalStage @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  reviewerId String // User ID of reviewer
+  decision   String? // 'approved', 'rejected', 'request_changes' (null = not yet reviewed)
+  notes      String?               @db.Text
+  reviewedAt DateTime?
+  createdAt  DateTime              @default(now())
+  updatedAt  DateTime              @updatedAt
+
+  @@unique([stageId, reviewerId])
+  @@index([stageId])
+  @@index([reviewerId])
+  @@map("template_approval_reviews")
 }

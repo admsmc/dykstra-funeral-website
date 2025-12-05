@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { ThemeToggle } from "@dykstra/ui";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -36,12 +37,15 @@ export default function Header() {
             <Link href="/sign-in" className="text-gray-700 hover:text-[--navy] transition-colors">
               Family Portal
             </Link>
-            <Link 
-              href="/contact" 
-              className="bg-[--navy] text-white px-6 py-2 rounded-md hover:bg-[--charcoal] transition-colors"
-            >
-              Contact Us
-            </Link>
+            <div className="flex items-center gap-4">
+              <ThemeToggle />
+              <Link 
+                href="/contact" 
+                className="bg-[--navy] text-white px-6 py-2 rounded-md hover:bg-[--charcoal] transition-colors"
+              >
+                Contact Us
+              </Link>
+            </div>
           </div>
 
           {/* Mobile menu button */}
@@ -85,6 +89,10 @@ export default function Header() {
               <Link href="/contact" className="text-gray-700 hover:text-[--navy] py-2">
                 Contact Us
               </Link>
+              <div className="py-2 flex items-center gap-2">
+                <span className="text-sm text-gray-600">Theme:</span>
+                <ThemeToggle />
+              </div>
             </div>
           </div>
         )}

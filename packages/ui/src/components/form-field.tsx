@@ -11,7 +11,7 @@ export interface FormFieldProps {
   className?: string;
 }
 
-export const FormField = React.forwardRef<HTMLDivElement, FormFieldProps>(
+export const SimpleFormField = React.forwardRef<HTMLDivElement, FormFieldProps>(
   (
     { label, htmlFor, error, description, required, children, className },
     ref
@@ -56,7 +56,7 @@ export const FormField = React.forwardRef<HTMLDivElement, FormFieldProps>(
   }
 );
 
-FormField.displayName = 'FormField';
+SimpleFormField.displayName = 'SimpleFormField';
 
 // Helper component for grouping form fields
 export const FormGroup = React.forwardRef<

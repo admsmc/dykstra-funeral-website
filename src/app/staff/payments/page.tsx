@@ -7,19 +7,18 @@ import ManualPaymentModal from "./_components/ManualPaymentModal";
 import RefundModal from "./_components/RefundModal";
 import FinancialReportsTab from "./_components/FinancialReportsTab";
 import PaymentPlanTab from "./_components/PaymentPlanTab";
-import {
-  useReactTable,
-  getCoreRowModel,
-  getSortedRowModel,
-  flexRender,
-  type ColumnDef,
-  type SortingState,
-} from "@tanstack/react-table";
-import { ArrowUpDown, DollarSign, TrendingUp, AlertCircle, RefreshCw, Plus } from "lucide-react";
+import type { ColumnDef } from "@tanstack/react-table";
+import { DataTable } from "@/components/table";
+import { ErrorBoundary, TableErrorFallback } from "@/components/error";
+import { DollarSign, TrendingUp, AlertCircle, RefreshCw, Plus } from "lucide-react";
+import { DashboardLayout } from "@/components/layouts/DashboardLayout";
+import { PageSection } from "@/components/layouts/PageSection";
+import { DashboardSkeleton } from "@/components/skeletons/DashboardSkeleton";
 
 /**
  * Staff Payments Dashboard
  * Payment management with KPIs, filtering, and reconciliation tools
+ * Uses DashboardLayout and PageSection for consistent structure
  */
 
 interface PaymentRow {
@@ -37,12 +36,12 @@ interface PaymentRow {
 }
 
 export default function StaffPaymentsPage() {
-  const [sorting, setSorting] = useState<SortingState>([]);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [methodFilter, setMethodFilter] = useState<string>("all");
   const [isManualPaymentModalOpen, setIsManualPaymentModalOpen] = useState(false);
   const [refundPayment, setRefundPayment] = useState<PaymentRow | null>(null);
   const [activeTab, setActiveTab] = useState<"payments" | "reports" | "plans">("payments");
+  const [optimisticPayments, setOptimisticPayments] = useState<PaymentRow[]>([]);
 
   // Fetch payment statistics
   const { data: stats, isLoading: statsLoading } = trpc.payment.getStats.useQuery({
@@ -58,7 +57,18 @@ export default function StaffPaymentsPage() {
     offset: 0,
   });
 
-  const payments = paymentsData?.payments ?? [];
+  // Merge optimistic payments with real payments, updating refunded status
+  const serverPayments = paymentsData?.payments ?? [];
+  const payments = [
+    ...optimisticPayments,
+    ...serverPayments.map(p => {
+      // Mark as refunded if in optimistic refund state
+      if (optimisticPayments.some(op => op.businessKey === p.businessKey && op.status === 'refunded')) {
+        return { ...p, status: 'refunded' };
+      }
+      return p;
+    })
+  ];
 
   // Format currency
   const formatCurrency = (amount: number) => {
@@ -109,22 +119,13 @@ export default function StaffPaymentsPage() {
     () => [
       {
         accessorKey: "createdAt",
-        header: ({ column }) => {
-          return (
-            <button
-              className="flex items-center gap-1 font-semibold text-gray-900"
-              onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            >
-              Date
-              <ArrowUpDown className="w-4 h-4" />
-            </button>
-          );
-        },
+        header: "Date",
         cell: ({ row }) => (
           <span className="text-sm text-gray-700">
             {new Date(row.original.createdAt).toLocaleDateString()}
           </span>
         ),
+        enableSorting: true,
       },
       {
         accessorKey: "caseId",
@@ -140,22 +141,13 @@ export default function StaffPaymentsPage() {
       },
       {
         accessorKey: "amount",
-        header: ({ column }) => {
-          return (
-            <button
-              className="flex items-center gap-1 font-semibold text-gray-900"
-              onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            >
-              Amount
-              <ArrowUpDown className="w-4 h-4" />
-            </button>
-          );
-        },
+        header: "Amount",
         cell: ({ row }) => (
           <span className="text-sm font-semibold text-gray-900">
             {formatCurrency(row.original.amount.amount)}
           </span>
         ),
+        enableSorting: true,
         sortingFn: (rowA, rowB) => {
           return rowA.original.amount.amount - rowB.original.amount.amount;
         },
@@ -229,34 +221,25 @@ export default function StaffPaymentsPage() {
     []
   );
 
-  const table = useReactTable({
-    data: payments,
-    columns,
-    state: {
-      sorting,
-    },
-    onSortingChange: setSorting,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-  });
+  if (statsLoading || paymentsLoading) {
+    return <DashboardSkeleton statsCount={4} showChart={false} />;
+  }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Payments</h1>
-          <p className="text-gray-600 mt-1">Payment processing and reconciliation</p>
-        </div>
+    <DashboardLayout
+      title="Payments"
+      subtitle="Payment processing and reconciliation"
+      actionButtons={[
         <button
+          key="record-payment"
           className="inline-flex items-center gap-2 px-4 py-2 bg-[--navy] text-white rounded-lg hover:bg-opacity-90 transition"
           onClick={() => setIsManualPaymentModalOpen(true)}
         >
           <Plus className="w-4 h-4" />
           Record Payment
-        </button>
-      </div>
-
+        </button>,
+      ]}
+    >
       {/* Tab Navigation */}
       <div className="border-b border-gray-200">
         <nav className="flex space-x-8" aria-label="Tabs">
@@ -297,152 +280,90 @@ export default function StaffPaymentsPage() {
       {activeTab === "payments" ? (
         <>
           {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {kpiCards.map((card) => (
-          <div
-            key={card.title}
-            className={`${card.bgColor} rounded-lg p-6 border border-gray-200`}
-          >
-            <div className="flex items-center justify-between">
+          <PageSection title="Payment Statistics" withCard={false}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {kpiCards.map((card) => (
+                <div
+                  key={card.title}
+                  className={`${card.bgColor} rounded-lg p-6 border border-gray-200`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">{card.title}</p>
+                      <p className={`text-2xl font-bold ${card.textColor} mt-2`}>
+                        {card.value}
+                      </p>
+                    </div>
+                    <div className={`${card.iconColor}`}>
+                      <card.icon className="w-8 h-8" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </PageSection>
+
+          {/* Filters */}
+          <PageSection title="Filters" withCard={true}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <p className="text-sm font-medium text-gray-600">{card.title}</p>
-                <p className={`text-2xl font-bold ${card.textColor} mt-2`}>
-                  {statsLoading ? "..." : card.value}
-                </p>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Status
+                </label>
+                <select
+                  value={statusFilter}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setStatusFilter(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[--navy] focus:border-transparent"
+                >
+                  <option value="all">All Statuses</option>
+                  <option value="succeeded">Succeeded</option>
+                  <option value="pending">Pending</option>
+                  <option value="processing">Processing</option>
+                  <option value="failed">Failed</option>
+                  <option value="refunded">Refunded</option>
+                </select>
               </div>
-              <div className={`${card.iconColor}`}>
-                <card.icon className="w-8 h-8" />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Payment Method
+                </label>
+                <select
+                  value={methodFilter}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setMethodFilter(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[--navy] focus:border-transparent"
+                >
+                  <option value="all">All Methods</option>
+                  <option value="credit_card">Credit Card</option>
+                  <option value="debit_card">Debit Card</option>
+                  <option value="ach">ACH</option>
+                  <option value="check">Check</option>
+                  <option value="cash">Cash</option>
+                  <option value="insurance_assignment">Insurance</option>
+                </select>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          </PageSection>
 
-      {/* Filters */}
-      <div className="bg-white rounded-lg border border-gray-200 p-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Status
-            </label>
-            <select
-              value={statusFilter}
-              onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setStatusFilter(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[--navy] focus:border-transparent"
-            >
-              <option value="all">All Statuses</option>
-              <option value="succeeded">Succeeded</option>
-              <option value="pending">Pending</option>
-              <option value="processing">Processing</option>
-              <option value="failed">Failed</option>
-              <option value="refunded">Refunded</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Payment Method
-            </label>
-            <select
-              value={methodFilter}
-              onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setMethodFilter(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[--navy] focus:border-transparent"
-            >
-              <option value="all">All Methods</option>
-              <option value="credit_card">Credit Card</option>
-              <option value="debit_card">Debit Card</option>
-              <option value="ach">ACH</option>
-              <option value="check">Check</option>
-              <option value="cash">Cash</option>
-              <option value="insurance_assignment">Insurance</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Quick Actions
-            </label>
-            <button
-              className="w-full px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
-              onClick={() => alert("Export to CSV")}
-            >
-              Export to CSV
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Payment Table */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-        {paymentsLoading ? (
-          <div className="p-8 text-center text-gray-500">
-            Loading payments...
-          </div>
-        ) : payments.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
-            No payments found. Try adjusting your filters.
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <tr key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => (
-                      <th
-                        key={header.id}
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                      </th>
-                    ))}
-                  </tr>
-                ))}
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {table.getRowModel().rows.map((row) => (
-                  <tr key={row.id} className="hover:bg-gray-50">
-                    {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className="px-6 py-4 whitespace-nowrap">
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {/* Pagination */}
-        {!paymentsLoading && payments.length > 0 && (
-          <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-            <div className="text-sm text-gray-700">
-              Showing {payments.length} of {paymentsData?.total ?? 0} payments
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                className="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50 disabled:opacity-50"
-                disabled={true}
-              >
-                Previous
-              </button>
-              <button
-                className="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50 disabled:opacity-50"
-                disabled={!paymentsData?.hasMore}
-              >
-                Next
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
+          {/* Payment Table */}
+          <PageSection title="Payment Transactions" withCard={true}>
+            <ErrorBoundary fallback={(error, reset) => <TableErrorFallback error={error} reset={reset} />}>
+              <DataTable
+                data={payments}
+                columns={columns}
+                isLoading={false}
+                enableColumnVisibility={true}
+                enableExport={true}
+                enableStickyHeader={false}
+                pageSize={25}
+                exportFilename="payments"
+                emptyState={
+                  <div className="p-8 text-center text-gray-500">
+                    No payments found. Try adjusting your filters.
+                  </div>
+                }
+              />
+            </ErrorBoundary>
+          </PageSection>
         </>
       ) : activeTab === "reports" ? (
         <FinancialReportsTab />
@@ -455,8 +376,17 @@ export default function StaffPaymentsPage() {
         isOpen={isManualPaymentModalOpen}
         onClose={() => setIsManualPaymentModalOpen(false)}
         onSuccess={() => {
+          // Clear optimistic payments on success
+          setOptimisticPayments([]);
           refetchPayments();
-          // Could also show success toast here
+        }}
+        onOptimisticUpdate={(payment) => {
+          // Add optimistic payment to list
+          setOptimisticPayments([payment]);
+        }}
+        onRollback={() => {
+          // Remove optimistic payment on error
+          setOptimisticPayments([]);
         }}
       />
 
@@ -466,6 +396,8 @@ export default function StaffPaymentsPage() {
           isOpen={!!refundPayment}
           onClose={() => setRefundPayment(null)}
           onSuccess={() => {
+            // Clear optimistic state on success
+            setOptimisticPayments([]);
             refetchPayments();
             setRefundPayment(null);
           }}
@@ -475,8 +407,25 @@ export default function StaffPaymentsPage() {
             method: refundPayment.method,
             status: refundPayment.status,
           }}
+          onOptimisticUpdate={(paymentKey) => {
+            // Mark payment as refunded optimistically
+            setOptimisticPayments([{
+              id: paymentKey,
+              businessKey: paymentKey,
+              caseId: refundPayment.caseId,
+              amount: refundPayment.amount,
+              method: refundPayment.method,
+              status: 'refunded',
+              createdAt: refundPayment.createdAt,
+              createdBy: refundPayment.createdBy,
+            }]);
+          }}
+          onRollback={() => {
+            // Remove optimistic refund on error
+            setOptimisticPayments([]);
+          }}
         />
       )}
-    </div>
+    </DashboardLayout>
   );
 }

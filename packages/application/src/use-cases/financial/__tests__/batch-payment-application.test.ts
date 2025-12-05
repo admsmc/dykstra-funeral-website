@@ -1,11 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { Effect } from 'effect';
+import { Effect, Layer } from 'effect';
 import {
   applyBatchPayment,
-  GoFinancialPort,
   type ApplyBatchPaymentCommand,
 } from '../batch-payment-application';
-import type { GoFinancialPortService } from '@dykstra/application';
+import { GoFinancialPort, type GoFinancialPortService } from '../../../ports/go-financial-port';
 
 describe('Batch Payment Application', () => {
   let mockFinancialPort: GoFinancialPortService;
@@ -60,8 +59,9 @@ describe('Batch Payment Application', () => {
 
       // Act
       const program = applyBatchPayment(command);
+      const testLayer = Layer.succeed(GoFinancialPort, mockFinancialPort);
       const result = await Effect.runPromise(
-        Effect.provideService(program, GoFinancialPort, mockFinancialPort)
+        Effect.provide(program, testLayer)
       );
 
       // Assert
@@ -102,10 +102,11 @@ describe('Batch Payment Application', () => {
 
       // Act & Assert
       const program = applyBatchPayment(command);
+      const testLayer = Layer.succeed(GoFinancialPort, mockFinancialPort);
       
       await expect(
         Effect.runPromise(
-          Effect.provideService(program, GoFinancialPort, mockFinancialPort)
+          Effect.provide(program, testLayer)
         )
       ).rejects.toThrow();
     });
@@ -132,10 +133,11 @@ describe('Batch Payment Application', () => {
 
       // Act & Assert
       const program = applyBatchPayment(command);
+      const testLayer = Layer.succeed(GoFinancialPort, mockFinancialPort);
       
       await expect(
         Effect.runPromise(
-          Effect.provideService(program, GoFinancialPort, mockFinancialPort)
+          Effect.provide(program, testLayer)
         )
       ).rejects.toThrow();
     });
@@ -166,10 +168,11 @@ describe('Batch Payment Application', () => {
 
       // Act & Assert
       const program = applyBatchPayment(command);
+      const testLayer = Layer.succeed(GoFinancialPort, mockFinancialPort);
       
       await expect(
         Effect.runPromise(
-          Effect.provideService(program, GoFinancialPort, mockFinancialPort)
+          Effect.provide(program, testLayer)
         )
       ).rejects.toThrow();
     });
@@ -200,10 +203,11 @@ describe('Batch Payment Application', () => {
 
       // Act & Assert
       const program = applyBatchPayment(command);
+      const testLayer = Layer.succeed(GoFinancialPort, mockFinancialPort);
       
       await expect(
         Effect.runPromise(
-          Effect.provideService(program, GoFinancialPort, mockFinancialPort)
+          Effect.provide(program, testLayer)
         )
       ).rejects.toThrow();
     });

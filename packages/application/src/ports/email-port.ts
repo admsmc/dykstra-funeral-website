@@ -14,7 +14,7 @@ export class EmailError extends Error {
  * Email Port
  * Abstraction for email sending (SendGrid, Postmark, etc.)
  */
-export interface EmailPort {
+export interface EmailPortService {
   /**
    * Send invitation email to family member
    */
@@ -65,4 +65,4 @@ export interface EmailPort {
 /**
  * Email Port service tag for dependency injection
  */
-export const EmailPort = Context.GenericTag<EmailPort>('@dykstra/EmailPort');
+export const EmailPort = Context.GenericTag<EmailPortService>('@dykstra/EmailPort');

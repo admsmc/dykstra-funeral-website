@@ -24,7 +24,6 @@ let graphClient: any = null;
 const initGraphClient = async (accessToken: string) => {
   if (!graphClient) {
     try {
-      // @ts-expect-error - Dynamic import for optional Microsoft Graph dependency
       const { Client } = await import('@microsoft/microsoft-graph-client');
       graphClient = Client.init({
         authProvider: (done: any) => {

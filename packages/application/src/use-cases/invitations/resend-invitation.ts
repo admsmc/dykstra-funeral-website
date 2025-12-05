@@ -1,7 +1,7 @@
 import { Effect } from 'effect';
 import { randomBytes } from 'crypto';
 import { InvitationRepository, type InvitationNotFoundError } from '../../ports/invitation-repository';
-import { EmailPort, type EmailError } from '../../ports/email-port';
+import { EmailPort, type EmailPortService, type EmailError } from '../../ports/email-port';
 import { ValidationError, type NotFoundError } from '@dykstra/domain';
 import { InvitationManagementPolicyRepository, type InvitationManagementPolicyRepositoryService, type PersistenceError } from '../../ports/invitation-management-policy-repository';
 
@@ -49,7 +49,7 @@ export interface ResendInvitationResult {
 export const resendInvitation = (command: ResendInvitationCommand): Effect.Effect<
   ResendInvitationResult,
   ValidationError | EmailError | InvitationNotFoundError | NotFoundError | PersistenceError,
-  InvitationRepository | EmailPort | InvitationManagementPolicyRepositoryService
+  InvitationRepository | EmailPortService | InvitationManagementPolicyRepositoryService
 > =>
   Effect.gen(function* () {
     const invitationRepo = yield* InvitationRepository;

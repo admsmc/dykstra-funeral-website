@@ -229,3 +229,119 @@ After completing all manual tests:
 - Update `.env.example` with any missing variables
 - Consider adding automated integration tests for CI/CD
 - Move to next development phase
+
+---
+
+# Automated E2E Testing with Playwright
+
+## Overview
+
+Playwright E2E tests provide automated validation of UI routes, layout, functionality, and accessibility without manual observation.
+
+## Quick Start
+
+### Run All E2E Tests
+```bash
+pnpm test:e2e
+```
+
+### Run Specific Browser
+```bash
+pnpm test:e2e:chromium   # Chrome only
+pnpm test:e2e:firefox    # Firefox only
+pnpm test:e2e:webkit     # Safari only
+pnpm test:e2e:mobile     # Mobile browsers
+```
+
+### Interactive Mode
+```bash
+pnpm test:e2e:ui         # Visual test runner
+pnpm test:e2e:debug      # Step-through debugging
+pnpm test:e2e:headed     # See browser window
+```
+
+### View Test Report
+```bash
+pnpm test:e2e:report
+```
+
+## Test Coverage
+
+### Test Suites
+1. **Smoke Tests** (`smoke.spec.ts`) - Quick validation of core functionality
+2. **Public Routes** (`public-routes.spec.ts`) - All public page tests
+3. **Accessibility** (`accessibility.spec.ts`) - WCAG compliance tests
+4. **Visual Regression** (`visual-regression.spec.ts`) - Screenshot comparison
+
+### What's Tested
+- ✅ HTTP status codes (200 responses)
+- ✅ Page titles and metadata
+- ✅ Header/footer rendering
+- ✅ Console error detection
+- ✅ Navigation functionality
+- ✅ Mobile responsiveness
+- ✅ Image loading
+- ✅ Semantic HTML structure
+- ✅ Keyboard navigation
+- ✅ ARIA labels and accessibility
+- ✅ Form presence and labels
+- ✅ Visual layout (screenshots)
+
+### Browser Coverage
+- Desktop Chrome
+- Desktop Firefox
+- Desktop Safari
+- Mobile Chrome (Pixel 7)
+- Mobile Safari (iPhone 15 Pro)
+
+## Visual Regression Testing
+
+### First Time Setup
+Create baseline screenshots:
+```bash
+pnpm test:e2e:snapshots
+```
+
+### Subsequent Runs
+Tests automatically compare against baseline:
+```bash
+pnpm test:e2e
+```
+
+### Update Snapshots After UI Changes
+```bash
+pnpm test:e2e:snapshots
+```
+
+## CI/CD Integration
+
+E2E tests run automatically on:
+- Push to `main` or `develop` branches
+- Pull requests to `main` or `develop`
+
+Configuration: `.github/workflows/e2e-tests.yml`
+
+## Documentation
+
+Detailed E2E testing documentation: `tests/e2e/README.md`
+
+## Test Files Location
+
+```
+tests/e2e/
+├── smoke.spec.ts              # Quick smoke tests
+├── public-routes.spec.ts      # Public page tests
+├── accessibility.spec.ts      # Accessibility tests
+├── visual-regression.spec.ts  # Visual tests
+├── utils.ts                   # Test utilities
+└── README.md                  # Full documentation
+```
+
+## Configuration
+
+- **Config file**: `playwright.config.ts`
+- **Base URL**: `http://localhost:3000`
+- **Auto-start dev server**: Yes
+- **Parallel execution**: Yes
+- **Screenshots on failure**: Yes
+- **Traces on retry**: Yes

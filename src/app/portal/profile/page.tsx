@@ -2,14 +2,16 @@
 
 import { useState } from "react";
 import { trpc } from "@/lib/trpc/client";
-import { toast } from "sonner";
+import { useToast } from "@/components/toast";
+import { ErrorBoundary, PageErrorFallback } from "@/components/error";
 import { User, Bell, FileText, Shield, Loader2, Save, Check } from "lucide-react";
 import { useFormDraft } from "@/hooks/useFormDraft";
 import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 
 type Tab = "personal" | "notifications" | "cases" | "security";
 
-export default function ProfilePage() {
+function ProfilePageContent() {
+  const toast = useToast();
   const [activeTab, setActiveTab] = useState<Tab>("personal");
   const [isSaving, setIsSaving] = useState(false);
 
@@ -600,5 +602,13 @@ export default function ProfilePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ProfilePage() {
+  return (
+    <ErrorBoundary fallback={(error, reset) => <PageErrorFallback error={error} reset={reset} />}>
+      <ProfilePageContent />
+    </ErrorBoundary>
   );
 }

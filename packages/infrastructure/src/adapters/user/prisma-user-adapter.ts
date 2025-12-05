@@ -1,15 +1,16 @@
 import { Effect } from 'effect';
-import type { UserPort, UserProfile, UserPreferences, UserError } from '@dykstra/application';
+import type { UserPortService, UserProfile, UserPreferences, UserError } from '@dykstra/application';
 import { prisma } from '../../database/prisma-client';
 
 /**
  * Prisma implementation of UserPort
+ * Object-based adapter (NOT class-based)
  */
-export class PrismaUserAdapter implements UserPort {
+export const PrismaUserAdapter: UserPortService = {
   /**
    * Get user profile by ID
    */
-  getProfile = (userId: string): Effect.Effect<UserProfile, UserError> =>
+  getProfile: (userId: string) =>
     Effect.tryPromise({
       try: async () => {
         const user = await prisma.user.findUnique({
@@ -73,12 +74,12 @@ export class PrismaUserAdapter implements UserPort {
           }
         })(message, error);
       },
-    });
+    }),
 
   /**
    * Update user profile
    */
-  updateProfile = (params: {
+  updateProfile: (params: {
     userId: string;
     name?: string;
     phone?: string;
@@ -131,12 +132,12 @@ export class PrismaUserAdapter implements UserPort {
           }
         })(message, error);
       },
-    });
+    }),
 
   /**
    * Find user by email
    */
-  findByEmail = (email: string): Effect.Effect<UserProfile | null, UserError> =>
+  findByEmail: (email: string) =>
     Effect.tryPromise({
       try: async () => {
         const user = await prisma.user.findUnique({
@@ -198,12 +199,12 @@ export class PrismaUserAdapter implements UserPort {
           }
         })(message, error);
       },
-    });
+    }),
 
   /**
    * Check if user has access to case
    */
-  hasAccessToCase = (userId: string, caseId: string): Effect.Effect<boolean, UserError> =>
+  hasAccessToCase: (userId: string, caseId: string) =>
     Effect.tryPromise({
       try: async () => {
         const membership = await prisma.caseMember.findFirst({
@@ -224,12 +225,12 @@ export class PrismaUserAdapter implements UserPort {
           }
         })(message, error);
       },
-    });
-}
+    }),
+};
 
 /**
  * Create Prisma User Adapter instance
  */
-export function createPrismaUserAdapter(): UserPort {
-  return new PrismaUserAdapter();
+export function createPrismaUserAdapter(): UserPortService {
+  return PrismaUserAdapter;
 }

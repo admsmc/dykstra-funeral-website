@@ -25,7 +25,6 @@ let gmailClient: any = null;
 const initGmailClient = async (accessToken: string) => {
   if (!gmailClient) {
     try {
-      // @ts-expect-error - Dynamic import for optional Google APIs dependency
       const { google } = await import('googleapis');
       const oauth2Client = new google.auth.OAuth2();
       oauth2Client.setCredentials({ access_token: accessToken });

@@ -7,57 +7,73 @@ import {
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import {
-  type StoragePort,
+  StoragePortService,
   StorageError,
   FileUpload,
   UploadResult,
 } from "@dykstra/application";
 
 /**
- * S3 Storage Adapter
- * Implements StoragePort using AWS S3
+ * Lazy S3 client and configuration singleton
+ * Initialized on first use to avoid module-load side effects
  */
-export class S3StorageAdapter implements StoragePort {
-  private readonly client: S3Client;
-  private readonly bucket: string;
-  private readonly region: string;
+let s3ClientInstance: S3Client | null = null;
+let bucketName: string | null = null;
+let regionName: string | null = null;
 
-  constructor() {
-    // Validate required environment variables
-    const accessKeyId = process.env['AWS_ACCESS_KEY_ID'];
-    const secretAccessKey = process.env['AWS_SECRET_ACCESS_KEY'];
-    const region = process.env['AWS_REGION'] || "us-east-1";
-    const bucket = process.env['AWS_S3_BUCKET'];
+function getS3Client(): S3Client {
+  if (s3ClientInstance) return s3ClientInstance;
 
-    if (!accessKeyId || !secretAccessKey) {
-      throw new Error(
-        "AWS credentials not configured. Set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY."
-      );
-    }
+  const accessKeyId = process.env['AWS_ACCESS_KEY_ID'];
+  const secretAccessKey = process.env['AWS_SECRET_ACCESS_KEY'];
+  const region = process.env['AWS_REGION'] || "us-east-1";
 
-    if (!bucket) {
-      throw new Error("AWS_S3_BUCKET environment variable is required.");
-    }
-
-    this.region = region;
-    this.bucket = bucket;
-
-    // Initialize S3 client
-    this.client = new S3Client({
-      region: this.region,
-      credentials: {
-        accessKeyId,
-        secretAccessKey,
-      },
-    });
+  if (!accessKeyId || !secretAccessKey) {
+    throw new Error(
+      "AWS credentials not configured. Set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY."
+    );
   }
+
+  regionName = region;
+  s3ClientInstance = new S3Client({
+    region,
+    credentials: {
+      accessKeyId,
+      secretAccessKey,
+    },
+  });
+
+  return s3ClientInstance;
+}
+
+function getBucket(): string {
+  if (bucketName) return bucketName;
+
+  const bucket = process.env['AWS_S3_BUCKET'];
+  if (!bucket) {
+    throw new Error("AWS_S3_BUCKET environment variable is required.");
+  }
+
+  bucketName = bucket;
+  return bucketName;
+}
+
+function getRegion(): string {
+  if (regionName) return regionName;
+  return process.env['AWS_REGION'] || "us-east-1";
+}
+
+/**
+ * S3 Storage Adapter
+ * Object-based adapter (NOT class-based) implementing StoragePort using AWS S3
+ */
+export const S3StorageAdapter: StoragePortService = {
 
   /**
    * Upload a file to S3
    */
-  upload = (file: FileUpload): Effect.Effect<UploadResult, StorageError> => {
-    const self = this;
-    return Effect.gen(function* (_) {
+  upload: (file: FileUpload) =>
+    Effect.gen(function* (_) {
       try {
         // Generate unique key with folder structure
         const timestamp = Date.now();
@@ -67,7 +83,7 @@ export class S3StorageAdapter implements StoragePort {
 
         // Upload to S3
         const command = new PutObjectCommand({
-          Bucket: self.bucket,
+          Bucket: getBucket(),
           Key: key,
           Body: file.data,
           ContentType: file.mimeType,
@@ -76,7 +92,7 @@ export class S3StorageAdapter implements StoragePort {
         });
 
         yield* _(Effect.tryPromise({
-          try: () => self.client.send(command),
+          try: () => getS3Client().send(command),
           catch: (error) => new StorageError(
             `Failed to upload file to S3: ${error instanceof Error ? error.message : "Unknown error"}`,
             error
@@ -84,7 +100,7 @@ export class S3StorageAdapter implements StoragePort {
         }));
 
         // Construct public URL
-        const url = `https://${self.bucket}.s3.${self.region}.amazonaws.com/${key}`;
+        const url = `https://${getBucket()}.s3.${getRegion()}.amazonaws.com/${key}`;
 
         return {
           url,
@@ -100,23 +116,21 @@ export class S3StorageAdapter implements StoragePort {
           )
         );
       }
-    });
-  };
+    }),
 
   /**
    * Delete a file from S3
    */
-  delete = (key: string): Effect.Effect<void, StorageError> => {
-    const self = this;
-    return Effect.gen(function* (_) {
+  delete: (key: string) =>
+    Effect.gen(function* (_) {
       try {
         const command = new DeleteObjectCommand({
-          Bucket: self.bucket,
+          Bucket: getBucket(),
           Key: key,
         });
 
         yield* _(Effect.tryPromise({
-          try: () => self.client.send(command),
+          try: () => getS3Client().send(command),
           catch: (error) => new StorageError(
             `Failed to delete file from S3: ${error instanceof Error ? error.message : "Unknown error"}`,
             error
@@ -132,27 +146,22 @@ export class S3StorageAdapter implements StoragePort {
           )
         );
       }
-    });
-  };
+    }),
 
   /**
    * Get a signed URL for temporary access to a private file
    */
-  getSignedUrl = (
-    key: string,
-    expiresIn: number
-  ): Effect.Effect<string, StorageError> => {
-    const self = this;
-    return Effect.gen(function* (_) {
+  getSignedUrl: (key: string, expiresIn: number) =>
+    Effect.gen(function* (_) {
       try {
         const command = new GetObjectCommand({
-          Bucket: self.bucket,
+          Bucket: getBucket(),
           Key: key,
         });
 
         // Generate presigned URL
         const signedUrl = yield* _(Effect.tryPromise({
-          try: () => getSignedUrl(self.client, command, { expiresIn }),
+          try: () => getSignedUrl(getS3Client(), command, { expiresIn }),
           catch: (error) => new StorageError(
             `Failed to generate signed URL: ${error instanceof Error ? error.message : "Unknown error"}`,
             error
@@ -170,19 +179,12 @@ export class S3StorageAdapter implements StoragePort {
           )
         );
       }
-    });
-  };
-}
+    }),
+};
 
 /**
  * Create S3 storage adapter instance
- * Singleton pattern to reuse S3 client
  */
-let s3AdapterInstance: S3StorageAdapter | null = null;
-
-export function createS3StorageAdapter(): S3StorageAdapter {
-  if (!s3AdapterInstance) {
-    s3AdapterInstance = new S3StorageAdapter();
-  }
-  return s3AdapterInstance;
+export function createS3StorageAdapter(): StoragePortService {
+  return S3StorageAdapter;
 }

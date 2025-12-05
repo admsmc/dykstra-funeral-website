@@ -69,4 +69,12 @@ npx tsx scripts/validate-backend-contracts.ts
 echo "🔍 Checking for breaking changes..."
 npx tsx scripts/detect-breaking-changes.ts --quiet
 
+# Test Coverage check
+echo "📊 Checking test coverage..."
+echo "📦 Application package coverage:"
+pnpm --filter @dykstra/application test
+
+echo "📦 Infrastructure package coverage:"
+pnpm --filter @dykstra/infrastructure test
+
 echo "✅ All pre-commit checks passed!"

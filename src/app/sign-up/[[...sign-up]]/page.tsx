@@ -15,7 +15,8 @@ export default function SignUpPage() {
               card: 'shadow-lg',
             },
           }}
-          redirectUrl="/portal/dashboard"
+          fallbackRedirectUrl="/staff/dashboard"
+          signInFallbackRedirectUrl="/staff/dashboard"
           signInUrl="/sign-in"
         />
       </div>

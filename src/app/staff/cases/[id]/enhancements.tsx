@@ -12,14 +12,20 @@
 
 import { trpc } from "@/lib/trpc-client";
 import { useState } from "react";
-import { toast } from "sonner";
+import { useToast } from "@/components/toast";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { User, Plus, Trash2 } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { taskSchema, type TaskFormData } from "@dykstra/domain/validation";
+import { FormInput, FormTextarea, FormSelect } from "@/components/form/FormFields";
 
 // ============================================================================
 // 1. ENHANCED OVERVIEW TAB
 // ============================================================================
 
-export function EnhancedOverviewTab({ caseData }: { caseData: any }) {
+function EnhancedOverviewTabContent({ caseData }: { caseData: any }) {
+  const toast = useToast();
   const caseId = caseData.case.id;
   const businessKey = caseData.case.businessKey || caseData.case.id;
 
@@ -29,13 +35,22 @@ export function EnhancedOverviewTab({ caseData }: { caseData: any }) {
   // Tasks
   const { data: tasks, refetch: refetchTasks } = trpc.caseEnhancements.getTasks.useQuery({ caseId });
   const [showTaskForm, setShowTaskForm] = useState(false);
-  const [taskForm, setTaskForm] = useState({ title: "", description: "", assignedTo: "", dueDate: "" });
+  
+  const taskForm = useForm<TaskFormData>({
+    resolver: zodResolver(taskSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      assignedTo: "",
+      dueDate: "",
+    },
+  });
   
   const createTaskMutation = trpc.caseEnhancements.createTask.useMutation({
     onSuccess: () => {
       toast.success("Task created");
       setShowTaskForm(false);
-      setTaskForm({ title: "", description: "", assignedTo: "", dueDate: "" });
+      taskForm.reset();
       refetchTasks();
     },
   });
@@ -50,17 +65,15 @@ export function EnhancedOverviewTab({ caseData }: { caseData: any }) {
   // Staff members for assignment
   const { data: staffMembers } = trpc.caseEnhancements.getStaffMembers.useQuery();
 
-  const handleCreateTask = () => {
-    if (!taskForm.title.trim()) return;
-    
+  const handleCreateTask = taskForm.handleSubmit((data) => {
     createTaskMutation.mutate({
       caseId,
-      title: taskForm.title,
-      description: taskForm.description || undefined,
-      assignedTo: taskForm.assignedTo || undefined,
-      dueDate: taskForm.dueDate ? new Date(taskForm.dueDate) : undefined,
+      title: data.title,
+      description: data.description || undefined,
+      assignedTo: data.assignedTo || undefined,
+      dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
     });
-  };
+  });
 
   return (
     <div className="space-y-6">
@@ -138,60 +151,56 @@ export function EnhancedOverviewTab({ caseData }: { caseData: any }) {
         </div>
 
         {showTaskForm && (
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4 space-y-3">
-            <input
-              type="text"
+          <form onSubmit={handleCreateTask} className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4 space-y-3">
+            <FormInput
+              form={taskForm}
+              name="title"
               placeholder="Task title *"
-              value={taskForm.title}
-              onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setTaskForm({ ...taskForm, title: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
             />
-            <textarea
+            <FormTextarea
+              form={taskForm}
+              name="description"
               placeholder="Description (optional)"
-              value={taskForm.description}
-              onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setTaskForm({ ...taskForm, description: e.target.value })}
               rows={2}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg resize-none"
             />
             <div className="grid grid-cols-2 gap-3">
-              <select
-                value={taskForm.assignedTo}
-                onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setTaskForm({ ...taskForm, assignedTo: e.target.value })}
-                className="px-3 py-2 border border-gray-300 rounded-lg"
-              >
-                <option value="">Assign to...</option>
-                {staffMembers?.map((staff) => (
-                  <option key={staff.id} value={staff.id}>
-                    {staff.name}
-                  </option>
-                ))}
-              </select>
-              <input
+              <FormSelect
+                form={taskForm}
+                name="assignedTo"
+                options={[
+                  { value: "", label: "Assign to..." },
+                  ...(staffMembers?.map((staff) => ({
+                    value: staff.id,
+                    label: staff.name,
+                  })) || []),
+                ]}
+              />
+              <FormInput
+                form={taskForm}
+                name="dueDate"
                 type="date"
-                value={taskForm.dueDate}
-                onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setTaskForm({ ...taskForm, dueDate: e.target.value })}
-                className="px-3 py-2 border border-gray-300 rounded-lg"
               />
             </div>
             <div className="flex gap-2">
               <button
-                onClick={handleCreateTask}
-                disabled={!taskForm.title.trim() || createTaskMutation.isLoading}
+                type="submit"
+                disabled={createTaskMutation.isLoading}
                 className="px-4 py-2 bg-[--navy] text-white rounded-lg hover:bg-[--sage] transition text-sm disabled:opacity-50"
               >
                 Create Task
               </button>
               <button
+                type="button"
                 onClick={() => {
                   setShowTaskForm(false);
-                  setTaskForm({ title: "", description: "", assignedTo: "", dueDate: "" });
+                  taskForm.reset();
                 }}
                 className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm"
               >
                 Cancel
               </button>
             </div>
-          </div>
+          </form>
         )}
 
         {tasks && tasks.length > 0 ? (
@@ -246,11 +255,33 @@ export function EnhancedOverviewTab({ caseData }: { caseData: any }) {
   );
 }
 
+export function EnhancedOverviewTab({ caseData }: { caseData: any }) {
+  return (
+    <ErrorBoundary
+      fallback={(error, reset) => (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <h3 className="text-lg font-semibold text-red-900 mb-2">Error Loading Overview</h3>
+          <p className="text-sm text-red-700 mb-4">{error.message}</p>
+          <button
+            onClick={reset}
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+          >
+            Try Again
+          </button>
+        </div>
+      )}
+    >
+      <EnhancedOverviewTabContent caseData={caseData} />
+    </ErrorBoundary>
+  );
+}
+
 // ============================================================================
 // 2. STAFF ASSIGNMENT SECTION
 // ============================================================================
 
 function StaffAssignmentSection({ caseId, staffMembers }: { caseId: string; staffMembers: any[] }) {
+  const toast = useToast();
   const [isAssigning, setIsAssigning] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState("");
 
@@ -315,7 +346,7 @@ function StaffAssignmentSection({ caseId, staffMembers }: { caseId: string; staf
 // 3. ENHANCED TIMELINE TAB - AUDIT LOG VIEWER
 // ============================================================================
 
-export function EnhancedTimelineTab({ caseId }: { caseId: string }) {
+function EnhancedTimelineTabContent({ caseId }: { caseId: string }) {
   const { data: auditLogs, isLoading } = trpc.caseEnhancements.getAuditLog.useQuery({
     entityId: caseId,
     entityType: "Case",
@@ -370,11 +401,33 @@ export function EnhancedTimelineTab({ caseId }: { caseId: string }) {
   );
 }
 
+export function EnhancedTimelineTab({ caseId }: { caseId: string }) {
+  return (
+    <ErrorBoundary
+      fallback={(error, reset) => (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <h3 className="text-lg font-semibold text-red-900 mb-2">Error Loading Timeline</h3>
+          <p className="text-sm text-red-700 mb-4">{error.message}</p>
+          <button
+            onClick={reset}
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+          >
+            Try Again
+          </button>
+        </div>
+      )}
+    >
+      <EnhancedTimelineTabContent caseId={caseId} />
+    </ErrorBoundary>
+  );
+}
+
 // ============================================================================
 // 4. STATUS TRANSITION COMPONENT (for header)
 // ============================================================================
 
-export function StatusTransitionDropdown({ caseData, onSuccess }: { caseData: any; onSuccess: () => void }) {
+function StatusTransitionDropdownContent({ caseData, onSuccess }: { caseData: any; onSuccess: () => void }) {
+  const toast = useToast();
   const businessKey = caseData.case.businessKey || caseData.case.id;
   const currentStatus = caseData.case.status;
 
@@ -425,5 +478,19 @@ export function StatusTransitionDropdown({ caseData, onSuccess }: { caseData: an
         </option>
       ))}
     </select>
+  );
+}
+
+export function StatusTransitionDropdown({ caseData, onSuccess }: { caseData: any; onSuccess: () => void }) {
+  return (
+    <ErrorBoundary
+      fallback={(error, reset) => (
+        <div className="text-sm text-red-600">
+          Error: {error.message}
+        </div>
+      )}
+    >
+      <StatusTransitionDropdownContent caseData={caseData} onSuccess={onSuccess} />
+    </ErrorBoundary>
   );
 }

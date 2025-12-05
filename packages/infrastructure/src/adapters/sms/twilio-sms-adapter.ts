@@ -7,7 +7,6 @@ let twilioClient: any = null;
 const initTwilio = async () => {
   if (!twilioClient) {
     try {
-      // @ts-expect-error - Dynamic import for optional Twilio dependency
       const twilio = await import('twilio');
       const accountSid = process.env['TWILIO_ACCOUNT_SID'];
       const authToken = process.env['TWILIO_AUTH_TOKEN'];

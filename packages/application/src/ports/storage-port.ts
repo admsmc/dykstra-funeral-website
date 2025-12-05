@@ -32,7 +32,7 @@ export interface UploadResult {
  * Storage Port interface
  * Abstraction for file storage (S3, Vercel Blob, etc.)
  */
-export interface StoragePort {
+export interface StoragePortService {
   /**
    * Upload a file
    */
@@ -52,4 +52,4 @@ export interface StoragePort {
 /**
  * Storage Port service tag for dependency injection
  */
-export const StoragePort = Context.GenericTag<StoragePort>('@dykstra/StoragePort');
+export const StoragePort = Context.GenericTag<StoragePortService>('@dykstra/StoragePort');

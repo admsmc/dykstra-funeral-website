@@ -5,8 +5,21 @@
 
 Pages directory cannot be found at /Users/andrewmathers/projects/dykstra-funeral-website/packages/ui/pages or /Users/andrewmathers/projects/dykstra-funeral-website/packages/ui/src/pages. If using a custom path, please configure with the `no-html-link-for-pages` rule in your eslint config file.
 [0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/ui/src/animations/presets.ts[24m[0m
+[0m  [2m8:1[22m  [33mwarning[39m  All imports in the declaration are only used as types. Use `import type`  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/ui/src/animations/utils.ts[24m[0m
+[0m  [2m7:1[22m  [33mwarning[39m  All imports in the declaration are only used as types. Use `import type`  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
 [0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/ui/src/components/file-upload.tsx[24m[0m
 [0m  [2m225:23[22m  [33mwarning[39m  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  [2m@next/next/no-img-element[22m[0m
 [0m[0m
-[0m[33m[1m✖ 1 problem (0 errors, 1 warning)[22m[39m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/ui/src/components/form.stories.tsx[24m[0m
+[0m  [2m17:10[22m  [33mwarning[39m  'Select' is defined but never used. Allowed unused vars must match /^_/u  [2m@typescript-eslint/no-unused-vars[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/ui/src/components/form.tsx[24m[0m
+[0m  [2m2:1[22m  [33mwarning[39m  Imports "ControllerProps", "FieldPath" and "FieldValues" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[0m
+[0m[33m[1m✖ 5 problems (0 errors, 5 warnings)[22m[39m[0m
+[0m[33m[1m[22m[39m[33m[1m  0 errors and 3 warnings potentially fixable with the `--fix` option.[22m[39m[0m
 [0m[33m[1m[22m[39m[0m

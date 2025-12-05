@@ -1,5 +1,5 @@
 import { Effect, Layer } from 'effect';
-import { SignaturePort, StoragePort, type SignatureData, type SignatureResult, SignatureError } from '@dykstra/application';
+import { SignaturePort, SignaturePortService, StoragePort, type SignatureData, type SignatureResult, SignatureError } from '@dykstra/application';
 import { prisma } from '../database/prisma-client';
 import { randomBytes } from 'crypto';
 
@@ -121,7 +121,7 @@ const SignatureAdapterImpl = Effect.gen(function* (_) {
           return new SignatureError('Failed to get signature', error);
         },
       }),
-  } satisfies SignaturePort;
+  } satisfies SignaturePortService;
 });
 
 /**

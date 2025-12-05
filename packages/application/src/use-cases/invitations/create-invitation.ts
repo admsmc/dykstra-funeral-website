@@ -2,7 +2,7 @@ import { Effect } from 'effect';
 import { randomBytes } from 'crypto';
 import { InvitationRepository, type CaseMemberRole, InvitationConflictError } from '../../ports/invitation-repository';
 import { CaseRepository, type NotFoundError, type PersistenceError } from '../../ports/case-repository';
-import { EmailPort, type EmailError } from '../../ports/email-port';
+import { EmailPort, type EmailPortService, type EmailError } from '../../ports/email-port';
 import { ValidationError } from '@dykstra/domain';
 import { InvitationManagementPolicyRepository, type InvitationManagementPolicyRepositoryService } from '../../ports/invitation-management-policy-repository';
 
@@ -55,7 +55,7 @@ export interface CreateInvitationResult {
 export const createInvitation = (command: CreateInvitationCommand): Effect.Effect<
   CreateInvitationResult,
   ValidationError | InvitationConflictError | NotFoundError | PersistenceError | EmailError,
-  InvitationRepository | CaseRepository | EmailPort | InvitationManagementPolicyRepositoryService
+  InvitationRepository | CaseRepository | EmailPortService | InvitationManagementPolicyRepositoryService
 > =>
   Effect.gen(function* () {
     const invitationRepo = yield* InvitationRepository;

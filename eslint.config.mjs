@@ -85,6 +85,8 @@ const eslintConfig = defineConfig([
     "**/*.test.ts",
     "**/*.test.tsx",
     "**/__tests__/**",
+    "**/vitest.config.ts",
+    "**/vitest.config.js",
   ]),
 ]);
 

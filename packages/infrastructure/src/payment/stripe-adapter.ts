@@ -1,5 +1,5 @@
 import { Effect, Layer } from 'effect';
-import { PaymentPort, type PaymentIntentResult, type CustomerResult, PaymentProcessingError } from '@dykstra/application';
+import { PaymentPort, PaymentPortService, type PaymentIntentResult, type CustomerResult, PaymentProcessingError } from '@dykstra/application';
 
 /**
  * Stripe adapter implementation
@@ -52,7 +52,7 @@ const getStripeClient = () => {
 /**
  * Stripe adapter implementation
  */
-export const StripeAdapter: PaymentPort = {
+export const StripeAdapter: PaymentPortService = {
   /**
    * Create a payment intent
    */

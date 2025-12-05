@@ -17,12 +17,13 @@
  * @module use-cases/financial/batch-payment-application
  */
 
-import { Effect, Context } from 'effect';
-import type {
-  GoFinancialPortService,
-} from '@dykstra/application';
+import { Effect } from 'effect';
 import { ValidationError, type NotFoundError } from '@dykstra/domain';
-import { type NetworkError } from '../../ports/go-contract-port';
+import {
+  GoFinancialPort,
+  type GoFinancialPortService,
+  type NetworkError,
+} from '../../ports/go-financial-port';
 
 /**
  * Command to apply a batch payment across multiple invoices
@@ -65,12 +66,6 @@ export interface BatchPaymentApplicationResult {
 }
 
 
-/**
- * GoFinancialPort tag for dependency injection
- */
-export const GoFinancialPort = Context.GenericTag<GoFinancialPortService>(
-  '@dykstra/GoFinancialPort'
-);
 
 /**
  * Apply a batch payment across multiple invoices

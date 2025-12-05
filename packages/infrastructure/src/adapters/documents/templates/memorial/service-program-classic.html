@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Service Program - {{deceasedName}}</title>
+  <style>
+    @page {
+      size: Letter;
+      margin: 0.5in;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Georgia', 'Times New Roman', serif;
+      font-size: 12pt;
+      line-height: 1.6;
+      color: #2c3539;
+      background: white;
+    }
+
+    .program {
+      max-width: 7.5in;
+      margin: 0 auto;
+      padding: 20pt;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30pt;
+      border-bottom: 2px solid #8b9d83;
+      padding-bottom: 20pt;
+    }
+
+    .header h1 {
+      font-size: 24pt;
+      font-weight: normal;
+      color: #1e3a5f;
+      margin-bottom: 10pt;
+    }
+
+    .header .tagline {
+      font-size: 11pt;
+      font-style: italic;
+      color: #666;
+    }
+
+    .deceased-info {
+      text-align: center;
+      margin-bottom: 30pt;
+    }
+
+    .deceased-name {
+      font-size: 20pt;
+      font-weight: bold;
+      color: #1e3a5f;
+      margin-bottom: 10pt;
+    }
+
+    .deceased-dates {
+      font-size: 12pt;
+      color: #666;
+      margin-bottom: 5pt;
+    }
+
+    .photo-section {
+      text-align: center;
+      margin-bottom: 30pt;
+    }
+
+    .photo-section img {
+      max-width: 3in;
+      max-height: 4in;
+      border: 3pt solid #8b9d83;
+      box-shadow: 0 2pt 8pt rgba(0, 0, 0, 0.1);
+    }
+
+    .section {
+      margin-bottom: 25pt;
+    }
+
+    .section-title {
+      font-size: 14pt;
+      font-weight: bold;
+      color: #1e3a5f;
+      border-bottom: 1pt solid #8b9d83;
+      padding-bottom: 5pt;
+      margin-bottom: 10pt;
+    }
+
+    .section-content {
+      padding-left: 15pt;
+    }
+
+    .order-of-service li {
+      margin-bottom: 8pt;
+    }
+
+    .officiant {
+      font-style: italic;
+      color: #666;
+      font-size: 10pt;
+    }
+
+    .obituary {
+      text-align: justify;
+      text-indent: 20pt;
+    }
+
+    .pallbearers {
+      column-count: 2;
+      column-gap: 20pt;
+    }
+
+    .pallbearers li {
+      margin-bottom: 5pt;
+    }
+
+    .footer {
+      margin-top: 40pt;
+      padding-top: 20pt;
+      border-top: 2px solid #8b9d83;
+      text-align: center;
+      font-size: 10pt;
+      color: #666;
+    }
+
+    .funeral-home {
+      font-weight: bold;
+      color: #1e3a5f;
+    }
+
+    @media print {
+      body {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="program">
+    <div class="header">
+      <h1>Celebration of Life</h1>
+      <p class="tagline">A Service of Remembrance</p>
+    </div>
+
+    <div class="deceased-info">
+      <div class="deceased-name">{{deceasedName}}</div>
+      <div class="deceased-dates">{{birthDate}} - {{deathDate}}</div>
+    </div>
+
+    {{#if photoUrl}}
+    <div class="photo-section">
+      <img src="{{photoUrl}}" alt="{{deceasedName}}" />
+    </div>
+    {{/if}}
+
+    <div class="section">
+      <h2 class="section-title">Order of Service</h2>
+      <div class="section-content">
+        <ul class="order-of-service">
+          {{#each orderOfService}}
+          <li>
+            {{this.item}}
+            {{#if this.officiant}}
+            <br><span class="officiant">{{this.officiant}}</span>
+            {{/if}}
+          </li>
+          {{/each}}
+        </ul>
+      </div>
+    </div>
+
+    {{#if obituary}}
+    <div class="section">
+      <h2 class="section-title">In Loving Memory</h2>
+      <div class="section-content">
+        <p class="obituary">{{obituary}}</p>
+      </div>
+    </div>
+    {{/if}}
+
+    {{#if pallbearers}}
+    <div class="section">
+      <h2 class="section-title">Pallbearers</h2>
+      <div class="section-content">
+        <ul class="pallbearers">
+          {{#each pallbearers}}
+          <li>{{this}}</li>
+          {{/each}}
+        </ul>
+      </div>
+    </div>
+    {{/if}}
+
+    <div class="footer">
+      <p class="funeral-home">{{funeralHomeName}}</p>
+      <p>{{funeralHomeAddress}}</p>
+      <p>{{funeralHomePhone}}</p>
+    </div>
+  </div>
+</body>
+</html>

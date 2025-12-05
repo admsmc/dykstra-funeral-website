@@ -2,7 +2,10 @@ import { z } from 'zod';
 import { router, staffProcedure } from '../trpc';
 import { 
   ContactRepository,
-  mergeContacts 
+  NoteRepository,
+  CaseRepository,
+  mergeContacts,
+  findDuplicates,
 } from '@dykstra/application';
 import { Contact } from '@dykstra/domain';
 import { runEffect } from '../utils/effect-runner';
@@ -739,5 +742,274 @@ export const contactRouter = router({
         lastGriefCheckIn: contact.lastGriefCheckIn,
         serviceAnniversaryDate: contact.serviceAnniversaryDate,
       }));
+    }),
+
+  /**
+   * ═══════════════════════════════════════════════════════
+   * PHASE 2.2: NEW CONTACT MANAGEMENT ENDPOINTS
+   * ═══════════════════════════════════════════════════════
+   */
+
+  /**
+   * Delete (soft delete) a contact
+   */
+  delete: staffProcedure
+    .input(
+      z.object({
+        contactId: z.string(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      await runEffect(
+        Effect.gen(function* () {
+          const repo = yield* ContactRepository;
+          // Soft delete by marking as merged (standard practice)
+          yield* repo.delete(input.contactId);
+        })
+      );
+
+      return { success: true };
+    }),
+
+  /**
+   * Search contacts with full-text search
+   */
+  search: staffProcedure
+    .input(
+      z.object({
+        query: z.string().min(1),
+        funeralHomeId: z.string().optional(),
+        limit: z.number().min(1).max(100).default(50),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      const funeralHomeId = input.funeralHomeId ?? ctx.user.funeralHomeId ?? 'default';
+
+      const contacts = await runEffect(
+        Effect.gen(function* () {
+          const repo = yield* ContactRepository;
+          const allContacts = yield* repo.findByFuneralHome(funeralHomeId, {});
+
+          // Full-text search across name, email, phone
+          const searchTerm = input.query.toLowerCase();
+          return allContacts
+            .filter(
+              (c) =>
+                c.firstName.toLowerCase().includes(searchTerm) ||
+                c.lastName.toLowerCase().includes(searchTerm) ||
+                c.email?.toLowerCase().includes(searchTerm) ||
+                c.phone?.includes(searchTerm)
+            )
+            .slice(0, input.limit);
+        })
+      );
+
+      return contacts.map((contact) => ({
+        id: contact.id,
+        firstName: contact.firstName,
+        lastName: contact.lastName,
+        email: contact.email,
+        phone: contact.phone,
+        type: contact.type,
+        tags: contact.tags,
+        funeralHomeId: contact.funeralHomeId,
+      }));
+    }),
+
+  /**
+   * Find duplicate contacts
+   */
+  findDuplicates: staffProcedure
+    .input(
+      z.object({
+        funeralHomeId: z.string().optional(),
+        threshold: z.number().min(0).max(1).default(0.8),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      const funeralHomeId = input.funeralHomeId ?? ctx.user.funeralHomeId ?? 'default';
+
+      const duplicates = await runEffect(
+        findDuplicates({
+          funeralHomeId,
+          minSimilarityScore: Math.round(input.threshold * 100),
+        })
+      );
+
+      // Group similar contacts together
+      const groups: { score: number; contacts: any[] }[] = [];
+      const seen = new Set<string>();
+      
+      for (const match of duplicates) {
+        if (seen.has(match.contact.id)) continue;
+        
+        const group = {
+          score: match.similarityScore / 100,
+          contacts: [
+            {
+              id: match.contact.id,
+              firstName: match.contact.firstName,
+              lastName: match.contact.lastName,
+              email: match.contact.email,
+              phone: match.contact.phone,
+            },
+          ],
+        };
+        
+        // Find other similar contacts
+        for (const otherMatch of duplicates) {
+          if (otherMatch.contact.id !== match.contact.id && !seen.has(otherMatch.contact.id)) {
+            // Check if they're similar enough
+            if (Math.abs(otherMatch.similarityScore - match.similarityScore) < 10) {
+              group.contacts.push({
+                id: otherMatch.contact.id,
+                firstName: otherMatch.contact.firstName,
+                lastName: otherMatch.contact.lastName,
+                email: otherMatch.contact.email,
+                phone: otherMatch.contact.phone,
+              });
+              seen.add(otherMatch.contact.id);
+            }
+          }
+        }
+        
+        if (group.contacts.length > 1) {
+          groups.push(group);
+          group.contacts.forEach(c => seen.add(c.id));
+        }
+      }
+      
+      return { groups };
+    }),
+
+  /**
+   * Bulk update contacts
+   */
+  bulkUpdate: staffProcedure
+    .input(
+      z.object({
+        contactIds: z.array(z.string()).min(1).max(100),
+        updates: z.object({
+          tags: z.array(z.string()).optional(),
+          emailOptIn: z.boolean().optional(),
+          smsOptIn: z.boolean().optional(),
+        }),
+      })
+    )
+    .mutation(async ({ input }) => {
+      await runEffect(
+        Effect.gen(function* () {
+          const repo = yield* ContactRepository;
+          
+          for (const contactId of input.contactIds) {
+            let contact = yield* repo.findById(contactId as any);
+            
+            // Apply tags
+            if (input.updates.tags) {
+              for (const tag of input.updates.tags) {
+                contact = contact.addTag(tag);
+              }
+            }
+            
+            // Apply opt-ins
+            if (input.updates.emailOptIn !== undefined) {
+              contact = input.updates.emailOptIn ? contact.optInEmail() : contact.optOutEmail();
+            }
+            if (input.updates.smsOptIn !== undefined) {
+              contact = input.updates.smsOptIn ? contact.optInSMS() : contact.optOutSMS();
+            }
+            
+            yield* repo.update(contact);
+          }
+        })
+      );
+      
+      return { success: true, updatedCount: input.contactIds.length };
+    }),
+
+  /**
+   * Bulk delete contacts
+   */
+  bulkDelete: staffProcedure
+    .input(
+      z.object({
+        contactIds: z.array(z.string()).min(1).max(100),
+      })
+    )
+    .mutation(async ({ input }) => {
+      await runEffect(
+        Effect.gen(function* () {
+          const repo = yield* ContactRepository;
+          
+          for (const contactId of input.contactIds) {
+            yield* repo.delete(contactId);
+          }
+        })
+      );
+      
+      return { success: true, deletedCount: input.contactIds.length };
+    }),
+
+  /**
+   * Add note to contact
+   */
+  addNote: staffProcedure
+    .input(
+      z.object({
+        contactId: z.string(),
+        content: z.string().min(1).max(5000),
+        noteType: z.enum(['general', 'phone_call', 'meeting', 'email', 'grief_journey']).default('general'),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const note = await runEffect(
+        Effect.gen(function* () {
+          const noteRepo = yield* NoteRepository;
+
+          // Create note using repository create method
+          return yield* noteRepo.create({
+            businessKey: crypto.randomUUID(),
+            caseId: input.contactId, // Using contactId as caseId for now
+            content: input.content,
+            createdBy: ctx.user.id,
+          });
+        })
+      );
+
+      return {
+        noteId: note.id,
+        content: note.content,
+        createdAt: note.createdAt,
+      };
+    }),
+
+  /**
+   * Link contact to case
+   */
+  linkToCase: staffProcedure
+    .input(
+      z.object({
+        contactId: z.string(),
+        caseId: z.string(),
+        relationshipType: RelationshipTypeSchema.optional(),
+        notes: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      await runEffect(
+        Effect.gen(function* () {
+          // Note: This would typically create a relationship record
+          // For now, we'll just validate the contact and case exist
+          const contactRepo = yield* ContactRepository;
+          const caseRepo = yield* CaseRepository;
+
+          yield* contactRepo.findById(input.contactId as any);
+          yield* caseRepo.findById(input.caseId as any);
+
+          // TODO: Create relationship record when relationship entity is available
+        })
+      );
+
+      return { success: true };
     }),
 });

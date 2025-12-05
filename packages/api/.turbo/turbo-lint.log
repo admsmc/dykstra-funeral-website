@@ -8,6 +8,15 @@ Pages directory cannot be found at /Users/andrewmathers/projects/dykstra-funeral
 [0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/api/src/routers/invitation.router.ts[24m[0m
 [0m  [2m3:1[22m  [33mwarning[39m  Imports "CaseMemberRole" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
 [0m[0m
-[0m[33m[1m✖ 1 problem (0 errors, 1 warning)[22m[39m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/api/src/routers/template-analytics.ts[24m[0m
+[0m   [2m65:16[22m  [33mwarning[39m  'error' is defined but never used  [2m@typescript-eslint/no-unused-vars[22m[0m
+[0m  [2m117:16[22m  [33mwarning[39m  'error' is defined but never used  [2m@typescript-eslint/no-unused-vars[22m[0m
+[0m  [2m155:16[22m  [33mwarning[39m  'error' is defined but never used  [2m@typescript-eslint/no-unused-vars[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/api/src/routers/template-approval.ts[24m[0m
+[0m  [2m276:16[22m  [33mwarning[39m  'error' is defined but never used  [2m@typescript-eslint/no-unused-vars[22m[0m
+[0m  [2m316:16[22m  [33mwarning[39m  'error' is defined but never used  [2m@typescript-eslint/no-unused-vars[22m[0m
+[0m[0m
+[0m[33m[1m✖ 6 problems (0 errors, 6 warnings)[22m[39m[0m
 [0m[33m[1m[22m[39m[33m[1m  0 errors and 1 warning potentially fixable with the `--fix` option.[22m[39m[0m
 [0m[33m[1m[22m[39m[0m

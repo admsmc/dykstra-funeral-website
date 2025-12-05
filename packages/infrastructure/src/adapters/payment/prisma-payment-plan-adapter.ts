@@ -1,5 +1,5 @@
 import { Effect } from 'effect';
-import type { PaymentPlanPort, PaymentPlanResult, PaymentPlanError, PaymentFrequency, Installment } from '@dykstra/application';
+import type { PaymentPlanPortService, PaymentPlanResult, PaymentPlanError, PaymentFrequency } from '@dykstra/application';
 import { prisma } from '../../database/prisma-client';
 import { decimalToNumber } from '../../utils/type-converters';
 
@@ -35,12 +35,13 @@ function calculateDueDates(startDate: Date, frequency: PaymentFrequency, count: 
 
 /**
  * Prisma implementation of PaymentPlanPort
+ * Object-based adapter (NOT class-based)
  */
-export class PrismaPaymentPlanAdapter implements PaymentPlanPort {
+export const PrismaPaymentPlanAdapter: PaymentPlanPortService = {
   /**
    * Create a payment plan
    */
-  readonly createPlan = (params: {
+  createPlan: (params: {
     caseId: string;
     totalAmount: number;
     downPayment: number;
@@ -106,24 +107,12 @@ export class PrismaPaymentPlanAdapter implements PaymentPlanPort {
           }
         })(message, error);
       },
-    });
+    }),
 
   /**
    * Get payment plan details
    */
-  readonly getPlan = (
-    planId: string
-  ): Effect.Effect<
-    {
-      id: string;
-      caseId: string;
-      totalAmount: number;
-      remainingBalance: number;
-      installments: Installment[];
-      status: string;
-    },
-    PaymentPlanError
-  > =>
+  getPlan: (planId: string) =>
     Effect.tryPromise({
       try: async () => {
         const plan = await prisma.paymentPlan.findUnique({
@@ -162,12 +151,12 @@ export class PrismaPaymentPlanAdapter implements PaymentPlanPort {
           }
         })(message, error);
       },
-    });
+    }),
 
   /**
    * Process an installment payment
    */
-  readonly processInstallment = (params: {
+  processInstallment: (params: {
     planId: string;
     installmentNumber: number;
     amount: number;
@@ -227,12 +216,12 @@ export class PrismaPaymentPlanAdapter implements PaymentPlanPort {
           }
         })(message, error);
       },
-    });
+    }),
 
   /**
    * Cancel a payment plan
    */
-  readonly cancelPlan = (planId: string, _reason: string): Effect.Effect<void, PaymentPlanError> =>
+  cancelPlan: (planId: string, _reason: string) =>
     Effect.tryPromise({
       try: async () => {
         // Note: cancellationReason and cancelledAt fields don't exist in schema
@@ -252,12 +241,12 @@ export class PrismaPaymentPlanAdapter implements PaymentPlanPort {
           }
         })(message, error);
       },
-    });
-}
+    }),
+};
 
 /**
  * Create Prisma Payment Plan Adapter instance
  */
-export function createPrismaPaymentPlanAdapter(): PaymentPlanPort {
-  return new PrismaPaymentPlanAdapter();
+export function createPrismaPaymentPlanAdapter(): PaymentPlanPortService {
+  return PrismaPaymentPlanAdapter;
 }

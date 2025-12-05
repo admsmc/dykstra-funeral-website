@@ -13,6 +13,7 @@ export * from './database/prisma-audit-log-repository';
 export * from './database/prisma-staff-repository';
 export * from './database/prisma-catalog-repositories';
 export * from './database/prisma-contract-template-repository';
+export * from './database/prisma-template-repository'; // Week 9: Memorial templates
 
 // CRM Repositories
 export * from './database/prisma-lead-repository';
@@ -29,6 +30,8 @@ export * from './repositories/pre-planning-appointment-repository';
 // CRM Adapters
 export * from './adapters/email/sendgrid-marketing-adapter';
 export * from './adapters/sms/twilio-sms-adapter';
+export * from './adapters/contact-management-policy-adapter';
+export * from './adapters/email-calendar-sync-policy-adapter';
 
 // Email Sync Adapters (provider-specific, not in main layer)
 export * from './adapters/email-sync/microsoft-graph-adapter';
@@ -55,6 +58,11 @@ export * from './adapters/insurance/prisma-insurance-adapter';
 export * from './payment/stripe-adapter';
 export * from './signature/signature-adapter';
 export * from './email/email-adapter';
+
+// Document Generation Adapters (Week 4, 7, & 8)
+export * from './adapters/documents/react-pdf-adapter';
+export * from './adapters/documents/puppeteer-adapter'; // Week 7: Puppeteer
+export * from './adapters/documents/handlebars-adapter'; // Week 8: Handlebars
 
 // Combined infrastructure layer
 import { Layer } from 'effect';

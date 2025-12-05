@@ -1,7 +1,7 @@
 import { Effect } from 'effect';
 import { PhotoDeleted, type NotFoundError, AuthorizationError, type PhotoId } from '@dykstra/domain';
 import { PhotoRepository, type PersistenceError } from '../ports/photo-repository';
-import { StoragePort, type StorageError } from '../ports/storage-port';
+import { StoragePort, type StoragePortService, type StorageError } from '../ports/storage-port';
 import { EventPublisher, type EventPublishError } from '../ports/event-publisher';
 
 /**
@@ -22,7 +22,7 @@ export const deletePhoto = (
 ): Effect.Effect<
   void,
   NotFoundError | AuthorizationError | StorageError | PersistenceError | EventPublishError,
-  PhotoRepository | StoragePort | EventPublisher
+  PhotoRepository | StoragePortService | EventPublisher
 > =>
   Effect.gen(function* (_) {
     // Get dependencies

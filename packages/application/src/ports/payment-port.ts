@@ -31,7 +31,7 @@ export interface CustomerResult {
  * Payment Port
  * Abstraction for payment processing (Stripe)
  */
-export interface PaymentPort {
+export interface PaymentPortService {
   /**
    * Create a payment intent
    */
@@ -67,4 +67,4 @@ export interface PaymentPort {
 /**
  * Payment Port service tag for dependency injection
  */
-export const PaymentPort = Context.GenericTag<PaymentPort>('@dykstra/PaymentPort');
+export const PaymentPort = Context.GenericTag<PaymentPortService>('@dykstra/PaymentPort');

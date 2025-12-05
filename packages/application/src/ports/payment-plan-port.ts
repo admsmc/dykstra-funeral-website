@@ -37,7 +37,7 @@ export interface PaymentPlanResult {
  * Payment Plan Port
  * Abstraction for payment plan management
  */
-export interface PaymentPlanPort {
+export interface PaymentPlanPortService {
   /**
    * Create a payment plan
    */
@@ -87,4 +87,4 @@ export interface PaymentPlanPort {
 /**
  * Payment Plan Port service tag for dependency injection
  */
-export const PaymentPlanPort = Context.GenericTag<PaymentPlanPort>('@dykstra/PaymentPlanPort');
+export const PaymentPlanPort = Context.GenericTag<PaymentPlanPortService>('@dykstra/PaymentPlanPort');

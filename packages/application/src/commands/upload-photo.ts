@@ -1,7 +1,7 @@
 import { Effect } from 'effect';
 import { Photo, PhotoUploaded, type ValidationError, type PhotoId, type MemorialId } from '@dykstra/domain';
 import { PhotoRepository, type PersistenceError } from '../ports/photo-repository';
-import { StoragePort, type StorageError } from '../ports/storage-port';
+import { StoragePort, type StoragePortService, type StorageError } from '../ports/storage-port';
 import { EventPublisher, type EventPublishError } from '../ports/event-publisher';
 
 /**
@@ -32,7 +32,7 @@ export const uploadPhoto = (
 ): Effect.Effect<
   Photo,
   ValidationError | StorageError | PersistenceError | EventPublishError,
-  PhotoRepository | StoragePort | EventPublisher
+  PhotoRepository | StoragePortService | EventPublisher
 > =>
   Effect.gen(function* (_) {
     // Get dependencies

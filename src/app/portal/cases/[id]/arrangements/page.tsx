@@ -8,7 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@dyks
 import { Input } from '@dykstra/ui/input';
 import { Textarea } from '@dykstra/ui/textarea';
 import { RadioGroup } from '@dykstra/ui/radio-group';
-import { Toast, useToast } from '@dykstra/ui/toast';
+import { useToast } from '@/components/toast';
+import { ErrorBoundary, PageErrorFallback } from '@/components/error';
 
 type ServiceType = 'traditional_burial' | 'traditional_cremation' | 'memorial_service' | 'direct_burial' | 'direct_cremation' | 'celebration_of_life';
 
@@ -113,10 +114,10 @@ const SAMPLE_PRODUCTS: Product[] = [
   },
 ];
 
-export default function ArrangementsPage() {
+function ArrangementsPageContent() {
   const params = useParams();
   const caseId = params.id as string;
-  const { toast } = useToast();
+  const toast = useToast();
 
   // Fetch arrangements
   const { data: arrangements, isLoading, refetch } = trpc.arrangements.get.useQuery({ caseId });
@@ -124,19 +125,11 @@ export default function ArrangementsPage() {
   // Save mutation
   const saveMutation = trpc.arrangements.save.useMutation({
     onSuccess: () => {
-      toast({
-        title: 'Saved',
-        description: 'Arrangements have been saved successfully',
-        variant: 'success',
-      });
+      toast.success('Arrangements saved successfully');
       refetch();
     },
     onError: (error) => {
-      toast({
-        title: 'Error',
-        description: error.message,
-        variant: 'error',
-      });
+      toast.error(`Failed to save arrangements: ${error.message}`);
     },
   });
 
@@ -598,5 +591,13 @@ export default function ArrangementsPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function ArrangementsPage() {
+  return (
+    <ErrorBoundary fallback={(error, reset) => <PageErrorFallback error={error} reset={reset} />}>
+      <ArrangementsPageContent />
+    </ErrorBoundary>
   );
 }

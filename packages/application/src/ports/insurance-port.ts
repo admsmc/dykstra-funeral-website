@@ -22,7 +22,7 @@ export interface InsuranceAssignmentResult {
  * Insurance Port
  * Abstraction for insurance assignment operations
  */
-export interface InsurancePort {
+export interface InsurancePortService {
   /**
    * Create an insurance assignment
    */
@@ -64,4 +64,4 @@ export interface InsurancePort {
 /**
  * Insurance Port service tag for dependency injection
  */
-export const InsurancePort = Context.GenericTag<InsurancePort>('@dykstra/InsurancePort');
+export const InsurancePort = Context.GenericTag<InsurancePortService>('@dykstra/InsurancePort');

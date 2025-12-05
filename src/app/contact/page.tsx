@@ -2,21 +2,30 @@
 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { contactFormSchema, type ContactForm } from "@dykstra/domain";
+import { Form, FormInput, FormTextarea } from "@dykstra/ui";
 
 export default function Contact() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    message: "",
+  // Initialize form with react-hook-form + domain validation
+  const form = useForm<ContactForm>({
+    resolver: zodResolver(contactFormSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      message: "",
+    },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  // Handle form submission (validation automatic via react-hook-form)
+  const onSubmit = form.handleSubmit((data) => {
     // Form submission logic would go here
+    console.log("Contact form submitted:", data);
     alert("Thank you for contacting us. We will reach out to you shortly.");
-  };
+    form.reset();
+  });
 
   return (
     <>
@@ -97,69 +106,45 @@ export default function Contact() {
                 Send Us a Message
               </h2>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label htmlFor="name" className="block text-gray-700 font-semibold mb-2">
-                    Name *
-                  </label>
-                  <input
+              <Form {...form}>
+                <form onSubmit={onSubmit} className="space-y-4">
+                  <FormInput
+                    name="name"
+                    label="Name"
                     type="text"
-                    id="name"
                     required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[--sage] focus:border-transparent"
-                    value={formData.name}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setFormData({ ...formData, name: e.target.value })}
                   />
-                </div>
 
-                <div>
-                  <label htmlFor="email" className="block text-gray-700 font-semibold mb-2">
-                    Email *
-                  </label>
-                  <input
+                  <FormInput
+                    name="email"
+                    label="Email"
                     type="email"
-                    id="email"
                     required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[--sage] focus:border-transparent"
-                    value={formData.email}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setFormData({ ...formData, email: e.target.value })}
                   />
-                </div>
 
-                <div>
-                  <label htmlFor="phone" className="block text-gray-700 font-semibold mb-2">
-                    Phone
-                  </label>
-                  <input
+                  <FormInput
+                    name="phone"
+                    label="Phone"
                     type="tel"
-                    id="phone"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[--sage] focus:border-transparent"
-                    value={formData.phone}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setFormData({ ...formData, phone: e.target.value })}
                   />
-                </div>
 
-                <div>
-                  <label htmlFor="message" className="block text-gray-700 font-semibold mb-2">
-                    Message *
-                  </label>
-                  <textarea
-                    id="message"
-                    required
+                  <FormTextarea
+                    name="message"
+                    label="Message"
                     rows={5}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[--sage] focus:border-transparent"
-                    value={formData.message}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setFormData({ ...formData, message: e.target.value })}
+                    maxLength={2000}
+                    showCharacterCount
+                    required
                   />
-                </div>
 
-                <button
-                  type="submit"
-                  className="w-full bg-[--navy] text-white px-6 py-3 rounded-md font-semibold hover:bg-[--charcoal] transition-colors"
-                >
-                  Send Message
-                </button>
-              </form>
+                  <button
+                    type="submit"
+                    className="w-full bg-[--navy] text-white px-6 py-3 rounded-md font-semibold hover:bg-[--charcoal] transition-colors"
+                  >
+                    Send Message
+                  </button>
+                </form>
+              </Form>
             </div>
           </div>
         </div>

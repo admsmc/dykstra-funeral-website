@@ -1,28 +1,56 @@
 import { Effect } from 'effect';
-import { PrismaClient } from '@prisma/client';
 import { Vehicle, VehicleId, VehicleStatus } from '@dykstra/domain';
 import type { VehicleRepositoryService } from '@dykstra/application';
 import { VehicleNotFoundError, VehicleRepositoryError } from '@dykstra/application';
+import { prisma } from '../../database/prisma-client';
+
+/**
+ * Map Prisma record to domain object
+ */
+function mapToDomain(record: any): Vehicle {
+  // Map Prisma schema fields to Domain model fields
+  return new Vehicle({
+    id: record.id as VehicleId,
+    businessKey: record.businessKey,
+    version: record.version,
+    funeralHomeId: record.funeralHomeId,
+    name: record.vehicleType, // Prisma 'vehicleType' → Domain 'name'
+    licensePlate: record.licensePlate,
+    vin: record.vin,
+    year: record.year,
+    make: record.make,
+    model: record.model,
+    capacity: 'standard' as any, // Prisma has Int, Domain has string enum - stub for now
+    status: record.status.toLowerCase() as any,
+    totalMileage: record.mileageCurrentTotal, // Prisma 'mileageCurrentTotal' → Domain 'totalMileage'
+    lastMaintenanceDate: record.lastMaintenanceDate ?? undefined,
+    inspectionDueDate: record.nextInspectionDate ?? undefined, // Prisma 'nextInspectionDate' → Domain 'inspectionDueDate'
+    notes: record.notes ?? undefined,
+    createdAt: record.createdAt,
+    updatedAt: record.updatedAt,
+    createdBy: record.createdBy,
+  });
+}
 
 /**
  * VehicleRepository Implementation
  *
+ * Object-based adapter (NOT class-based) implementing VehicleRepositoryService.
  * Implements persistence for vehicle fleet management using SCD2 temporal pattern.
  * - All creates/updates generate new version records
  * - Current version tracked with isCurrent flag
  * - Complete audit trail maintained via businessKey + version
  * - Tracks maintenance and inspection schedules
  */
-export class VehicleRepositoryImpl implements VehicleRepositoryService {
-  constructor(private readonly prisma: PrismaClient) {}
+export const VehicleRepository: VehicleRepositoryService = {
 
   /**
    * Save new vehicle (creates initial version)
    */
-  save(vehicle: Vehicle): Effect.Effect<void, VehicleRepositoryError, never> {
-    return Effect.tryPromise({
+  save: (vehicle: Vehicle) =>
+    Effect.tryPromise({
       try: async () => {
-        await this.prisma.vehicle.create({
+        await prisma.vehicle.create({
           data: {
             id: vehicle.id,
             businessKey: vehicle.businessKey,
@@ -56,18 +84,15 @@ export class VehicleRepositoryImpl implements VehicleRepositoryService {
           `Failed to save vehicle: ${(error as Error).message}`,
           error
         ),
-    });
-  }
+    }),
 
   /**
    * Find vehicle by ID (current version only)
    */
-  findById(
-    id: VehicleId
-  ): Effect.Effect<Vehicle, VehicleNotFoundError | VehicleRepositoryError, never> {
-    return Effect.tryPromise({
+  findById: (id: VehicleId) =>
+    Effect.tryPromise({
       try: async () => {
-        const record = await this.prisma.vehicle.findUnique({
+        const record = await prisma.vehicle.findUnique({
           where: { id },
         });
 
@@ -75,7 +100,7 @@ export class VehicleRepositoryImpl implements VehicleRepositoryService {
           throw new VehicleNotFoundError(`Vehicle not found: ${id}`, id);
         }
 
-        return this.mapToDomain(record);
+        return mapToDomain(record);
       },
       catch: (error) => {
         if (error instanceof VehicleNotFoundError) return error;
@@ -84,62 +109,55 @@ export class VehicleRepositoryImpl implements VehicleRepositoryService {
           error
         );
       },
-    });
-  }
+    }),
 
   /**
    * Find vehicle by license plate
    */
-  findByLicensePlate(
-    licensePlate: string
-  ): Effect.Effect<Vehicle | null, VehicleRepositoryError, never> {
-    return Effect.tryPromise({
+  findByLicensePlate: (licensePlate: string) =>
+    Effect.tryPromise({
       try: async () => {
-        const record = await this.prisma.vehicle.findUnique({
+        const record = await prisma.vehicle.findUnique({
           where: { licensePlate },
         });
 
         if (!record || !record.isCurrent) return null;
-        return this.mapToDomain(record);
+        return mapToDomain(record);
       },
       catch: (error) =>
         new VehicleRepositoryError(
           `Failed to find vehicle by license plate ${licensePlate}: ${(error as Error).message}`,
           error
         ),
-    });
-  }
+    }),
 
   /**
    * Find vehicle by VIN
    */
-  findByVin(vin: string): Effect.Effect<Vehicle | null, VehicleRepositoryError, never> {
-    return Effect.tryPromise({
+  findByVin: (vin: string) =>
+    Effect.tryPromise({
       try: async () => {
-        const record = await this.prisma.vehicle.findUnique({
+        const record = await prisma.vehicle.findUnique({
           where: { vin },
         });
 
         if (!record || !record.isCurrent) return null;
-        return this.mapToDomain(record);
+        return mapToDomain(record);
       },
       catch: (error) =>
         new VehicleRepositoryError(
           `Failed to find vehicle by VIN ${vin}: ${(error as Error).message}`,
           error
         ),
-    });
-  }
+    }),
 
   /**
    * Find all vehicles for a funeral home
    */
-  findByFuneralHome(
-    funeralHomeId: string
-  ): Effect.Effect<Vehicle[], VehicleRepositoryError, never> {
-    return Effect.tryPromise({
+  findByFuneralHome: (funeralHomeId: string) =>
+    Effect.tryPromise({
       try: async () => {
-        const records = await this.prisma.vehicle.findMany({
+        const records = await prisma.vehicle.findMany({
           where: {
             funeralHomeId,
             isCurrent: true,
@@ -147,25 +165,22 @@ export class VehicleRepositoryImpl implements VehicleRepositoryService {
           orderBy: { vehicleType: 'asc' },
         });
 
-        return records.map((r) => this.mapToDomain(r));
+        return records.map((r) => mapToDomain(r));
       },
       catch: (error) =>
         new VehicleRepositoryError(
           `Failed to find vehicles for funeral home ${funeralHomeId}: ${(error as Error).message}`,
           error
         ),
-    });
-  }
+    }),
 
   /**
    * Find available vehicles (status='available' AND has current inspection)
    */
-  findAvailable(
-    funeralHomeId: string
-  ): Effect.Effect<Vehicle[], VehicleRepositoryError, never> {
-    return Effect.tryPromise({
+  findAvailable: (funeralHomeId: string) =>
+    Effect.tryPromise({
       try: async () => {
-        const records = await this.prisma.vehicle.findMany({
+        const records = await prisma.vehicle.findMany({
           where: {
             funeralHomeId,
             status: 'AVAILABLE',
@@ -177,26 +192,22 @@ export class VehicleRepositoryImpl implements VehicleRepositoryService {
           orderBy: { vehicleType: 'asc' },
         });
 
-        return records.map((r) => this.mapToDomain(r));
+        return records.map((r) => mapToDomain(r));
       },
       catch: (error) =>
         new VehicleRepositoryError(
           `Failed to find available vehicles for funeral home ${funeralHomeId}: ${(error as Error).message}`,
           error
         ),
-    });
-  }
+    }),
 
   /**
    * Find vehicles by status
    */
-  findByStatus(
-    funeralHomeId: string,
-    status: VehicleStatus
-  ): Effect.Effect<Vehicle[], VehicleRepositoryError, never> {
-    return Effect.tryPromise({
+  findByStatus: (funeralHomeId: string, status: VehicleStatus) =>
+    Effect.tryPromise({
       try: async () => {
-        const records = await this.prisma.vehicle.findMany({
+        const records = await prisma.vehicle.findMany({
           where: {
             funeralHomeId,
             status: status as any,
@@ -205,25 +216,22 @@ export class VehicleRepositoryImpl implements VehicleRepositoryService {
           orderBy: { vehicleType: 'asc' },
         });
 
-        return records.map((r) => this.mapToDomain(r));
+        return records.map((r) => mapToDomain(r));
       },
       catch: (error) =>
         new VehicleRepositoryError(
           `Failed to find vehicles by status ${status}: ${(error as Error).message}`,
           error
         ),
-    });
-  }
+    }),
 
   /**
    * Find vehicles with expired inspections
    */
-  findWithExpiredInspections(
-    funeralHomeId: string
-  ): Effect.Effect<Vehicle[], VehicleRepositoryError, never> {
-    return Effect.tryPromise({
+  findWithExpiredInspections: (funeralHomeId: string) =>
+    Effect.tryPromise({
       try: async () => {
-        const records = await this.prisma.vehicle.findMany({
+        const records = await prisma.vehicle.findMany({
           where: {
             funeralHomeId,
             isCurrent: true,
@@ -233,25 +241,22 @@ export class VehicleRepositoryImpl implements VehicleRepositoryService {
           },
         });
 
-        return records.map((r) => this.mapToDomain(r));
+        return records.map((r) => mapToDomain(r));
       },
       catch: (error) =>
         new VehicleRepositoryError(
           `Failed to find vehicles with expired inspections: ${(error as Error).message}`,
           error
         ),
-    });
-  }
+    }),
 
   /**
    * Find vehicles due for maintenance
    */
-  findDueForMaintenance(
-    funeralHomeId: string
-  ): Effect.Effect<Vehicle[], VehicleRepositoryError, never> {
-    return Effect.tryPromise({
+  findDueForMaintenance: (funeralHomeId: string) =>
+    Effect.tryPromise({
       try: async () => {
-        const records = await this.prisma.vehicle.findMany({
+        const records = await prisma.vehicle.findMany({
           where: {
             funeralHomeId,
             isCurrent: true,
@@ -261,24 +266,23 @@ export class VehicleRepositoryImpl implements VehicleRepositoryService {
           },
         });
 
-        return records.map((r) => this.mapToDomain(r));
+        return records.map((r) => mapToDomain(r));
       },
       catch: (error) =>
         new VehicleRepositoryError(
           `Failed to find vehicles due for maintenance: ${(error as Error).message}`,
           error
         ),
-    });
-  }
+    }),
 
   /**
    * Update vehicle (creates new version per SCD2)
    */
-  update(vehicle: Vehicle): Effect.Effect<void, VehicleNotFoundError | VehicleRepositoryError, never> {
-    return Effect.tryPromise({
+  update: (vehicle: Vehicle) =>
+    Effect.tryPromise({
       try: async () => {
         // Check if current version exists
-        const current = await this.prisma.vehicle.findFirst({
+        const current = await prisma.vehicle.findFirst({
           where: {
             businessKey: vehicle.businessKey,
             isCurrent: true,
@@ -293,7 +297,7 @@ export class VehicleRepositoryImpl implements VehicleRepositoryService {
         }
 
         // Invalidate current version
-        await this.prisma.vehicle.update({
+        await prisma.vehicle.update({
           where: { id: current.id },
           data: {
             isCurrent: false,
@@ -302,7 +306,7 @@ export class VehicleRepositoryImpl implements VehicleRepositoryService {
         });
 
         // Create new version
-        await this.prisma.vehicle.create({
+        await prisma.vehicle.create({
           data: {
             id: vehicle.id,
             businessKey: vehicle.businessKey,
@@ -339,19 +343,15 @@ export class VehicleRepositoryImpl implements VehicleRepositoryService {
           error
         );
       },
-    });
-  }
+    }),
 
   /**
    * Update vehicle status only (without full update)
    */
-  updateStatus(
-    id: VehicleId,
-    status: VehicleStatus
-  ): Effect.Effect<void, VehicleNotFoundError | VehicleRepositoryError, never> {
-    return Effect.tryPromise({
+  updateStatus: (id: VehicleId, status: VehicleStatus) =>
+    Effect.tryPromise({
       try: async () => {
-        const current = await this.prisma.vehicle.findUnique({
+        const current = await prisma.vehicle.findUnique({
           where: { id },
         });
 
@@ -360,7 +360,7 @@ export class VehicleRepositoryImpl implements VehicleRepositoryService {
         }
 
         // Create new version with updated status
-        await this.prisma.vehicle.update({
+        await prisma.vehicle.update({
           where: { id },
           data: {
             isCurrent: false,
@@ -368,7 +368,7 @@ export class VehicleRepositoryImpl implements VehicleRepositoryService {
           },
         });
 
-        await this.prisma.vehicle.create({
+        await prisma.vehicle.create({
           data: {
             ...current,
             id: `${id}_v${current.version + 1}`,
@@ -386,19 +386,15 @@ export class VehicleRepositoryImpl implements VehicleRepositoryService {
           error
         );
       },
-    });
-  }
+    }),
 
   /**
    * Increment vehicle mileage (when assignment completes)
    */
-  addMileage(
-    id: VehicleId,
-    miles: number
-  ): Effect.Effect<void, VehicleNotFoundError | VehicleRepositoryError, never> {
-    return Effect.tryPromise({
+  addMileage: (id: VehicleId, miles: number) =>
+    Effect.tryPromise({
       try: async () => {
-        const current = await this.prisma.vehicle.findUnique({
+        const current = await prisma.vehicle.findUnique({
           where: { id },
         });
 
@@ -407,7 +403,7 @@ export class VehicleRepositoryImpl implements VehicleRepositoryService {
         }
 
         // Create new version with updated mileage
-        await this.prisma.vehicle.update({
+        await prisma.vehicle.update({
           where: { id },
           data: {
             isCurrent: false,
@@ -415,7 +411,7 @@ export class VehicleRepositoryImpl implements VehicleRepositoryService {
           },
         });
 
-        await this.prisma.vehicle.create({
+        await prisma.vehicle.create({
           data: {
             ...current,
             id: `${id}_mileage_${Date.now()}`,
@@ -433,18 +429,15 @@ export class VehicleRepositoryImpl implements VehicleRepositoryService {
           error
         );
       },
-    });
-  }
+    }),
 
   /**
    * Get complete version history of a vehicle
    */
-  findHistory(
-    businessKey: string
-  ): Effect.Effect<Vehicle[], VehicleNotFoundError | VehicleRepositoryError, never> {
-    return Effect.tryPromise({
+  findHistory: (businessKey: string) =>
+    Effect.tryPromise({
       try: async () => {
-        const records = await this.prisma.vehicle.findMany({
+        const records = await prisma.vehicle.findMany({
           where: { businessKey },
           orderBy: [{ version: 'asc' }],
         });
@@ -453,7 +446,7 @@ export class VehicleRepositoryImpl implements VehicleRepositoryService {
           throw new VehicleNotFoundError(`No history found for vehicle: ${businessKey}`, businessKey);
         }
 
-        return records.map((r) => this.mapToDomain(r));
+        return records.map((r) => mapToDomain(r));
       },
       catch: (error) => {
         if (error instanceof VehicleNotFoundError) return error;
@@ -462,34 +455,5 @@ export class VehicleRepositoryImpl implements VehicleRepositoryService {
           error
         );
       },
-    });
-  }
-
-  /**
-   * Map Prisma record to domain object
-   */
-  private mapToDomain(record: any): Vehicle {
-    // Map Prisma schema fields to Domain model fields
-    return new Vehicle({
-      id: record.id as VehicleId,
-      businessKey: record.businessKey,
-      version: record.version,
-      funeralHomeId: record.funeralHomeId,
-      name: record.vehicleType, // Prisma 'vehicleType' → Domain 'name'
-      licensePlate: record.licensePlate,
-      vin: record.vin,
-      year: record.year,
-      make: record.make,
-      model: record.model,
-      capacity: 'standard' as any, // Prisma has Int, Domain has string enum - stub for now
-      status: record.status.toLowerCase() as any,
-      totalMileage: record.mileageCurrentTotal, // Prisma 'mileageCurrentTotal' → Domain 'totalMileage'
-      lastMaintenanceDate: record.lastMaintenanceDate ?? undefined,
-      inspectionDueDate: record.nextInspectionDate ?? undefined, // Prisma 'nextInspectionDate' → Domain 'inspectionDueDate'
-      notes: record.notes ?? undefined,
-      createdAt: record.createdAt,
-      updatedAt: record.updatedAt,
-      createdBy: record.createdBy,
-    });
-  }
-}
+    }),
+};

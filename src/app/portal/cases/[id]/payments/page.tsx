@@ -5,6 +5,8 @@ import { useParams } from "next/navigation";
 import { trpc } from "@/lib/trpc/client";
 import { toast } from "sonner";
 import { useStripe, useElements, PaymentElement } from "@stripe/react-stripe-js";
+import type { ColumnDef } from "@tanstack/react-table";
+import { DataTable } from "@/components/table";
 import {
   CreditCard,
   Building2,
@@ -19,6 +21,14 @@ import {
 } from "lucide-react";
 
 type PaymentMethod = "card" | "ach" | "plan" | "insurance";
+
+interface Payment {
+  id: string;
+  paidDate: Date | string;
+  amount: number;
+  method: string;
+  status: string;
+}
 
 export default function PaymentsPage() {
   const params = useParams();
@@ -173,6 +183,88 @@ export default function PaymentsPage() {
     // Generate PDF and download
   };
 
+  // Payment table column definitions
+  const paymentColumns: ColumnDef<Payment>[] = [
+    {
+      accessorKey: "paidDate",
+      header: "Date",
+      cell: ({ row }) => {
+        const date = new Date(row.original.paidDate);
+        return (
+          <span className="text-sm text-gray-900">
+            {date.toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })}
+          </span>
+        );
+      },
+      enableSorting: true,
+    },
+    {
+      accessorKey: "amount",
+      header: "Amount",
+      cell: ({ row }) => (
+        <span className="text-sm font-medium text-gray-900">
+          ${row.original.amount.toFixed(2)}
+        </span>
+      ),
+      enableSorting: true,
+    },
+    {
+      accessorKey: "method",
+      header: "Method",
+      cell: ({ row }) => (
+        <span className="text-sm text-gray-600">
+          {row.original.method.replace("_", " ")}
+        </span>
+      ),
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => {
+        const status = row.original.status;
+        const statusClasses =
+          status === "SUCCEEDED"
+            ? "bg-green-100 text-green-800"
+            : status === "PENDING"
+            ? "bg-yellow-100 text-yellow-800"
+            : status === "FAILED"
+            ? "bg-red-100 text-red-800"
+            : "bg-gray-100 text-gray-800";
+        
+        return (
+          <span
+            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClasses}`}
+          >
+            {status}
+          </span>
+        );
+      },
+    },
+    {
+      id: "actions",
+      header: () => <div className="text-right">Actions</div>,
+      cell: ({ row }) => {
+        if (row.original.status !== "SUCCEEDED") return null;
+        
+        return (
+          <div className="text-right">
+            <button
+              onClick={() => handleDownloadReceipt(row.original.id)}
+              className="inline-flex items-center gap-1 text-sm text-[--navy] hover:text-[--navy]/80"
+            >
+              <Download className="w-4 h-4" />
+              Receipt
+            </button>
+          </div>
+        );
+      },
+    },
+  ];
+
   const paymentMethodOptions = [
     {
       id: "card" as PaymentMethod,
@@ -270,88 +362,25 @@ export default function PaymentsPage() {
               </div>
 
               <div className="p-6">
-                {isLoading ? (
-                  <div className="flex items-center justify-center py-12">
-                    <Loader2 className="w-8 h-8 animate-spin text-[--navy]" />
-                  </div>
-                ) : paymentHistory?.payments.length === 0 ? (
-                  <div className="text-center py-12">
-                    <DollarSign className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-600">No payments yet</p>
-                    <p className="text-sm text-gray-500 mt-2">
-                      Your payment history will appear here
-                    </p>
-                  </div>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b border-gray-200">
-                          <th className="text-left text-sm font-medium text-gray-600 pb-3">
-                            Date
-                          </th>
-                          <th className="text-left text-sm font-medium text-gray-600 pb-3">
-                            Amount
-                          </th>
-                          <th className="text-left text-sm font-medium text-gray-600 pb-3">
-                            Method
-                          </th>
-                          <th className="text-left text-sm font-medium text-gray-600 pb-3">
-                            Status
-                          </th>
-                          <th className="text-right text-sm font-medium text-gray-600 pb-3">
-                            Actions
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-200">
-                        {paymentHistory?.payments.map((payment) => (
-                          <tr key={payment.id} className="hover:bg-gray-50">
-                            <td className="py-4 text-sm text-gray-900">
-                              {new Date(payment.paidDate).toLocaleDateString("en-US", {
-                                month: "short",
-                                day: "numeric",
-                                year: "numeric",
-                              })}
-                            </td>
-                            <td className="py-4 text-sm font-medium text-gray-900">
-                              ${payment.amount.toFixed(2)}
-                            </td>
-                            <td className="py-4 text-sm text-gray-600">
-                              {payment.method.replace("_", " ")}
-                            </td>
-                            <td className="py-4">
-                              <span
-                                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                  payment.status === "SUCCEEDED"
-                                    ? "bg-green-100 text-green-800"
-                                    : payment.status === "PENDING"
-                                    ? "bg-yellow-100 text-yellow-800"
-                                    : payment.status === "FAILED"
-                                    ? "bg-red-100 text-red-800"
-                                    : "bg-gray-100 text-gray-800"
-                                }`}
-                              >
-                                {payment.status}
-                              </span>
-                            </td>
-                            <td className="py-4 text-right">
-                              {payment.status === "SUCCEEDED" && (
-                                <button
-                                  onClick={() => handleDownloadReceipt(payment.id)}
-                                  className="inline-flex items-center gap-1 text-sm text-[--navy] hover:text-[--navy]/80"
-                                >
-                                  <Download className="w-4 h-4" />
-                                  Receipt
-                                </button>
-                              )}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
+                <DataTable
+                  data={paymentHistory?.payments || []}
+                  columns={paymentColumns}
+                  isLoading={isLoading}
+                  enableColumnVisibility={true}
+                  enableExport={true}
+                  enableStickyHeader={false}
+                  pageSize={10}
+                  exportFilename="payment-history"
+                  emptyState={
+                    <div className="text-center py-12">
+                      <DollarSign className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-600">No payments yet</p>
+                      <p className="text-sm text-gray-500 mt-2">
+                        Your payment history will appear here
+                      </p>
+                    </div>
+                  }
+                />
               </div>
             </div>
           </div>

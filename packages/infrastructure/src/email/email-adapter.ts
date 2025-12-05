@@ -1,11 +1,11 @@
 import { Effect, Layer } from 'effect';
-import { EmailPort, EmailError } from '@dykstra/application';
+import { EmailPort, EmailPortService, EmailError } from '@dykstra/application';
 
 /**
  * Console Email Adapter (Development)
  * Logs emails to console instead of sending
  */
-const ConsoleEmailAdapter: EmailPort = {
+const ConsoleEmailAdapter: EmailPortService = {
   sendInvitation: (to, inviteLink, funeralHomeName, decedentName) =>
     Effect.tryPromise({
       try: async () => {
@@ -64,7 +64,7 @@ const ConsoleEmailAdapter: EmailPort = {
  * 3. Create email templates in SendGrid
  * 4. Uncomment implementation below
  */
-const SendGridEmailAdapter: EmailPort = {
+const SendGridEmailAdapter: EmailPortService = {
   sendInvitation: (to, _inviteLink, _funeralHomeName, _decedentName) =>
     Effect.tryPromise({
       try: async () => {
@@ -115,7 +115,7 @@ const SendGridEmailAdapter: EmailPort = {
 /**
  * Get the appropriate email adapter based on environment
  */
-const getEmailAdapter = (): EmailPort => {
+const getEmailAdapter = (): EmailPortService => {
   const env = process.env['NODE_ENV'] || 'development';
   
   if (env === 'production' && process.env['SENDGRID_API_KEY']) {

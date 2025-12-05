@@ -3,6 +3,8 @@
 import { trpc } from '@/lib/trpc/client';
 import { useState, useRef, use } from 'react';
 import Link from 'next/link';
+import { useToast } from '@/components/toast';
+import { useOptimisticMutation } from '@/hooks/useOptimisticMutation';
 
 /**
  * Contract Signing Page
@@ -20,21 +22,78 @@ export default function ContractSigningPage({
   params: Promise<{ id: string }> 
 }) {
   const { id } = use(params);
+  const toast = useToast();
   
   const [isDrawing, setIsDrawing] = useState(false);
   const [signatureData, setSignatureData] = useState<string>('');
   const [consentAccepted, setConsentAccepted] = useState(false);
+  const [isSigned, setIsSigned] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // Load contract details
   const { data: contract, isLoading } = trpc.contract.getDetails.useQuery({ 
     contractId: id 
   });
+  
+  const utils = trpc.useUtils();
 
-  // Sign contract mutation
-  const signMutation = trpc.contract.sign.useMutation({
+  // Sign contract mutation with optimistic updates
+  const signContractMutation = trpc.contract.sign.useMutation();
+  
+  let previousContract: any = null;
+  
+  const { mutate: signContract, isOptimistic } = useOptimisticMutation({
+    mutationFn: async (variables: {
+      contractId: string;
+      signerId: string;
+      signerName: string;
+      signerEmail: string;
+      signatureData: string;
+      ipAddress: string;
+      userAgent: string;
+      consentText: string;
+      consentAccepted: boolean;
+    }) => {
+      return signContractMutation.mutateAsync(variables);
+    },
+    onOptimisticUpdate: async () => {
+      // Cancel outgoing refetches
+      await utils.contract.getDetails.cancel({ contractId: id });
+      
+      // Snapshot current value
+      previousContract = utils.contract.getDetails.getData({ contractId: id });
+      
+      // Optimistically update contract status
+      utils.contract.getDetails.setData(
+        { contractId: id },
+        (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            status: 'SIGNED' as const,
+            signedAt: new Date().toISOString(),
+          };
+        }
+      );
+      
+      // Update local UI state
+      setIsSigned(true);
+    },
+    rollback: () => {
+      // Roll back to previous value on error
+      if (previousContract) {
+        utils.contract.getDetails.setData({ contractId: id }, previousContract);
+      }
+      setIsSigned(false);
+      utils.contract.getDetails.invalidate({ contractId: id });
+    },
     onSuccess: () => {
+      toast.success('Contract signed successfully');
+      utils.contract.getDetails.invalidate({ contractId: id });
       window.location.href = `/portal/contracts/${id}/success`;
+    },
+    onError: (err: any) => {
+      toast.error(`Failed to sign contract: ${err.message}`);
     },
   });
 
@@ -86,7 +145,7 @@ export default function ContractSigningPage({
 
   const handleSubmit = async () => {
     if (!signatureData || !consentAccepted) {
-      alert('Please sign the document and accept the consent terms');
+      toast.warning('Please sign the document and accept the consent terms');
       return;
     }
 
@@ -94,7 +153,7 @@ export default function ContractSigningPage({
     const userAgent = navigator.userAgent;
     // Note: IP address should be captured server-side for security
     
-    await signMutation.mutateAsync({
+    await signContract({
       contractId: id,
       signerId: 'current-user-id', // From auth context
       signerName: 'Current User', // From auth context
@@ -211,10 +270,10 @@ export default function ContractSigningPage({
         </Link>
         <button
           onClick={handleSubmit}
-          disabled={!signatureData || !consentAccepted || signMutation.isPending}
+          disabled={!signatureData || !consentAccepted || isOptimistic || isSigned}
           className="px-6 py-3 bg-[--sage] text-white rounded hover:bg-[--navy] transition disabled:bg-gray-300 disabled:cursor-not-allowed"
         >
-          {signMutation.isPending ? 'Signing...' : 'Sign Contract'}
+          {isOptimistic ? 'Signing...' : isSigned ? 'Signed ✓' : 'Sign Contract'}
         </button>
       </div>
 

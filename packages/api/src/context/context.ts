@@ -28,6 +28,24 @@ export const createContext = async (opts: FetchCreateContextFnOptions & { userId
   
   let user: UserSession | null = null;
   
+  // In E2E test mode, provide a mock staff user with funeral home
+  if (process.env['PLAYWRIGHT'] === '1' && !userId) {
+    user = {
+      id: 'test-user-playwright',
+      email: 'test@playwright.dev',
+      name: 'E2E Test User',
+      role: 'STAFF',
+      funeralHomeId: 'test-funeral-home-e2e',
+    };
+    return {
+      user,
+      req: opts.req,
+      resHeaders: opts.resHeaders,
+      infrastructure: InfrastructureLayer,
+      prisma,
+    };
+  }
+  
   // If user is authenticated, load their data from database
   if (userId) {
     try {

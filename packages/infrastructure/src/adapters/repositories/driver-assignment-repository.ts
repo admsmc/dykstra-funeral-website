@@ -1,5 +1,4 @@
 import { Effect } from 'effect';
-import { PrismaClient } from '@prisma/client';
 import {
   DriverAssignment,
   DriverId,
@@ -11,25 +10,55 @@ import {
   DriverAssignmentNotFoundError,
   DriverAssignmentRepositoryError,
 } from '@dykstra/application';
+import { prisma } from '../../database/prisma-client';
+
+/**
+ * Map Prisma record to domain object
+ */
+function mapToDomain(record: any): DriverAssignment {
+  return new DriverAssignment({
+    id: record.id as AssignmentId,
+    businessKey: record.businessKey,
+    version: record.version,
+    funeralHomeId: record.funeralHomeId as any,
+    driverId: record.driverId as DriverId,
+    vehicleId: record.vehicleId,
+    eventType: record.eventType.toLowerCase() as any,
+    caseId: record.caseId as any,
+    pickupLocation: record.pickupLocation as Location,
+    dropoffLocation: record.dropoffLocation as Location,
+    scheduledTime: record.scheduledTime,
+    estimatedDuration: record.estimatedDuration,
+    actualDuration: record.actualDuration,
+    status: record.status.toLowerCase() as any,
+    mileageStart: record.mileageStart,
+    mileageEnd: record.mileageEnd,
+    mileageAllowance: record.mileageAllowance,
+    notes: record.notes,
+    createdAt: record.createdAt,
+    updatedAt: record.updatedAt,
+    createdBy: record.createdBy,
+  });
+}
 
 /**
  * DriverAssignmentRepository Implementation
  *
+ * Object-based adapter (NOT class-based) implementing DriverAssignmentRepositoryService.
  * Implements persistence for driver assignments using SCD2 temporal pattern.
  * - All creates/updates generate new version records
  * - Current version tracked with isCurrent flag
  * - Complete audit trail maintained via businessKey + version
  */
-export class DriverAssignmentRepositoryImpl implements DriverAssignmentRepositoryService {
-  constructor(private readonly prisma: PrismaClient) {}
+export const DriverAssignmentRepository: DriverAssignmentRepositoryService = {
 
   /**
    * Save new driver assignment (creates initial version)
    */
-  save(assignment: DriverAssignment): Effect.Effect<void, DriverAssignmentRepositoryError, never> {
-    return Effect.tryPromise({
+  save: (assignment: DriverAssignment) =>
+    Effect.tryPromise({
       try: async () => {
-        await this.prisma.driverAssignment.create({
+        await prisma.driverAssignment.create({
           data: {
             id: assignment.id,
             businessKey: assignment.businessKey,
@@ -56,18 +85,15 @@ export class DriverAssignmentRepositoryImpl implements DriverAssignmentRepositor
           `Failed to save driver assignment: ${(error as Error).message}`,
           error
         ),
-    });
-  }
+    }),
 
   /**
    * Find assignment by ID (current version only)
    */
-  findById(
-    id: AssignmentId
-  ): Effect.Effect<DriverAssignment, DriverAssignmentNotFoundError | DriverAssignmentRepositoryError, never> {
-    return Effect.tryPromise({
+  findById: (id: AssignmentId) =>
+    Effect.tryPromise({
       try: async () => {
-        const record = await this.prisma.driverAssignment.findUnique({
+        const record = await prisma.driverAssignment.findUnique({
           where: { id },
         });
 
@@ -75,7 +101,7 @@ export class DriverAssignmentRepositoryImpl implements DriverAssignmentRepositor
           throw new DriverAssignmentNotFoundError(`Assignment not found: ${id}`, id);
         }
 
-        return this.mapToDomain(record);
+        return mapToDomain(record);
       },
       catch: (error) => {
         if (error instanceof DriverAssignmentNotFoundError) return error;
@@ -84,19 +110,15 @@ export class DriverAssignmentRepositoryImpl implements DriverAssignmentRepositor
           error
         );
       },
-    });
-  }
+    }),
 
   /**
    * Find all assignments for a driver
    */
-  findByDriverId(
-    driverId: string,
-    _date: Date
-  ): Effect.Effect<DriverAssignment[], DriverAssignmentRepositoryError, never> {
-    return Effect.tryPromise({
+  findByDriverId: (driverId: string, _date: Date) =>
+    Effect.tryPromise({
       try: async () => {
-        const records = await this.prisma.driverAssignment.findMany({
+        const records = await prisma.driverAssignment.findMany({
           where: {
             driverId,
             isCurrent: true,
@@ -104,26 +126,22 @@ export class DriverAssignmentRepositoryImpl implements DriverAssignmentRepositor
           orderBy: { scheduledTime: 'asc' },
         });
 
-        return records.map((r) => this.mapToDomain(r));
+        return records.map((r) => mapToDomain(r));
       },
       catch: (error) =>
         new DriverAssignmentRepositoryError(
           `Failed to find assignments for driver ${driverId}: ${(error as Error).message}`,
           error
         ),
-    });
-  }
+    }),
 
   /**
    * Find all assignments for a vehicle
    */
-  findByVehicleId(
-    vehicleId: string,
-    _date: Date
-  ): Effect.Effect<DriverAssignment[], DriverAssignmentRepositoryError, never> {
-    return Effect.tryPromise({
+  findByVehicleId: (vehicleId: string, _date: Date) =>
+    Effect.tryPromise({
       try: async () => {
-        const records = await this.prisma.driverAssignment.findMany({
+        const records = await prisma.driverAssignment.findMany({
           where: {
             vehicleId,
             isCurrent: true,
@@ -131,25 +149,22 @@ export class DriverAssignmentRepositoryImpl implements DriverAssignmentRepositor
           orderBy: { scheduledTime: 'asc' },
         });
 
-        return records.map((r) => this.mapToDomain(r));
+        return records.map((r) => mapToDomain(r));
       },
       catch: (error) =>
         new DriverAssignmentRepositoryError(
           `Failed to find assignments for vehicle ${vehicleId}: ${(error as Error).message}`,
           error
         ),
-    });
-  }
+    }),
 
   /**
    * Find assignments by status
    */
-  findByStatus(
-    status: string
-  ): Effect.Effect<DriverAssignment[], DriverAssignmentRepositoryError, never> {
-    return Effect.tryPromise({
+  findByStatus: (status: string) =>
+    Effect.tryPromise({
       try: async () => {
-        const records = await this.prisma.driverAssignment.findMany({
+        const records = await prisma.driverAssignment.findMany({
           where: {
             status: status as any,
             isCurrent: true,
@@ -157,27 +172,22 @@ export class DriverAssignmentRepositoryImpl implements DriverAssignmentRepositor
           orderBy: { scheduledTime: 'asc' },
         });
 
-        return records.map((r) => this.mapToDomain(r));
+        return records.map((r) => mapToDomain(r));
       },
       catch: (error) =>
         new DriverAssignmentRepositoryError(
           `Failed to find assignments by status ${status}: ${(error as Error).message}`,
           error
         ),
-    });
-  }
+    }),
 
   /**
    * Find assignments within date range for a funeral home
    */
-  findByFuneralHomeAndDateRange(
-    funeralHomeId: string,
-    startDate: Date,
-    endDate: Date
-  ): Effect.Effect<DriverAssignment[], DriverAssignmentRepositoryError, never> {
-    return Effect.tryPromise({
+  findByFuneralHomeAndDateRange: (funeralHomeId: string, startDate: Date, endDate: Date) =>
+    Effect.tryPromise({
       try: async () => {
-        const records = await this.prisma.driverAssignment.findMany({
+        const records = await prisma.driverAssignment.findMany({
           where: {
             funeralHomeId,
             scheduledTime: {
@@ -189,26 +199,23 @@ export class DriverAssignmentRepositoryImpl implements DriverAssignmentRepositor
           orderBy: { scheduledTime: 'asc' },
         });
 
-        return records.map((r) => this.mapToDomain(r));
+        return records.map((r) => mapToDomain(r));
       },
       catch: (error) =>
         new DriverAssignmentRepositoryError(
           `Failed to find assignments for funeral home ${funeralHomeId}: ${(error as Error).message}`,
           error
         ),
-    });
-  }
+    }),
 
   /**
    * Update assignment (creates new version per SCD2)
    */
-  update(
-    assignment: DriverAssignment
-  ): Effect.Effect<void, DriverAssignmentNotFoundError | DriverAssignmentRepositoryError, never> {
-    return Effect.tryPromise({
+  update: (assignment: DriverAssignment) =>
+    Effect.tryPromise({
       try: async () => {
         // Check if current version exists
-        const current = await this.prisma.driverAssignment.findFirst({
+        const current = await prisma.driverAssignment.findFirst({
           where: {
             businessKey: assignment.businessKey,
             isCurrent: true,
@@ -223,7 +230,7 @@ export class DriverAssignmentRepositoryImpl implements DriverAssignmentRepositor
         }
 
         // Invalidate current version
-        await this.prisma.driverAssignment.update({
+        await prisma.driverAssignment.update({
           where: { id: current.id },
           data: {
             isCurrent: false,
@@ -232,7 +239,7 @@ export class DriverAssignmentRepositoryImpl implements DriverAssignmentRepositor
         });
 
         // Create new version
-        await this.prisma.driverAssignment.create({
+        await prisma.driverAssignment.create({
           data: {
             id: assignment.id,
             businessKey: assignment.businessKey,
@@ -266,16 +273,15 @@ export class DriverAssignmentRepositoryImpl implements DriverAssignmentRepositor
           error
         );
       },
-    });
-  }
+    }),
 
   /**
    * Delete assignment (marks as deleted via status, doesn't actually delete)
    */
-  delete(id: AssignmentId): Effect.Effect<void, DriverAssignmentNotFoundError | DriverAssignmentRepositoryError, never> {
-    return Effect.tryPromise({
+  delete: (id: AssignmentId) =>
+    Effect.tryPromise({
       try: async () => {
-        const current = await this.prisma.driverAssignment.findUnique({
+        const current = await prisma.driverAssignment.findUnique({
           where: { id },
         });
 
@@ -287,7 +293,7 @@ export class DriverAssignmentRepositoryImpl implements DriverAssignmentRepositor
         }
 
         // Soft delete: mark as cancelled
-        await this.prisma.driverAssignment.update({
+        await prisma.driverAssignment.update({
           where: { id },
           data: {
             isCurrent: false,
@@ -296,7 +302,7 @@ export class DriverAssignmentRepositoryImpl implements DriverAssignmentRepositor
         });
 
         // Create cancelled version
-        await this.prisma.driverAssignment.create({
+        await prisma.driverAssignment.create({
           data: {
             businessKey: current.businessKey,
             version: current.version + 1,
@@ -329,18 +335,15 @@ export class DriverAssignmentRepositoryImpl implements DriverAssignmentRepositor
           error
         );
       },
-    });
-  }
+    }),
 
   /**
    * Get complete version history for an assignment
    */
-  findHistory(
-    businessKey: string
-  ): Effect.Effect<DriverAssignment[], DriverAssignmentNotFoundError | DriverAssignmentRepositoryError, never> {
-    return Effect.tryPromise({
+  findHistory: (businessKey: string) =>
+    Effect.tryPromise({
       try: async () => {
-        const records = await this.prisma.driverAssignment.findMany({
+        const records = await prisma.driverAssignment.findMany({
           where: { businessKey },
           orderBy: [{ version: 'asc' }],
         });
@@ -352,7 +355,7 @@ export class DriverAssignmentRepositoryImpl implements DriverAssignmentRepositor
           );
         }
 
-        return records.map((r) => this.mapToDomain(r));
+        return records.map((r) => mapToDomain(r));
       },
       catch: (error) => {
         if (error instanceof DriverAssignmentNotFoundError) return error;
@@ -361,35 +364,5 @@ export class DriverAssignmentRepositoryImpl implements DriverAssignmentRepositor
           error
         );
       },
-    });
-  }
-
-  /**
-   * Map Prisma record to domain object
-   */
-  private mapToDomain(record: any): DriverAssignment {
-    return new DriverAssignment({
-      id: record.id as AssignmentId,
-      businessKey: record.businessKey,
-      version: record.version,
-      funeralHomeId: record.funeralHomeId as any,
-      driverId: record.driverId as DriverId,
-      vehicleId: record.vehicleId,
-      eventType: record.eventType.toLowerCase() as any,
-      caseId: record.caseId as any,
-      pickupLocation: record.pickupLocation as Location,
-      dropoffLocation: record.dropoffLocation as Location,
-      scheduledTime: record.scheduledTime,
-      estimatedDuration: record.estimatedDuration,
-      actualDuration: record.actualDuration,
-      status: record.status.toLowerCase() as any,
-      mileageStart: record.mileageStart,
-      mileageEnd: record.mileageEnd,
-      mileageAllowance: record.mileageAllowance,
-      notes: record.notes,
-      createdAt: record.createdAt,
-      updatedAt: record.updatedAt,
-      createdBy: record.createdBy,
-    });
-  }
-}
+    }),
+};

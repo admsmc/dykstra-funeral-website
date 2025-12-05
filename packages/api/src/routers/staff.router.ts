@@ -97,4 +97,159 @@ export const staffRouter = router({
         })
       );
     }),
+
+  /**
+   * Employee Management
+   */
+  employees: router({
+    /**
+     * List all employees with optional filters
+     */
+    list: staffProcedure
+      .input(
+        z.object({
+          status: z.enum(['all', 'active', 'onboarding', 'offboarding', 'inactive']).default('all'),
+          department: z.enum(['all', 'Operations', 'Finance', 'Admin']).default('all'),
+          funeralHomeId: z.string().optional(),
+        })
+      )
+      .query(async ({ input }) => {
+        // Mock employee data - will be replaced with Go backend integration
+        const allEmployees = [
+          {
+            id: 'EMP-001',
+            employeeNumber: 'E001',
+            name: 'Sarah Martinez',
+            firstName: 'Sarah',
+            lastName: 'Martinez',
+            title: 'Funeral Director',
+            department: 'Operations',
+            email: 'smartinez@dykstra.com',
+            phone: '(555) 100-0001',
+            hireDate: '2020-01-15',
+            status: 'active' as const,
+            licenseLevel: 'Director',
+          },
+          {
+            id: 'EMP-002',
+            employeeNumber: 'E002',
+            name: 'John Davis',
+            firstName: 'John',
+            lastName: 'Davis',
+            title: 'Embalmer',
+            department: 'Operations',
+            email: 'jdavis@dykstra.com',
+            phone: '(555) 100-0002',
+            hireDate: '2019-03-20',
+            status: 'active' as const,
+            licenseLevel: 'Embalmer',
+          },
+          {
+            id: 'EMP-003',
+            employeeNumber: 'E003',
+            name: 'Michael Roberts',
+            firstName: 'Michael',
+            lastName: 'Roberts',
+            title: 'Staff Member',
+            department: 'Operations',
+            email: 'mroberts@dykstra.com',
+            phone: '(555) 100-0003',
+            hireDate: '2021-06-10',
+            status: 'active' as const,
+            licenseLevel: 'Staff',
+          },
+          {
+            id: 'EMP-004',
+            employeeNumber: 'E004',
+            name: 'Emily Johnson',
+            firstName: 'Emily',
+            lastName: 'Johnson',
+            title: 'Accountant',
+            department: 'Finance',
+            email: 'ejohnson@dykstra.com',
+            phone: '(555) 100-0004',
+            hireDate: '2020-09-01',
+            status: 'active' as const,
+          },
+          {
+            id: 'EMP-005',
+            employeeNumber: 'E005',
+            name: 'David Wilson',
+            firstName: 'David',
+            lastName: 'Wilson',
+            title: 'Office Manager',
+            department: 'Admin',
+            email: 'dwilson@dykstra.com',
+            phone: '(555) 100-0005',
+            hireDate: '2018-11-15',
+            status: 'active' as const,
+          },
+          {
+            id: 'EMP-006',
+            employeeNumber: 'E006',
+            name: 'Jennifer Garcia',
+            firstName: 'Jennifer',
+            lastName: 'Garcia',
+            title: 'Funeral Director',
+            department: 'Operations',
+            email: 'jgarcia@dykstra.com',
+            phone: '(555) 100-0006',
+            hireDate: '2024-12-01',
+            status: 'onboarding' as const,
+            licenseLevel: 'Director',
+          },
+          {
+            id: 'EMP-007',
+            employeeNumber: 'E007',
+            name: 'Robert Taylor',
+            firstName: 'Robert',
+            lastName: 'Taylor',
+            title: 'Driver',
+            department: 'Operations',
+            email: 'rtaylor@dykstra.com',
+            phone: '(555) 100-0007',
+            hireDate: '2017-05-20',
+            status: 'offboarding' as const,
+            licenseLevel: 'Driver',
+          },
+        ];
+
+        let filtered = allEmployees;
+
+        // Filter by status
+        if (input.status !== 'all') {
+          filtered = filtered.filter((e) => e.status === input.status);
+        }
+
+        // Filter by department
+        if (input.department !== 'all') {
+          filtered = filtered.filter((e) => e.department === input.department);
+        }
+
+        return filtered;
+      }),
+
+    /**
+     * Get employee by ID
+     */
+    getById: staffProcedure
+      .input(z.object({ id: z.string() }))
+      .query(async ({ input }) => {
+        // Mock implementation - will be replaced with Go backend integration
+        const employee = {
+          id: input.id,
+          employeeNumber: 'E001',
+          firstName: 'Sarah',
+          lastName: 'Martinez',
+          email: 'smartinez@dykstra.com',
+          phone: '(555) 100-0001',
+          hireDate: new Date('2020-01-15'),
+          status: 'active' as const,
+          positionId: 'POS-001',
+          positionTitle: 'Funeral Director',
+          department: 'Operations',
+        };
+        return employee;
+      }),
+  }),
 });

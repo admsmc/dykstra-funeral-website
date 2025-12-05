@@ -142,6 +142,23 @@ export * from './use-cases/payments/process-refund';
 export * from './use-cases/payments/get-payment-stats';
 export * from './use-cases/payments/get-ar-aging-report';
 
+// Financial use cases (selective exports to avoid duplicates with ports)
+export { monthEndClose, validateMonthEndClose, getMonthEndCloseHistory, type MonthEndCloseCommand, type MonthEndCloseResult } from './use-cases/financial/month-end-close';
+export { startBankReconciliation, clearReconciliationItems, completeBankReconciliation, undoBankReconciliation, type StartBankReconciliationCommand, type ClearReconciliationItemsCommand, type CompleteBankReconciliationCommand } from './use-cases/financial/bank-reconciliation';
+export { generateARAgingReport, type ARAgingReportCommand, type ARAgingReportResult } from './use-cases/financial/ar-aging-report';
+export { executeAPPaymentRun, type ExecuteAPPaymentRunCommand, type ExecuteAPPaymentRunResult } from './use-cases/financial/ap-payment-run';
+export { applyBatchPayment, type ApplyBatchPaymentCommand, type BatchPaymentApplicationResult } from './use-cases/financial/batch-payment-application';
+export { processRefund as processFinancialRefund } from './use-cases/financial/refund-processing';
+export { createVendorBill } from './use-cases/financial/vendor-bill-processing';
+export { generateRevenueByServiceType, type GenerateRevenueByServiceTypeCommand, type GenerateRevenueByServiceTypeResult } from './use-cases/financial/revenue-by-service-type';
+export { generateBudgetVarianceReport, type BudgetVarianceReportCommand, type BudgetVarianceReportResult } from './use-cases/financial/budget-variance-report';
+export { approveVendorBill, type ApproveVendorBillCommand, type ApproveVendorBillResult } from './use-cases/financial/approve-vendor-bill';
+export { payVendorBill, payVendorBillsBatch, type PayVendorBillCommand, type PayVendorBillResult } from './use-cases/financial/pay-vendor-bill';
+export { getGLTrialBalance, getAccountHistory, getFinancialStatement, postJournalEntry } from './use-cases/financial/gl-operations';
+export { listVendorBills, groupVendorBillsByVendor, type VendorPayables } from './use-cases/financial/list-vendor-bills';
+// Additional financial use cases (keep wildcard exports for now)
+// Note: Some may have naming conflicts - will be refined in Phase 1.4
+
 // CRM Lead use cases
 export * from './use-cases/leads/create-lead';
 export * from './use-cases/leads/convert-lead-to-case';
@@ -201,3 +218,23 @@ export * from './use-cases/scheduling/check-driver-availability';
 export * from './use-cases/scheduling/check-vehicle-availability';
 export * from './use-cases/scheduling/list-driver-schedule';
 export * from './use-cases/scheduling/dispatch-driver';
+
+// Document Generation Ports (Week 3 & Week 7)
+export * from './ports/document-generator-port';
+export * from './ports/template-renderer-port';
+export * from './ports/template-repository-port';
+export * from './ports/pdf-generator-port'; // Week 7: Puppeteer
+
+// Document Generation Mappers & Use Cases (Week 5-6)
+export * from './mappers/go-to-invoice-data-mapper';
+export * from './mappers/go-to-purchase-order-data-mapper';
+export * from './use-cases/documents/generate-invoice-pdf';
+export * from './use-cases/documents/generate-purchase-order-pdf';
+export * from './use-cases/documents/generate-payment-receipt-pdf';
+export * from './use-cases/documents/store-document-pdf';
+
+// Memorial Material Use Cases (Week 10, 12, 14)
+export * from './use-cases/memorial/generate-service-program';
+export * from './use-cases/memorial/generate-prayer-card';
+export * from './use-cases/memorial/preview-template';
+export { saveTemplate as saveMemorialTemplate } from './use-cases/memorial/save-template';

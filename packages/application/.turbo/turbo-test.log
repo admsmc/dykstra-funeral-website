@@ -1,8 +1,87 @@
 
-
 > @dykstra/application@0.1.0 test /Users/andrewmathers/projects/dykstra-funeral-website/packages/application
 > vitest run
 
+[33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
 
-[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90m/Users/andrewmathers/projects/dykstra-funeral-website/packages/application[39m
+ RUN  v2.1.9 /Users/andrewmathers/projects/dykstra-funeral-website/packages/application
+
+ ✓ src/use-cases/scheduling/__tests__/create-rotating-weekend-shift.test.ts (31 tests) 26ms
+ ✓ src/use-cases/inventory/__tests__/inventory-cycle-count.test.ts (13 tests) 32ms
+ ✓ src/use-cases/scheduling/__tests__/assign-oncall-director.test.ts (28 tests) 45ms
+ ✓ src/use-cases/financial/__tests__/fixed-asset-depreciation-run.test.ts (9 tests) 41ms
+ ✓ src/use-cases/contract/__tests__/pre-need-contract-processing.test.ts (18 tests) 41ms
+ ✓ src/use-cases/payroll/__tests__/payroll-use-cases.test.ts (6 tests) 22ms
+ ✓ src/use-cases/financial/__tests__/vendor-bill-processing.test.ts (13 tests) 17ms
+ ✓ src/use-cases/financial/__tests__/cash-flow-forecasting.test.ts (8 tests) 20ms
+ ✓ src/use-cases/scheduling/__tests__/assign-embalmer-shift.test.ts (19 tests) 23ms
+ ✓ src/use-cases/financial/__tests__/sales-tax-reporting.test.ts (9 tests) 22ms
+ ✓ src/use-cases/scheduling/__tests__/assign-service-coverage.test.ts (18 tests) 69ms
+ ✓ src/use-cases/email-sync/__tests__/match-email-to-entity.test.ts (18 tests) 40ms
+ ✓ src/use-cases/scheduling/__tests__/request-shift-swap.test.ts (15 tests) 24ms
+ ✓ src/use-cases/calendar-sync/__tests__/sync-interaction-to-calendar.test.ts (12 tests) 28ms
+ ✓ src/use-cases/financial/__tests__/expense-report-approval.test.ts (10 tests | 1 skipped) 28ms
+ ✓ src/use-cases/inventory/__tests__/inventory-valuation-report.test.ts (10 tests) 21ms
+ ✓ src/use-cases/calendar-sync/__tests__/suggest-meeting-times.test.ts (12 tests) 25ms
+ ✓ src/use-cases/financial/__tests__/revenue-by-service-type.test.ts (6 tests) 23ms
+ ✓ src/use-cases/prep-room/__tests__/prep-room.test.ts (28 tests) 12ms
+ ✓ src/use-cases/pre-planning/__tests__/pre-planning-appointments.test.ts (27 tests) 6ms
+ ✓ src/use-cases/scheduling/__tests__/driver-vehicle-coordination.test.ts (19 tests) 4ms
+ ✓ src/use-cases/calendar-sync/__tests__/get-staff-availability.test.ts (11 tests) 24ms
+ ✓ src/use-cases/payments/__tests__/record-manual-payment.test.ts (42 tests) 6ms
+ ✓ src/use-cases/case-management/__tests__/finalize-case-with-gl-posting.test.ts (6 tests) 14ms
+ ✓ src/use-cases/financial/__tests__/reporting-use-cases.test.ts (4 tests) 9ms
+ ✓ src/use-cases/inventory/__tests__/commit-inventory-reservation.test.ts (5 tests) 13ms
+ ✓ src/use-cases/contract/__tests__/contract-renewal.test.ts (20 tests) 48ms
+ ✓ src/use-cases/inventory/__tests__/inventory-transfer.test.ts (19 tests) 32ms
+ ✓ src/use-cases/memorial/__tests__/memorial-integration.test.ts (7 tests) 26ms
+ ✓ src/use-cases/invitations/__tests__/get-invitation-history.test.ts (42 tests) 7ms
+ ✓ src/use-cases/financial/__tests__/customer-retention-analysis.test.ts (8 tests | 4 skipped) 13ms
+ ✓ src/use-cases/invitations/__tests__/list-invitations.test.ts (36 tests) 6ms
+ ✓ src/use-cases/procurement/__tests__/purchase-requisition-to-po.test.ts (6 tests) 15ms
+ ✓ src/use-cases/interactions/__tests__/log-interaction.test.ts (36 tests) 4ms
+ ✓ src/use-cases/payments/__tests__/process-refund.test.ts (8 tests) 17ms
+ ✓ src/use-cases/contacts/__tests__/find-duplicates.test.ts (20 tests) 10ms
+ ✓ src/use-cases/contacts/__tests__/merge-contacts.test.ts (24 tests) 12ms
+ ✓ src/use-cases/email-sync/__tests__/sync-user-emails.test.ts (19 tests) 8ms
+ ✓ src/use-cases/invitations/__tests__/resend-invitation.test.ts (36 tests) 6ms
+ ✓ src/use-cases/documents/__tests__/business-document-integration.test.ts (12 tests) 28ms
+ ✓ src/use-cases/leads/__tests__/create-lead.test.ts (25 tests) 6ms
+ ✓ src/use-cases/invitations/__tests__/revoke-invitation.test.ts (36 tests) 5ms
+ ✓ src/use-cases/interactions/__tests__/complete-interaction.test.ts (29 tests) 4ms
+ ✓ src/use-cases/procurement/__tests__/receive-inventory-from-po.test.ts (5 tests) 18ms
+ ✓ src/mappers/__tests__/go-to-invoice-data-mapper.test.ts (19 tests) 5ms
+ ✓ src/use-cases/hr/__tests__/hr-use-cases.test.ts (5 tests) 9ms
+ ✓ src/use-cases/invitations/__tests__/create-invitation.test.ts (29 tests) 4ms
+ ✓ src/use-cases/financial/__tests__/create-invoice-from-contract.test.ts (5 tests) 13ms
+ ✓ src/use-cases/financial/__tests__/insurance-claim-processing.test.ts (8 tests) 10ms
+ ✓ src/use-cases/leads/__tests__/convert-lead-to-case.test.ts (18 tests) 3ms
+ ✓ src/use-cases/notes/__tests__/list-notes.test.ts (11 tests) 3ms
+ ✓ src/use-cases/financial/__tests__/batch-payment-application.test.ts (5 tests) 19ms
+stdout | src/use-cases/documents/__tests__/performance.test.ts > Document Generation Performance > Invoice Generation > generates invoice PDF in <200ms
+Invoice generation: 8ms
+
+stdout | src/use-cases/documents/__tests__/performance.test.ts > Document Generation Performance > Purchase Order Generation > generates PO PDF in <200ms
+PO generation: 1ms
+
+stdout | src/use-cases/documents/__tests__/performance.test.ts > Document Generation Performance > Payment Receipt Generation > generates receipt PDF in <200ms
+Receipt generation: 1ms
+
+stdout | src/use-cases/documents/__tests__/performance.test.ts > Document Generation Performance > Batch Generation > generates 10 invoices concurrently
+Batch generation (10 invoices): 10ms total, 1.0ms avg
+
+ ✓ src/use-cases/documents/__tests__/performance.test.ts (4 tests) 24ms
+ ✓ src/use-cases/financial/__tests__/refund-processing.test.ts (4 tests) 11ms
+ ✓ src/use-cases/notes/__tests__/get-note-history.test.ts (7 tests) 3ms
+ ✓ src/use-cases/notes/__tests__/update-note.test.ts (14 tests) 3ms
+ ✓ src/use-cases/notes/__tests__/delete-note.test.ts (8 tests) 2ms
+ ✓ src/use-cases/notes/__tests__/create-note.test.ts (12 tests) 3ms
+ ✓ src/use-cases/financial/__tests__/month-end-close.test.ts (2 tests) 10ms
+ ✓ src/use-cases/financial/__tests__/ap-payment-run.test.ts (2 tests) 11ms
+ ✓ src/use-cases/financial/__tests__/bank-reconciliation.test.ts (2 tests) 6ms
+
+ Test Files  61 passed (61)
+      Tests  935 passed | 5 skipped (940)
+   Start at  20:48:42
+   Duration  6.39s (transform 2.67s, setup 0ms, collect 29.43s, tests 1.04s, environment 8ms, prepare 3.18s)
 

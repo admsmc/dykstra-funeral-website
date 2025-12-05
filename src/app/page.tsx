@@ -19,15 +19,15 @@ export default function Home() {
               Serving families in the Midwest with personalized funeral services and caring support for over generations.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a
+              <Link
                 href="tel:+15551234567"
-                className="inline-block bg-[--navy] text-white px-8 py-4 rounded-md text-lg font-semibold hover:bg-[--charcoal] transition-colors"
+                className="inline-flex items-center justify-center bg-gradient-to-r from-[--navy] to-blue-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:shadow-lg hover:scale-[1.02] transition-all shadow-md shadow-[--navy]/20"
               >
                 Call 24/7: (555) 123-4567
-              </a>
+              </Link>
               <Link
                 href="/contact"
-                className="inline-block bg-white text-[--navy] px-8 py-4 rounded-md text-lg font-semibold border-2 border-[--navy] hover:bg-[--navy] hover:text-white transition-colors"
+                className="inline-flex items-center justify-center bg-[--sage]/10 text-[--navy] px-8 py-4 rounded-lg text-lg font-semibold border border-[--sage]/30 hover:bg-[--sage]/20 transition-all"
               >
                 Contact Us
               </Link>

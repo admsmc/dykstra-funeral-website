@@ -23,13 +23,19 @@
  * @module use-cases/financial/vendor-bill-processing
  */
 
-import { Effect, Context } from 'effect';
-import type {
-  GoFinancialPortService,
-  GoProcurementPortService,
-} from '@dykstra/application';
+import { Effect } from 'effect';
 import { ValidationError, type NotFoundError } from '@dykstra/domain';
-import { type NetworkError } from '../../ports/go-contract-port';
+import {
+  GoFinancialPort,
+  type GoFinancialPortService,
+  type NetworkError,
+} from '../../ports/go-financial-port';
+import {
+  GoProcurementPort,
+  type GoProcurementPortService,
+  type GoPurchaseOrder,
+  type GoReceipt,
+} from '../../ports/go-procurement-port';
 
 /**
  * Command to create vendor bill from PO
@@ -133,19 +139,6 @@ export interface CreateVendorBillResult {
   createdAt: Date;
 }
 
-/**
- * GoFinancialPort tag for dependency injection
- */
-export const GoFinancialPort = Context.GenericTag<GoFinancialPortService>(
-  '@dykstra/GoFinancialPort'
-);
-
-/**
- * GoProcurementPort tag for dependency injection
- */
-export const GoProcurementPort = Context.GenericTag<GoProcurementPortService>(
-  '@dykstra/GoProcurementPort'
-);
 
 /**
  * Create vendor bill with optional 3-way match validation
@@ -315,8 +308,8 @@ export const processOCRBill = (
 export const validate3WayMatch = (
   _poId: string,
   billLineItems: Array<{ quantity: number; unitPrice: number; poLineItemId?: string; description: string }>,
-  po: import('@dykstra/application').GoPurchaseOrder,
-  receipts: readonly import('@dykstra/application').GoReceipt[]
+  po: GoPurchaseOrder,
+  receipts: readonly GoReceipt[]
 ): Effect.Effect<
   { isValid: boolean; priceVariance: number; quantityVariance: number },
   NotFoundError | NetworkError,

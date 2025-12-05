@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prayer Card - {{deceasedName}}</title>
+  <style>
+    @page {
+      size: 4in 6in;
+      margin: 0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Georgia', 'Times New Roman', serif;
+      font-size: 9pt;
+      line-height: 1.4;
+      color: #2c3539;
+      background: white;
+      width: 4in;
+      height: 6in;
+    }
+
+    .card {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 0.25in;
+      background: linear-gradient(to bottom, #f5f3ed 0%, white 100%);
+      border: 2pt solid #8b9d83;
+    }
+
+    .card-header {
+      text-align: center;
+      margin-bottom: 0.15in;
+      padding-bottom: 0.1in;
+      border-bottom: 1pt solid #8b9d83;
+    }
+
+    .deceased-name {
+      font-size: 11pt;
+      font-weight: bold;
+      color: #1e3a5f;
+      margin-bottom: 3pt;
+    }
+
+    .deceased-dates {
+      font-size: 8pt;
+      color: #666;
+    }
+
+    .photo-section {
+      text-align: center;
+      margin-bottom: 0.15in;
+    }
+
+    .photo-section img {
+      max-width: 2in;
+      max-height: 2.5in;
+      border: 1pt solid #8b9d83;
+      border-radius: 3pt;
+    }
+
+    .prayer-section {
+      flex: 1;
+      text-align: center;
+      padding: 0.1in 0.15in;
+      background: rgba(245, 243, 237, 0.3);
+      border-radius: 3pt;
+    }
+
+    .prayer-title {
+      font-size: 10pt;
+      font-weight: bold;
+      color: #1e3a5f;
+      margin-bottom: 0.1in;
+    }
+
+    .prayer-text {
+      font-size: 8pt;
+      line-height: 1.5;
+      font-style: italic;
+      color: #2c3539;
+    }
+
+    .card-footer {
+      margin-top: 0.15in;
+      padding-top: 0.1in;
+      border-top: 1pt solid #8b9d83;
+      text-align: center;
+      font-size: 7pt;
+      color: #666;
+    }
+
+    .funeral-home {
+      font-weight: bold;
+      color: #1e3a5f;
+    }
+
+    @media print {
+      body {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="card-header">
+      <div class="deceased-name">{{deceasedName}}</div>
+      <div class="deceased-dates">{{birthDate}} - {{deathDate}}</div>
+    </div>
+
+    {{#if photoUrl}}
+    <div class="photo-section">
+      <img src="{{photoUrl}}" alt="{{deceasedName}}" />
+    </div>
+    {{/if}}
+
+    <div class="prayer-section">
+      <div class="prayer-title">{{prayerTitle}}</div>
+      <div class="prayer-text">{{prayerText}}</div>
+    </div>
+
+    <div class="card-footer">
+      <p class="funeral-home">{{funeralHomeName}}</p>
+      <p>{{funeralHomePhone}}</p>
+    </div>
+  </div>
+</body>
+</html>

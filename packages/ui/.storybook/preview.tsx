@@ -1,5 +1,7 @@
 import type { Preview } from '@storybook/react';
+import React from 'react';
 import '../src/styles/globals.css';
+import { ThemeProvider } from '../src/components/theme';
 
 const preview: Preview = {
   parameters: {
@@ -18,16 +20,23 @@ const preview: Preview = {
           value: '#ffffff',
         },
         {
-          name: 'cream',
-          value: '#f5f3ed',
+          name: 'dark',
+          value: '#0a0a0a',
         },
         {
-          name: 'dark',
-          value: '#2c3539',
+          name: 'lowLight',
+          value: '#1a1a1a',
         },
       ],
     },
   },
+  decorators: [
+    (Story) => (
+      <ThemeProvider>
+        <Story />
+      </ThemeProvider>
+    ),
+  ],
 };
 
 export default preview;

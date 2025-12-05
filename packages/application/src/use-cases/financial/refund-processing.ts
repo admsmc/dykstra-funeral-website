@@ -23,12 +23,13 @@
  * @module use-cases/financial/refund-processing
  */
 
-import { Effect, Context } from 'effect';
-import type {
-  GoFinancialPortService,
-} from '@dykstra/application';
+import { Effect } from 'effect';
 import { ValidationError, type NotFoundError } from '@dykstra/domain';
-import { type NetworkError } from '../../ports/go-contract-port';
+import {
+  GoFinancialPort,
+  type GoFinancialPortService,
+  type NetworkError,
+} from '../../ports/go-financial-port';
 
 /**
  * Command to process a refund
@@ -83,12 +84,6 @@ export interface ProcessRefundResult {
   processedAt: Date;
 }
 
-/**
- * GoFinancialPort tag for dependency injection
- */
-export const GoFinancialPort = Context.GenericTag<GoFinancialPortService>(
-  '@dykstra/GoFinancialPort'
-);
 
 /**
  * Process a refund for a payment

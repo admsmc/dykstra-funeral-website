@@ -1,6 +1,6 @@
 import { Effect } from "effect";
 import { ValidationError } from "../errors";
-import { PaymentPlanPort, type PaymentPlanError, type PaymentFrequency } from '../ports/payment-plan-port';
+import { PaymentPlanPort, type PaymentPlanPortService, type PaymentPlanError, type PaymentFrequency } from '../ports/payment-plan-port';
 
 interface CreatePaymentPlanInput {
   caseId: string;
@@ -37,7 +37,7 @@ export const createPaymentPlan = ({
 }: CreatePaymentPlanInput): Effect.Effect<
   CreatePaymentPlanResult,
   ValidationError | PaymentPlanError,
-  PaymentPlanPort
+  PaymentPlanPortService
 > =>
   Effect.gen(function* (_) {
     // Validate total amount

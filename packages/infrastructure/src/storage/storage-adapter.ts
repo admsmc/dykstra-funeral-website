@@ -1,5 +1,5 @@
 import { Effect, Layer } from 'effect';
-import { StoragePort, type FileUpload, type UploadResult, StorageError } from '@dykstra/application';
+import { StoragePort, StoragePortService, type FileUpload, type UploadResult, StorageError } from '@dykstra/application';
 import { randomBytes } from 'crypto';
 
 /**
@@ -29,7 +29,7 @@ const generateKey = (folder: string, filename: string): string => {
 /**
  * Local filesystem storage (development only)
  */
-const LocalStorageAdapter: StoragePort = {
+const LocalStorageAdapter: StoragePortService = {
   upload: (file: FileUpload) =>
     Effect.tryPromise({
       try: async () => {
@@ -73,7 +73,7 @@ const LocalStorageAdapter: StoragePort = {
  * import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
  * import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
  */
-const S3StorageAdapter: StoragePort = {
+const S3StorageAdapter: StoragePortService = {
   upload: (file: FileUpload) =>
     Effect.tryPromise({
       try: async () => {
@@ -131,7 +131,7 @@ const S3StorageAdapter: StoragePort = {
 /**
  * Get the appropriate storage adapter based on environment
  */
-const getStorageAdapter = (): StoragePort => {
+const getStorageAdapter = (): StoragePortService => {
   const env = process.env['NODE_ENV'] || 'development';
   
   if (env === 'production' && process.env['S3_BUCKET']) {

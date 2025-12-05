@@ -2,28 +2,66 @@
 
 import { trpc } from "@/lib/trpc-client";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { toast } from "sonner";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useToast } from "@/components/toast";
+import { useOptimisticMutation } from "@/hooks/useOptimisticMutation";
 import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
+import { newCaseSchema, CASE_TYPES, type NewCaseForm } from "@dykstra/domain/validation";
+import { Form } from "@dykstra/ui";
+import { FormInput, FormSelect } from "@dykstra/ui";
+import { Button, SuccessCelebration } from "@dykstra/ui";
+import { useState } from "react";
 
 /**
  * Case Creation Page
  * Form to create a new funeral case
+ * 
+ * Refactored with react-hook-form + domain validation schemas.
  */
+
+// Case type descriptions for UI
+const CASE_TYPE_DESCRIPTIONS: Record<string, string> = {
+  AT_NEED: "Family is currently in need of services",
+  PRE_NEED: "Pre-planning for future arrangements",
+  INQUIRY: "Initial inquiry, not yet committed",
+};
 
 export default function NewCasePage() {
   const router = useRouter();
   const utils = trpc.useUtils();
+  const toast = useToast();
+  const [showSuccess, setShowSuccess] = useState(false);
   
-  const createCase = trpc.case.create.useMutation({
-    // Optimistic update: immediately add to cache before server confirms
-    onMutate: async (newCase) => {
+  // Initialize form with react-hook-form + domain validation
+  const form = useForm<NewCaseForm>({
+    resolver: zodResolver(newCaseSchema),
+    defaultValues: {
+      decedentName: "",
+      type: "AT_NEED",
+    },
+  });
+  
+  // Watch case type for description display
+  const caseType = form.watch("type");
+  
+  const createCaseMutation = trpc.case.create.useMutation();
+  
+  // Store previous cases for rollback
+  let previousCases: any = null;
+  
+  // Optimistic mutation using useOptimisticMutation hook
+  const { mutate: createCase, isOptimistic } = useOptimisticMutation({
+    mutationFn: async (variables: { decedentName: string; type: string }) => {
+      return createCaseMutation.mutateAsync(variables);
+    },
+    onOptimisticUpdate: async (newCase) => {
       // Cancel outgoing refetches
       await utils.case.listAll.cancel();
       
       // Snapshot current value
-      const previousCases = utils.case.listAll.getInfiniteData();
+      previousCases = utils.case.listAll.getInfiniteData();
       
       // Optimistically update cache
       utils.case.listAll.setInfiniteData(
@@ -32,7 +70,7 @@ export default function NewCasePage() {
           if (!old) return old;
           
           const optimisticCase = {
-            id: `temp-${Date.now()}`, // Temporary ID
+            id: `temp-${Date.now()}`,
             businessKey: `temp-${Date.now()}`,
             version: 1,
             decedentName: newCase.decedentName,
@@ -57,58 +95,46 @@ export default function NewCasePage() {
           };
         }
       );
-      
-      return { previousCases };
     },
-    // On error, roll back to previous value
-    onError: (err, newCase, context) => {
-      if (context?.previousCases) {
-        utils.case.listAll.setInfiniteData({ limit: 50 }, context.previousCases);
+    rollback: () => {
+      // Roll back to previous value on error
+      if (previousCases) {
+        utils.case.listAll.setInfiniteData({ limit: 50 }, previousCases);
       }
-    },
-    // Always refetch after error or success
-    onSettled: () => {
       utils.case.listAll.invalidate();
     },
-  });
-
-  const [formData, setFormData] = useState({
-    decedentName: "",
-    type: "AT_NEED" as "AT_NEED" | "PRE_NEED" | "INQUIRY",
-  });
-
-  const [errors, setErrors] = useState<Record<string, string>>({});
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Basic validation
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.decedentName.trim()) {
-      newErrors.decedentName = "Decedent name is required";
-    }
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
-    try {
-      const result = await createCase.mutateAsync({
-        decedentName: formData.decedentName.trim(),
-        type: formData.type,
-      });
-
+    onSuccess: (result) => {
+      setShowSuccess(true);
       toast.success("Case created successfully");
-      router.push(`/staff/cases/${result.id}`);
-    } catch (error: any) {
-      toast.error(error.message || "Failed to create case");
-    }
-  };
+      utils.case.listAll.invalidate();
+      // Navigate after celebration
+      setTimeout(() => {
+        router.push(`/staff/cases/${result.id}`);
+      }, 2000);
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to create case");
+    },
+  });
+
+  // Handle form submission (validation automatic via react-hook-form)
+  const onSubmit = form.handleSubmit(async (data) => {
+    await createCase({
+      decedentName: data.decedentName.trim(),
+      type: data.type,
+    });
+  });
 
   return (
     <div className="max-w-2xl space-y-6">
+      {/* Success Celebration */}
+      {showSuccess && (
+        <SuccessCelebration
+          message="Case created successfully!"
+          submessage="Redirecting to case details..."
+          onComplete={() => setShowSuccess(false)}
+        />
+      )}
       {/* Header */}
       <div>
         <Link
@@ -123,85 +149,62 @@ export default function NewCasePage() {
       </div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="bg-white rounded-lg border border-gray-200 p-6 space-y-6">
-        {/* Decedent Name */}
-        <div>
-          <label htmlFor="decedentName" className="block text-sm font-medium text-gray-900 mb-2">
-            Decedent Name <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            id="decedentName"
-            value={formData.decedentName}
-            onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-              setFormData({ ...formData, decedentName: e.target.value });
-              setErrors({ ...errors, decedentName: "" });
-            }}
-            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[--navy] focus:border-transparent ${
-              errors.decedentName ? "border-red-500 bg-red-50" : "border-gray-300"
-            }`}
+      <Form {...form}>
+        <form onSubmit={onSubmit} className="bg-white rounded-lg border border-gray-200 p-6 space-y-6">
+          {/* Decedent Name */}
+          <FormInput
+            name="decedentName"
+            label="Decedent Name"
             placeholder="Enter decedent's full name"
+            required
           />
-          {errors.decedentName && (
-            <p className="mt-1 text-sm text-red-600">{errors.decedentName}</p>
-          )}
-        </div>
 
-        {/* Case Type */}
-        <div>
-          <label htmlFor="type" className="block text-sm font-medium text-gray-900 mb-2">
-            Case Type <span className="text-red-500">*</span>
-          </label>
-          <select
-            id="type"
-            value={formData.type}
-            onChange={(e) =>
-              setFormData({ ...formData, type: e.target.value as typeof formData.type })
-            }
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[--navy] focus:border-transparent"
-          >
-            <option value="AT_NEED">At-Need</option>
-            <option value="PRE_NEED">Pre-Need</option>
-            <option value="INQUIRY">Inquiry</option>
-          </select>
-          <p className="mt-1 text-sm text-gray-600">
-            {formData.type === "AT_NEED" && "Family is currently in need of services"}
-            {formData.type === "PRE_NEED" && "Pre-planning for future arrangements"}
-            {formData.type === "INQUIRY" && "Initial inquiry, not yet committed"}
-          </p>
-        </div>
+          {/* Case Type */}
+          <FormSelect
+            name="type"
+            label="Case Type"
+            options={CASE_TYPES.map((type) => ({
+              value: type,
+              label: type === "AT_NEED" ? "At-Need" : type === "PRE_NEED" ? "Pre-Need" : "Inquiry",
+            }))}
+            description={CASE_TYPE_DESCRIPTIONS[caseType]}
+            required
+          />
 
-        {/* Info Box */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <p className="text-sm text-blue-900">
-            <strong>Next Steps:</strong> After creating the case, you'll be able to add:
-          </p>
-          <ul className="mt-2 text-sm text-blue-800 list-disc list-inside space-y-1">
-            <li>Decedent details (DOB, DOD, service information)</li>
-            <li>Family members and contacts</li>
-            <li>Service arrangements</li>
-            <li>Contract and payment information</li>
-          </ul>
-        </div>
+          {/* Info Box */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <p className="text-sm text-blue-900">
+              <strong>Next Steps:</strong> After creating the case, you'll be able to add:
+            </p>
+            <ul className="mt-2 text-sm text-blue-800 list-disc list-inside space-y-1">
+              <li>Decedent details (DOB, DOD, service information)</li>
+              <li>Family members and contacts</li>
+              <li>Service arrangements</li>
+              <li>Contract and payment information</li>
+            </ul>
+          </div>
 
-        {/* Actions */}
-        <div className="flex items-center gap-4 pt-4 border-t border-gray-200">
-          <button
-            type="submit"
-            disabled={createCase.isLoading}
-            className="inline-flex items-center gap-2 px-6 py-2.5 bg-[--navy] text-white rounded-lg hover:bg-[--sage] transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Save className="w-5 h-5" />
-            {createCase.isLoading ? "Creating..." : "Create Case"}
-          </button>
-          <Link
-            href="/staff/cases"
-            className="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium"
-          >
-            Cancel
-          </Link>
-        </div>
-      </form>
+          {/* Actions */}
+          <div className="flex items-center gap-4 pt-4 border-t border-gray-200">
+            <Button
+              type="submit"
+              disabled={isOptimistic}
+              variant="gradient"
+              emphasis="high"
+              icon={<Save className="w-5 h-5" />}
+              isLoading={isOptimistic}
+            >
+              {isOptimistic ? "Creating..." : "Create Case"}
+            </Button>
+            <Link
+              href="/staff/cases"
+              className="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium"
+            >
+              Cancel
+            </Link>
+          </div>
+        </form>
+      </Form>
 
       {/* Help Text */}
       <div className="bg-gray-50 rounded-lg p-4">

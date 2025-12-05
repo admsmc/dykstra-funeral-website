@@ -37,7 +37,7 @@ export interface SignatureResult {
  * Signature Port
  * Abstraction for e-signature operations (ESIGN Act compliant)
  */
-export interface SignaturePort {
+export interface SignaturePortService {
   /**
    * Create and store a signature
    * Returns URL to stored signature image
@@ -66,4 +66,4 @@ export interface SignaturePort {
 /**
  * Signature Port service tag for dependency injection
  */
-export const SignaturePort = Context.GenericTag<SignaturePort>('@dykstra/SignaturePort');
+export const SignaturePort = Context.GenericTag<SignaturePortService>('@dykstra/SignaturePort');

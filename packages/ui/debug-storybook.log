@@ -1,0 +1,19 @@
+[15:37:12.405] [INFO] [36mInitializing Storybook[39m
+[15:37:12.825] [DEBUG] Getting package.json info for /Users/andrewmathers/projects/dykstra-funeral-website/packages/ui/package.json...
+[15:37:12.825] [DEBUG] Getting CLI versions from NPM for storybook...
+[15:37:12.825] [DEBUG] Executing command: npm info storybook version
+[15:37:13.214] [INFO] Adding Storybook version 10.1.3 to your project
+[15:37:13.215] [DEBUG] Project type detected: react_project
+[15:37:19.730] [PROMPT] We found a .storybook config directory in your project.
+We assume that Storybook is already instantiated for your project. Do you still want to continue and force the initialization? {"choice":true}
+[15:37:19.730] [DEBUG] Using cached package.json for /Users/andrewmathers/projects/dykstra-funeral-website/packages/ui/package.json...
+[15:37:19.732] [ERROR] [38;2;241;97;97mError: No generator found for project type: react_project[39m
+    at FrameworkDetectionCommand.execute (file:///Users/andrewmathers/.npm/_npx/2f76125db369dd74/node_modules/create-storybook/dist/_node-chunks/chunk-YA4XLJ4S.js:923:13)
+    at executeFrameworkDetection (file:///Users/andrewmathers/.npm/_npx/2f76125db369dd74/node_modules/create-storybook/dist/_node-chunks/chunk-YA4XLJ4S.js:933:120)
+    at doInitiate (file:///Users/andrewmathers/.npm/_npx/2f76125db369dd74/node_modules/create-storybook/dist/_node-chunks/chunk-YA4XLJ4S.js:2276:240)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async file:///Users/andrewmathers/.npm/_npx/2f76125db369dd74/node_modules/create-storybook/dist/_node-chunks/chunk-YA4XLJ4S.js:2329:20
+    at async withTelemetry (file:///Users/andrewmathers/.npm/_npx/2f76125db369dd74/node_modules/storybook/dist/_node-chunks/chunk-4K33EHJJ.js:205:12)
+    at async initiate (file:///Users/andrewmathers/.npm/_npx/2f76125db369dd74/node_modules/create-storybook/dist/_node-chunks/chunk-YA4XLJ4S.js:2322:24)
+    at async _Command.<anonymous> (file:///Users/andrewmathers/.npm/_npx/2f76125db369dd74/node_modules/create-storybook/dist/_node-chunks/run-4KTVK4VE.js:2683:144)
+[15:37:19.734] [INFO] Storybook collects completely anonymous usage telemetry. We use it to shape Storybook's roadmap and prioritize features. You can learn more, including how to opt out, at https://storybook.js.org/telemetry

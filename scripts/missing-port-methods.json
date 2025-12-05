@@ -1,0 +1,1139 @@
+[
+  {
+    "name": "financial",
+    "portFile": "go-financial-port.ts",
+    "adapterFile": "go-financial-adapter.ts",
+    "portMethods": [
+      "getChartOfAccounts",
+      "getGLAccount",
+      "getGLAccountByNumber",
+      "createJournalEntry",
+      "postJournalEntry",
+      "reverseJournalEntry",
+      "listJournalEntries"
+    ],
+    "adapterMethods": [
+      {
+        "name": "getChartOfAccounts",
+        "fullSignature": "readonly getChartOfAccounts: () => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getGLAccount",
+        "fullSignature": "readonly getGLAccount: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getGLAccountByNumber",
+        "fullSignature": "readonly getGLAccountByNumber: (accountNumber: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "createJournalEntry",
+        "fullSignature": "readonly createJournalEntry: (command: CreateJournalEntryCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "postJournalEntry",
+        "fullSignature": "readonly postJournalEntry: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "reverseJournalEntry",
+        "fullSignature": "readonly reverseJournalEntry: (id: string, reversalDate: Date, reason: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "listJournalEntries",
+        "fullSignature": "readonly listJournalEntries: (filters) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "generateFinancialStatement",
+        "fullSignature": "readonly generateFinancialStatement: (type, asOfDate) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getTrialBalance",
+        "fullSignature": "readonly getTrialBalance: (asOfDate: Date) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "generateBalanceSheet",
+        "fullSignature": "readonly generateBalanceSheet: (asOfDate: Date) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "generateCashFlowStatement",
+        "fullSignature": "readonly generateCashFlowStatement: (startDate: Date, endDate: Date) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getAccountBalances",
+        "fullSignature": "readonly getAccountBalances: (accountIds: readonly string[], asOfDate?: Date) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "createInvoice",
+        "fullSignature": "readonly createInvoice: (command: CreateInvoiceCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getInvoice",
+        "fullSignature": "readonly getInvoice: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "listInvoices",
+        "fullSignature": "readonly listInvoices: (filters) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "recordPayment",
+        "fullSignature": "readonly recordPayment: (command: RecordPaymentCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getARAgingReport",
+        "fullSignature": "readonly getARAgingReport: (asOfDate: Date) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getCustomerPayments",
+        "fullSignature": "readonly getCustomerPayments: (customerId: string, startDate?: Date, endDate?: Date) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "createVendorBill",
+        "fullSignature": "readonly createVendorBill: (command: CreateVendorBillCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "uploadAndScanBill",
+        "fullSignature": "readonly uploadAndScanBill: (vendorId: string, fileUrl: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getVendorBill",
+        "fullSignature": "readonly getVendorBill: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "listVendorBills",
+        "fullSignature": "readonly listVendorBills: (filters) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "approveVendorBill",
+        "fullSignature": "readonly approveVendorBill: (id: string, approvedBy: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "payVendorBills",
+        "fullSignature": "readonly payVendorBills: (command: PayVendorBillsCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getVendorPayments",
+        "fullSignature": "readonly getVendorPayments: (vendorId: string, startDate?: Date, endDate?: Date) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getThreeWayMatchStatus",
+        "fullSignature": "readonly getThreeWayMatchStatus: (billId: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "createAPPaymentRun",
+        "fullSignature": "readonly createAPPaymentRun: (command: CreateAPPaymentRunCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getAPPaymentRun",
+        "fullSignature": "readonly getAPPaymentRun: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "approveAPPaymentRun",
+        "fullSignature": "readonly approveAPPaymentRun: (id: string, approvedBy?: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "executeAPPaymentRun",
+        "fullSignature": "readonly executeAPPaymentRun: (params: { id: string; bankId?: string }) => Effect.Effect<any, NetworkError>;"
+      }
+    ],
+    "missingMethods": [
+      {
+        "name": "generateFinancialStatement",
+        "fullSignature": "readonly generateFinancialStatement: (type, asOfDate) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getTrialBalance",
+        "fullSignature": "readonly getTrialBalance: (asOfDate: Date) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "generateBalanceSheet",
+        "fullSignature": "readonly generateBalanceSheet: (asOfDate: Date) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "generateCashFlowStatement",
+        "fullSignature": "readonly generateCashFlowStatement: (startDate: Date, endDate: Date) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getAccountBalances",
+        "fullSignature": "readonly getAccountBalances: (accountIds: readonly string[], asOfDate?: Date) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "createInvoice",
+        "fullSignature": "readonly createInvoice: (command: CreateInvoiceCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getInvoice",
+        "fullSignature": "readonly getInvoice: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "listInvoices",
+        "fullSignature": "readonly listInvoices: (filters) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "recordPayment",
+        "fullSignature": "readonly recordPayment: (command: RecordPaymentCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getARAgingReport",
+        "fullSignature": "readonly getARAgingReport: (asOfDate: Date) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getCustomerPayments",
+        "fullSignature": "readonly getCustomerPayments: (customerId: string, startDate?: Date, endDate?: Date) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "createVendorBill",
+        "fullSignature": "readonly createVendorBill: (command: CreateVendorBillCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "uploadAndScanBill",
+        "fullSignature": "readonly uploadAndScanBill: (vendorId: string, fileUrl: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getVendorBill",
+        "fullSignature": "readonly getVendorBill: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "listVendorBills",
+        "fullSignature": "readonly listVendorBills: (filters) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "approveVendorBill",
+        "fullSignature": "readonly approveVendorBill: (id: string, approvedBy: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "payVendorBills",
+        "fullSignature": "readonly payVendorBills: (command: PayVendorBillsCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getVendorPayments",
+        "fullSignature": "readonly getVendorPayments: (vendorId: string, startDate?: Date, endDate?: Date) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getThreeWayMatchStatus",
+        "fullSignature": "readonly getThreeWayMatchStatus: (billId: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "createAPPaymentRun",
+        "fullSignature": "readonly createAPPaymentRun: (command: CreateAPPaymentRunCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getAPPaymentRun",
+        "fullSignature": "readonly getAPPaymentRun: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "approveAPPaymentRun",
+        "fullSignature": "readonly approveAPPaymentRun: (id: string, approvedBy?: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "executeAPPaymentRun",
+        "fullSignature": "readonly executeAPPaymentRun: (params: { id: string; bankId?: string }) => Effect.Effect<any, NetworkError>;"
+      }
+    ]
+  },
+  {
+    "name": "fixed-assets",
+    "portFile": "go-fixed-assets-port.ts",
+    "adapterFile": "go-fixed-assets-adapter.ts",
+    "portMethods": [
+      "createAsset",
+      "getAsset",
+      "listAssets"
+    ],
+    "adapterMethods": [
+      {
+        "name": "createAsset",
+        "fullSignature": "readonly createAsset: (asset) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getAsset",
+        "fullSignature": "readonly getAsset: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "listAssets",
+        "fullSignature": "readonly listAssets: (filters) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getDepreciationSchedule",
+        "fullSignature": "readonly getDepreciationSchedule: (assetId: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "disposeAsset",
+        "fullSignature": "readonly disposeAsset: (assetId: string, disposalDate: Date, disposalAmount: number) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "runMonthlyDepreciation",
+        "fullSignature": "readonly runMonthlyDepreciation: (period: Date) => Effect.Effect<any, NetworkError>;"
+      }
+    ],
+    "missingMethods": [
+      {
+        "name": "getDepreciationSchedule",
+        "fullSignature": "readonly getDepreciationSchedule: (assetId: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "disposeAsset",
+        "fullSignature": "readonly disposeAsset: (assetId: string, disposalDate: Date, disposalAmount: number) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "runMonthlyDepreciation",
+        "fullSignature": "readonly runMonthlyDepreciation: (period: Date) => Effect.Effect<any, NetworkError>;"
+      }
+    ]
+  },
+  {
+    "name": "inventory",
+    "portFile": "go-inventory-port.ts",
+    "adapterFile": "go-inventory-adapter.ts",
+    "portMethods": [
+      "createItem",
+      "getItem",
+      "getItemBySku",
+      "listItems"
+    ],
+    "adapterMethods": [
+      {
+        "name": "createItem",
+        "fullSignature": "readonly createItem: (command: CreateInventoryItemCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getItem",
+        "fullSignature": "readonly getItem: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getItemBySku",
+        "fullSignature": "readonly getItemBySku: (sku: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "listItems",
+        "fullSignature": "readonly listItems: (filters) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getBalance",
+        "fullSignature": "readonly getBalance: (itemId: string, locationId: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getBalancesAcrossLocations",
+        "fullSignature": "readonly getBalancesAcrossLocations: (itemId: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "checkNetworkAvailability",
+        "fullSignature": "readonly checkNetworkAvailability: (itemId: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "reserveInventory",
+        "fullSignature": "readonly reserveInventory: (command: ReserveInventoryCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "commitReservation",
+        "fullSignature": "readonly commitReservation: (reservationId: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "releaseReservation",
+        "fullSignature": "readonly releaseReservation: (reservationId: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "receiveInventory",
+        "fullSignature": "readonly receiveInventory: (command: ReceiveInventoryCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "adjustInventory",
+        "fullSignature": "readonly adjustInventory: (command: AdjustInventoryCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "transferInventory",
+        "fullSignature": "readonly transferInventory: (command: TransferInventoryCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getReservationsByCase",
+        "fullSignature": "readonly getReservationsByCase: (caseId: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getTransactionHistory",
+        "fullSignature": "readonly getTransactionHistory: (itemId: string, startDate?: Date, endDate?: Date) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getItemsBelowReorderPoint",
+        "fullSignature": "readonly getItemsBelowReorderPoint: (locationId?: string) => Effect.Effect<any, NetworkError>;"
+      }
+    ],
+    "missingMethods": [
+      {
+        "name": "getBalance",
+        "fullSignature": "readonly getBalance: (itemId: string, locationId: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getBalancesAcrossLocations",
+        "fullSignature": "readonly getBalancesAcrossLocations: (itemId: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "checkNetworkAvailability",
+        "fullSignature": "readonly checkNetworkAvailability: (itemId: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "reserveInventory",
+        "fullSignature": "readonly reserveInventory: (command: ReserveInventoryCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "commitReservation",
+        "fullSignature": "readonly commitReservation: (reservationId: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "releaseReservation",
+        "fullSignature": "readonly releaseReservation: (reservationId: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "receiveInventory",
+        "fullSignature": "readonly receiveInventory: (command: ReceiveInventoryCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "adjustInventory",
+        "fullSignature": "readonly adjustInventory: (command: AdjustInventoryCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "transferInventory",
+        "fullSignature": "readonly transferInventory: (command: TransferInventoryCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getReservationsByCase",
+        "fullSignature": "readonly getReservationsByCase: (caseId: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getTransactionHistory",
+        "fullSignature": "readonly getTransactionHistory: (itemId: string, startDate?: Date, endDate?: Date) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getItemsBelowReorderPoint",
+        "fullSignature": "readonly getItemsBelowReorderPoint: (locationId?: string) => Effect.Effect<any, NetworkError>;"
+      }
+    ]
+  },
+  {
+    "name": "payroll",
+    "portFile": "go-payroll-port.ts",
+    "adapterFile": "go-payroll-adapter.ts",
+    "portMethods": [
+      "createPayrollRun",
+      "getPayrollRun",
+      "listPayrollRuns"
+    ],
+    "adapterMethods": [
+      {
+        "name": "createPayrollRun",
+        "fullSignature": "readonly createPayrollRun: (command: CreatePayrollRunCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getPayrollRun",
+        "fullSignature": "readonly getPayrollRun: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "listPayrollRuns",
+        "fullSignature": "readonly listPayrollRuns: (filters) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "calculatePayroll",
+        "fullSignature": "readonly calculatePayroll: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getPayrollLineItems",
+        "fullSignature": "readonly getPayrollLineItems: (payrollRunId: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "approvePayrollRun",
+        "fullSignature": "readonly approvePayrollRun: (id: string, command: ApprovePayrollRunCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "markPayrollPaid",
+        "fullSignature": "readonly markPayrollPaid: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "cancelPayrollRun",
+        "fullSignature": "readonly cancelPayrollRun: (id: string, reason: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "listEmployees",
+        "fullSignature": "readonly listEmployees: (filters) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getEmployee",
+        "fullSignature": "readonly getEmployee: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getEmployeePayrollHistory",
+        "fullSignature": "readonly getEmployeePayrollHistory: (employeeId: string, startDate?: Date, endDate?: Date) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "generateW2",
+        "fullSignature": "readonly generateW2: (employeeId: string, taxYear: number) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "generate1099",
+        "fullSignature": "readonly generate1099: (contractorId: string, taxYear: number) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "importTimeEntries",
+        "fullSignature": "readonly importTimeEntries: (command: ImportTimeEntriesCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getExpenseSummary",
+        "fullSignature": "readonly getExpenseSummary: (startDate: Date, endDate: Date, groupBy?: 'department' | 'employee' | 'cost_center') => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "submitTimesheet",
+        "fullSignature": "readonly submitTimesheet: (command) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "approveTimesheet",
+        "fullSignature": "readonly approveTimesheet: (params) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "rejectTimesheet",
+        "fullSignature": "readonly rejectTimesheet: (params) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "listTimesheets",
+        "fullSignature": "readonly listTimesheets: (query) => Effect.Effect<any, NetworkError>;"
+      }
+    ],
+    "missingMethods": [
+      {
+        "name": "calculatePayroll",
+        "fullSignature": "readonly calculatePayroll: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getPayrollLineItems",
+        "fullSignature": "readonly getPayrollLineItems: (payrollRunId: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "approvePayrollRun",
+        "fullSignature": "readonly approvePayrollRun: (id: string, command: ApprovePayrollRunCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "markPayrollPaid",
+        "fullSignature": "readonly markPayrollPaid: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "cancelPayrollRun",
+        "fullSignature": "readonly cancelPayrollRun: (id: string, reason: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "listEmployees",
+        "fullSignature": "readonly listEmployees: (filters) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getEmployee",
+        "fullSignature": "readonly getEmployee: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getEmployeePayrollHistory",
+        "fullSignature": "readonly getEmployeePayrollHistory: (employeeId: string, startDate?: Date, endDate?: Date) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "generateW2",
+        "fullSignature": "readonly generateW2: (employeeId: string, taxYear: number) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "generate1099",
+        "fullSignature": "readonly generate1099: (contractorId: string, taxYear: number) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "importTimeEntries",
+        "fullSignature": "readonly importTimeEntries: (command: ImportTimeEntriesCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getExpenseSummary",
+        "fullSignature": "readonly getExpenseSummary: (startDate: Date, endDate: Date, groupBy?: 'department' | 'employee' | 'cost_center') => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "submitTimesheet",
+        "fullSignature": "readonly submitTimesheet: (command) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "approveTimesheet",
+        "fullSignature": "readonly approveTimesheet: (params) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "rejectTimesheet",
+        "fullSignature": "readonly rejectTimesheet: (params) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "listTimesheets",
+        "fullSignature": "readonly listTimesheets: (query) => Effect.Effect<any, NetworkError>;"
+      }
+    ]
+  },
+  {
+    "name": "procurement",
+    "portFile": "go-procurement-port.ts",
+    "adapterFile": "go-procurement-adapter.ts",
+    "portMethods": [
+      "createPurchaseRequisition",
+      "getPurchaseRequisition",
+      "listPurchaseRequisitions"
+    ],
+    "adapterMethods": [
+      {
+        "name": "createPurchaseRequisition",
+        "fullSignature": "readonly createPurchaseRequisition: (command: CreatePurchaseRequisitionCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getPurchaseRequisition",
+        "fullSignature": "readonly getPurchaseRequisition: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "listPurchaseRequisitions",
+        "fullSignature": "readonly listPurchaseRequisitions: (filters) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "approvePurchaseRequisition",
+        "fullSignature": "readonly approvePurchaseRequisition: (id: string, approvedBy: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "rejectPurchaseRequisition",
+        "fullSignature": "readonly rejectPurchaseRequisition: (id: string, rejectedBy: string, reason: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "convertRequisitionToPO",
+        "fullSignature": "readonly convertRequisitionToPO: (requisitionId: string, vendorId: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "createPurchaseOrder",
+        "fullSignature": "readonly createPurchaseOrder: (command: CreatePurchaseOrderCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getPurchaseOrder",
+        "fullSignature": "readonly getPurchaseOrder: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "listPurchaseOrders",
+        "fullSignature": "readonly listPurchaseOrders: (filters) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "approvePurchaseOrder",
+        "fullSignature": "readonly approvePurchaseOrder: (id: string, approvedBy: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "sendPurchaseOrder",
+        "fullSignature": "readonly sendPurchaseOrder: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "acknowledgePurchaseOrder",
+        "fullSignature": "readonly acknowledgePurchaseOrder: (id: string, expectedDeliveryDate?: Date) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "cancelPurchaseOrder",
+        "fullSignature": "readonly cancelPurchaseOrder: (id: string, reason: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "createReceipt",
+        "fullSignature": "readonly createReceipt: (command: CreateReceiptCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getReceipt",
+        "fullSignature": "readonly getReceipt: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "listReceipts",
+        "fullSignature": "readonly listReceipts: (filters) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getReceiptsByPurchaseOrder",
+        "fullSignature": "readonly getReceiptsByPurchaseOrder: (poId: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "createVendor",
+        "fullSignature": "readonly createVendor: (command: CreateVendorCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getVendor",
+        "fullSignature": "readonly getVendor: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "listVendors",
+        "fullSignature": "readonly listVendors: (filters) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "updateVendor",
+        "fullSignature": "readonly updateVendor: (id: string, updates: Partial<CreateVendorCommand>) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "suspendVendor",
+        "fullSignature": "readonly suspendVendor: (id: string, reason: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getVendorPerformance",
+        "fullSignature": "readonly getVendorPerformance: (vendorId: string, startDate?: Date, endDate?: Date) => Effect.Effect<any, NetworkError>;"
+      }
+    ],
+    "missingMethods": [
+      {
+        "name": "approvePurchaseRequisition",
+        "fullSignature": "readonly approvePurchaseRequisition: (id: string, approvedBy: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "rejectPurchaseRequisition",
+        "fullSignature": "readonly rejectPurchaseRequisition: (id: string, rejectedBy: string, reason: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "convertRequisitionToPO",
+        "fullSignature": "readonly convertRequisitionToPO: (requisitionId: string, vendorId: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "createPurchaseOrder",
+        "fullSignature": "readonly createPurchaseOrder: (command: CreatePurchaseOrderCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getPurchaseOrder",
+        "fullSignature": "readonly getPurchaseOrder: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "listPurchaseOrders",
+        "fullSignature": "readonly listPurchaseOrders: (filters) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "approvePurchaseOrder",
+        "fullSignature": "readonly approvePurchaseOrder: (id: string, approvedBy: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "sendPurchaseOrder",
+        "fullSignature": "readonly sendPurchaseOrder: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "acknowledgePurchaseOrder",
+        "fullSignature": "readonly acknowledgePurchaseOrder: (id: string, expectedDeliveryDate?: Date) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "cancelPurchaseOrder",
+        "fullSignature": "readonly cancelPurchaseOrder: (id: string, reason: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "createReceipt",
+        "fullSignature": "readonly createReceipt: (command: CreateReceiptCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getReceipt",
+        "fullSignature": "readonly getReceipt: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "listReceipts",
+        "fullSignature": "readonly listReceipts: (filters) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getReceiptsByPurchaseOrder",
+        "fullSignature": "readonly getReceiptsByPurchaseOrder: (poId: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "createVendor",
+        "fullSignature": "readonly createVendor: (command: CreateVendorCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getVendor",
+        "fullSignature": "readonly getVendor: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "listVendors",
+        "fullSignature": "readonly listVendors: (filters) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "updateVendor",
+        "fullSignature": "readonly updateVendor: (id: string, updates: Partial<CreateVendorCommand>) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "suspendVendor",
+        "fullSignature": "readonly suspendVendor: (id: string, reason: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getVendorPerformance",
+        "fullSignature": "readonly getVendorPerformance: (vendorId: string, startDate?: Date, endDate?: Date) => Effect.Effect<any, NetworkError>;"
+      }
+    ]
+  },
+  {
+    "name": "reconciliations",
+    "portFile": "go-reconciliations-port.ts",
+    "adapterFile": "go-reconciliations-adapter.ts",
+    "portMethods": [
+      "createReconciliation",
+      "getReconciliation",
+      "listReconciliations"
+    ],
+    "adapterMethods": [
+      {
+        "name": "createReconciliation",
+        "fullSignature": "readonly createReconciliation: (accountId: string, period: Date, statementBalance: number) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getReconciliation",
+        "fullSignature": "readonly getReconciliation: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "listReconciliations",
+        "fullSignature": "readonly listReconciliations: (filters) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "markItemCleared",
+        "fullSignature": "readonly markItemCleared: (reconciliationId: string, itemId: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "completeReconciliation",
+        "fullSignature": "readonly completeReconciliation: (reconciliationId: string, reconciledBy: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getReconciliationItems",
+        "fullSignature": "readonly getReconciliationItems: (reconciliationId: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "undoReconciliation",
+        "fullSignature": "readonly undoReconciliation: (id: string, reason: string) => Effect.Effect<any, NetworkError>;"
+      }
+    ],
+    "missingMethods": [
+      {
+        "name": "markItemCleared",
+        "fullSignature": "readonly markItemCleared: (reconciliationId: string, itemId: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "completeReconciliation",
+        "fullSignature": "readonly completeReconciliation: (reconciliationId: string, reconciledBy: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getReconciliationItems",
+        "fullSignature": "readonly getReconciliationItems: (reconciliationId: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "undoReconciliation",
+        "fullSignature": "readonly undoReconciliation: (id: string, reason: string) => Effect.Effect<any, NetworkError>;"
+      }
+    ]
+  },
+  {
+    "name": "scheduling",
+    "portFile": "go-scheduling-port.ts",
+    "adapterFile": "go-scheduling-adapter.ts",
+    "portMethods": [
+      "createShiftTemplate",
+      "getShiftTemplate",
+      "listShiftTemplates"
+    ],
+    "adapterMethods": [
+      {
+        "name": "createShiftTemplate",
+        "fullSignature": "readonly createShiftTemplate: (command: CreateShiftTemplateCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getShiftTemplate",
+        "fullSignature": "readonly getShiftTemplate: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "listShiftTemplates",
+        "fullSignature": "readonly listShiftTemplates: (filters) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "assignShift",
+        "fullSignature": "readonly assignShift: (command: AssignShiftCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getShiftAssignment",
+        "fullSignature": "readonly getShiftAssignment: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "listShiftAssignments",
+        "fullSignature": "readonly listShiftAssignments: (filters) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "completeShift",
+        "fullSignature": "readonly completeShift: (command: CompleteShiftCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "cancelShift",
+        "fullSignature": "readonly cancelShift: (shiftId: string, reason?: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "requestShiftSwap",
+        "fullSignature": "readonly requestShiftSwap: (command: RequestShiftSwapCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "reviewShiftSwap",
+        "fullSignature": "readonly reviewShiftSwap: (command: ReviewShiftSwapCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getShiftSwap",
+        "fullSignature": "readonly getShiftSwap: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "listShiftSwaps",
+        "fullSignature": "readonly listShiftSwaps: (filters) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "assignOnCall",
+        "fullSignature": "readonly assignOnCall: (command: AssignOnCallCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "activateOnCall",
+        "fullSignature": "readonly activateOnCall: (command: ActivateOnCallCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getOnCallAssignment",
+        "fullSignature": "readonly getOnCallAssignment: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "listOnCallAssignments",
+        "fullSignature": "readonly listOnCallAssignments: (filters) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getStaffSchedule",
+        "fullSignature": "readonly getStaffSchedule: (employeeId: string, startDate: Date, endDate: Date) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getShiftCoverage",
+        "fullSignature": "readonly getShiftCoverage: (date: Date, shiftType?: ShiftType) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "createRotatingSchedule",
+        "fullSignature": "readonly createRotatingSchedule: (command: CreateRotatingScheduleCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getRotatingSchedule",
+        "fullSignature": "readonly getRotatingSchedule: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "setShiftCoverageRule",
+        "fullSignature": "readonly setShiftCoverageRule: (rule: GoShiftCoverageRule) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getShiftCoverageRules",
+        "fullSignature": "readonly getShiftCoverageRules: (shiftType?: ShiftType) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getOnCallPolicy",
+        "fullSignature": "readonly getOnCallPolicy: (funeralHomeId: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "createOnCallPolicy",
+        "fullSignature": "readonly createOnCallPolicy: (funeralHomeId: string, policyData: Partial<OnCallPolicy>, createdBy: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "updateOnCallPolicy",
+        "fullSignature": "readonly updateOnCallPolicy: (policyId: OnCallPolicyId, policyData: Partial<OnCallPolicy>, updatedBy: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getOnCallPolicyHistory",
+        "fullSignature": "readonly getOnCallPolicyHistory: (funeralHomeId: string) => Effect.Effect<any, NetworkError>;"
+      }
+    ],
+    "missingMethods": [
+      {
+        "name": "assignShift",
+        "fullSignature": "readonly assignShift: (command: AssignShiftCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getShiftAssignment",
+        "fullSignature": "readonly getShiftAssignment: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "listShiftAssignments",
+        "fullSignature": "readonly listShiftAssignments: (filters) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "completeShift",
+        "fullSignature": "readonly completeShift: (command: CompleteShiftCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "cancelShift",
+        "fullSignature": "readonly cancelShift: (shiftId: string, reason?: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "requestShiftSwap",
+        "fullSignature": "readonly requestShiftSwap: (command: RequestShiftSwapCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "reviewShiftSwap",
+        "fullSignature": "readonly reviewShiftSwap: (command: ReviewShiftSwapCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getShiftSwap",
+        "fullSignature": "readonly getShiftSwap: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "listShiftSwaps",
+        "fullSignature": "readonly listShiftSwaps: (filters) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "assignOnCall",
+        "fullSignature": "readonly assignOnCall: (command: AssignOnCallCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "activateOnCall",
+        "fullSignature": "readonly activateOnCall: (command: ActivateOnCallCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getOnCallAssignment",
+        "fullSignature": "readonly getOnCallAssignment: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "listOnCallAssignments",
+        "fullSignature": "readonly listOnCallAssignments: (filters) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getStaffSchedule",
+        "fullSignature": "readonly getStaffSchedule: (employeeId: string, startDate: Date, endDate: Date) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getShiftCoverage",
+        "fullSignature": "readonly getShiftCoverage: (date: Date, shiftType?: ShiftType) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "createRotatingSchedule",
+        "fullSignature": "readonly createRotatingSchedule: (command: CreateRotatingScheduleCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getRotatingSchedule",
+        "fullSignature": "readonly getRotatingSchedule: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "setShiftCoverageRule",
+        "fullSignature": "readonly setShiftCoverageRule: (rule: GoShiftCoverageRule) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getShiftCoverageRules",
+        "fullSignature": "readonly getShiftCoverageRules: (shiftType?: ShiftType) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getOnCallPolicy",
+        "fullSignature": "readonly getOnCallPolicy: (funeralHomeId: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "createOnCallPolicy",
+        "fullSignature": "readonly createOnCallPolicy: (funeralHomeId: string, policyData: Partial<OnCallPolicy>, createdBy: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "updateOnCallPolicy",
+        "fullSignature": "readonly updateOnCallPolicy: (policyId: OnCallPolicyId, policyData: Partial<OnCallPolicy>, updatedBy: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getOnCallPolicyHistory",
+        "fullSignature": "readonly getOnCallPolicyHistory: (funeralHomeId: string) => Effect.Effect<any, NetworkError>;"
+      }
+    ]
+  },
+  {
+    "name": "timesheet",
+    "portFile": "go-timesheet-port.ts",
+    "adapterFile": "go-timesheet-adapter.ts",
+    "portMethods": [
+      "createTimesheet",
+      "getTimesheet",
+      "listTimesheets"
+    ],
+    "adapterMethods": [
+      {
+        "name": "createTimesheet",
+        "fullSignature": "readonly createTimesheet: (command: CreateTimesheetCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getTimesheet",
+        "fullSignature": "readonly getTimesheet: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "listTimesheets",
+        "fullSignature": "readonly listTimesheets: (filters) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getTimesheetSummaries",
+        "fullSignature": "readonly getTimesheetSummaries: (employeeId: string, startDate: Date, endDate: Date) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "addTimesheetEntry",
+        "fullSignature": "readonly addTimesheetEntry: (timesheetId: string, command: AddTimesheetEntryCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "updateTimesheetEntry",
+        "fullSignature": "readonly updateTimesheetEntry: (timesheetId: string, entryId: string, command: UpdateTimesheetEntryCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "deleteTimesheetEntry",
+        "fullSignature": "readonly deleteTimesheetEntry: (timesheetId: string, entryId: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "submitTimesheet",
+        "fullSignature": "readonly submitTimesheet: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "approveTimesheet",
+        "fullSignature": "readonly approveTimesheet: (id: string, approvedBy: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "rejectTimesheet",
+        "fullSignature": "readonly rejectTimesheet: (id: string, rejectedBy: string, reason: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "bulkApproveTimesheets",
+        "fullSignature": "readonly bulkApproveTimesheets: (command: BulkApproveTimesheetsCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getTimesheetsByPayPeriod",
+        "fullSignature": "readonly getTimesheetsByPayPeriod: (payPeriodStart: Date, payPeriodEnd: Date) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getPendingTimesheetsForManager",
+        "fullSignature": "readonly getPendingTimesheetsForManager: (managerId: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getCaseHoursSummary",
+        "fullSignature": "readonly getCaseHoursSummary: (caseId: string, startDate?: Date, endDate?: Date) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "recallTimesheet",
+        "fullSignature": "readonly recallTimesheet: (id: string) => Effect.Effect<any, NetworkError>;"
+      }
+    ],
+    "missingMethods": [
+      {
+        "name": "getTimesheetSummaries",
+        "fullSignature": "readonly getTimesheetSummaries: (employeeId: string, startDate: Date, endDate: Date) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "addTimesheetEntry",
+        "fullSignature": "readonly addTimesheetEntry: (timesheetId: string, command: AddTimesheetEntryCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "updateTimesheetEntry",
+        "fullSignature": "readonly updateTimesheetEntry: (timesheetId: string, entryId: string, command: UpdateTimesheetEntryCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "deleteTimesheetEntry",
+        "fullSignature": "readonly deleteTimesheetEntry: (timesheetId: string, entryId: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "submitTimesheet",
+        "fullSignature": "readonly submitTimesheet: (id: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "approveTimesheet",
+        "fullSignature": "readonly approveTimesheet: (id: string, approvedBy: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "rejectTimesheet",
+        "fullSignature": "readonly rejectTimesheet: (id: string, rejectedBy: string, reason: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "bulkApproveTimesheets",
+        "fullSignature": "readonly bulkApproveTimesheets: (command: BulkApproveTimesheetsCommand) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getTimesheetsByPayPeriod",
+        "fullSignature": "readonly getTimesheetsByPayPeriod: (payPeriodStart: Date, payPeriodEnd: Date) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getPendingTimesheetsForManager",
+        "fullSignature": "readonly getPendingTimesheetsForManager: (managerId: string) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "getCaseHoursSummary",
+        "fullSignature": "readonly getCaseHoursSummary: (caseId: string, startDate?: Date, endDate?: Date) => Effect.Effect<any, NetworkError>;"
+      },
+      {
+        "name": "recallTimesheet",
+        "fullSignature": "readonly recallTimesheet: (id: string) => Effect.Effect<any, NetworkError>;"
+      }
+    ]
+  }
+]

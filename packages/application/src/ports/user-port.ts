@@ -47,7 +47,7 @@ export interface UserProfile {
  * User Port
  * Abstraction for user profile operations
  */
-export interface UserPort {
+export interface UserPortService {
   /**
    * Get user profile by ID
    */
@@ -84,4 +84,4 @@ export interface UserPort {
 /**
  * User Port service tag for dependency injection
  */
-export const UserPort = Context.GenericTag<UserPort>('@dykstra/UserPort');
+export const UserPort = Context.GenericTag<UserPortService>('@dykstra/UserPort');

@@ -2,6 +2,8 @@
 
 import { trpc } from "@/lib/trpc-client";
 import { useState } from "react";
+import { useForm, useFieldArray } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { 
   ArrowLeft,
@@ -15,6 +17,9 @@ import {
   Search,
 } from "lucide-react";
 import { toast } from "sonner";
+import { contractTemplateSchema, CONTRACT_SERVICE_TYPES, type ContractTemplateForm } from "@dykstra/domain/validation";
+import { Form } from "@dykstra/ui";
+import { FormInput, FormTextarea, FormSelect, FormCheckbox } from "@dykstra/ui";
 
 /**
  * Contract Templates Management
@@ -319,16 +324,31 @@ function TemplateForm({
   onSuccess: () => void;
   onCancel: () => void;
 }) {
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    serviceType: '' as ServiceType | '',
-    content: '',
-    variables: [] as string[],
-    isDefault: false,
-  });
-  const [newVariable, setNewVariable] = useState('');
   const [showPreview, setShowPreview] = useState(false);
+  const [newVariable, setNewVariable] = useState('');
+
+  // Initialize form with react-hook-form + domain validation
+  const form = useForm<ContractTemplateForm>({
+    resolver: zodResolver(contractTemplateSchema),
+    defaultValues: {
+      name: '',
+      description: '',
+      serviceType: '',
+      content: '',
+      variables: [],
+      isDefault: false,
+    },
+  });
+
+  // Array field for variables
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "variables",
+  });
+
+  // Watch serviceType and content for conditional rendering
+  const serviceType = form.watch("serviceType");
+  const content = form.watch("content");
 
   // Fetch existing template if editing
   const { data: existingTemplate } = trpc.contract.getTemplates.useQuery(
@@ -338,7 +358,7 @@ function TemplateForm({
       onSuccess: (templates) => {
         const template = templates.find((t) => t.id === templateId);
         if (template) {
-          setFormData({
+          form.reset({
             name: template.name,
             description: template.description || '',
             serviceType: template.serviceType || '',
@@ -373,216 +393,180 @@ function TemplateForm({
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
+  // Handle form submission (validation automatic via react-hook-form)
+  const onSubmit = form.handleSubmit((data) => {
     if (templateId) {
       updateMutation.mutate({
         id: templateId,
-        name: formData.name,
-        description: formData.description,
-        content: formData.content,
-        variables: formData.variables,
-        isDefault: formData.isDefault,
+        name: data.name,
+        description: data.description,
+        content: data.content,
+        variables: data.variables,
+        isDefault: data.isDefault,
       });
     } else {
       saveMutation.mutate({
-        name: formData.name,
-        description: formData.description,
-        serviceType: formData.serviceType || undefined,
-        content: formData.content,
-        variables: formData.variables,
-        isDefault: formData.isDefault,
+        name: data.name,
+        description: data.description,
+        serviceType: data.serviceType || undefined,
+        content: data.content,
+        variables: data.variables,
+        isDefault: data.isDefault,
       });
     }
-  };
+  });
 
   const addVariable = () => {
-    if (newVariable.trim() && !formData.variables.includes(newVariable.trim())) {
-      setFormData({
-        ...formData,
-        variables: [...formData.variables, newVariable.trim()],
-      });
+    const trimmed = newVariable.trim();
+    if (trimmed && !fields.some(f => f.value === trimmed)) {
+      append(trimmed);
       setNewVariable('');
     }
   };
 
-  const removeVariable = (variable: string) => {
-    setFormData({
-      ...formData,
-      variables: formData.variables.filter((v) => v !== variable),
-    });
-  };
-
   return (
-    <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-lg p-6 space-y-6">
-      <div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-1">
-          {templateId ? 'Edit Template' : 'Create New Template'}
-        </h2>
-        <p className="text-sm text-gray-600">
-          Create reusable contract templates with variable substitution
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <Form {...form}>
+      <form onSubmit={onSubmit} className="bg-white border border-gray-200 rounded-lg p-6 space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Template Name *
-          </label>
-          <input
-            type="text"
-            required
-            value={formData.name}
-            onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setFormData({ ...formData, name: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[--navy] focus:border-transparent"
+          <h2 className="text-xl font-semibold text-gray-900 mb-1">
+            {templateId ? 'Edit Template' : 'Create New Template'}
+          </h2>
+          <p className="text-sm text-gray-600">
+            Create reusable contract templates with variable substitution
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormInput
+            name="name"
+            label="Template Name"
             placeholder="e.g., Standard Traditional Burial Contract"
+            required
+          />
+
+          <FormSelect
+            name="serviceType"
+            label="Service Type"
+            placeholder="Universal (All Types)"
+            options={[
+              { value: '', label: 'Universal (All Types)' },
+              ...CONTRACT_SERVICE_TYPES.map(type => ({
+                value: type,
+                label: type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+              }))
+            ]}
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Service Type
-          </label>
-          <select
-            value={formData.serviceType}
-            onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setFormData({ ...formData, serviceType: e.target.value as any })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[--navy] focus:border-transparent"
-          >
-            <option value="">Universal (All Types)</option>
-            <option value="TRADITIONAL_BURIAL">Traditional Burial</option>
-            <option value="TRADITIONAL_CREMATION">Traditional Cremation</option>
-            <option value="MEMORIAL_SERVICE">Memorial Service</option>
-            <option value="DIRECT_BURIAL">Direct Burial</option>
-            <option value="DIRECT_CREMATION">Direct Cremation</option>
-            <option value="CELEBRATION_OF_LIFE">Celebration of Life</option>
-          </select>
-        </div>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Description
-        </label>
-        <input
-          type="text"
-          value={formData.description}
-          onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setFormData({ ...formData, description: e.target.value })}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[--navy] focus:border-transparent"
+        <FormInput
+          name="description"
+          label="Description"
           placeholder="Brief description of this template"
         />
-      </div>
 
-      {/* Variables */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Variables
-        </label>
-        <div className="flex gap-2 mb-3">
-          <input
-            type="text"
-            value={newVariable}
-            onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setNewVariable(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addVariable())}
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[--navy] focus:border-transparent"
-            placeholder="e.g., decedentName, serviceDate, totalAmount"
-          />
-          <button
-            type="button"
-            onClick={addVariable}
-            className="px-4 py-2 bg-[--navy] text-white rounded-lg hover:bg-[--sage] transition"
-          >
-            Add
-          </button>
-        </div>
-        {formData.variables.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {formData.variables.map((variable) => (
-              <div
-                key={variable}
-                className="inline-flex items-center gap-2 px-3 py-1 bg-gray-100 text-gray-700 rounded-lg"
-              >
-                <code className="text-sm font-mono">{`{{${variable}}}`}</code>
-                <button
-                  type="button"
-                  onClick={() => removeVariable(variable)}
-                  className="text-gray-500 hover:text-red-600"
+        {/* Variables */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Variables
+          </label>
+          <div className="flex gap-2 mb-3">
+            <input
+              type="text"
+              value={newVariable}
+              onChange={(e) => setNewVariable(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addVariable())}
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[--navy] focus:border-transparent"
+              placeholder="e.g., decedentName, serviceDate, totalAmount"
+            />
+            <button
+              type="button"
+              onClick={addVariable}
+              className="px-4 py-2 bg-[--navy] text-white rounded-lg hover:bg-[--sage] transition"
+            >
+              Add
+            </button>
+          </div>
+          {fields.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {fields.map((field, index) => (
+                <div
+                  key={field.id}
+                  className="inline-flex items-center gap-2 px-3 py-1 bg-gray-100 text-gray-700 rounded-lg"
                 >
-                  <Trash2 className="w-3 h-3" />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+                  <code className="text-sm font-mono">{`{{${field.value}}}`}</code>
+                  <button
+                    type="button"
+                    onClick={() => remove(index)}
+                    className="text-gray-500 hover:text-red-600"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
-      {/* Template Content */}
-      <div>
-        <div className="flex items-center justify-between mb-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Template Content *
-          </label>
+        {/* Template Content */}
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <label className="block text-sm font-medium text-gray-700">
+              Template Content *
+            </label>
+            <button
+              type="button"
+              onClick={() => setShowPreview(!showPreview)}
+              className="inline-flex items-center gap-2 text-sm text-[--navy] hover:underline"
+            >
+              <Eye className="w-4 h-4" />
+              {showPreview ? 'Edit' : 'Preview'}
+            </button>
+          </div>
+
+          {showPreview ? (
+            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 min-h-[300px]">
+              <div className="prose prose-sm max-w-none whitespace-pre-wrap">
+                {content}
+              </div>
+            </div>
+          ) : (
+            <FormTextarea
+              name="content"
+              label=""
+              rows={16}
+              placeholder="Enter contract template content. Use {{variableName}} for variable substitution."
+              className="font-mono text-sm resize-none"
+              required
+            />
+          )}
+        </div>
+
+        {/* Checkbox */}
+        {serviceType && (
+          <FormCheckbox
+            name="isDefault"
+            label={`Set as default template for ${serviceType.replace(/_/g, ' ').toLowerCase()}`}
+          />
+        )}
+
+        {/* Actions */}
+        <div className="flex items-center gap-3 pt-4 border-t border-gray-200">
+          <button
+            type="submit"
+            disabled={saveMutation.isLoading || updateMutation.isLoading}
+            className="px-6 py-2 bg-[--navy] text-white rounded-lg hover:bg-[--sage] transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {saveMutation.isLoading || updateMutation.isLoading ? 'Saving...' : templateId ? 'Update Template' : 'Create Template'}
+          </button>
           <button
             type="button"
-            onClick={() => setShowPreview(!showPreview)}
-            className="inline-flex items-center gap-2 text-sm text-[--navy] hover:underline"
+            onClick={onCancel}
+            className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
           >
-            <Eye className="w-4 h-4" />
-            {showPreview ? 'Edit' : 'Preview'}
+            Cancel
           </button>
         </div>
-
-        {showPreview ? (
-          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 min-h-[300px]">
-            <div className="prose prose-sm max-w-none whitespace-pre-wrap">
-              {formData.content}
-            </div>
-          </div>
-        ) : (
-          <textarea
-            required
-            value={formData.content}
-            onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setFormData({ ...formData, content: e.target.value })}
-            rows={16}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[--navy] focus:border-transparent resize-none font-mono text-sm"
-            placeholder="Enter contract template content. Use {{variableName}} for variable substitution."
-          />
-        )}
-      </div>
-
-      {/* Checkbox */}
-      {formData.serviceType && (
-        <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            id="isDefault"
-            checked={formData.isDefault}
-            onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setFormData({ ...formData, isDefault: e.target.checked })}
-            className="w-4 h-4 text-[--navy] border-gray-300 rounded focus:ring-[--navy]"
-          />
-          <label htmlFor="isDefault" className="text-sm text-gray-700">
-            Set as default template for {formData.serviceType.replace(/_/g, ' ').toLowerCase()}
-          </label>
-        </div>
-      )}
-
-      {/* Actions */}
-      <div className="flex items-center gap-3 pt-4 border-t border-gray-200">
-        <button
-          type="submit"
-          disabled={saveMutation.isLoading || updateMutation.isLoading}
-          className="px-6 py-2 bg-[--navy] text-white rounded-lg hover:bg-[--sage] transition disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {saveMutation.isLoading || updateMutation.isLoading ? 'Saving...' : templateId ? 'Update Template' : 'Create Template'}
-        </button>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
-        >
-          Cancel
-        </button>
-      </div>
-    </form>
+      </form>
+    </Form>
   );
 }

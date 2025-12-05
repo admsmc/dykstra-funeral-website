@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { use } from 'react';
 import imageCompression from 'browser-image-compression';
 import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
 
 /**
  * Photo Gallery Page
@@ -34,33 +35,13 @@ export default function PhotoGalleryPage({
   const [captions, setCaptions] = useState<Record<string, string>>({});
   const [isDragging, setIsDragging] = useState(false);
 
-  // Query photos (placeholder - would need backend implementation)
-  // const { data: photos, isLoading } = trpc.memorial.getPhotos.useQuery({ memorialId });
-
-  // Mock data for demo
-  const mockPhotos = [
-    { 
-      id: '1', 
-      url: 'https://via.placeholder.com/400x300/1e3a5f/ffffff?text=Photo+1',
-      caption: 'Family gathering, 2020',
-      uploadedBy: 'John Doe',
-      uploadedAt: new Date('2025-01-15')
-    },
-    { 
-      id: '2', 
-      url: 'https://via.placeholder.com/400x300/8b9d83/ffffff?text=Photo+2',
-      caption: 'Summer vacation',
-      uploadedBy: 'Jane Doe',
-      uploadedAt: new Date('2025-01-16')
-    },
-    { 
-      id: '3', 
-      url: 'https://via.placeholder.com/400x300/b8956a/ffffff?text=Photo+3',
-      caption: 'Birthday celebration',
-      uploadedBy: 'John Doe',
-      uploadedAt: new Date('2025-01-17')
-    },
-  ];
+  // Fetch photos via tRPC
+  const { data: photosData, isLoading, error, refetch } = trpc.memorial.getPhotos.useQuery({ memorialId });
+  
+  // Add photo mutation (for upload)
+  const addPhotoMutation = trpc.memorial.addPhoto.useMutation();
+  
+  const photos = photosData?.photos || [];
 
   // Handle file selection
   const handleFileSelect = (files: FileList | null) => {
@@ -110,7 +91,7 @@ export default function PhotoGalleryPage({
       // Upload each file
       for (let i = 0; i < selectedFiles.length; i++) {
         const file = selectedFiles[i];
-        const caption = captions[i] || null;
+        const caption = captions[i] || '';
 
         // Compress image
         console.log(`Compressing ${file.name}...`);
@@ -119,37 +100,27 @@ export default function PhotoGalleryPage({
           `Compressed from ${(file.size / 1024 / 1024).toFixed(2)}MB to ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB`
         );
 
-        // Create FormData
-        const formData = new FormData();
-        formData.append('file', compressedFile, file.name);
-        formData.append('memorialId', memorialId);
-        formData.append('caseId', 'placeholder-case-id'); // TODO: Get from context
-        formData.append('userId', 'placeholder-user-id'); // TODO: Get from session
-        if (caption) {
-          formData.append('caption', caption);
-        }
-
-        // Upload to API
-        console.log(`Uploading ${file.name}...`);
-        const response = await fetch('/api/photos/upload', {
-          method: 'POST',
-          body: formData,
+        // For now, create a mock URL (in production, upload to storage first)
+        const photoUrl = URL.createObjectURL(compressedFile);
+        
+        // Add photo via tRPC
+        await addPhotoMutation.mutateAsync({
+          memorialId,
+          caseId: 'placeholder-case-id', // TODO: Get from context
+          url: photoUrl,
+          caption: caption || undefined,
+          uploadedBy: 'current-user-id', // TODO: Get from session
         });
-
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.error || 'Upload failed');
-        }
-
-        const photo = await response.json();
-        console.log('Upload successful:', photo);
+        
+        console.log('Upload successful:', file.name);
       }
 
       toast.success(`Successfully uploaded ${selectedFiles.length} photo(s)`, { id: toastId });
       setSelectedFiles([]);
       setCaptions({});
       
-      // TODO: Refetch photos from backend
+      // Refetch photos from backend
+      refetch();
     } catch (error) {
       console.error('Upload error:', error);
       toast.error(
@@ -171,6 +142,24 @@ export default function PhotoGalleryPage({
       [index]: caption
     }));
   };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 animate-spin text-[--navy]" />
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <p className="text-red-800">Error loading photos: {error.message}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -292,21 +281,21 @@ export default function PhotoGalleryPage({
 
       {/* Gallery Display */}
       <section className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-2xl font-serif text-[--navy] mb-4">All Photos</h2>
+        <h2 className="text-2xl font-serif text-[--navy] mb-4">All Photos ({photos.length})</h2>
         
-        {mockPhotos.length === 0 ? (
+        {photos.length === 0 ? (
           <p className="text-gray-500 text-center py-8">
             No photos uploaded yet. Be the first to share a memory.
           </p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {mockPhotos.map((photo) => (
+            {photos.map((photo) => (
               <div key={photo.id} className="group relative">
                 {/* Photo */}
                 <div className="aspect-[4/3] overflow-hidden rounded-lg bg-gray-100">
                   <img
                     src={photo.url}
-                    alt={photo.caption}
+                    alt={photo.caption || 'Memorial photo'}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 </div>
@@ -314,9 +303,9 @@ export default function PhotoGalleryPage({
                 {/* Overlay on hover */}
                 <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-opacity rounded-lg flex items-end opacity-0 group-hover:opacity-100">
                   <div className="p-4 text-white w-full">
-                    <p className="font-medium mb-1">{photo.caption}</p>
+                    {photo.caption && <p className="font-medium mb-1">{photo.caption}</p>}
                     <p className="text-xs opacity-90">
-                      By {photo.uploadedBy} • {photo.uploadedAt.toLocaleDateString()}
+                      By {photo.uploadedBy.firstName} {photo.uploadedBy.lastName} • {new Date(photo.uploadedAt).toLocaleDateString()}
                     </p>
                   </div>
                 </div>

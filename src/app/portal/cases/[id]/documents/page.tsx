@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useParams } from "next/navigation";
 import { trpc } from "@/lib/trpc/client";
-import { toast } from "sonner";
+import { useToast } from "@/components/toast";
+import { ErrorBoundary, PageErrorFallback } from "@/components/error";
 import { Upload, Download, FileText, AlertCircle, Loader2 } from "lucide-react";
 
 type DocumentType =
@@ -120,9 +121,10 @@ function getFileIcon(mimeType: string): React.ReactNode {
   );
 }
 
-export default function DocumentsPage() {
+function DocumentsPageContent() {
   const params = useParams();
   const caseId = params.id as string;
+  const toast = useToast();
 
   const [selectedType, setSelectedType] = useState<DocumentType | null>(null);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
@@ -539,5 +541,13 @@ export default function DocumentsPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function DocumentsPage() {
+  return (
+    <ErrorBoundary fallback={(error, reset) => <PageErrorFallback error={error} reset={reset} />}>
+      <DocumentsPageContent />
+    </ErrorBoundary>
   );
 }

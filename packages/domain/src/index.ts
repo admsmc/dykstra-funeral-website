@@ -42,5 +42,13 @@ export * from './entities/scheduling/on-call-policy';
 export * from './entities/scheduling/service-coverage-policy';
 export * from './entities/email-sync/email-calendar-sync-policy';
 
+// Document Generation Entities
+export * from './documents/InvoiceData';
+export * from './documents/ServiceProgramData';
+export * from './documents/MemorialTemplate';
+
 // Events
 export * from './events/domain-events';
+
+// Validation Schemas
+export * from './validation';

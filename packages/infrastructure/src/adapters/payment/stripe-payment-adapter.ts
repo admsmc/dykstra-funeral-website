@@ -1,34 +1,41 @@
 import { Effect } from 'effect';
 import Stripe from 'stripe';
-import type { PaymentPort, PaymentIntentResult, CustomerResult, PaymentProcessingError } from '@dykstra/application';
+import type { PaymentPortService, PaymentProcessingError } from '@dykstra/application';
+
+/**
+ * Lazy Stripe client singleton
+ * Initialized on first use to avoid module-load side effects
+ */
+let stripeInstance: Stripe | null = null;
+
+function getStripe(): Stripe {
+  if (stripeInstance) return stripeInstance;
+
+  const apiKey = process.env['STRIPE_SECRET_KEY'];
+  if (!apiKey) {
+    throw new Error('STRIPE_SECRET_KEY environment variable is not set');
+  }
+
+  stripeInstance = new Stripe(apiKey, {
+    apiVersion: '2025-11-17.clover',
+  });
+
+  return stripeInstance;
+}
 
 /**
  * Stripe implementation of PaymentPort
+ * Object-based adapter (NOT class-based)
  */
-export class StripePaymentAdapter implements PaymentPort {
-  private stripe: Stripe;
-
-  constructor() {
-    const apiKey = process.env['STRIPE_SECRET_KEY'];
-    if (!apiKey) {
-      throw new Error('STRIPE_SECRET_KEY environment variable is not set');
-    }
-
-    this.stripe = new Stripe(apiKey, {
-      apiVersion: '2025-11-17.clover',
-    });
-  }
+export const StripePaymentAdapter: PaymentPortService = {
 
   /**
    * Create a payment intent
    */
-  readonly createPaymentIntent = (
-    amount: number,
-    metadata: Record<string, string>
-  ): Effect.Effect<PaymentIntentResult, PaymentProcessingError> =>
+  createPaymentIntent: (amount: number, metadata: Record<string, string>) =>
     Effect.tryPromise({
       try: async () => {
-        const paymentIntent = await this.stripe.paymentIntents.create({
+        const paymentIntent = await getStripe().paymentIntents.create({
           amount: Math.round(amount * 100), // Convert to cents
           currency: 'usd',
           metadata,
@@ -52,15 +59,15 @@ export class StripePaymentAdapter implements PaymentPort {
           }
         })(message, error);
       },
-    });
+    }),
 
   /**
    * Confirm a payment intent
    */
-  readonly confirmPayment = (paymentIntentId: string): Effect.Effect<void, PaymentProcessingError> =>
+  confirmPayment: (paymentIntentId: string) =>
     Effect.tryPromise({
       try: async () => {
-        await this.stripe.paymentIntents.confirm(paymentIntentId);
+        await getStripe().paymentIntents.confirm(paymentIntentId);
       },
       catch: (error) => {
         const message = error instanceof Error ? error.message : 'Failed to confirm payment';
@@ -71,15 +78,15 @@ export class StripePaymentAdapter implements PaymentPort {
           }
         })(message, error);
       },
-    });
+    }),
 
   /**
    * Create a customer
    */
-  readonly createCustomer = (email: string, name: string): Effect.Effect<CustomerResult, PaymentProcessingError> =>
+  createCustomer: (email: string, name: string) =>
     Effect.tryPromise({
       try: async () => {
-        const customer = await this.stripe.customers.create({
+        const customer = await getStripe().customers.create({
           email,
           name,
         });
@@ -98,12 +105,12 @@ export class StripePaymentAdapter implements PaymentPort {
           }
         })(message, error);
       },
-    });
+    }),
 
   /**
    * Refund a payment
    */
-  readonly refundPayment = (paymentIntentId: string, amount?: number): Effect.Effect<void, PaymentProcessingError> =>
+  refundPayment: (paymentIntentId: string, amount?: number) =>
     Effect.tryPromise({
       try: async () => {
         const refundParams: Stripe.RefundCreateParams = {
@@ -114,7 +121,7 @@ export class StripePaymentAdapter implements PaymentPort {
           refundParams.amount = Math.round(amount * 100); // Convert to cents
         }
 
-        await this.stripe.refunds.create(refundParams);
+        await getStripe().refunds.create(refundParams);
       },
       catch: (error) => {
         const message = error instanceof Error ? error.message : 'Failed to refund payment';
@@ -125,12 +132,12 @@ export class StripePaymentAdapter implements PaymentPort {
           }
         })(message, error);
       },
-    });
-}
+    }),
+};
 
 /**
  * Create Stripe Payment Adapter instance
  */
-export function createStripePaymentAdapter(): PaymentPort {
-  return new StripePaymentAdapter();
+export function createStripePaymentAdapter(): PaymentPortService {
+  return StripePaymentAdapter;
 }

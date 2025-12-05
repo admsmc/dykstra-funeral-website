@@ -25,6 +25,23 @@ import { driverVehicleRouter } from './routers/driver-vehicle.router';
 import { ptoManagementRouter } from './routers/pto-management.router';
 import { trainingManagementRouter } from './routers/training-management.router';
 import { backfillManagementRouter } from './routers/backfill-management.router';
+import { documentsRouter } from './routers/documents';
+import { memorialTemplatesRouter } from './routers/memorial-templates';
+import { templateAnalyticsRouter } from './routers/template-analytics';
+import { templateApprovalRouter } from './routers/template-approval';
+import { batchDocumentsRouter } from './routers/batch-documents';
+import { printerIntegrationRouter } from './routers/printer-integration';
+import { financialRouter } from './routers/financial.router';
+import { familyHierarchyRouter } from './routers/family-hierarchy.router';
+import { taskRouter } from './routers/task.router';
+import { appointmentRouter } from './routers/appointment.router';
+import { timesheetRouter } from './routers/timesheet.router';
+import { schedulingRouter } from './routers/scheduling.router';
+import { payrollRouter } from './routers/payroll.router';
+import { inventoryRouter } from './routers/inventory.router';
+import { prepRoomRouter } from './routers/prep-room.router';
+import { shipmentRouter } from './routers/shipment.router';
+import { memorialRouter } from './routers/memorial.router';
 
 /**
  * Root application router
@@ -63,7 +80,40 @@ export const appRouter = router({
   ptoManagement: ptoManagementRouter,
   trainingManagement: trainingManagementRouter,
   backfillManagement: backfillManagementRouter,
-  // memorial: memorialRouter, // TODO: Phase 2 continuation
+  // Document Generation (Weeks 4-6)
+  documents: documentsRouter,
+  // Memorial Templates (Weeks 13-14)
+  memorialTemplates: memorialTemplatesRouter,
+  // Template Analytics (Week 17)
+  templateAnalytics: templateAnalyticsRouter,
+  // Template Approval (Week 17)
+  templateApproval: templateApprovalRouter,
+  // Batch Documents (Week 17)
+  batchDocuments: batchDocumentsRouter,
+  // Printer Integration (Week 17)
+  printerIntegration: printerIntegrationRouter,
+  // Financial Operations (Week 1-2: Production Integration)
+  financial: financialRouter,
+  // Family Hierarchy (Week 3-4: Family CRM Domain)
+  familyHierarchy: familyHierarchyRouter,
+  // Task Management
+  task: taskRouter,
+  // Appointment Scheduling
+  appointment: appointmentRouter,
+  // Timesheet Management (Use Cases 3.1-3.4)
+  timesheet: timesheetRouter,
+  // Staff Scheduling & Rotation (Use Cases 7.1-7.4)
+  scheduling: schedulingRouter,
+  // Payroll Management (Use Cases 4.1-4.4)
+  payroll: payrollRouter,
+  // Inventory Management (Use Cases 5.7, 6.5, 5.4)
+  inventory: inventoryRouter,
+  // Prep Room Management
+  prepRoom: prepRoomRouter,
+  // Shipment/SCM Management
+  shipment: shipmentRouter,
+  // Memorial Pages (tributes, guestbook, photos)
+  memorial: memorialRouter,
 });
 
 /**

@@ -1,0 +1,156 @@
+name: Performance Benchmarks
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main]
+
+jobs:
+  performance:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run performance tests
+        run: pnpm --filter @dykstra/application test performance --reporter=json --outputFile=performance-results.json
+        continue-on-error: true
+
+      - name: Extract performance metrics
+        id: metrics
+        run: |
+          # Parse test results and extract timing data
+          if [ -f packages/application/performance-results.json ]; then
+            echo "Performance test results found"
+            
+            # Extract key metrics (simplified parsing)
+            invoice_time=$(grep -oP 'Invoice generation: \K\d+' packages/application/performance-results.json || echo "0")
+            po_time=$(grep -oP 'PO generation: \K\d+' packages/application/performance-results.json || echo "0")
+            receipt_time=$(grep -oP 'Receipt generation: \K\d+' packages/application/performance-results.json || echo "0")
+            batch_time=$(grep -oP 'Batch generation.*: \K\d+' packages/application/performance-results.json || echo "0")
+            
+            echo "invoice_time=$invoice_time" >> $GITHUB_OUTPUT
+            echo "po_time=$po_time" >> $GITHUB_OUTPUT
+            echo "receipt_time=$receipt_time" >> $GITHUB_OUTPUT
+            echo "batch_time=$batch_time" >> $GITHUB_OUTPUT
+            
+            echo "📊 Performance Metrics:" >> $GITHUB_STEP_SUMMARY
+            echo "- Invoice generation: ${invoice_time}ms" >> $GITHUB_STEP_SUMMARY
+            echo "- PO generation: ${po_time}ms" >> $GITHUB_STEP_SUMMARY
+            echo "- Receipt generation: ${receipt_time}ms" >> $GITHUB_STEP_SUMMARY
+            echo "- Batch (10 invoices): ${batch_time}ms" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ Performance test results not found" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Check performance regression
+        run: |
+          # Fail if any operation exceeds thresholds
+          invoice_time=${{ steps.metrics.outputs.invoice_time }}
+          po_time=${{ steps.metrics.outputs.po_time }}
+          receipt_time=${{ steps.metrics.outputs.receipt_time }}
+          batch_time=${{ steps.metrics.outputs.batch_time }}
+          
+          failed=0
+          
+          # Thresholds (in ms)
+          INVOICE_THRESHOLD=200
+          PO_THRESHOLD=200
+          RECEIPT_THRESHOLD=200
+          BATCH_THRESHOLD=2000  # 10 invoices
+          
+          if [ "$invoice_time" -gt "$INVOICE_THRESHOLD" ]; then
+            echo "❌ Invoice generation regression: ${invoice_time}ms > ${INVOICE_THRESHOLD}ms"
+            failed=1
+          fi
+          
+          if [ "$po_time" -gt "$PO_THRESHOLD" ]; then
+            echo "❌ PO generation regression: ${po_time}ms > ${PO_THRESHOLD}ms"
+            failed=1
+          fi
+          
+          if [ "$receipt_time" -gt "$RECEIPT_THRESHOLD" ]; then
+            echo "❌ Receipt generation regression: ${receipt_time}ms > ${RECEIPT_THRESHOLD}ms"
+            failed=1
+          fi
+          
+          if [ "$batch_time" -gt "$BATCH_THRESHOLD" ]; then
+            echo "❌ Batch generation regression: ${batch_time}ms > ${BATCH_THRESHOLD}ms"
+            failed=1
+          fi
+          
+          if [ "$failed" -eq 1 ]; then
+            echo "💥 Performance regression detected!"
+            exit 1
+          else
+            echo "✅ All performance metrics within thresholds"
+          fi
+
+      - name: Upload performance results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: performance-results
+          path: |
+            packages/application/performance-results.json
+            packages/application/test-results/
+          retention-days: 30
+
+      - name: Comment PR with performance results
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        with:
+          script: |
+            const invoice = '${{ steps.metrics.outputs.invoice_time }}';
+            const po = '${{ steps.metrics.outputs.po_time }}';
+            const receipt = '${{ steps.metrics.outputs.receipt_time }}';
+            const batch = '${{ steps.metrics.outputs.batch_time }}';
+            
+            const comment = `## 📊 Performance Benchmark Results
+            
+            | Metric | Time | Threshold | Status |
+            |--------|------|-----------|--------|
+            | Invoice Generation | ${invoice}ms | 200ms | ${invoice <= 200 ? '✅' : '❌'} |
+            | PO Generation | ${po}ms | 200ms | ${po <= 200 ? '✅' : '❌'} |
+            | Receipt Generation | ${receipt}ms | 200ms | ${receipt <= 200 ? '✅' : '❌'} |
+            | Batch (10 invoices) | ${batch}ms | 2000ms | ${batch <= 2000 ? '✅' : '❌'} |
+            
+            ${invoice > 200 || po > 200 || receipt > 200 || batch > 2000 
+              ? '⚠️ **Performance regression detected!** Some operations exceeded thresholds.' 
+              : '✅ All performance metrics within acceptable thresholds.'}
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });

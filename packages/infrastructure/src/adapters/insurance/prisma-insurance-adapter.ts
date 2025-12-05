@@ -1,16 +1,17 @@
 import { Effect } from 'effect';
-import type { InsurancePort, InsuranceAssignmentResult, InsuranceError } from '@dykstra/application';
+import type { InsurancePortService, InsuranceAssignmentResult, InsuranceError } from '@dykstra/application';
 import { prisma } from '../../database/prisma-client';
 import { decimalToNumber } from '../../utils/type-converters';
 
 /**
  * Prisma implementation of InsurancePort
+ * Object-based adapter (NOT class-based)
  */
-export class PrismaInsuranceAdapter implements InsurancePort {
+export const PrismaInsuranceAdapter: InsurancePortService = {
   /**
    * Create an insurance assignment
    */
-  readonly createAssignment = (params: {
+  createAssignment: (params: {
     caseId: string;
     insuranceCompany: string;
     policyNumber: string;
@@ -50,12 +51,12 @@ export class PrismaInsuranceAdapter implements InsurancePort {
           }
         })(message, error);
       },
-    });
+    }),
 
   /**
    * Update insurance assignment status
    */
-  readonly updateStatus = (params: {
+  updateStatus: (params: {
     assignmentId: string;
     status: string;
     notes?: string;
@@ -84,24 +85,12 @@ export class PrismaInsuranceAdapter implements InsurancePort {
           }
         })(message, error);
       },
-    });
+    }),
 
   /**
    * Get insurance assignment details
    */
-  readonly getAssignment = (
-    assignmentId: string
-  ): Effect.Effect<
-    {
-      id: string;
-      caseId: string;
-      insuranceCompany: string;
-      policyNumber: string;
-      assignedAmount: number;
-      status: string;
-    },
-    InsuranceError
-  > =>
+  getAssignment: (assignmentId: string) =>
     Effect.tryPromise({
       try: async () => {
         const assignment = await prisma.insuranceAssignment.findUnique({
@@ -138,12 +127,12 @@ export class PrismaInsuranceAdapter implements InsurancePort {
           }
         })(message, error);
       },
-    });
-}
+    }),
+};
 
 /**
  * Create Prisma Insurance Adapter instance
  */
-export function createPrismaInsuranceAdapter(): InsurancePort {
-  return new PrismaInsuranceAdapter();
+export function createPrismaInsuranceAdapter(): InsurancePortService {
+  return PrismaInsuranceAdapter;
 }

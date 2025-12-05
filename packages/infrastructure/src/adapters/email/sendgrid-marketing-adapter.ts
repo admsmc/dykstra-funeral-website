@@ -7,7 +7,6 @@ let sgMail: any = null;
 const initSendGrid = async () => {
   if (!sgMail) {
     try {
-      // @ts-expect-error - Dynamic import for optional SendGrid dependency
       const sendgrid = await import('@sendgrid/mail');
       sgMail = sendgrid.default || sendgrid;
       const apiKey = process.env['SENDGRID_API_KEY'];

@@ -1,67 +1,17 @@
 'use client';
 
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useParams } from 'next/navigation';
+import { trpc } from '@/lib/trpc/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@dykstra/ui/card';
 import { Button } from '@dykstra/ui/button';
-import { Input } from '@dykstra/ui/input';
-import { Textarea } from '@dykstra/ui/textarea';
 import { useToast } from '@dykstra/ui/toast';
-import { Select } from '@dykstra/ui/select';
-
-// Mock data - in production, fetch via tRPC
-const MOCK_MEMORIAL = {
-  id: 'memorial-1',
-  caseId: 'case-1',
-  decedentName: 'John David Smith',
-  dateOfBirth: '1945-03-15',
-  dateOfDeath: '2024-11-20',
-  obituary: 'John David Smith, 79, of Grand Rapids, passed away peacefully on November 20, 2024. He was a beloved husband, father, grandfather, and friend who will be deeply missed by all who knew him.',
-  serviceDetails: {
-    date: '2024-11-30',
-    time: '2:00 PM',
-    location: 'Dykstra Funeral Home Chapel',
-  },
-};
-
-const MOCK_PHOTOS = [
-  { id: '1', url: '/placeholder-photo.jpg', caption: 'Family gathering, 2020', uploadedBy: 'Jane Smith' },
-  { id: '2', url: '/placeholder-photo.jpg', caption: 'Fishing trip', uploadedBy: 'Robert Smith' },
-  { id: '3', url: '/placeholder-photo.jpg', caption: 'Birthday celebration', uploadedBy: 'Mary Johnson' },
-  { id: '4', url: '/placeholder-photo.jpg', caption: 'With grandchildren', uploadedBy: 'Jane Smith' },
-];
-
-const MOCK_TRIBUTES = [
-  {
-    id: '1',
-    authorName: 'Sarah Johnson',
-    message: 'John was a wonderful neighbor and friend. His kindness and generosity will never be forgotten.',
-    createdAt: '2024-11-22T10:30:00Z',
-  },
-  {
-    id: '2',
-    authorName: 'Michael Brown',
-    message: 'We will miss his stories and laughter. Rest in peace, old friend.',
-    createdAt: '2024-11-23T14:15:00Z',
-  },
-];
-
-const MOCK_GUESTBOOK = [
-  {
-    id: '1',
-    name: 'Emily Davis',
-    location: 'Grand Rapids, MI',
-    message: 'Our thoughts and prayers are with your family during this difficult time.',
-    createdAt: '2024-11-22T09:00:00Z',
-  },
-  {
-    id: '2',
-    name: 'Thomas Wilson',
-    location: 'Lansing, MI',
-    message: 'John was a great man who touched many lives. Deepest condolences.',
-    createdAt: '2024-11-23T16:45:00Z',
-  },
-];
+import { tributeSchema, guestbookSchema, type TributeForm, type GuestbookForm } from '@dykstra/domain/validation';
+import { Form } from '@/components/form';
+import { FormInput, FormTextarea, FormSelect } from '@/components/form-fields';
+import { Loader2 } from 'lucide-react';
 
 const US_STATES = [
   'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
@@ -76,19 +26,47 @@ export default function MemorialPage() {
   const memorialId = params.id as string;
   const { toast } = useToast();
 
+  // Fetch memorial data
+  const { data: memorial, isLoading: memorialLoading, error: memorialError } = trpc.memorial.get.useQuery({ memorialId });
+  const { data: photosData, isLoading: photosLoading } = trpc.memorial.getPhotos.useQuery({ memorialId });
+  const { data: tributesData, isLoading: tributesLoading } = trpc.memorial.getTributes.useQuery({ memorialId });
+  const { data: guestbookData, isLoading: guestbookLoading } = trpc.memorial.getGuestbook.useQuery({ memorialId });
+
+  // Mutations
+  const addTributeMutation = trpc.memorial.addTribute.useMutation();
+  const signGuestbookMutation = trpc.memorial.signGuestbook.useMutation();
+
   // View modes
   const [activeTab, setActiveTab] = useState<'overview' | 'photos' | 'tributes' | 'guestbook'>('overview');
   const [slideshowMode, setSlideshowMode] = useState(false);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
 
-  // Forms
-  const [tributeForm, setTributeForm] = useState({ name: '', email: '', message: '' });
-  const [guestbookForm, setGuestbookForm] = useState({ name: '', email: '', message: '', city: '', state: '' });
+  // Tribute form with react-hook-form
+  const tributeForm = useForm<TributeForm>({
+    resolver: zodResolver(tributeSchema),
+    defaultValues: {
+      name: '',
+      email: '',
+      message: '',
+    },
+  });
 
-  const memorial = MOCK_MEMORIAL;
-  const photos = MOCK_PHOTOS;
-  const tributes = MOCK_TRIBUTES;
-  const guestbook = MOCK_GUESTBOOK;
+  // Guestbook form with react-hook-form
+  const guestbookForm = useForm<GuestbookForm>({
+    resolver: zodResolver(guestbookSchema),
+    defaultValues: {
+      name: '',
+      email: '',
+      message: '',
+      city: '',
+      state: '',
+    },
+  });
+
+  // Extract data from queries
+  const photos = photosData?.photos || [];
+  const tributes = tributesData?.tributes || [];
+  const guestbook = guestbookData?.entries || [];
 
   // Slideshow controls
   const startSlideshow = () => {
@@ -108,32 +86,58 @@ export default function MemorialPage() {
     setCurrentSlideIndex((prev) => (prev - 1 + photos.length) % photos.length);
   };
 
-  // Form handlers
-  const handleSubmitTribute = (e: React.FormEvent) => {
-    e.preventDefault();
-    // TODO: Call tRPC mutation
-    toast({
-      title: 'Tribute Submitted',
-      description: 'Your tribute will be reviewed before being published.',
-      variant: 'success',
-    });
-    setTributeForm({ name: '', email: '', message: '' });
-  };
+  // Form handlers (validation automatic via react-hook-form)
+  const onSubmitTribute = tributeForm.handleSubmit(async (data) => {
+    try {
+      await addTributeMutation.mutateAsync({
+        memorialId,
+        name: data.name,
+        email: data.email,
+        message: data.message,
+      });
+      toast({
+        title: 'Tribute Submitted',
+        description: 'Your tribute will be reviewed before being published.',
+        variant: 'success',
+      });
+      tributeForm.reset();
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to submit tribute. Please try again.',
+        variant: 'destructive',
+      });
+    }
+  });
 
-  const handleSignGuestbook = (e: React.FormEvent) => {
-    e.preventDefault();
-    // TODO: Call tRPC mutation
-    toast({
-      title: 'Guestbook Signed',
-      description: 'Thank you for signing the guestbook.',
-      variant: 'success',
-    });
-    setGuestbookForm({ name: '', email: '', message: '', city: '', state: '' });
-  };
+  const onSignGuestbook = guestbookForm.handleSubmit(async (data) => {
+    try {
+      await signGuestbookMutation.mutateAsync({
+        memorialId,
+        name: data.name,
+        email: data.email,
+        message: data.message,
+        city: data.city,
+        state: data.state,
+      });
+      toast({
+        title: 'Guestbook Signed',
+        description: 'Thank you for signing the guestbook.',
+        variant: 'success',
+      });
+      guestbookForm.reset();
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to sign guestbook. Please try again.',
+        variant: 'destructive',
+      });
+    }
+  });
 
   const handleShare = (platform: 'facebook' | 'twitter' | 'email' | 'copy') => {
     const url = window.location.href;
-    const text = `In loving memory of ${memorial.decedentName}`;
+    const text = `In loving memory of ${memorial?.decedentName}`;
 
     switch (platform) {
       case 'facebook':
@@ -155,6 +159,24 @@ export default function MemorialPage() {
         break;
     }
   };
+
+  // Loading state
+  if (memorialLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 animate-spin text-[--navy]" />
+      </div>
+    );
+  }
+
+  // Error state
+  if (memorialError || !memorial) {
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <p className="text-red-800">Error loading memorial: {memorialError?.message || 'Memorial not found'}</p>
+      </div>
+    );
+  }
 
   // Slideshow fullscreen mode
   if (slideshowMode) {
@@ -411,44 +433,33 @@ export default function MemorialPage() {
                 <CardDescription>Your message will be reviewed before posting</CardDescription>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleSubmitTribute} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-[--navy] mb-2">
-                      Your Name *
-                    </label>
-                    <Input
-                      value={tributeForm.name}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setTributeForm({ ...tributeForm, name: e.target.value })}
+                <Form {...tributeForm}>
+                  <form onSubmit={onSubmitTribute} className="space-y-4">
+                    <FormInput
+                      name="name"
+                      label="Your Name"
                       required
                     />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-[--navy] mb-2">
-                      Email (optional)
-                    </label>
-                    <Input
+
+                    <FormInput
+                      name="email"
+                      label="Email"
                       type="email"
-                      value={tributeForm.email}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setTributeForm({ ...tributeForm, email: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-[--navy] mb-2">
-                      Message *
-                    </label>
-                    <Textarea
-                      value={tributeForm.message}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setTributeForm({ ...tributeForm, message: e.target.value })}
-                      rows={5}
                       required
-                      maxLength={5000}
                     />
-                    <p className="text-xs text-[--charcoal] mt-1">
-                      {tributeForm.message.length} / 5000
-                    </p>
-                  </div>
-                  <Button type="submit" className="w-full">Submit Tribute</Button>
-                </form>
+
+                    <FormTextarea
+                      name="message"
+                      label="Message"
+                      rows={5}
+                      maxLength={2000}
+                      showCharacterCount
+                      required
+                    />
+
+                    <Button type="submit" className="w-full">Submit Tribute</Button>
+                  </form>
+                </Form>
               </CardContent>
             </Card>
           </div>
@@ -486,72 +497,50 @@ export default function MemorialPage() {
                 <CardDescription>Share your condolences with the family</CardDescription>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleSignGuestbook} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-[--navy] mb-2">
-                      Name *
-                    </label>
-                    <Input
-                      value={guestbookForm.name}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setGuestbookForm({ ...guestbookForm, name: e.target.value })}
+                <Form {...guestbookForm}>
+                  <form onSubmit={onSignGuestbook} className="space-y-4">
+                    <FormInput
+                      name="name"
+                      label="Name"
                       required
                     />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-[--navy] mb-2">
-                      Email (optional)
-                    </label>
-                    <Input
+
+                    <FormInput
+                      name="email"
+                      label="Email"
                       type="email"
-                      value={guestbookForm.email}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setGuestbookForm({ ...guestbookForm, email: e.target.value })}
+                      required
                     />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-[--navy] mb-2">
-                        City
-                      </label>
-                      <Input
-                        value={guestbookForm.city}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setGuestbookForm({ ...guestbookForm, city: e.target.value })}
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormInput
+                        name="city"
+                        label="City"
+                      />
+
+                      <FormSelect
+                        name="state"
+                        label="State"
+                        placeholder="Select"
+                        options={US_STATES.map((state) => ({
+                          value: state,
+                          label: state,
+                        }))}
                       />
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-[--navy] mb-2">
-                        State
-                      </label>
-                      <select
-                        value={guestbookForm.state}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setGuestbookForm({ ...guestbookForm, state: e.target.value })}
-                        className="w-full px-3 py-2 border border-[--sage] rounded-md"
-                      >
-                        <option value="">Select</option>
-                        {US_STATES.map((state) => (
-                          <option key={state} value={state}>
-                            {state}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-[--navy] mb-2">
-                      Message *
-                    </label>
-                    <Textarea
-                      value={guestbookForm.message}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setGuestbookForm({ ...guestbookForm, message: e.target.value })}
+
+                    <FormTextarea
+                      name="message"
+                      label="Message"
                       rows={4}
-                      required
                       maxLength={2000}
+                      showCharacterCount
+                      required
                     />
-                    <p className="text-xs text-[--charcoal] mt-1">
-                      {guestbookForm.message.length} / 2000
-                    </p>
-                  </div>
-                  <Button type="submit" className="w-full">Sign Guestbook</Button>
-                </form>
+
+                    <Button type="submit" className="w-full">Sign Guestbook</Button>
+                  </form>
+                </Form>
               </CardContent>
             </Card>
           </div>

@@ -5,19 +5,17 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { Effect, Either } from 'effect';
+import { Effect, Either, Layer } from 'effect';
 import {
   createVendorBill,
   processOCRBill,
   validate3WayMatch,
-  GoFinancialPort,
-  GoProcurementPort,
   type CreateVendorBillCommand,
   type ProcessOCRBillCommand,
 } from '../vendor-bill-processing';
+import { GoFinancialPort, type GoFinancialPortService } from '../../../ports/go-financial-port';
+import { GoProcurementPort, type GoProcurementPortService } from '../../../ports/go-procurement-port';
 import type {
-  GoFinancialPortService,
-  GoProcurementPortService,
   GoPurchaseOrder,
   GoReceipt,
   GoVendorBill,
@@ -87,12 +85,12 @@ describe('Vendor Bill Processing', () => {
 
       // Execute
       const program = createVendorBill(command);
+      const testLayer = Layer.merge(
+        Layer.succeed(GoFinancialPort, mockFinancialPort),
+        Layer.succeed(GoProcurementPort, mockProcurementPort)
+      );
       const result = await Effect.runPromise(
-        Effect.provideService(
-          Effect.provideService(program, GoFinancialPort, mockFinancialPort),
-          GoProcurementPort,
-          mockProcurementPort
-        )
+        Effect.provide(program, testLayer)
       );
 
       // Verify
@@ -214,12 +212,12 @@ describe('Vendor Bill Processing', () => {
 
       // Execute
       const program = createVendorBill(command);
+      const testLayer = Layer.merge(
+        Layer.succeed(GoFinancialPort, mockFinancialPort),
+        Layer.succeed(GoProcurementPort, mockProcurementPort)
+      );
       const result = await Effect.runPromise(
-        Effect.provideService(
-          Effect.provideService(program, GoFinancialPort, mockFinancialPort),
-          GoProcurementPort,
-          mockProcurementPort
-        )
+        Effect.provide(program, testLayer)
       );
 
       // Verify
@@ -250,13 +248,13 @@ describe('Vendor Bill Processing', () => {
 
       // Execute
       const program = createVendorBill(command);
+      const testLayer = Layer.merge(
+        Layer.succeed(GoFinancialPort, mockFinancialPort),
+        Layer.succeed(GoProcurementPort, mockProcurementPort)
+      );
       const result = await Effect.runPromise(
         Effect.either(
-          Effect.provideService(
-            Effect.provideService(program, GoFinancialPort, mockFinancialPort),
-            GoProcurementPort,
-            mockProcurementPort
-          )
+          Effect.provide(program, testLayer)
         )
       );
 
@@ -295,13 +293,13 @@ describe('Vendor Bill Processing', () => {
 
       // Execute
       const program = createVendorBill(command);
+      const testLayer = Layer.merge(
+        Layer.succeed(GoFinancialPort, mockFinancialPort),
+        Layer.succeed(GoProcurementPort, mockProcurementPort)
+      );
       const result = await Effect.runPromise(
         Effect.either(
-          Effect.provideService(
-            Effect.provideService(program, GoFinancialPort, mockFinancialPort),
-            GoProcurementPort,
-            mockProcurementPort
-          )
+          Effect.provide(program, testLayer)
         )
       );
 
@@ -340,13 +338,13 @@ describe('Vendor Bill Processing', () => {
 
       // Execute
       const program = createVendorBill(command);
+      const testLayer = Layer.merge(
+        Layer.succeed(GoFinancialPort, mockFinancialPort),
+        Layer.succeed(GoProcurementPort, mockProcurementPort)
+      );
       const result = await Effect.runPromise(
         Effect.either(
-          Effect.provideService(
-            Effect.provideService(program, GoFinancialPort, mockFinancialPort),
-            GoProcurementPort,
-            mockProcurementPort
-          )
+          Effect.provide(program, testLayer)
         )
       );
 
@@ -422,12 +420,12 @@ describe('Vendor Bill Processing', () => {
 
       // Execute
       const program = createVendorBill(command);
+      const testLayer = Layer.merge(
+        Layer.succeed(GoFinancialPort, mockFinancialPort),
+        Layer.succeed(GoProcurementPort, mockProcurementPort)
+      );
       const result = await Effect.runPromise(
-        Effect.provideService(
-          Effect.provideService(program, GoFinancialPort, mockFinancialPort),
-          GoProcurementPort,
-          mockProcurementPort
-        )
+        Effect.provide(program, testLayer)
       );
 
       // Verify
@@ -449,7 +447,7 @@ describe('Vendor Bill Processing', () => {
       // Execute
       const program = processOCRBill(command);
       const result = await Effect.runPromise(
-        Effect.provideService(program, GoFinancialPort, mockFinancialPort)
+        Effect.provide(program, Layer.succeed(GoFinancialPort, mockFinancialPort))
       );
 
       // Verify simplified result
