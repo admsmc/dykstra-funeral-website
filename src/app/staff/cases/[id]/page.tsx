@@ -1,7 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import { User, Calendar, DollarSign, FileText, Image, Clock, MessageSquare, Users } from "lucide-react";
+import { CaseStatusChangeModal } from "@/components/modals/CaseStatusChangeModal";
+import { ArchiveCaseModal } from "@/components/modals/ArchiveCaseModal";
+import { CaseDetailSkeleton } from "@/components/skeletons/CaseSkeletons";
 import {
   useCaseDetail,
   useTabState,
@@ -36,16 +40,13 @@ export default function StaffCaseDetailPage() {
   const { activeTab, setActiveTab } = useTabState();
   const notesHook = useInternalNotes(caseId);
   const invitationsHook = useFamilyInvitations(caseId);
+  
+  // Modal states
+  const [showStatusModal, setShowStatusModal] = useState(false);
+  const [showArchiveModal, setShowArchiveModal] = useState(false);
 
   if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
-          <div className="h-64 bg-gray-200 rounded"></div>
-        </div>
-      </div>
-    );
+    return <CaseDetailSkeleton />;
   }
 
   if (error || !viewModel) {
@@ -77,7 +78,11 @@ export default function StaffCaseDetailPage() {
 
   return (
     <div className="space-y-6">
-      <CaseDetailHeader viewModel={viewModel} />
+      <CaseDetailHeader 
+        viewModel={viewModel} 
+        onStatusClick={() => setShowStatusModal(true)}
+        onArchive={() => setShowArchiveModal(true)}
+      />
       <QuickStatsCards viewModel={viewModel} />
       
       <div className="bg-white rounded-lg border border-gray-200">
@@ -120,6 +125,29 @@ export default function StaffCaseDetailPage() {
           )}
         </div>
       </div>
+      
+      {/* Status Change Modal */}
+      <CaseStatusChangeModal
+        open={showStatusModal}
+        onOpenChange={setShowStatusModal}
+        caseId={caseId}
+        currentStatus={viewModel.status}
+        decedentName={viewModel.decedentName}
+        onSuccess={() => {
+          window.location.reload();
+        }}
+      />
+      
+      {/* Archive Modal */}
+      <ArchiveCaseModal
+        open={showArchiveModal}
+        onOpenChange={setShowArchiveModal}
+        caseId={caseId}
+        decedentName={viewModel.decedentName}
+        onSuccess={() => {
+          window.location.href = '/staff/cases';
+        }}
+      />
     </div>
   );
 }

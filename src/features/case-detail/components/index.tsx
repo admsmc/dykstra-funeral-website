@@ -35,10 +35,12 @@ export function CaseDetailHeader({
   viewModel,
   onEdit,
   onArchive,
+  onStatusClick,
 }: { 
   viewModel: CaseDetailViewModel;
   onEdit?: () => void;
   onArchive?: () => void;
+  onStatusClick?: () => void;
 }) {
   return (
     <div>
@@ -59,9 +61,13 @@ export function CaseDetailHeader({
         </div>
         
         <div className="flex items-center gap-3">
-          <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${viewModel.statusBadgeConfig.bg} ${viewModel.statusBadgeConfig.text}`}>
+          <button
+            onClick={onStatusClick}
+            className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium transition-all hover:shadow-md cursor-pointer ${viewModel.statusBadgeConfig.bg} ${viewModel.statusBadgeConfig.text}`}
+            title="Click to change status"
+          >
             {viewModel.status}
-          </span>
+          </button>
           
           <button 
             onClick={onEdit}

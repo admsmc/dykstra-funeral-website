@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { Archive, FileText, Users } from "lucide-react";
 import { trpc } from "@/lib/trpc-client";
+import { CaseListSkeleton } from "@/components/skeletons/CaseSkeletons";
 import { toast } from "sonner";
 import {
   CaseListHeader,
@@ -122,9 +123,7 @@ export default function StaffCasesPage() {
   }
 
   if (isLoading) {
-    return (
-      <div className="p-8 text-center text-gray-500">Loading cases...</div>
-    );
+    return <CaseListSkeleton />;
   }
 
   return (
