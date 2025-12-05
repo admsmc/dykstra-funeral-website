@@ -63,12 +63,13 @@ function parseOpenAPISpec(specPath: string): OpenAPIEndpoint[] {
     for (const [path, pathItem] of Object.entries(spec.paths as Record<string, any>)) {
       for (const [method, operation] of Object.entries(pathItem)) {
         if (['get', 'post', 'put', 'patch', 'delete'].includes(method.toLowerCase())) {
+          const op = operation as any;
           endpoints.push({
             path,
             method: method.toUpperCase(),
-            operationId: operation.operationId,
-            summary: operation.summary,
-            tags: operation.tags || [],
+            operationId: op.operationId,
+            summary: op.summary,
+            tags: op.tags || [],
           });
         }
       }
@@ -308,4 +309,5 @@ if (require.main === module) {
   main();
 }
 
-export { parseOpenAPISpec, compareWithOpenAPI, OpenAPIValidationResult };
+export { parseOpenAPISpec, compareWithOpenAPI };
+export type { OpenAPIValidationResult };

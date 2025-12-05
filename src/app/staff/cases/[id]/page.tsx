@@ -104,11 +104,11 @@ export default function StaffCaseDetailPage() {
               isRevoking={invitationsHook.isRevoking}
             />
           )}
-          {activeTab === "arrangements" && <ArrangementsTab />}
+          {activeTab === "arrangements" && <ArrangementsTab caseId={caseId} />}
           {activeTab === "contract" && <ContractTab />}
           {activeTab === "payments" && <PaymentsTab />}
           {activeTab === "memorial" && <MemorialTab />}
-          {activeTab === "documents" && <DocumentsTab />}
+          {activeTab === "documents" && <DocumentsTab caseId={caseId} />}
           {activeTab === "timeline" && <TimelineTab />}
           {activeTab === "notes" && (
             <InternalNotesTab

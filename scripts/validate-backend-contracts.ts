@@ -312,4 +312,5 @@ if (require.main === module) {
   main();
 }
 
-export { validateBackendContracts, ValidationResult, PortMethod };
+export { validateBackendContracts };
+export type { ValidationResult, PortMethod };

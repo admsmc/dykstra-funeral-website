@@ -182,7 +182,7 @@ export default function TimeTrackingPage() {
                 </div>
               </motion.div>
             );
-          ))}
+          })}
         </div>
       </motion.div>
       )}

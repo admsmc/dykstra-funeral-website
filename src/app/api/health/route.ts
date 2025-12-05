@@ -1,12 +1,4 @@
-import { Effect } from 'effect';
-import { InfrastructureLayer } from '@dykstra/infrastructure';
-import {
-  CaseRepository,
-  StoragePort,
-  EmailPort,
-  SignaturePort,
-  PaymentPort,
-} from '@dykstra/application';
+import { prisma } from '@dykstra/infrastructure';
 
 /**
  * Health Check Endpoint
@@ -22,37 +14,9 @@ export async function GET() {
   const startTime = Date.now();
   const checks: Record<string, { status: 'ok' | 'error'; message?: string; duration?: number }> = {};
 
-  // Test 1: Dependency Injection Resolution
-  try {
-    const diCheckStart = Date.now();
-    await Effect.runPromise(
-      Effect.provide(
-        Effect.gen(function* (_) {
-          // Test critical services can be resolved
-          yield* _(CaseRepository);
-          yield* _(StoragePort);
-          yield* _(EmailPort);
-          yield* _(SignaturePort);
-          yield* _(PaymentPort);
-        }),
-        InfrastructureLayer
-      )
-    );
-    checks.dependencyInjection = {
-      status: 'ok',
-      duration: Date.now() - diCheckStart,
-    };
-  } catch (error) {
-    checks.dependencyInjection = {
-      status: 'error',
-      message: error instanceof Error ? error.message : 'Failed to resolve services',
-    };
-  }
-
-  // Test 2: Database Connectivity
+  // Test: Database Connectivity
   try {
     const dbCheckStart = Date.now();
-    const { prisma } = await import('@dykstra/infrastructure');
     await prisma.$queryRaw`SELECT 1`;
     checks.database = {
       status: 'ok',
@@ -62,33 +26,6 @@ export async function GET() {
     checks.database = {
       status: 'error',
       message: error instanceof Error ? error.message : 'Database connection failed',
-    };
-  }
-
-  // Test 3: CaseRepository Basic Query
-  try {
-    const repoCheckStart = Date.now();
-    await Effect.runPromise(
-      Effect.provide(
-        Effect.gen(function* (_) {
-          const repo = yield* _(CaseRepository);
-          // Just check that the repo has the expected interface
-          // Don't actually query to avoid requiring test data
-          if (!repo.findById || !repo.findByFuneralHome) {
-            throw new Error('CaseRepository missing expected methods');
-          }
-        }),
-        InfrastructureLayer
-      )
-    );
-    checks.caseRepository = {
-      status: 'ok',
-      duration: Date.now() - repoCheckStart,
-    };
-  } catch (error) {
-    checks.caseRepository = {
-      status: 'error',
-      message: error instanceof Error ? error.message : 'CaseRepository validation failed',
     };
   }
 

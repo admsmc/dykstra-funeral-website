@@ -82,7 +82,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     onKeyDown,
     ...props
   }, ref) => {
-    const MotionButton = motion.button as React.ComponentType<React.ButtonHTMLAttributes<HTMLButtonElement> & { whileHover?: unknown; whileTap?: unknown; animate?: unknown; transition?: unknown }>;
+    const MotionButton = motion.button as React.ForwardRefExoticComponent<React.ButtonHTMLAttributes<HTMLButtonElement> & React.RefAttributes<HTMLButtonElement> & { whileHover?: unknown; whileTap?: unknown; animate?: unknown; transition?: unknown }>;
     
     return (
       <MotionButton

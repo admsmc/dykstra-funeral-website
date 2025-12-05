@@ -32,6 +32,7 @@ export const SuccessCelebrationDemo: Story = {
             <SuccessCelebration
               message="Template Created!"
               submessage="Your template has been successfully saved."
+              show={true}
               onComplete={() => setShowSuccess(false)}
             />
           )}
@@ -69,6 +70,7 @@ export const SuccessVariations: Story = {
                 <SuccessCelebration
                   message={celebration.message}
                   submessage={celebration.submessage}
+                  show={true}
                   onComplete={() => setActive(null)}
                 />
               ) : (
@@ -95,17 +97,18 @@ export const FriendlyErrorDemo: Story = {
       <FriendlyError
         title="Connection Error"
         message="Unable to connect to the server"
+        show={true}
         suggestions={[
           {
-            type: 'actionable',
+            id: '1',
             text: 'Check your internet connection',
           },
           {
-            type: 'actionable',
+            id: '2',
             text: 'Try again in a few moments',
           },
           {
-            type: 'informational',
+            id: '3',
             text: 'The server may be temporarily unavailable',
           },
         ]}
@@ -127,9 +130,10 @@ export const ErrorVariations: Story = {
           <FriendlyError
             title="Invalid Input"
             message="Please check the following fields"
+            show={true}
             suggestions={[
-              { type: 'actionable', text: 'Email must be a valid email address' },
-              { type: 'actionable', text: 'Password must be at least 8 characters' },
+              { id: 'actionable', text: 'Email must be a valid email address' },
+              { id: 'actionable', text: 'Password must be at least 8 characters' },
             ]}
             onDismiss={() => {}}
           />
@@ -140,9 +144,10 @@ export const ErrorVariations: Story = {
           <FriendlyError
             title="Access Denied"
             message="You don't have permission to perform this action"
+            show={true}
             suggestions={[
-              { type: 'informational', text: 'This feature requires admin privileges' },
-              { type: 'actionable', text: 'Contact your administrator for access' },
+              { id: 'informational', text: 'This feature requires admin privileges' },
+              { id: 'actionable', text: 'Contact your administrator for access' },
             ]}
             onDismiss={() => {}}
           />
@@ -153,10 +158,11 @@ export const ErrorVariations: Story = {
           <FriendlyError
             title="Template Not Found"
             message="The template you're looking for doesn't exist"
+            show={true}
             suggestions={[
-              { type: 'actionable', text: 'Check the template ID' },
-              { type: 'actionable', text: 'Browse available templates' },
-              { type: 'informational', text: 'The template may have been deleted' },
+              { id: 'actionable', text: 'Check the template ID' },
+              { id: 'actionable', text: 'Browse available templates' },
+              { id: 'informational', text: 'The template may have been deleted' },
             ]}
             onRetry={() => alert('Searching again...')}
             onDismiss={() => {}}
@@ -197,6 +203,7 @@ export const SuccessToErrorFlow: Story = {
             <SuccessCelebration
               message="Operation Successful!"
               submessage="Everything worked perfectly"
+              show={true}
               onComplete={() => setState('idle')}
             />
           )}
@@ -206,9 +213,10 @@ export const SuccessToErrorFlow: Story = {
               <FriendlyError
                 title="Operation Failed"
                 message="Something went wrong with your request"
+                show={true}
                 suggestions={[
-                  { type: 'actionable', text: 'Try the operation again' },
-                  { type: 'informational', text: 'If the problem persists, contact support' },
+                  { id: 'actionable', text: 'Try the operation again' },
+                  { id: 'informational', text: 'If the problem persists, contact support' },
                 ]}
                 onRetry={() => {
                   // Simulate retry leading to success
@@ -241,6 +249,7 @@ export const AllEmotionalComponents: Story = {
               <SuccessCelebration
                 message="Success!"
                 submessage="Operation completed successfully"
+                show={true}
                 onComplete={() => setShowSuccess(false)}
               />
             )}
@@ -252,9 +261,10 @@ export const AllEmotionalComponents: Story = {
           <FriendlyError
             title="Example Error"
             message="This is what errors look like in our system"
+            show={true}
             suggestions={[
-              { type: 'actionable', text: 'Take this suggested action' },
-              { type: 'informational', text: 'Here is some helpful context' },
+              { id: 'actionable', text: 'Take this suggested action' },
+              { id: 'informational', text: 'Here is some helpful context' },
             ]}
             onRetry={() => alert('Retry clicked')}
             onDismiss={() => alert('Dismiss clicked')}

@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
   User,
@@ -19,13 +21,19 @@ import {
   XCircle,
   Plus,
   Trash2,
+  Package,
+  ArrowRight,
+  CheckCircle,
+  AlertCircle,
 } from "lucide-react";
+import { trpc } from "@/lib/trpc-client";
 import type { CaseDetailViewModel } from "../view-models/CaseDetailViewModel";
 import type { TabType, TabConfig } from "../types";
 import { useFamilyInvitations } from "../hooks/useFamilyInvitations";
 import { familyInvitationSchema, FAMILY_ROLES, type FamilyInvitationForm } from "@dykstra/domain/validation";
 import { Form, Timeline, TimelineEvent } from "@dykstra/ui";
 import { FormInput, FormSelect } from "@dykstra/ui";
+import { DocumentUploader } from "@/components/upload/DocumentUploader";
 
 // ============================================================================
 // Header Components
@@ -228,12 +236,235 @@ export function OverviewTab({ viewModel }: { viewModel: CaseDetailViewModel }) {
   );
 }
 
-export function ArrangementsTab() {
+export function ArrangementsTab({ caseId }: { caseId?: string }) {
+  const router = useRouter();
+  
+  // Fetch arrangement data if caseId is provided
+  const { data: arrangement, isLoading } = trpc.arrangements.get.useQuery(
+    { caseId: caseId ?? "" },
+    { enabled: !!caseId }
+  );
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(amount);
+  };
+
+  const formatDate = (date: Date) => {
+    return new Intl.DateTimeFormat("en-US", {
+      dateStyle: "long",
+      timeStyle: "short",
+    }).format(new Date(date));
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-[--navy]" />
+      </div>
+    );
+  }
+
+  // Empty state
+  if (!arrangement) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="bg-white rounded-lg border border-gray-200 p-12 text-center"
+      >
+        <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+          No Service Arrangement Yet
+        </h3>
+        <p className="text-gray-600 mb-6 max-w-md mx-auto">
+          Create a personalized service arrangement for this case, including
+          service selection, product customization, and ceremony planning.
+        </p>
+        <button
+          onClick={() => router.push(`/staff/arrangements/${caseId}/select`)}
+          className="inline-flex items-center gap-2 px-6 py-3 bg-[--navy] text-white font-medium rounded-lg hover:bg-opacity-90 transition"
+        >
+          Create Arrangement
+          <ArrowRight className="w-4 h-4" />
+        </button>
+      </motion.div>
+    );
+  }
+
   return (
-    <div className="text-center py-12 text-gray-500">
-      <Calendar className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-      <p className="font-medium">Arrangements</p>
-      <p className="text-sm mt-1">Service arrangements will be managed here</p>
+    <div className="space-y-6">
+      {/* Status Banner */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className={`rounded-lg p-4 flex items-center justify-between ${
+          arrangement.isComplete
+            ? "bg-green-50 border border-green-200"
+            : "bg-blue-50 border border-blue-200"
+        }`}
+      >
+        <div className="flex items-center gap-3">
+          {arrangement.isComplete ? (
+            <>
+              <CheckCircle className="w-6 h-6 text-green-600" />
+              <div>
+                <p className="font-semibold text-green-900">
+                  Arrangement Complete
+                </p>
+                <p className="text-sm text-green-700">
+                  Ready for service execution
+                </p>
+              </div>
+            </>
+          ) : (
+            <>
+              <AlertCircle className="w-6 h-6 text-blue-600" />
+              <div>
+                <p className="font-semibold text-blue-900">In Progress</p>
+                <p className="text-sm text-blue-700">
+                  {arrangement.completionPercentage}% complete
+                </p>
+              </div>
+            </>
+          )}
+        </div>
+        <button
+          onClick={() => router.push(`/staff/arrangements/${caseId}`)}
+          className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition"
+        >
+          <Edit className="w-4 h-4" />
+          Edit Arrangement
+        </button>
+      </motion.div>
+
+      {/* Progress Bar */}
+      {!arrangement.isComplete && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+          className="bg-white rounded-lg border border-gray-200 p-4"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-gray-700">
+              Completion Progress
+            </span>
+            <span className="text-sm font-semibold text-[--navy]">
+              {arrangement.completionPercentage}%
+            </span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${arrangement.completionPercentage}%` }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="bg-[--navy] h-2 rounded-full"
+            />
+          </div>
+        </motion.div>
+      )}
+
+      {/* Key Details Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Service Type */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.15 }}
+          className="bg-white rounded-lg border border-gray-200 p-4"
+        >
+          <div className="flex items-center gap-3 mb-2">
+            <Package className="w-5 h-5 text-[--navy]" />
+            <h4 className="font-semibold text-gray-900">Service Type</h4>
+          </div>
+          <p className="text-sm text-gray-700">
+            {arrangement.serviceType.replace(/_/g, " ")}
+          </p>
+        </motion.div>
+
+        {/* Estimated Cost */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
+          className="bg-white rounded-lg border border-gray-200 p-4"
+        >
+          <div className="flex items-center gap-3 mb-2">
+            <DollarSign className="w-5 h-5 text-[--navy]" />
+            <h4 className="font-semibold text-gray-900">Estimated Cost</h4>
+          </div>
+          <p className="text-lg font-bold text-[--navy]">
+            {formatCurrency(arrangement.totalProductCost)}
+          </p>
+          <p className="text-xs text-gray-600">
+            {arrangement.selectedProductCount} products selected
+          </p>
+        </motion.div>
+
+        {/* Ceremony Date */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.25 }}
+          className="bg-white rounded-lg border border-gray-200 p-4"
+        >
+          <div className="flex items-center gap-3 mb-2">
+            <Calendar className="w-5 h-5 text-[--navy]" />
+            <h4 className="font-semibold text-gray-900">Ceremony</h4>
+          </div>
+          {arrangement.ceremonyDetails?.date ? (
+            <>
+              <p className="text-sm text-gray-700 mb-1">
+                {formatDate(arrangement.ceremonyDetails.date)}
+              </p>
+              <p className="text-xs text-gray-600">
+                {arrangement.ceremonyDetails.location || "Location TBD"}
+              </p>
+            </>
+          ) : (
+            <p className="text-sm text-gray-500 italic">Not scheduled yet</p>
+          )}
+        </motion.div>
+      </div>
+
+      {/* Quick Actions */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.3 }}
+        className="bg-white rounded-lg border border-gray-200 p-4"
+      >
+        <h4 className="font-semibold text-gray-900 mb-3">Quick Actions</h4>
+        <div className="flex flex-wrap gap-3">
+          <button
+            onClick={() =>
+              router.push(`/staff/arrangements/${caseId}/customize`)
+            }
+            className="px-4 py-2 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition"
+          >
+            Customize Products
+          </button>
+          <button
+            onClick={() =>
+              router.push(`/staff/arrangements/${caseId}/ceremony`)
+            }
+            className="px-4 py-2 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition"
+          >
+            Plan Ceremony
+          </button>
+          <button
+            onClick={() => router.push(`/staff/arrangements/${caseId}`)}
+            className="px-4 py-2 bg-[--navy] text-white font-medium rounded-lg hover:bg-opacity-90 transition"
+          >
+            View Full Details
+          </button>
+        </div>
+      </motion.div>
     </div>
   );
 }
@@ -268,12 +499,208 @@ export function MemorialTab() {
   );
 }
 
-export function DocumentsTab() {
+export function DocumentsTab({ caseId }: { caseId: string }) {
+  const [view, setView] = useState<'grid' | 'list'>('grid');
+  const [showUploader, setShowUploader] = useState(false);
+  
+  // Mock documents (replace with real tRPC query)
+  const mockDocuments = [
+    {
+      id: '1',
+      name: 'Death Certificate.pdf',
+      category: 'Death Certificate',
+      size: 245000,
+      uploadedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+      uploadedBy: 'John Director',
+      url: '/api/documents/1',
+    },
+    {
+      id: '2',
+      name: 'Service Contract.pdf',
+      category: 'Contract',
+      size: 512000,
+      uploadedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+      uploadedBy: 'Jane Admin',
+      url: '/api/documents/2',
+    },
+    {
+      id: '3',
+      name: 'Family Photo.jpg',
+      category: 'Photo',
+      size: 1024000,
+      uploadedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+      uploadedBy: 'John Director',
+      url: '/api/documents/3',
+    },
+  ];
+
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case 'Death Certificate': return 'bg-red-100 text-red-700';
+      case 'Contract': return 'bg-blue-100 text-blue-700';
+      case 'Invoice': return 'bg-green-100 text-green-700';
+      case 'Photo': return 'bg-purple-100 text-purple-700';
+      case 'Permit': return 'bg-amber-100 text-amber-700';
+      default: return 'bg-gray-100 text-gray-700';
+    }
+  };
+
+  if (mockDocuments.length === 0 && !showUploader) {
+    return (
+      <div className="text-center py-12">
+        <FileText className="w-12 h-12 mx-auto mb-4 text-[--charcoal] opacity-20" />
+        <p className="font-medium text-[--navy] mb-2">No documents yet</p>
+        <p className="text-sm text-[--charcoal] opacity-60 mb-4">
+          Upload death certificates, contracts, and other case documents
+        </p>
+        <button
+          onClick={() => setShowUploader(true)}
+          className="px-4 py-2 bg-[--sage] text-white rounded-lg hover:bg-opacity-90 transition-all"
+        >
+          Upload First Document
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="text-center py-12 text-gray-500">
-      <FileText className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-      <p className="font-medium">Documents</p>
-      <p className="text-sm mt-1">Case documents and certificates</p>
+    <div className="space-y-6">
+      {/* Header Actions */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-lg font-semibold text-[--navy]">Documents</h3>
+          <p className="text-sm text-[--charcoal] opacity-60 mt-0.5">
+            {mockDocuments.length} document{mockDocuments.length !== 1 ? 's' : ''}
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setView(view === 'grid' ? 'list' : 'grid')}
+            className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition-all"
+          >
+            {view === 'grid' ? 'List View' : 'Grid View'}
+          </button>
+          <button
+            onClick={() => setShowUploader(!showUploader)}
+            className="px-4 py-1.5 bg-[--sage] text-white rounded-lg hover:bg-opacity-90 transition-all text-sm font-medium"
+          >
+            {showUploader ? 'Hide Uploader' : 'Upload Document'}
+          </button>
+        </div>
+      </div>
+
+      {/* Document Uploader */}
+      <AnimatePresence>
+        {showUploader && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+          >
+            <div className="border-2 border-[--sage] rounded-lg p-4 bg-[--cream]">
+              <DocumentUploader
+                caseId={caseId}
+                onUploadComplete={() => {
+                  setShowUploader(false);
+                  // Refresh documents list
+                }}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Documents Grid */}
+      {view === 'grid' ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {mockDocuments.map((doc, index) => (
+            <motion.div
+              key={doc.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05 }}
+              className="border border-gray-200 rounded-lg p-4 hover:border-[--sage] hover:shadow-md transition-all group"
+            >
+              {/* Document Icon/Preview */}
+              <div className="w-full h-32 bg-gray-100 rounded-lg mb-3 flex items-center justify-center">
+                <FileText className="w-12 h-12 text-[--charcoal] opacity-40" />
+              </div>
+              
+              {/* Document Info */}
+              <div className="space-y-2">
+                <div className="flex items-start justify-between gap-2">
+                  <p className="font-medium text-[--navy] text-sm truncate flex-1">
+                    {doc.name}
+                  </p>
+                  <span className={`px-2 py-0.5 text-xs rounded-full flex-shrink-0 ${getCategoryColor(doc.category)}`}>
+                    {doc.category}
+                  </span>
+                </div>
+                <p className="text-xs text-[--charcoal] opacity-60">
+                  {(doc.size / 1024).toFixed(0)} KB · {doc.uploadedAt.toLocaleDateString()}
+                </p>
+                <p className="text-xs text-[--charcoal] opacity-60">
+                  By {doc.uploadedBy}
+                </p>
+              </div>
+
+              {/* Actions */}
+              <div className="mt-3 pt-3 border-t border-gray-200 flex gap-2">
+                <button className="flex-1 px-3 py-1.5 text-xs border border-gray-300 rounded-lg hover:bg-gray-50 transition-all">
+                  Download
+                </button>
+                <button className="flex-1 px-3 py-1.5 text-xs border border-gray-300 rounded-lg hover:bg-gray-50 transition-all">
+                  Share
+                </button>
+                <button className="px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 rounded-lg transition-all">
+                  Delete
+                </button>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      ) : (
+        /* Documents List */
+        <div className="space-y-2">
+          {mockDocuments.map((doc, index) => (
+            <motion.div
+              key={doc.id}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.05 }}
+              className="border border-gray-200 rounded-lg p-4 hover:border-[--sage] transition-all flex items-center gap-4"
+            >
+              <FileText className="w-10 h-10 text-[--charcoal] opacity-40 flex-shrink-0" />
+              
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <p className="font-medium text-[--navy] text-sm truncate">
+                    {doc.name}
+                  </p>
+                  <span className={`px-2 py-0.5 text-xs rounded-full ${getCategoryColor(doc.category)}`}>
+                    {doc.category}
+                  </span>
+                </div>
+                <p className="text-xs text-[--charcoal] opacity-60">
+                  {(doc.size / 1024).toFixed(0)} KB · Uploaded {doc.uploadedAt.toLocaleDateString()} by {doc.uploadedBy}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <button className="px-3 py-1.5 text-xs border border-gray-300 rounded-lg hover:bg-gray-50 transition-all">
+                  Download
+                </button>
+                <button className="px-3 py-1.5 text-xs border border-gray-300 rounded-lg hover:bg-gray-50 transition-all">
+                  Share
+                </button>
+                <button className="px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 rounded-lg transition-all">
+                  Delete
+                </button>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

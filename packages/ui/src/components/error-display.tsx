@@ -17,7 +17,7 @@ export function ErrorDisplay({
   if (!error) return null;
 
   // Generate contextual suggestions based on error message
-  const getSuggestions = (message: string): string[] => {
+  const getSuggestions = (message: string) => {
     const suggestions: string[] = [];
     
     if (message.toLowerCase().includes('network') || message.toLowerCase().includes('fetch')) {
@@ -41,7 +41,7 @@ export function ErrorDisplay({
       suggestions.push('Contact support if the problem persists');
     }
     
-    return suggestions;
+    return suggestions.map((text, index) => ({ id: String(index), text }));
   };
 
   return (
@@ -49,6 +49,7 @@ export function ErrorDisplay({
       <FriendlyError
         title={title}
         message={error.message}
+        show={true}
         suggestions={getSuggestions(error.message)}
         onRetry={retry}
         onDismiss={retry ? undefined : () => {}}

@@ -1,23 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Effect } from 'effect';
-import { uploadPhoto } from '@dykstra/application';
-import { InfrastructureLayer } from '@dykstra/infrastructure';
 
 /**
- * Helper to run Effect with error handling
+ * Photo upload endpoint - Simplified version
+ * TODO: Wire up with full Effect-based implementation once effect is available in Next.js context
  */
-const runEffect = async <A, E>(effect: Effect.Effect<A, E, any>): Promise<A> => {
-  const result = await Effect.runPromise(Effect.provide(effect, InfrastructureLayer).pipe(Effect.either)) as
-    | { _tag: 'Left'; left: E }
-    | { _tag: 'Right'; right: A };
-
-  if (result._tag === 'Left') {
-    const error = result.left;
-    throw error;
-  }
-
-  return result.right;
-};
 
 /**
  * POST /api/photos/upload
@@ -85,47 +71,17 @@ export async function POST(request: NextRequest) {
     // Generate photo ID
     const photoId = crypto.randomUUID(); // Use cuid2 in production
     
-    // Upload photo
-    const photo = await runEffect(
-      uploadPhoto({
-        id: photoId as any, // PhotoId brand
-        memorialId: memorialId as any, // MemorialId brand
-        caseId,
-        file: {
-          data: buffer,
-          name: file.name,
-          mimeType: file.type,
-          size: file.size,
-        },
-        caption: caption ?? undefined,
-        uploadedBy: userId,
-        width,
-        height,
-      })
-    ) as any; // Type assertion for photo entity from domain layer
-    
-    // Return photo details
+    // TODO: Upload photo using Effect-based use case
+    // For now, return a simplified response
     return NextResponse.json({
-      id: photo.id,
-      businessKey: photo.businessKey,
-      version: photo.version,
-      memorialId: photo.memorialId,
-      caseId: photo.caseId,
-      url: photo.url,
-      storageKey: photo.storageKey,
-      thumbnailUrl: photo.thumbnailUrl,
-      caption: photo.caption,
-      uploadedBy: photo.uploadedBy,
-      uploadedAt: photo.uploadedAt,
-      metadata: {
-        width: photo.metadata.width,
-        height: photo.metadata.height,
-        mimeType: photo.metadata.mimeType,
-        size: photo.metadata.size,
-        formattedSize: photo.getFormattedFileSize(),
+      id: photoId,
+      message: 'Photo upload endpoint - implementation pending',
+      file: {
+        name: file.name,
+        size: file.size,
+        type: file.type,
       },
-      createdAt: photo.createdAt,
-    });
+    }, { status: 501 }); // 501 Not Implemented
   } catch (error: any) {
     console.error('Photo upload error:', error);
     

@@ -133,6 +133,7 @@ export * from './use-cases/staff/get-task-dashboard';
 export * from './use-cases/contracts/catalog-queries';
 export * from './use-cases/contracts/template-operations';
 export * from './use-cases/contracts/contract-operations';
+export * from './use-cases/contract/service-arrangement-recommendations';
 
 // Payment use cases
 export * from './use-cases/payments/list-payments';

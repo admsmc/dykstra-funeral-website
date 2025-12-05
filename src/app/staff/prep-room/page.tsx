@@ -90,86 +90,88 @@ export default function PrepRoomPage() {
 
       {/* Controls */}
       {!isLoading && !error && (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-        className="flex items-center justify-between"
-      >
-        <div className="flex items-center gap-3">
-          <input
-            type="date"
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-
-          <select
-            value={selectedRoom}
-            onChange={(e) => setSelectedRoom(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        <>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="flex items-center justify-between"
           >
-            <option value="all">All Rooms</option>
-            {ROOMS.map(room => (
-              <option key={room} value={room}>{room}</option>
-            ))}
-          </select>
-        </div>
+            <div className="flex items-center gap-3">
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
 
-        <button className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition text-sm font-medium">
-          <Plus className="w-4 h-4" />
-          Reserve Room
-        </button>
-      </motion.div>
-
-      {/* Room Schedule Timeline */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-        className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6"
-      >
-        <h2 className="text-xl font-semibold text-gray-900 mb-6">Room Schedule - December 5, 2024</h2>
-
-        <div className="space-y-6">
-          {ROOMS.map((room, roomIndex) => (
-            <div key={room} className="space-y-3">
-              <div className="flex items-center gap-3">
-                <h3 className="font-semibold text-gray-900">{room}</h3>
-                <span className="text-xs px-2 py-1 rounded bg-gray-100 text-gray-600">
-                  {allReservations.filter(r => r.room === room).length} reservations
-                </span>
-              </div>
-
-              {/* Timeline */}
-              <div className="relative">
-                {/* Time markers */}
-                <div className="flex justify-between text-xs text-gray-500 mb-2">
-                  <span>8 AM</span>
-                  <span>10 AM</span>
-                  <span>12 PM</span>
-                  <span>2 PM</span>
-                  <span>4 PM</span>
-                  <span>6 PM</span>
-                </div>
-
-                {/* Timeline bar */}
-                <div className="relative h-20 bg-gray-50 rounded-lg border border-gray-200">
-                  {allReservations
-                    .filter(r => r.room === room && (selectedRoom === 'all' || selectedRoom === room))
-                    .map((reservation, index) => (
-                      <ReservationBlock
-                        key={reservation.id}
-                        reservation={reservation}
-                        index={index}
-                      />
-                    ))}
-                </div>
-              </div>
+              <select
+                value={selectedRoom}
+                onChange={(e) => setSelectedRoom(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                <option value="all">All Rooms</option>
+                {ROOMS.map(room => (
+                  <option key={room} value={room}>{room}</option>
+                ))}
+              </select>
             </div>
-          ))}
-        </div>
-      </motion.div>
+
+            <button className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition text-sm font-medium">
+              <Plus className="w-4 h-4" />
+              Reserve Room
+            </button>
+          </motion.div>
+
+          {/* Room Schedule Timeline */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6"
+          >
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">Room Schedule - December 5, 2024</h2>
+
+            <div className="space-y-6">
+              {ROOMS.map((room, roomIndex) => (
+                <div key={room} className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <h3 className="font-semibold text-gray-900">{room}</h3>
+                    <span className="text-xs px-2 py-1 rounded bg-gray-100 text-gray-600">
+                      {allReservations.filter(r => r.room === room).length} reservations
+                    </span>
+                  </div>
+
+                  {/* Timeline */}
+                  <div className="relative">
+                    {/* Time markers */}
+                    <div className="flex justify-between text-xs text-gray-500 mb-2">
+                      <span>8 AM</span>
+                      <span>10 AM</span>
+                      <span>12 PM</span>
+                      <span>2 PM</span>
+                      <span>4 PM</span>
+                      <span>6 PM</span>
+                    </div>
+
+                    {/* Timeline bar */}
+                    <div className="relative h-20 bg-gray-50 rounded-lg border border-gray-200">
+                      {allReservations
+                        .filter(r => r.room === room && (selectedRoom === 'all' || selectedRoom === room))
+                        .map((reservation, index) => (
+                          <ReservationBlock
+                            key={reservation.id}
+                            reservation={reservation}
+                            index={index}
+                          />
+                        ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        </>
       )}
 
       {/* Reservation List */}

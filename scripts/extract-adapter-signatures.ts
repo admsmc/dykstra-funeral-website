@@ -96,7 +96,7 @@ function extractPortMethods(fileContent: string): string[] {
   const methods: string[] = [];
   
   // Extract methods from port interface
-  const interfaceMatch = fileContent.match(/export interface \w+Service\s*{([^}]+)}/s);
+  const interfaceMatch = fileContent.match(/export interface \w+Service\s*{([^}]+)}/);
   if (!interfaceMatch) return methods;
   
   const interfaceBody = interfaceMatch[1];

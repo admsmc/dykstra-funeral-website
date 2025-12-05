@@ -3,11 +3,7 @@
 import { useState } from 'react';
 import { useParams } from 'next/navigation';
 import { trpc } from '@/lib/trpc';
-import { Button } from '@dykstra/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@dykstra/ui/card';
-import { Input } from '@dykstra/ui/input';
-import { Textarea } from '@dykstra/ui/textarea';
-import { RadioGroup } from '@dykstra/ui/radio-group';
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input, Textarea, RadioGroup } from '@dykstra/ui';
 import { useToast } from '@/components/toast';
 import { ErrorBoundary, PageErrorFallback } from '@/components/error';
 

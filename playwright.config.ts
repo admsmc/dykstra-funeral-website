@@ -32,12 +32,6 @@ export default defineConfig({
     navigationTimeout: 30000, // 30s for page navigations
   },
 
-  /* Environment variables for tests */
-  env: {
-    CLERK_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || '',
-    CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY || '',
-  },
-
   /* Configure projects for major browsers */
 projects: [
     // 1) Setup project: creates an authenticated storage state

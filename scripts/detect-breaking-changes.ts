@@ -371,4 +371,5 @@ if (require.main === module) {
   main();
 }
 
-export { detectBreakingChanges, BreakingChange, ContractBaseline };
+export { detectBreakingChanges };
+export type { BreakingChange, ContractBaseline };

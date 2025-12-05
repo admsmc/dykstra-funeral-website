@@ -35,14 +35,18 @@ export default function ShipmentsPage() {
         <h1 className="text-4xl font-bold text-gray-900">Shipments</h1>
         <p className="text-lg text-gray-600 mt-2">Track deliveries and logistics</p>
       </motion.div>
+      )}
 
+      {!isLoading && !error && (
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <StatsCard icon={Package} label="Total" value={shipments.length.toString()} color="indigo" />
         <StatsCard icon={TruckIcon} label="In Transit" value={inTransit.toString()} color="blue" pulse={inTransit > 0} />
         <StatsCard icon={CheckCircle2} label="Delivered" value={delivered.toString()} color="green" />
         <StatsCard icon={AlertTriangle} label="Delayed" value={delayed.toString()} color="red" pulse={delayed > 0} />
       </div>
+      )}
 
+      {!isLoading && !error && (
       <div className="space-y-3">
         <AnimatePresence mode="popLayout">
           {shipments.map((shipment, idx) => (

@@ -221,7 +221,7 @@ const WithDefaultValuesComponent = () => {
 
         <div className="flex gap-2">
           <Button type="submit">Submit</Button>
-          <Button type="button" variant="outline" onClick={() => form.reset()}>
+          <Button type="button" variant="secondary" onClick={() => form.reset()}>
             Reset
           </Button>
         </div>

@@ -28,12 +28,6 @@ const meta = {
     disabled: {
       control: 'boolean',
     },
-    animateOnHover: {
-      control: 'boolean',
-    },
-    animateOnTap: {
-      control: 'boolean',
-    },
   },
 } satisfies Meta<typeof Button>;
 
@@ -119,7 +113,7 @@ export const Gradient: Story = {
 export const WithIcon: Story = {
   args: {
     children: 'Send Message',
-    leftIcon: <Send className="w-4 h-4" />,
+    icon: <Send className="w-4 h-4" />,
     variant: 'primary',
   },
 };
@@ -127,12 +121,15 @@ export const WithIcon: Story = {
 export const IconRight: Story = {
   args: {
     children: 'Download',
-    rightIcon: <Download className="w-4 h-4" />,
+    iconAfter: <Download className="w-4 h-4" />,
     variant: 'secondary',
   },
 };
 
 export const EmphasisLevels: Story = {
+  args: {
+    children: 'Button',
+  },
   render: () => (
     <div className="flex flex-col gap-4">
       <div className="flex gap-3 items-center">
@@ -169,8 +166,8 @@ export const AllVariants: Story = {
         <Button disabled>Disabled</Button>
       </div>
       <div className="flex gap-3">
-        <Button leftIcon={<CheckCircle className="w-4 h-4" />}>With Icon</Button>
-        <Button rightIcon={<Send className="w-4 h-4" />}>Icon Right</Button>
+        <Button icon={<CheckCircle className="w-4 h-4" />}>With Icon</Button>
+        <Button iconAfter={<Send className="w-4 h-4" />}>Icon Right</Button>
       </div>
     </div>
   ),

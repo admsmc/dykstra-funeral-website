@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@dykstra/infrastructure/prisma/client';
+import { prisma } from '@dykstra/infrastructure';
 import { auth, clerkClient } from '@clerk/nextjs/server';
 
 /**

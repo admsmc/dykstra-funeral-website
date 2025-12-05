@@ -26,6 +26,7 @@ import { ptoManagementRouter } from './routers/pto-management.router';
 import { trainingManagementRouter } from './routers/training-management.router';
 import { backfillManagementRouter } from './routers/backfill-management.router';
 import { documentsRouter } from './routers/documents';
+import { documentLibraryRouter } from './routers/documents.router';
 import { memorialTemplatesRouter } from './routers/memorial-templates';
 import { templateAnalyticsRouter } from './routers/template-analytics';
 import { templateApprovalRouter } from './routers/template-approval';
@@ -42,6 +43,7 @@ import { inventoryRouter } from './routers/inventory.router';
 import { prepRoomRouter } from './routers/prep-room.router';
 import { shipmentRouter } from './routers/shipment.router';
 import { memorialRouter } from './routers/memorial.router';
+import { communicationRouter } from './routers/communication.router';
 
 /**
  * Root application router
@@ -82,6 +84,8 @@ export const appRouter = router({
   backfillManagement: backfillManagementRouter,
   // Document Generation (Weeks 4-6)
   documents: documentsRouter,
+  // Document Library Management (Staff Portal Router 5)
+  documentLibrary: documentLibraryRouter,
   // Memorial Templates (Weeks 13-14)
   memorialTemplates: memorialTemplatesRouter,
   // Template Analytics (Week 17)
@@ -114,6 +118,8 @@ export const appRouter = router({
   shipment: shipmentRouter,
   // Memorial Pages (tributes, guestbook, photos)
   memorial: memorialRouter,
+  // Communication (Email & SMS) - Staff Portal Router 6
+  communication: communicationRouter,
 });
 
 /**

@@ -4,11 +4,13 @@ import { useState } from 'react';
 import { DollarSign, CheckCircle, Loader2 } from 'lucide-react';
 import { api } from '@/trpc/react';
 import { BillPaymentsTableSkeleton } from '@/components/skeletons/FinancialSkeletons';
+import BillSearchBar, { type BillFilters } from '@/components/search/BillSearchBar';
 
 export default function BillPaymentsPage() {
   const [selectedBills, setSelectedBills] = useState<string[]>([]);
   const [paymentMethod, setPaymentMethod] = useState<'check' | 'ach' | 'wire'>('check');
   const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split('T')[0]);
+  const [billFilters, setBillFilters] = useState<BillFilters>({ searchQuery: '' });
 
   const { data: bills, isLoading, refetch } = api.financial.ap.listBills.useQuery({
     status: 'approved',
@@ -42,7 +44,36 @@ export default function BillPaymentsPage() {
     setSelectedBills([]);
   };
 
-  const selectedTotal = bills?.filter(b => selectedBills.includes(b.id)).reduce((sum, b) => sum + b.amount, 0) || 0;
+  // Filter bills based on search and filters
+  const filteredBills = bills?.filter(bill => {
+    // Search query filter
+    if (billFilters.searchQuery) {
+      const query = billFilters.searchQuery.toLowerCase();
+      const matchesVendor = bill.vendor.toLowerCase().includes(query);
+      const matchesBillNumber = bill.billNumber.toLowerCase().includes(query);
+      if (!matchesVendor && !matchesBillNumber) return false;
+    }
+
+    // Due date range filter
+    if (billFilters.dueDateFrom && new Date(bill.dueDate) < new Date(billFilters.dueDateFrom)) {
+      return false;
+    }
+    if (billFilters.dueDateTo && new Date(bill.dueDate) > new Date(billFilters.dueDateTo)) {
+      return false;
+    }
+
+    // Amount range filter
+    if (billFilters.amountMin !== undefined && bill.amount < billFilters.amountMin) {
+      return false;
+    }
+    if (billFilters.amountMax !== undefined && bill.amount > billFilters.amountMax) {
+      return false;
+    }
+
+    return true;
+  }) || [];
+
+  const selectedTotal = filteredBills.filter(b => selectedBills.includes(b.id)).reduce((sum, b) => sum + b.amount, 0) || 0;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -55,6 +86,11 @@ export default function BillPaymentsPage() {
           </div>
         </div>
 
+        {/* Search and Filters */}
+        <div className="mb-6">
+          <BillSearchBar onFilterChange={setBillFilters} />
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <div className="bg-white border rounded-lg overflow-hidden">
@@ -65,9 +101,14 @@ export default function BillPaymentsPage() {
                 <div className="p-4">
                   <BillPaymentsTableSkeleton rows={6} />
                 </div>
+              ) : filteredBills.length === 0 ? (
+                <div className="p-8 text-center text-gray-500">
+                  <p className="font-medium mb-1">No bills found</p>
+                  <p className="text-sm">Try adjusting your search or filters</p>
+                </div>
               ) : (
                 <div className="divide-y">
-                  {bills?.map(bill => (
+                  {filteredBills.map(bill => (
                   <label key={bill.id} className="flex items-center p-4 hover:bg-gray-50 cursor-pointer">
                     <input
                       type="checkbox"

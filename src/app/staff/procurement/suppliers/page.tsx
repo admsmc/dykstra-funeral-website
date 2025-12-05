@@ -34,14 +34,18 @@ export default function SuppliersPage() {
         <div><h1 className="text-4xl font-bold text-gray-900">Suppliers</h1><p className="text-lg text-gray-600 mt-2">Manage vendor relationships</p></div>
         <button className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"><Plus className="w-5 h-5" />Add Supplier</button>
       </motion.div>
+      )}
 
+      {!isLoading && !error && (
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <StatsCard icon={Building2} label="Suppliers" value={suppliers.length.toString()} color="indigo" />
         <StatsCard icon={DollarSign} label="Total Spend" value={`$${(totalSpend / 1000).toFixed(0)}K`} color="green" />
         <StatsCard icon={Star} label="Avg Rating" value={avgRating.toFixed(1)} color="amber" />
         <StatsCard icon={Package} label="Orders YTD" value={suppliers.reduce((sum, s) => sum + s.orders, 0).toString()} color="blue" />
       </div>
+      )}
 
+      {!isLoading && !error && (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <AnimatePresence mode="popLayout">
           {suppliers.map((supplier, idx) => (

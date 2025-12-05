@@ -31,6 +31,9 @@ import {
   Lock,
   PlayCircle,
   TrendingUp,
+  Mail,
+  MessageSquare,
+  Send,
 } from "lucide-react";
 import { useState } from "react";
 import { FloatingAssistant } from "@/components/ai/FloatingAssistant";
@@ -358,6 +361,45 @@ const workspaces: NavSection[] = [
         icon: <GitBranch className="w-5 h-5" />,
         description: "Manage template workflows",
         roles: ["admin"],
+      },
+    ],
+  },
+  {
+    label: "Communication",
+    description: "Email & SMS to families",
+    defaultOpen: false,
+    items: [
+      {
+        label: "Dashboard",
+        href: "/staff/communication",
+        icon: <Send className="w-5 h-5" />,
+        description: "Communication hub",
+        badge: "New",
+        roles: ["funeral_director", "admin"],
+      },
+      {
+        label: "Templates",
+        href: "/staff/communication/templates",
+        icon: <FileText className="w-5 h-5" />,
+        description: "Email & SMS templates",
+        badge: "New",
+        roles: ["funeral_director", "admin"],
+      },
+      {
+        label: "History",
+        href: "/staff/communication/history",
+        icon: <Mail className="w-5 h-5" />,
+        description: "Sent messages log",
+        badge: "New",
+        roles: ["funeral_director", "admin"],
+      },
+      {
+        label: "Analytics",
+        href: "/staff/communication/analytics",
+        icon: <BarChart3 className="w-5 h-5" />,
+        description: "Performance metrics",
+        badge: "New",
+        roles: ["funeral_director", "admin"],
       },
     ],
   },

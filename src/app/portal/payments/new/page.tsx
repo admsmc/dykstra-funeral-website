@@ -7,8 +7,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { portalPaymentSchema, type PortalPaymentForm } from '@dykstra/domain/validation';
-import { Form } from '@/components/form';
-import { FormCurrencyInput, FormTextarea } from '@/components/form-fields';
+import { Form, FormTextarea } from '@dykstra/ui';
+import { FormCurrencyInput } from '@/components/form-fields';
 
 /**
  * Payment Form Page

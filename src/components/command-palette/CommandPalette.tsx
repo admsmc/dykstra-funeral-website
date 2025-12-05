@@ -20,6 +20,9 @@ import {
   Plus,
   Search,
   Calendar,
+  Mail,
+  MessageSquare,
+  Send,
 } from 'lucide-react';
 import './command-palette.css';
 
@@ -219,6 +222,62 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       action: () => router.push('/staff/procurement/suppliers'),
       group: 'Procurement',
       keywords: ['vendor', 'supplier'],
+    },
+
+    // Navigation - Communication
+    {
+      id: 'communication',
+      label: 'Communication Dashboard',
+      description: 'Email & SMS hub',
+      icon: <Send className="w-4 h-4" />,
+      action: () => router.push('/staff/communication'),
+      group: 'Communication',
+      keywords: ['email', 'sms', 'message', 'families'],
+    },
+    {
+      id: 'communication-templates',
+      label: 'Message Templates',
+      description: 'Email & SMS templates',
+      icon: <FileText className="w-4 h-4" />,
+      action: () => router.push('/staff/communication/templates'),
+      group: 'Communication',
+      keywords: ['template', 'email', 'sms'],
+    },
+    {
+      id: 'communication-history',
+      label: 'Communication History',
+      description: 'Sent messages log',
+      icon: <Mail className="w-4 h-4" />,
+      action: () => router.push('/staff/communication/history'),
+      group: 'Communication',
+      keywords: ['history', 'sent', 'log'],
+    },
+    {
+      id: 'communication-analytics',
+      label: 'Communication Analytics',
+      description: 'Performance metrics',
+      icon: <BarChart3 className="w-4 h-4" />,
+      action: () => router.push('/staff/communication/analytics'),
+      group: 'Communication',
+      keywords: ['analytics', 'metrics', 'stats'],
+    },
+    {
+      id: 'compose-email',
+      label: 'Compose Email',
+      description: 'Send email to families',
+      icon: <Mail className="w-4 h-4" />,
+      action: () => router.push('/staff/communication?action=compose&type=email'),
+      group: 'Quick Actions',
+      keywords: ['email', 'send', 'compose', 'message'],
+    },
+    {
+      id: 'compose-sms',
+      label: 'Compose SMS',
+      description: 'Send text message',
+      icon: <MessageSquare className="w-4 h-4" />,
+      action: () => router.push('/staff/communication?action=compose&type=sms'),
+      group: 'Quick Actions',
+      keywords: ['sms', 'text', 'message', 'send'],
     },
 
     // Navigation - Logistics

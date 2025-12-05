@@ -5,12 +5,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useParams } from 'next/navigation';
 import { trpc } from '@/lib/trpc/client';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@dykstra/ui/card';
-import { Button } from '@dykstra/ui/button';
-import { useToast } from '@dykstra/ui/toast';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, Button, useToast } from '@dykstra/ui';
 import { tributeSchema, guestbookSchema, type TributeForm, type GuestbookForm } from '@dykstra/domain/validation';
-import { Form } from '@/components/form';
-import { FormInput, FormTextarea, FormSelect } from '@/components/form-fields';
+import { Form, FormInput, FormTextarea, FormSelect } from '@dykstra/ui';
 import { Loader2 } from 'lucide-react';
 
 const US_STATES = [
