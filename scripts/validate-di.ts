@@ -71,19 +71,24 @@ async function testService(name: string, tag: any): Promise<boolean> {
   });
 
   try {
-    const result = await Effect.runPromise(
-      Effect.provide(testEffect, InfrastructureLayer)
-    );
+    const providedEffect = Effect.provide(testEffect, InfrastructureLayer) as Effect.Effect<boolean, never, never>;
+    const exit = await Effect.runPromiseExit(providedEffect);
     
-    if (result) {
-      console.log(`✅ ${name.padEnd(30)} - resolved successfully`);
-      return true;
+    if (exit._tag === 'Success') {
+      if (exit.value) {
+        console.log(`✅ ${name.padEnd(30)} - resolved successfully`);
+        return true;
+      } else {
+        console.error(`❌ ${name.padEnd(30)} - resolved to null/undefined`);
+        return false;
+      }
     } else {
-      console.error(`❌ ${name.padEnd(30)} - resolved to null/undefined`);
+      console.error(`❌ ${name.padEnd(30)} - failed to resolve:`);
+      console.error(`   ${exit.cause}`);
       return false;
     }
   } catch (error) {
-    console.error(`❌ ${name.padEnd(30)} - failed to resolve:`);
+    console.error(`❌ ${name.padEnd(30)} - unexpected error:`);
     console.error(`   ${error instanceof Error ? error.message : String(error)}`);
     return false;
   }

@@ -4,12 +4,12 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { contactFormSchema, type ContactForm } from "@dykstra/domain";
+import { contactFormSchema, type ContactFormData } from "@dykstra/domain";
 import { Form, FormInput, FormTextarea } from "@dykstra/ui";
 
 export default function Contact() {
   // Initialize form with react-hook-form + domain validation
-  const form = useForm<ContactForm>({
+  const form = useForm<ContactFormData>({
     resolver: zodResolver(contactFormSchema),
     defaultValues: {
       name: "",

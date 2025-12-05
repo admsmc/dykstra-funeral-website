@@ -138,12 +138,10 @@ function DocumentsPageContent() {
     data: documentsData,
     isLoading: isLoadingDocuments,
     refetch: refetchDocuments,
-  } = trpc.document.list.useQuery({ caseId });
+  } = trpc.documentLibrary.list.useQuery({ caseId });
 
-  const { data: currentCase } = trpc.case.getById.useQuery({ id: caseId });
-  const { data: currentUser } = trpc.user.me.useQuery();
-
-  const downloadDocumentMutation = trpc.document.download.useMutation();
+  const { data: currentCase } = trpc.case.getDetails.useQuery({ caseId });
+  const { data: currentUser } = trpc.user.getProfile.useQuery();
 
   const documents = documentsData?.documents ?? [];
   const isFuneralDirector = currentUser?.role === "funeral_director";
@@ -164,11 +162,14 @@ function DocumentsPageContent() {
 
   const handleDownload = async (documentId: string, filename: string) => {
     try {
-      const result = await downloadDocumentMutation.mutateAsync({ documentId });
-      
-      // Open signed URL in new tab
-      window.open(result.signedUrl, "_blank");
-      toast.success(`Downloading ${filename}`);
+      // Find document and open its URL
+      const doc = documents.find(d => d.id === documentId);
+      if (doc) {
+        window.open(doc.url, "_blank");
+        toast.success(`Downloading ${filename}`);
+      } else {
+        toast.error("Document not found");
+      }
     } catch (error) {
       console.error("Download error:", error);
       toast.error("Failed to download document");
@@ -177,16 +178,19 @@ function DocumentsPageContent() {
 
   const handlePrint = async (documentId: string) => {
     try {
-      const result = await downloadDocumentMutation.mutateAsync({ documentId });
-      
-      // Open in new window and trigger print
-      const printWindow = window.open(result.signedUrl, "_blank");
-      if (printWindow) {
-        printWindow.onload = () => {
-          printWindow.print();
-        };
+      // Find document and open for printing
+      const doc = documents.find(d => d.id === documentId);
+      if (doc) {
+        const printWindow = window.open(doc.url, "_blank");
+        if (printWindow) {
+          printWindow.onload = () => {
+            printWindow.print();
+          };
+        }
+        toast.success("Opening document for printing");
+      } else {
+        toast.error("Document not found");
       }
-      toast.success("Opening document for printing");
     } catch (error) {
       console.error("Print error:", error);
       toast.error("Failed to open document for printing");

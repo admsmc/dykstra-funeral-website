@@ -10,13 +10,15 @@ export async function POST() {
   const email = process.env.CLERK_TEST_USER_EMAIL;
   if (!email) return NextResponse.json({ error: 'CLERK_TEST_USER_EMAIL not set' }, { status: 400 });
 
+  const client = await clerkClient();
+
   // Find the test user
-  const users = await clerkClient.users.getUserList({ emailAddress: [email], limit: 1 });
-  const user = users?.[0];
+  const response = await client.users.getUserList({ emailAddress: [email], limit: 1 });
+  const user = response.data?.[0];
   if (!user) return NextResponse.json({ error: 'User not found' }, { status: 400 });
 
   // Create a session for the user
-  const session = await clerkClient.sessions.createSession({ userId: user.id });
+  const session = await client.sessions.createSession({ userId: user.id });
 
   // Set Clerk session cookie (__session)
   const res = NextResponse.json({ ok: true, userId: user.id, sessionId: session.id });

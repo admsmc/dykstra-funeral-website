@@ -80,7 +80,7 @@ export async function GET(
               phone: invitation.phone,
               relationship: invitation.relationship,
               role: invitation.role,
-              permissions: invitation.permissions,
+              permissions: invitation.permissions as any,
               status: 'EXPIRED',
               token: invitation.token,
               expiresAt: invitation.expiresAt,
@@ -97,7 +97,7 @@ export async function GET(
     }
 
     // Get current user session (if logged in)
-    const { userId: clerkUserId } = auth();
+    const { userId: clerkUserId } = await auth();
 
     let userId: string;
     let isNewUser = false;
@@ -182,7 +182,7 @@ export async function GET(
           phone: invitation.phone,
           relationship: invitation.relationship,
           role: invitation.role,
-          permissions: invitation.permissions,
+          permissions: invitation.permissions as any,
           status: 'ACCEPTED',
           token: invitation.token,
           expiresAt: invitation.expiresAt,

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { trpc } from '@/lib/trpc';
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input, Textarea, RadioGroup } from '@dykstra/ui';
@@ -142,7 +142,7 @@ function ArrangementsPageContent() {
   const [newNote, setNewNote] = useState('');
 
   // Initialize form from fetched data
-  useState(() => {
+  useEffect(() => {
     if (arrangements) {
       setSelectedServiceType(arrangements.serviceType);
       if (arrangements.products.length > 0) {
@@ -274,7 +274,7 @@ function ArrangementsPageContent() {
           </RadioGroup>
           <Button
             onClick={handleSaveServiceType}
-            disabled={!selectedServiceType || saveMutation.isLoading}
+            disabled={!selectedServiceType || saveMutation.isPending}
             className="w-full sm:w-auto"
           >
             Save Service Type
@@ -427,7 +427,7 @@ function ArrangementsPageContent() {
 
           <Button
             onClick={handleSaveProducts}
-            disabled={saveMutation.isLoading}
+            disabled={saveMutation.isPending}
             className="w-full sm:w-auto"
           >
             Save Product Selection
@@ -532,7 +532,7 @@ function ArrangementsPageContent() {
 
           <Button
             onClick={handleSaveCeremony}
-            disabled={saveMutation.isLoading}
+            disabled={saveMutation.isPending}
             className="w-full sm:w-auto"
           >
             Save Ceremony Details
@@ -578,7 +578,7 @@ function ArrangementsPageContent() {
             />
             <Button
               onClick={handleAddNote}
-              disabled={!newNote.trim() || saveMutation.isLoading}
+              disabled={!newNote.trim() || saveMutation.isPending}
               className="w-full sm:w-auto"
             >
               Add Note
