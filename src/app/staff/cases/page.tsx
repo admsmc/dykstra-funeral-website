@@ -13,8 +13,8 @@ import {
   CaseTable,
   CaseListFooter,
   useCaseList,
-  type CaseListFilters as Filters,
 } from "@/features/case-list";
+import type { CaseListFilters as Filters } from "@/features/case-list/types";
 
 /**
  * Staff Cases List Page
@@ -176,7 +176,7 @@ export default function StaffCasesPage() {
       <CaseListFilters
         filters={filters}
         onFilterChange={setFilters}
-        searchInputRef={searchInputRef}
+        searchInputRef={searchInputRef as React.RefObject<HTMLInputElement>}
       />
 
       <CaseTable

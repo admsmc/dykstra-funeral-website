@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { trpc } from '@/lib/trpc-client';
+import { api } from '@/trpc/react';
 import { 
   CheckCircle2, 
   AlertCircle, 
@@ -46,24 +46,35 @@ export default function PeriodClosePage() {
   const [closeId, setCloseId] = useState<string | null>(null);
   const [skipReconciliation, setSkipReconciliation] = useState(false);
   const [closeNotes, setCloseNotes] = useState('');
+  const [showHistory, setShowHistory] = useState(false);
 
   // Query: Validate month-end close readiness
-  const { data: validation, isLoading: validating } = trpc.financial.periodClose.validate.useQuery(
+  const { data: validation, isLoading: validating } = api.financial.periodClose.validate.useQuery(
     { periodEnd: selectedPeriod! },
     { enabled: !!selectedPeriod && currentStep === 2 }
   );
 
   // Query: Get trial balance
-  const { data: trialBalance, isLoading: loadingTrialBalance } = trpc.financial.gl.getTrialBalance.useQuery(
+  const { data: trialBalance, isLoading: loadingTrialBalance } = api.financial.gl.getTrialBalance.useQuery(
     { period: selectedPeriod!, funeralHomeId: 'default' },
     { enabled: !!selectedPeriod && currentStep === 2 }
   );
 
+  // Query: Get close history (last 6 months)
+  const sixMonthsAgo = new Date();
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+  const { data: closeHistory, isLoading: loadingHistory } = api.financial.periodClose.getHistory.useQuery(
+    {
+      periodStart: sixMonthsAgo,
+      periodEnd: new Date(),
+    }
+  );
+
   // Mutation: Execute month-end close
-  const executeMutation = trpc.financial.periodClose.execute.useMutation({
+  const executeMutation = api.financial.periodClose.execute.useMutation({
     onSuccess: (data) => {
       toast.success('Month-end close completed successfully');
-      setCloseId(data.closeId);
+      setCloseId(data.auditLogId);
       setCurrentStep(5);
     },
     onError: (error) => {
@@ -76,7 +87,7 @@ export default function PeriodClosePage() {
       case 1:
         return selectedPeriod !== null;
       case 2:
-        return validation?.canClose || skipReconciliation;
+        return (validation?.ready ?? false) || skipReconciliation;
       case 3:
         return true; // Can always proceed from adjustments
       case 4:
@@ -126,14 +137,80 @@ export default function PeriodClosePage() {
         className="max-w-5xl mx-auto"
       >
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-serif text-[--navy] mb-2">
-            Month-End Close
-          </h1>
-          <p className="text-[--charcoal] opacity-70">
-            Complete the period close process in 5 steps
-          </p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-serif text-[--navy] mb-2">
+              Month-End Close
+            </h1>
+            <p className="text-[--charcoal] opacity-70">
+              Complete the period close process in 5 steps
+            </p>
+          </div>
+          <button
+            onClick={() => setShowHistory(!showHistory)}
+            className="px-4 py-2 border-2 border-[--sage] border-opacity-30 rounded-lg text-[--navy] font-medium hover:bg-[--cream] transition-colors flex items-center gap-2"
+          >
+            <Clock className="w-5 h-5" />
+            {showHistory ? 'Hide' : 'View'} History
+          </button>
         </div>
+
+        {/* Close History Panel */}
+        <AnimatePresence>
+          {showHistory && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="mb-8 overflow-hidden"
+            >
+              <div className="bg-white rounded-lg shadow-sm border border-[--sage] border-opacity-20 p-6">
+                <h2 className="text-xl font-serif text-[--navy] mb-4">Close History</h2>
+                {loadingHistory ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="w-8 h-8 text-[--navy] animate-spin" />
+                  </div>
+                ) : closeHistory && closeHistory.length > 0 ? (
+                  <div className="space-y-3">
+                    {closeHistory.map((close: any) => (
+                      <div
+                        key={close.id}
+                        className="flex items-center justify-between p-4 bg-[--cream] rounded-lg"
+                      >
+                        <div className="flex items-center gap-4">
+                          <CheckCircle2 className="w-5 h-5 text-[--sage]" />
+                          <div>
+                            <div className="font-semibold text-[--navy]">
+                              {new Date(close.periodEnd).toLocaleDateString('en-US', {
+                                month: 'long',
+                                year: 'numeric',
+                              })}
+                            </div>
+                            <div className="text-sm text-[--charcoal] opacity-70">
+                              Closed by {close.closedBy} on {new Date(close.closedAt).toLocaleDateString()}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-sm text-[--charcoal] opacity-70">
+                          {close.notes && (
+                            <div className="max-w-xs truncate" title={close.notes}>
+                              {close.notes}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-[--charcoal] opacity-70">
+                    <Clock className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                    <p>No close history found</p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Progress Steps */}
         <div className="mb-12">

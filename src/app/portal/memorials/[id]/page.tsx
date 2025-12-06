@@ -240,16 +240,16 @@ export default function MemorialPage() {
           
           {/* Share buttons */}
           <div className="flex gap-2 flex-wrap">
-            <Button variant="outline" size="sm" onClick={() => handleShare('facebook')}>
+            <Button variant="secondary" size="sm" onClick={() => handleShare('facebook')}>
               Share on Facebook
             </Button>
-            <Button variant="outline" size="sm" onClick={() => handleShare('twitter')}>
+            <Button variant="secondary" size="sm" onClick={() => handleShare('twitter')}>
               Share on Twitter
             </Button>
-            <Button variant="outline" size="sm" onClick={() => handleShare('email')}>
+            <Button variant="secondary" size="sm" onClick={() => handleShare('email')}>
               Email
             </Button>
-            <Button variant="outline" size="sm" onClick={() => handleShare('copy')}>
+            <Button variant="secondary" size="sm" onClick={() => handleShare('copy')}>
               Copy Link
             </Button>
           </div>
@@ -328,7 +328,7 @@ export default function MemorialPage() {
             <CardHeader>
               <div className="flex justify-between items-center">
                 <CardTitle className="text-2xl font-serif text-[--navy]">Photos</CardTitle>
-                <Button variant="outline" onClick={() => setActiveTab('photos')}>
+                <Button variant="secondary" onClick={() => setActiveTab('photos')}>
                   View All
                 </Button>
               </div>
@@ -351,7 +351,7 @@ export default function MemorialPage() {
             <CardHeader>
               <div className="flex justify-between items-center">
                 <CardTitle className="text-2xl font-serif text-[--navy]">Recent Tributes</CardTitle>
-                <Button variant="outline" onClick={() => setActiveTab('tributes')}>
+                <Button variant="secondary" onClick={() => setActiveTab('tributes')}>
                   View All
                 </Button>
               </div>
@@ -397,7 +397,7 @@ export default function MemorialPage() {
                   </div>
                 </div>
                 <p className="text-sm text-[--navy] font-medium">{photo.caption}</p>
-                <p className="text-xs text-[--charcoal]">By {photo.uploadedBy}</p>
+                <p className="text-xs text-[--charcoal]">By {photo.uploadedBy?.firstName} {photo.uploadedBy?.lastName}</p>
               </div>
             ))}
           </div>

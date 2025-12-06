@@ -78,9 +78,13 @@ export function PeriodCloseValidationWidget() {
     );
   }
 
-  // Determine overall status
-  const { canClose, errors = [], warnings = [], passed = [] } = validation;
-  const status = canClose ? 'ready' : errors.length > 0 ? 'blocked' : 'warning';
+  // Determine overall status based on validateMonthEndClose result shape
+  const { ready, issues = [], warnings = [] } = validation;
+  const errors = issues;
+  const passed: string[] = ready && issues.length === 0 && warnings.length === 0
+    ? ['All validation checks passed']
+    : [];
+  const status = ready ? 'ready' : errors.length > 0 ? 'blocked' : 'warning';
 
   // Status configuration
   const statusConfig = {
@@ -165,7 +169,7 @@ export function PeriodCloseValidationWidget() {
                 isWarning ? 'text-yellow-700' : 
                 'text-gray-600'
               }`}>
-                {typeof item === 'string' ? item : item.check || item.message}
+                {item}
               </span>
             </div>
           );

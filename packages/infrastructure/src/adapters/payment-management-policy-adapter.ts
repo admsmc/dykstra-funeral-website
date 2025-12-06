@@ -1,6 +1,6 @@
 import { Effect } from 'effect';
-import { PaymentManagementPolicy, NotFoundError } from '@dykstra/domain';
-import { PaymentManagementPolicyRepositoryService, PersistenceError } from '@dykstra/application';
+import { type PaymentManagementPolicy, NotFoundError } from '@dykstra/domain';
+import { type PaymentManagementPolicyRepositoryService, PersistenceError } from '@dykstra/application';
 
 /**
  * Payment Management Policy Adapter

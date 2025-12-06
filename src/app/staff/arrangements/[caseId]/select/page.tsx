@@ -14,6 +14,14 @@ interface PageProps {
 
 type WizardStep = "type" | "budget" | "recommendations" | "confirm";
 
+type ServiceType =
+  | "TRADITIONAL_BURIAL"
+  | "CREMATION_WITH_MEMORIAL"
+  | "DIRECT_CREMATION"
+  | "MEMORIAL_SERVICE"
+  | "GRAVESIDE_SERVICE"
+  | "DIRECT_BURIAL";
+
 const budgetRanges = [
   { id: "under_5k", label: "Under $5,000", min: 0, max: 5000 },
   { id: "5k_10k", label: "$5,000 - $10,000", min: 5000, max: 10000 },
@@ -28,7 +36,7 @@ export default function ServiceSelectionWizard({ params }: PageProps) {
 
   // Wizard state
   const [step, setStep] = useState<WizardStep>("type");
-  const [selectedServiceType, setSelectedServiceType] = useState<string>("");
+  const [selectedServiceType, setSelectedServiceType] = useState<ServiceType | undefined>(undefined);
   const [selectedBudget, setSelectedBudget] = useState<string>("");
   const [selectedArrangementId, setSelectedArrangementId] = useState<string>("");
 
@@ -36,8 +44,7 @@ export default function ServiceSelectionWizard({ params }: PageProps) {
   const { data: recommendations, isLoading: recommendationsLoading } =
     trpc.arrangements.getRecommendations.useQuery(
       {
-        caseId,
-        serviceType: selectedServiceType,
+        serviceType: selectedServiceType as ServiceType, // Safe because query is disabled when empty
         budgetRange: selectedBudget
           ? budgetRanges.find((b) => b.id === selectedBudget)
           : undefined,
@@ -67,57 +74,73 @@ export default function ServiceSelectionWizard({ params }: PageProps) {
     else if (step === "confirm") setStep("recommendations");
   };
 
-  const handleAcceptArrangement = (arrangementId: string) => {
-    const arrangement = [recommendations?.primary, ...(recommendations?.alternatives ?? [])].find(
-      (a) => a?.id === arrangementId
-    );
-
-    if (!arrangement) return;
+  const handleAcceptArrangement = (arrangement: any) => {
+    // Extract products from all suggested product categories
+    const allProducts = [
+      ...(arrangement.suggestedProducts?.caskets || []),
+      ...(arrangement.suggestedProducts?.urns || []),
+      ...(arrangement.suggestedProducts?.flowers || []),
+      ...(arrangement.suggestedProducts?.memorialCards || []),
+      ...(arrangement.suggestedProducts?.other || []),
+    ];
 
     saveMutation.mutate({
       caseId,
-      serviceType: selectedServiceType,
-      products: arrangement.products.map((p) => ({
-        productId: p.id,
+      serviceType: arrangement.serviceType || selectedServiceType,
+      products: allProducts.map((p: any) => ({
+        id: p.id,
+        type: p.type,
+        name: p.name,
+        description: p.description,
+        price: p.price,
+        imageUrl: p.imageUrl || null,
         selected: true,
       })),
-      ceremonyDetails: {
-        date: new Date(),
-        location: "",
-        officiant: "",
-        music: [],
+      ceremony: {
+        date: null,
+        time: null,
+        location: null,
+        officiant: null,
+        musicSelections: [],
         readings: [],
-        specialRequests: "",
+        specialRequests: null,
       },
-      isComplete: false,
     });
   };
 
-  const handleCustomize = (arrangementId: string) => {
-    const arrangement = [recommendations?.primary, ...(recommendations?.alternatives ?? [])].find(
-      (a) => a?.id === arrangementId
-    );
-
-    if (!arrangement) return;
+  const handleCustomize = (arrangement: any) => {
+    // Extract products from all suggested product categories
+    const allProducts = [
+      ...(arrangement.suggestedProducts?.caskets || []),
+      ...(arrangement.suggestedProducts?.urns || []),
+      ...(arrangement.suggestedProducts?.flowers || []),
+      ...(arrangement.suggestedProducts?.memorialCards || []),
+      ...(arrangement.suggestedProducts?.other || []),
+    ];
 
     // Save arrangement in incomplete state, then navigate to customizer
     saveMutation.mutate(
       {
         caseId,
-        serviceType: selectedServiceType,
-        products: arrangement.products.map((p) => ({
-          productId: p.id,
+        serviceType: arrangement.serviceType || selectedServiceType,
+        products: allProducts.map((p: any) => ({
+          id: p.id,
+          type: p.type,
+          name: p.name,
+          description: p.description,
+          price: p.price,
+          imageUrl: p.imageUrl || null,
           selected: true,
         })),
-        ceremonyDetails: {
-          date: new Date(),
-          location: "",
-          officiant: "",
-          music: [],
+        ceremony: {
+          date: null,
+          time: null,
+          location: null,
+          officiant: null,
+          musicSelections: [],
           readings: [],
-          specialRequests: "",
+          specialRequests: null,
         },
-        isComplete: false,
       },
       {
         onSuccess: () => {
@@ -265,30 +288,30 @@ export default function ServiceSelectionWizard({ params }: PageProps) {
                 ) : (
                   <div className="space-y-6">
                     {/* Primary Recommendation */}
-                    {recommendations?.primary && (
+                    {recommendations?.primaryArrangement && (
                       <ServiceRecommendationsCard
-                        arrangement={recommendations.primary}
+                        arrangement={recommendations.primaryArrangement}
                         isPrimary
-                        onAccept={handleAcceptArrangement}
-                        onCustomize={handleCustomize}
+                        onAccept={() => handleAcceptArrangement(recommendations.primaryArrangement)}
+                        onCustomize={() => handleCustomize(recommendations.primaryArrangement)}
                       />
                     )}
 
                     {/* Alternatives */}
-                    {recommendations?.alternatives &&
-                      recommendations.alternatives.length > 0 && (
+                    {recommendations?.alternativeArrangements &&
+                      recommendations.alternativeArrangements.length > 0 && (
                         <div>
                           <h3 className="text-lg font-semibold text-gray-900 mb-4">
                             Alternative Options
                           </h3>
                           <div className="space-y-4">
-                            {recommendations.alternatives.map((alt) => (
+                            {recommendations.alternativeArrangements.map((alt, index) => (
                               <ServiceRecommendationsCard
-                                key={alt.id}
+                                key={alt.name + index}
                                 arrangement={alt}
                                 isPrimary={false}
-                                onAccept={handleAcceptArrangement}
-                                onCustomize={handleCustomize}
+                                onAccept={() => handleAcceptArrangement(alt)}
+                                onCustomize={() => handleCustomize(alt)}
                               />
                             ))}
                           </div>

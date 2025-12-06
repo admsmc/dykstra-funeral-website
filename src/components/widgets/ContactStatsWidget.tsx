@@ -1,7 +1,6 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { trpc } from '@/lib/trpc-client';
 import {
   Users,
   UserPlus,
@@ -13,26 +12,44 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
+type ContactStatsData = {
+  totalContacts: number;
+  newThisMonth: number;
+  newContactsTrend: number;
+  emailOptIns: number;
+  emailOptInRate: number;
+  smsOptIns: number;
+  smsOptInRate: number;
+  activeGriefJourneys: number;
+  needsFollowUp: number;
+  topTags?: Array<{ name: string; color: string; count: number }>;
+  engagementSummary?: {
+    highEngagement: number;
+    mediumEngagement: number;
+    lowEngagement: number;
+  };
+};
+
+const MOCK_STATS: ContactStatsData = {
+  totalContacts: 0,
+  newThisMonth: 0,
+  newContactsTrend: 0,
+  emailOptIns: 0,
+  emailOptInRate: 0,
+  smsOptIns: 0,
+  smsOptInRate: 0,
+  activeGriefJourneys: 0,
+  needsFollowUp: 0,
+  topTags: [],
+  engagementSummary: {
+    highEngagement: 0,
+    mediumEngagement: 0,
+    lowEngagement: 0,
+  },
+};
+
 export function ContactStatsWidget() {
-  // Fetch contact stats
-  const { data: stats, isLoading } = trpc.contact.getStats.useQuery();
-
-  if (isLoading) {
-    return (
-      <div className="bg-white border border-gray-200 rounded-lg p-6">
-        <div className="animate-pulse space-y-4">
-          <div className="h-6 bg-gray-200 rounded w-1/3" />
-          <div className="space-y-3">
-            <div className="h-16 bg-gray-200 rounded" />
-            <div className="h-16 bg-gray-200 rounded" />
-            <div className="h-16 bg-gray-200 rounded" />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!stats) return null;
+  const stats = MOCK_STATS;
 
   const statCards = [
     {

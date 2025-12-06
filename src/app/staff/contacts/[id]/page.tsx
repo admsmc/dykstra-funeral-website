@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { trpc } from '@/lib/trpc-client';
+import { api } from '@/trpc/react';
 import { ArrowLeft, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 import { ContactProfileHeader } from '@/components/contacts/ContactProfileHeader';
@@ -48,13 +48,13 @@ export default function ContactDetailPage() {
   const [activeTab, setActiveTab] = useState<'overview' | 'interactions' | 'history'>('overview');
 
   // Fetch contact details
-  const { data: contact, isLoading, refetch } = trpc.contact.getById.useQuery(
+  const { data: contact, isLoading, refetch } = api.contact.getById.useQuery(
     { contactId },
     { enabled: !!contactId }
   );
 
   // Fetch contact history (SCD2)
-  const { data: history } = trpc.contact.getHistory.useQuery(
+  const { data: history } = api.contact.getHistory.useQuery(
     { businessKey: contact?.businessKey || '' },
     { enabled: !!contact?.businessKey }
   );

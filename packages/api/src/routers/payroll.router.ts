@@ -188,6 +188,7 @@ export const payrollRouter = router({
         periodStart: z.string(),
         periodEnd: z.string(),
         payDate: z.string(),
+        notes: z.string().optional(),
         funeralHomeId: z.string().optional(),
       })
     )

@@ -40,7 +40,6 @@ export function CaseSearchBar({ className = '' }: CaseSearchBarProps) {
     },
     {
       enabled: query.length >= 2 || Object.keys(filters).length > 0,
-      keepPreviousData: true,
     }
   );
 
@@ -332,7 +331,9 @@ export function CaseSearchBar({ className = '' }: CaseSearchBarProps) {
                   <button
                     key={case_.id}
                     onClick={() => handleSelectCase(case_.id)}
-                    className={`w-full px-4 py-3 text-left hover:bg-[--cream] transition-colors ${\n                      index === selectedIndex ? 'bg-[--cream]' : ''\n                    }`}
+                    className={`w-full px-4 py-3 text-left hover:bg-[--cream] transition-colors ${
+                      index === selectedIndex ? 'bg-[--cream]' : ''
+                    }`}
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1 min-w-0">
@@ -344,12 +345,12 @@ export function CaseSearchBar({ className = '' }: CaseSearchBarProps) {
                             {case_.businessKey || case_.id.slice(0, 8)}
                           </span>
                           <span className={`px-2 py-0.5 text-xs rounded-full ${
-                            case_.status === 'ACTIVE' ? 'bg-green-100 text-green-700' :
-                            case_.status === 'COMPLETED' ? 'bg-blue-100 text-blue-700' :
-                            case_.status === 'ARCHIVED' ? 'bg-gray-100 text-gray-700' :
+                            case_.status === 'active' ? 'bg-green-100 text-green-700' :
+                            case_.status === 'completed' ? 'bg-blue-100 text-blue-700' :
+                            case_.status === 'archived' ? 'bg-gray-100 text-gray-700' :
                             'bg-amber-100 text-amber-700'
                           }`}>
-                            {case_.status}
+                            {case_.status.toUpperCase()}
                           </span>
                         </div>
                       </div>

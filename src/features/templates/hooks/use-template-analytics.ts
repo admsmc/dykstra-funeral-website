@@ -51,7 +51,6 @@ export function useTemplateAnalytics(dateRange: DateRange, category: Category) {
   const trendQuery = trpc.templateAnalytics.getGenerationTrend.useQuery(queryOptions);
   const errorsQuery = trpc.templateAnalytics.getRecentErrors.useQuery({
     limit: 10,
-    category: categoryFilter,
   });
   const performanceQuery = trpc.templateAnalytics.getPerformanceMetrics.useQuery(queryOptions);
 
@@ -62,7 +61,15 @@ export function useTemplateAnalytics(dateRange: DateRange, category: Category) {
   );
 
   const mostUsedTemplates = useMemo(
-    () => mostUsedQuery.data?.map((t, idx) => new TemplateUsageViewModel(idx + 1, t)) ?? [],
+    () =>
+      mostUsedQuery.data?.map((t, idx) =>
+        new TemplateUsageViewModel(idx + 1, {
+          businessKey: (t as any).businessKey,
+          name: (t as any).name,
+          category: (t as any).category,
+          count: (t as any).usageCount ?? 0,
+        })
+      ) ?? [],
     [mostUsedQuery.data]
   );
 
@@ -73,12 +80,26 @@ export function useTemplateAnalytics(dateRange: DateRange, category: Category) {
   }, [usageByCategoryQuery.data]);
 
   const generationTrend = useMemo(
-    () => trendQuery.data?.map((d) => new TrendDataViewModel(d)) ?? [],
+    () =>
+      trendQuery.data?.map((d) =>
+        new TrendDataViewModel({
+          date: (d as any).date instanceof Date ? (d as any).date.toISOString() : String((d as any).date),
+          count: (d as any).total ?? (d as any).count ?? 0,
+        })
+      ) ?? [],
     [trendQuery.data]
   );
 
   const recentErrors = useMemo(
-    () => errorsQuery.data?.map((e) => new ErrorViewModel(e)) ?? [],
+    () =>
+      errorsQuery.data?.map((e) =>
+        new ErrorViewModel({
+          name: (e as any).templateName ?? 'Unknown Template',
+          category: (e as any).templateCategory ?? 'unknown',
+          createdAt: (e as any).createdAt,
+          errorMessage: (e as any).errorMessage ?? 'Unknown error',
+        })
+      ) ?? [],
     [errorsQuery.data]
   );
 

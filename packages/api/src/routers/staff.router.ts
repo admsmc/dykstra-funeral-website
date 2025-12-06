@@ -5,6 +5,7 @@ import {
   getDashboardStats,
   getAnalytics,
   getTaskDashboard,
+  startEmployeeOnboarding,
 } from '@dykstra/application';
 
 /**
@@ -250,6 +251,45 @@ export const staffRouter = router({
           department: 'Operations',
         };
         return employee;
+      }),
+
+    /**
+     * Hire new employee (with Go backend integration)
+     */
+    hire: staffProcedure
+      .input(
+        z.object({
+          firstName: z.string().min(1),
+          lastName: z.string().min(1),
+          email: z.string().email(),
+          hireDate: z.date(),
+          positionId: z.string(),
+          positionTitle: z.string().min(1),
+          department: z.string().min(1),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const result = await runEffect(
+          startEmployeeOnboarding({
+            firstName: input.firstName,
+            lastName: input.lastName,
+            email: input.email,
+            hireDate: input.hireDate,
+            positionId: input.positionId,
+            positionTitle: input.positionTitle,
+            department: input.department,
+          })
+        );
+
+        return {
+          id: result.employeeId,
+          employeeNumber: result.employeeNumber,
+          fullName: result.fullName,
+          hireDate: result.hireDate,
+          onboardingStatus: result.status,
+          tasksTotal: result.tasksTotal,
+          tasksCompleted: result.tasksCompleted,
+        };
       }),
   }),
 });

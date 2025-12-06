@@ -6,7 +6,7 @@ import {
   resendInvitation,
   revokeInvitation,
   getInvitationHistory,
-  CaseMemberRole,
+  type CaseMemberRole,
 } from '@dykstra/application';
 import { runEffect } from '../utils/effect-runner';
 

@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { trpc } from '@/lib/trpc-client';
 import { Tag, X, Plus, Edit2, Trash2, Check, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -38,59 +37,27 @@ export function TagManagerModal({ isOpen, onClose, onTagsUpdated }: TagManagerMo
   const [newTagName, setNewTagName] = useState('');
   const [newTagColor, setNewTagColor] = useState(TAG_COLORS[0].value);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
-
-  // Fetch all tags
-  const { data: tags, refetch } = trpc.contact.listTags.useQuery(undefined, {
-    enabled: isOpen,
-  });
-
-  // Create tag mutation
-  const createTagMutation = trpc.contact.createTag.useMutation({
-    onSuccess: () => {
-      toast.success('Tag created successfully');
-      setIsCreating(false);
-      setNewTagName('');
-      setNewTagColor(TAG_COLORS[0].value);
-      refetch();
-      onTagsUpdated?.();
-    },
-    onError: (error) => {
-      toast.error(`Failed to create tag: ${error.message}`);
-    },
-  });
-
-  // Update tag mutation
-  const updateTagMutation = trpc.contact.updateTag.useMutation({
-    onSuccess: () => {
-      toast.success('Tag updated successfully');
-      setEditingId(null);
-      refetch();
-      onTagsUpdated?.();
-    },
-    onError: (error) => {
-      toast.error(`Failed to update tag: ${error.message}`);
-    },
-  });
-
-  // Delete tag mutation
-  const deleteTagMutation = trpc.contact.deleteTag.useMutation({
-    onSuccess: () => {
-      toast.success('Tag deleted successfully');
-      setDeleteConfirmId(null);
-      refetch();
-      onTagsUpdated?.();
-    },
-    onError: (error) => {
-      toast.error(`Failed to delete tag: ${error.message}`);
-    },
-  });
+  const [tags, setTags] = useState<TagData[]>([]);
 
   const handleCreateTag = () => {
     if (!newTagName.trim()) {
       toast.error('Tag name is required');
       return;
     }
-    createTagMutation.mutate({ name: newTagName.trim(), color: newTagColor });
+
+    const newTag: TagData = {
+      id: `${Date.now()}`,
+      name: newTagName.trim(),
+      color: newTagColor,
+      usageCount: 0,
+    };
+
+    setTags(prev => [...prev, newTag]);
+    toast.success('Tag created');
+    setIsCreating(false);
+    setNewTagName('');
+    setNewTagColor(TAG_COLORS[0].value);
+    onTagsUpdated?.();
   };
 
   const handleUpdateTag = (tagId: string, name: string, color: string) => {
@@ -98,11 +65,24 @@ export function TagManagerModal({ isOpen, onClose, onTagsUpdated }: TagManagerMo
       toast.error('Tag name is required');
       return;
     }
-    updateTagMutation.mutate({ tagId, name: name.trim(), color });
+
+    setTags(prev =>
+      prev.map(tag =>
+        tag.id === tagId
+          ? { ...tag, name: name.trim(), color }
+          : tag
+      )
+    );
+    toast.success('Tag updated');
+    setEditingId(null);
+    onTagsUpdated?.();
   };
 
   const handleDeleteTag = (tagId: string) => {
-    deleteTagMutation.mutate({ tagId });
+    setTags(prev => prev.filter(tag => tag.id !== tagId));
+    toast.success('Tag deleted');
+    setDeleteConfirmId(null);
+    onTagsUpdated?.();
   };
 
   if (!isOpen) return null;
@@ -201,11 +181,11 @@ export function TagManagerModal({ isOpen, onClose, onTagsUpdated }: TagManagerMo
                     </button>
                     <button
                       onClick={handleCreateTag}
-                      disabled={createTagMutation.isLoading || !newTagName.trim()}
+                      disabled={!newTagName.trim()}
                       className="flex-1 px-4 py-2 bg-[--sage] text-white rounded-lg hover:bg-opacity-90 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                     >
                       <Check className="w-4 h-4" />
-                      {createTagMutation.isLoading ? 'Creating...' : 'Create Tag'}
+                      Create Tag
                     </button>
                   </div>
                 </div>
@@ -231,11 +211,11 @@ export function TagManagerModal({ isOpen, onClose, onTagsUpdated }: TagManagerMo
                   >
                     {editingId === tag.id ? (
                       // Edit Mode
-                      <EditTagForm
+                        <EditTagForm
                         tag={tag}
                         onSave={(name, color) => handleUpdateTag(tag.id, name, color)}
                         onCancel={() => setEditingId(null)}
-                        isLoading={updateTagMutation.isLoading}
+                        isLoading={false}
                       />
                     ) : deleteConfirmId === tag.id ? (
                       // Delete Confirmation
@@ -259,10 +239,9 @@ export function TagManagerModal({ isOpen, onClose, onTagsUpdated }: TagManagerMo
                           </button>
                           <button
                             onClick={() => handleDeleteTag(tag.id)}
-                            disabled={deleteTagMutation.isLoading}
                             className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all disabled:opacity-50"
                           >
-                            {deleteTagMutation.isLoading ? 'Deleting...' : 'Delete Tag'}
+                            Delete Tag
                           </button>
                         </div>
                       </div>

@@ -1,7 +1,7 @@
 import { Effect } from 'effect';
 import { TemplateRepositoryPort } from '../../ports/template-repository-port';
 import { TemplateRendererPort } from '../../ports/template-renderer-port';
-import { PdfGeneratorPort, PdfGenerationError } from '../../ports/pdf-generator-port';
+import { PdfGeneratorPort, type PdfGenerationError } from '../../ports/pdf-generator-port';
 import { PersistenceError } from '../../ports/case-repository';
 
 /**

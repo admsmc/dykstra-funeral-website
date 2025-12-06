@@ -3,7 +3,7 @@ import { Case, Arrangements, type CaseId, NotFoundError } from '@dykstra/domain'
 import { CaseRepository } from '@dykstra/application';
 import { PersistenceError } from '@dykstra/application';
 import type { CaseType, CaseStatus, ServiceType } from '@dykstra/shared';
-import { CaseType as PrismaCaseType, CaseStatus as PrismaCaseStatus, ServiceType as PrismaServiceType } from '@prisma/client';
+import { type CaseType as PrismaCaseType, type CaseStatus as PrismaCaseStatus, type ServiceType as PrismaServiceType } from '@prisma/client';
 import { prisma } from './prisma-client';
 
 /**

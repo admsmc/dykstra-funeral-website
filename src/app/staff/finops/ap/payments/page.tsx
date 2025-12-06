@@ -1,16 +1,19 @@
 'use client';
 
 import { useState } from 'react';
-import { DollarSign, CheckCircle, Loader2 } from 'lucide-react';
+import { DollarSign, CheckCircle, Loader2, CreditCard } from 'lucide-react';
 import { api } from '@/trpc/react';
 import { BillPaymentsTableSkeleton } from '@/components/skeletons/FinancialSkeletons';
 import BillSearchBar, { type BillFilters } from '@/components/search/BillSearchBar';
+import { PayVendorBillModal } from '../../_components/PayVendorBillModal';
 
 export default function BillPaymentsPage() {
   const [selectedBills, setSelectedBills] = useState<string[]>([]);
   const [paymentMethod, setPaymentMethod] = useState<'check' | 'ach' | 'wire'>('check');
   const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split('T')[0]);
   const [billFilters, setBillFilters] = useState<BillFilters>({ searchQuery: '' });
+  const [showPayBillModal, setShowPayBillModal] = useState(false);
+  const [selectedBill, setSelectedBill] = useState<{ id: string; amount: number; vendor: string } | null>(null);
 
   const { data: bills, isLoading, refetch } = api.financial.ap.listBills.useQuery({
     status: 'approved',
@@ -120,7 +123,21 @@ export default function BillPaymentsPage() {
                       <div className="font-semibold">{bill.vendor}</div>
                       <div className="text-sm text-gray-600">{bill.billNumber} • Due: {new Date(bill.dueDate).toLocaleDateString()}</div>
                     </div>
+                    <div className="flex items-center gap-3">
                       <div className="font-bold text-[--navy]">${bill.amount.toLocaleString()}</div>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setSelectedBill({ id: bill.id, amount: bill.amount, vendor: bill.vendor });
+                          setShowPayBillModal(true);
+                        }}
+                        className="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition-colors flex items-center gap-1"
+                      >
+                        <CreditCard className="w-3 h-3" />
+                        Pay
+                      </button>
+                    </div>
                     </label>
                   ))}
                 </div>
@@ -161,6 +178,23 @@ export default function BillPaymentsPage() {
             </div>
           </div>
         </div>
+
+        {selectedBill && (
+          <PayVendorBillModal
+            isOpen={showPayBillModal}
+            onClose={() => {
+              setShowPayBillModal(false);
+              setSelectedBill(null);
+            }}
+            onSuccess={() => {
+              refetch();
+              setSelectedBill(null);
+            }}
+            billId={selectedBill.id}
+            billAmount={selectedBill.amount}
+            vendorName={selectedBill.vendor}
+          />
+        )}
       </div>
     </div>
   );

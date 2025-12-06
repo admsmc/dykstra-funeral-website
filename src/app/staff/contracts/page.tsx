@@ -62,7 +62,7 @@ export default function ContractsPage() {
     <DashboardLayout
       title="Contracts"
       subtitle="Manage service contracts and track signatures"
-      actionButtons={[
+      actions={[
         <Link
           key="templates"
           href="/staff/contracts/templates"
@@ -108,7 +108,7 @@ export default function ContractsPage() {
             caseNumber: selectedContract.caseNumber,
             decedentName: selectedContract.decedentName,
             totalAmount: selectedContract.totalAmount,
-            expirationDate: selectedContract.createdAt, // Mock: using createdAt as expiration
+            expirationDate: selectedContract.createdAt.toISOString(), // Mock: using createdAt as expiration
           }}
           onRenewalComplete={handleRenewalComplete}
         />

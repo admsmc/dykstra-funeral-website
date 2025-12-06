@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Users, User, Mail, Phone, Calendar, Briefcase, Award, Plus, Search, Loader2 } from 'lucide-react';
 import { trpc } from '@/lib/trpc';
+import { AddEmployeeModal } from './_components/AddEmployeeModal';
 
 /**
  * HR & Employee Management Page - Linear/Notion Style
@@ -35,9 +36,10 @@ const DEPARTMENTS = ['all', 'Operations', 'Finance', 'Admin'];
 export default function HRPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState<'all' | 'Operations' | 'Finance' | 'Admin'>('all');
+  const [isAddEmployeeModalOpen, setIsAddEmployeeModalOpen] = useState(false);
 
   // Fetch employees from API
-  const { data: employees = [], isLoading, error } = trpc.staff.employees.list.useQuery({
+  const { data: employees = [], isLoading, error, refetch } = trpc.staff.employees.list.useQuery({
     status: 'all',
     department: departmentFilter,
   });
@@ -128,7 +130,10 @@ export default function HRPage() {
           </div>
         </div>
 
-        <button className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition text-sm font-medium">
+        <button
+          onClick={() => setIsAddEmployeeModalOpen(true)}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition text-sm font-medium"
+        >
           <Plus className="w-4 h-4" />
           Add Employee
         </button>
@@ -155,6 +160,13 @@ export default function HRPage() {
         )}
       </motion.div>
       )}
+
+      {/* Add Employee Modal */}
+      <AddEmployeeModal
+        isOpen={isAddEmployeeModalOpen}
+        onClose={() => setIsAddEmployeeModalOpen(false)}
+        onSuccess={() => refetch()}
+      />
     </div>
   );
 }

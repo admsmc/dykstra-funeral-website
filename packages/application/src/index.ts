@@ -129,6 +129,9 @@ export * from './use-cases/staff/get-dashboard-stats';
 export * from './use-cases/staff/get-analytics';
 export * from './use-cases/staff/get-task-dashboard';
 
+// HR use cases
+export * from './use-cases/hr/employee-onboarding';
+
 // Contract use cases
 export * from './use-cases/contracts/catalog-queries';
 export * from './use-cases/contracts/template-operations';
@@ -156,7 +159,26 @@ export { generateBudgetVarianceReport, type BudgetVarianceReportCommand, type Bu
 export { approveVendorBill, type ApproveVendorBillCommand, type ApproveVendorBillResult } from './use-cases/financial/approve-vendor-bill';
 export { payVendorBill, payVendorBillsBatch, type PayVendorBillCommand, type PayVendorBillResult } from './use-cases/financial/pay-vendor-bill';
 export { getGLTrialBalance, getAccountHistory, getFinancialStatement, postJournalEntry } from './use-cases/financial/gl-operations';
+export { getChartOfAccounts } from './use-cases/financial/get-chart-of-accounts';
+export { createGLAccount } from './use-cases/financial/create-gl-account';
+export { updateGLAccount } from './use-cases/financial/update-gl-account';
+export { deactivateGLAccount } from './use-cases/financial/deactivate-gl-account';
+export { getAccountBalances } from './use-cases/financial/get-account-balances';
+export { reverseJournalEntry } from './use-cases/financial/reverse-journal-entry';
 export { listVendorBills, groupVendorBillsByVendor, type VendorPayables } from './use-cases/financial/list-vendor-bills';
+// Budget use cases
+export { getBudgetVariance } from './use-cases/budget/get-budget-variance';
+export { updateBudgetAccount } from './use-cases/budget/update-budget-account';
+// Dashboard use cases
+export { getFinancialKPIs } from './use-cases/financial/get-financial-kpis';
+export { getFinancialTrends } from './use-cases/financial/get-financial-trends';
+// Fixed Assets use cases
+export { registerAsset } from './use-cases/fixed-assets/register-asset';
+export { getAssetRegister } from './use-cases/fixed-assets/get-asset-register';
+export { getAssetDetails } from './use-cases/fixed-assets/get-asset-details';
+export { getDepreciationSchedule } from './use-cases/fixed-assets/get-depreciation-schedule';
+export { disposeAsset } from './use-cases/fixed-assets/dispose-asset';
+export { runDepreciation } from './use-cases/fixed-assets/run-depreciation';
 // Additional financial use cases (keep wildcard exports for now)
 // Note: Some may have naming conflicts - will be refined in Phase 1.4
 

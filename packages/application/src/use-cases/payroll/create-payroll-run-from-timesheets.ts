@@ -1,7 +1,7 @@
 import { Effect } from 'effect';
 import { GoPayrollPort, type GoPayrollPortService, type NetworkError } from '../../ports/go-payroll-port';
 import { GoFinancialPort, type GoFinancialPortService } from '../../ports/go-financial-port';
-import { ValidationError, PAYROLL_EXPENSE_ACCOUNTS } from '@dykstra/domain';
+import { ValidationError, PAYROLL_EXPENSE_ACCOUNTS, type NotFoundError } from '@dykstra/domain';
 
 /**
  * Use Case 3.1: Create Payroll Run from Timesheets
@@ -47,7 +47,7 @@ export const createPayrollRunFromTimesheets = (
   command: CreatePayrollRunFromTimesheetsCommand
 ): Effect.Effect<
   CreatePayrollRunFromTimesheetsResult,
-  ValidationError | NetworkError | import('@dykstra/domain').NotFoundError,
+  ValidationError | NetworkError | NotFoundError,
   GoPayrollPortService | GoFinancialPortService
 > =>
   Effect.gen(function* () {

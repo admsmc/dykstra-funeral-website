@@ -383,7 +383,9 @@ export function ArrangementsTab({ caseId }: { caseId?: string }) {
             <h4 className="font-semibold text-gray-900">Service Type</h4>
           </div>
           <p className="text-sm text-gray-700">
-            {arrangement.serviceType.replace(/_/g, " ")}
+            {arrangement.serviceType
+              ? arrangement.serviceType.replace(/_/g, " ")
+              : "Not selected yet"}
           </p>
         </motion.div>
 
@@ -406,7 +408,7 @@ export function ArrangementsTab({ caseId }: { caseId?: string }) {
           </p>
         </motion.div>
 
-        {/* Ceremony Date */}
+        {/* Ceremony Summary */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -417,18 +419,9 @@ export function ArrangementsTab({ caseId }: { caseId?: string }) {
             <Calendar className="w-5 h-5 text-[--navy]" />
             <h4 className="font-semibold text-gray-900">Ceremony</h4>
           </div>
-          {arrangement.ceremonyDetails?.date ? (
-            <>
-              <p className="text-sm text-gray-700 mb-1">
-                {formatDate(arrangement.ceremonyDetails.date)}
-              </p>
-              <p className="text-xs text-gray-600">
-                {arrangement.ceremonyDetails.location || "Location TBD"}
-              </p>
-            </>
-          ) : (
-            <p className="text-sm text-gray-500 italic">Not scheduled yet</p>
-          )}
+          <p className="text-sm text-gray-500 italic">
+            Ceremony details can be planned and updated from the Arrangements workflow.
+          </p>
         </motion.div>
       </div>
 

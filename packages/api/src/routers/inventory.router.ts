@@ -201,6 +201,54 @@ export const inventoryRouter = router({
     }),
 
   /**
+   * List all locations
+   */
+  listLocations: staffProcedure.query(async () => {
+    // Mock implementation - will be replaced with Go backend integration
+    return [
+      { id: 'loc-main', name: 'Main Chapel', type: 'funeral_home' },
+      { id: 'loc-north', name: 'North Location', type: 'funeral_home' },
+      { id: 'loc-warehouse', name: 'Central Warehouse', type: 'warehouse' },
+    ];
+  }),
+
+  /**
+   * List items with availability across locations
+   */
+  listItems: staffProcedure
+    .input(
+      z.object({
+        categoryId: z.string().optional(),
+        locationId: z.string().optional(),
+      })
+    )
+    .query(async () => {
+      // Mock implementation - will be replaced with Go backend integration
+      return [
+        {
+          id: 'item-1',
+          name: 'Oak Casket - Traditional',
+          sku: 'CASKET-OAK-001',
+          category: 'Caskets',
+          availability: {
+            'loc-main': 5,
+            'loc-north': 2,
+          },
+        },
+        {
+          id: 'item-2',
+          name: 'Ceramic Urn - Blue',
+          sku: 'URN-CERAMIC-002',
+          category: 'Urns',
+          availability: {
+            'loc-main': 1,
+            'loc-north': 1,
+          },
+        },
+      ];
+    }),
+
+  /**
    * Create new inventory item
    */
   create: staffProcedure

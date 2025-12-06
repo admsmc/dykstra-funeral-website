@@ -1,9 +1,9 @@
 import { Effect } from 'effect';
 import {
   DriverAssignment,
-  DriverId,
-  AssignmentId,
-  Location,
+  type DriverId,
+  type AssignmentId,
+  type Location,
 } from '@dykstra/domain';
 import type { DriverAssignmentRepositoryService } from '@dykstra/application';
 import {

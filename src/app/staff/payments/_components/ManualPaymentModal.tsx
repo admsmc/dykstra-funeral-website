@@ -104,7 +104,7 @@ export default function ManualPaymentModal({
     },
     onSuccess: (data, variables) => {
       // Show celebration with payment details
-      const selectedCase = casesData?.pages[0]?.items.find(c => c.businessKey === variables.caseId);
+      const selectedCase = casesData?.items.find(c => c.businessKey === variables.caseId);
       setCelebrationData({
         amount: variables.amount,
         caseName: selectedCase?.decedentName || "Family",
@@ -139,7 +139,7 @@ export default function ManualPaymentModal({
 
   // Memoized case options for FormSelect
   const caseOptions = useMemo(() => {
-    const cases = casesData?.pages[0]?.items ?? [];
+    const cases = casesData?.items ?? [];
     const filtered = caseSearchQuery
       ? cases.filter((c) =>
           c.decedentName.toLowerCase().includes(caseSearchQuery.toLowerCase())

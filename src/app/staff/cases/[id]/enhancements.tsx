@@ -13,12 +13,13 @@
 import { trpc } from "@/lib/trpc-client";
 import { useState } from "react";
 import { useToast } from "@/components/toast";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { ErrorBoundary } from "@/components/error/ErrorBoundary";
 import { User, Plus, Trash2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { taskSchema, type TaskFormData } from "@dykstra/domain/validation";
-import { FormInput, FormTextarea, FormSelect } from "@/components/form/FormFields";
+// TODO: Create FormFields components
+// import { FormInput, FormTextarea, FormSelect } from "@/components/form/FormFields";
 
 // ============================================================================
 // 1. ENHANCED OVERVIEW TAB
@@ -105,7 +106,7 @@ function EnhancedOverviewTabContent({ caseData }: { caseData: any }) {
       </div>
 
       {/* Staff Assignments */}
-      <StaffAssignmentSection caseId={businessKey} staffMembers={staffMembers || []} />
+      <StaffAssignmentSection caseId={businessKey} staffMembers={(staffMembers || []) as any} />
 
       {/* Financial Summary - REAL DATA */}
       <div>
@@ -152,39 +153,39 @@ function EnhancedOverviewTabContent({ caseData }: { caseData: any }) {
 
         {showTaskForm && (
           <form onSubmit={handleCreateTask} className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4 space-y-3">
-            <FormInput
-              form={taskForm}
-              name="title"
+            <input
+              {...taskForm.register("title")}
               placeholder="Task title *"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
             />
-            <FormTextarea
-              form={taskForm}
-              name="description"
+            <textarea
+              {...taskForm.register("description")}
               placeholder="Description (optional)"
               rows={2}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
             />
             <div className="grid grid-cols-2 gap-3">
-              <FormSelect
-                form={taskForm}
-                name="assignedTo"
-                options={[
-                  { value: "", label: "Assign to..." },
-                  ...(staffMembers?.map((staff) => ({
-                    value: staff.id,
-                    label: staff.name,
-                  })) || []),
-                ]}
-              />
-              <FormInput
-                form={taskForm}
-                name="dueDate"
+              <select
+                {...taskForm.register("assignedTo")}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+              >
+                <option value="">Assign to...</option>
+                {staffMembers?.map((staff) => (
+                  <option key={staff.id} value={staff.id}>
+                    {staff.name}
+                  </option>
+                ))}
+              </select>
+              <input
+                {...taskForm.register("dueDate")}
                 type="date"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
               />
             </div>
             <div className="flex gap-2">
               <button
                 type="submit"
-                disabled={createTaskMutation.isLoading}
+                disabled={createTaskMutation.isPending}
                 className="px-4 py-2 bg-[--navy] text-white rounded-lg hover:bg-[--sage] transition text-sm disabled:opacity-50"
               >
                 Create Task
@@ -386,7 +387,7 @@ function EnhancedTimelineTabContent({ caseId }: { caseId: string }) {
                 {new Date(log.timestamp).toLocaleString()}
               </span>
             </div>
-            {Object.keys(log.metadata).length > 0 && (
+            {log.metadata && Object.keys(log.metadata).length > 0 && (
               <details className="mt-2">
                 <summary className="text-xs text-gray-600 cursor-pointer">View metadata</summary>
                 <pre className="mt-2 text-xs bg-gray-50 p-2 rounded overflow-auto">
@@ -468,7 +469,7 @@ function StatusTransitionDropdownContent({ caseData, onSuccess }: { caseData: an
     <select
       value=""
       onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => e.target.value && handleStatusChange(e.target.value)}
-      disabled={updateStatusMutation.isLoading}
+      disabled={updateStatusMutation.isPending}
       className="px-3 py-2 border border-gray-300 text-gray-700 text-sm rounded-lg hover:bg-gray-50 transition disabled:opacity-50"
     >
       <option value="">Change status...</option>

@@ -1,5 +1,5 @@
 import { Effect, Layer } from 'effect';
-import { EmailPort, EmailPortService, EmailError } from '@dykstra/application';
+import { EmailPort, type EmailPortService, EmailError } from '@dykstra/application';
 
 /**
  * Console Email Adapter (Development)

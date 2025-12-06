@@ -90,7 +90,7 @@ export function GriefJourneyCard({ contact, onRefresh }: GriefJourneyCardProps) 
               <button
                 key={stage.value}
                 onClick={() => handleStageChange(stage.value)}
-                disabled={updateGriefStageMutation.isLoading}
+                disabled={updateGriefStageMutation.isPending}
                 className={`px-3 py-1 text-xs rounded-full transition-all disabled:opacity-50 ${
                   contact.griefStage === stage.value
                     ? stage.color + ' font-medium ring-2 ring-[--sage] ring-offset-1'
@@ -149,11 +149,11 @@ export function GriefJourneyCard({ contact, onRefresh }: GriefJourneyCardProps) 
         {/* Record Check-In Button */}
         <button
           onClick={handleRecordCheckIn}
-          disabled={recordCheckInMutation.isLoading}
+          disabled={recordCheckInMutation.isPending}
           className="w-full px-4 py-2 bg-[--sage] text-white rounded-lg hover:bg-opacity-90 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
         >
           <MessageCircle className="w-4 h-4" />
-          {recordCheckInMutation.isLoading ? 'Recording...' : 'Record Check-In'}
+          {recordCheckInMutation.isPending ? 'Recording...' : 'Record Check-In'}
         </button>
       </div>
     </motion.div>

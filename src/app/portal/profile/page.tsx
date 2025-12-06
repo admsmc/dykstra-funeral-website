@@ -353,7 +353,7 @@ function ProfilePageContent() {
                             onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
                               setEmailNotifications({
                                 ...emailNotifications,
-                                [item.key]: e.target.checked,
+                                [item.key]: (e.target as HTMLInputElement).checked,
                               });
                               setHasNotificationChanges(true);
                             }}
@@ -398,7 +398,7 @@ function ProfilePageContent() {
                             onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
                               setSmsNotifications({
                                 ...smsNotifications,
-                                [item.key]: e.target.checked,
+                                [item.key]: (e.target as HTMLInputElement).checked,
                               });
                               setHasNotificationChanges(true);
                             }}

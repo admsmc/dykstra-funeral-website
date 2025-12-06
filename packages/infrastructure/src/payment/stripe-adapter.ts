@@ -1,5 +1,5 @@
 import { Effect, Layer } from 'effect';
-import { PaymentPort, PaymentPortService, type PaymentIntentResult, type CustomerResult, PaymentProcessingError } from '@dykstra/application';
+import { PaymentPort, type PaymentPortService, type PaymentIntentResult, type CustomerResult, PaymentProcessingError } from '@dykstra/application';
 
 /**
  * Stripe adapter implementation

@@ -10,7 +10,7 @@ import {
   NotFoundError 
 } from '@dykstra/domain';
 import { ContactRepository, type ContactRepositoryService, PersistenceError } from '@dykstra/application';
-import { ContactType as PrismaContactType, RelationshipType as PrismaRelationshipType } from '@prisma/client';
+import { type ContactType as PrismaContactType, type RelationshipType as PrismaRelationshipType } from '@prisma/client';
 import { prisma } from './prisma-client';
 
 /**

@@ -3,7 +3,10 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FileText, ShoppingCart, TruckIcon, CheckCircle2, Clock, AlertTriangle, Plus, Loader2 } from 'lucide-react';
-import { trpc } from '@/lib/trpc-client';
+import { api } from '@/trpc/react';
+import { NewPurchaseOrderModal } from './_components/NewPurchaseOrderModal';
+import { CreateVendorModal } from './_components/CreateVendorModal';
+import { useModalKeyboardShortcuts } from '@/hooks/useModalKeyboardShortcuts';
 
 /**
  * Purchase Orders Page - Linear/Notion Style
@@ -32,13 +35,20 @@ interface PurchaseOrder {
 
 export default function ProcurementPage() {
   const [filter, setFilter] = useState<string>('all');
+  const [showNewPOModal, setShowNewPOModal] = useState(false);
+  const [showNewVendorModal, setShowNewVendorModal] = useState(false);
+
+  // Keyboard shortcuts
+  useModalKeyboardShortcuts({
+    onNewPO: () => setShowNewPOModal(true),
+  });
   
   // Fetch POs from API
-  const { data: orders, isLoading, error } = trpc.financial.procurement.listPOs.useQuery({
+  const { data: ordersData = [], isLoading, error, refetch } = api.procurement.purchaseOrders.list.useQuery({
     status: filter as any,
   });
 
-  const allOrders = orders || [];
+  const allOrders = ordersData as PurchaseOrder[];
   
   const stats = {
     total: allOrders.length,
@@ -61,10 +71,22 @@ export default function ProcurementPage() {
           <h1 className="text-4xl font-bold text-gray-900">Purchase Orders</h1>
           <p className="text-lg text-gray-600 mt-2">Manage procurement and vendor orders</p>
         </div>
-        <button className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium">
-          <Plus className="w-5 h-5" />
-          New PO
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={() => setShowNewVendorModal(true)}
+            className="inline-flex items-center gap-2 px-6 py-3 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+          >
+            <Plus className="w-5 h-5" />
+            New Vendor
+          </button>
+          <button
+            onClick={() => setShowNewPOModal(true)}
+            className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+          >
+            <Plus className="w-5 h-5" />
+            New PO
+          </button>
+        </div>
       </motion.div>
 
       {/* Loading State */}
@@ -126,6 +148,21 @@ export default function ProcurementPage() {
         </AnimatePresence>
       </div>
       )}
+
+      <NewPurchaseOrderModal
+        isOpen={showNewPOModal}
+        onClose={() => setShowNewPOModal(false)}
+        onSuccess={() => refetch()}
+      />
+
+      <CreateVendorModal
+        isOpen={showNewVendorModal}
+        onClose={() => setShowNewVendorModal(false)}
+        onSuccess={() => {
+          // Vendors are used in PO creation, so no need to refetch here
+          // The NewPurchaseOrderModal will fetch vendors when opened
+        }}
+      />
     </div>
   );
 }

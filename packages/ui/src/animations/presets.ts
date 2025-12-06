@@ -5,7 +5,7 @@
  * These animations make the UI feel alive and responsive.
  */
 
-import { Variants } from 'framer-motion';
+import { type Variants } from 'framer-motion';
 
 // ============================================================================
 // BUTTON ANIMATIONS

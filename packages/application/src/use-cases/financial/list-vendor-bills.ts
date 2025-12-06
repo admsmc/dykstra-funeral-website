@@ -1,6 +1,6 @@
-import { Effect, Context } from 'effect';
+import { Effect, type Context } from 'effect';
 import { GoFinancialPort, type GoVendorBill } from '../../ports/go-financial-port';
-import { NetworkError } from '../../ports/go-contract-port';
+import { type NetworkError } from '../../ports/go-contract-port';
 
 /**
  * List Vendor Bills

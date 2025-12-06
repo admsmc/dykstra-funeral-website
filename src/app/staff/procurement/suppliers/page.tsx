@@ -2,8 +2,11 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Building2, Star, DollarSign, TrendingUp, Package, Plus, Loader2 } from 'lucide-react';
-import { trpc } from '@/lib/trpc';
+import { Building2, Star, DollarSign, TrendingUp, Package, Plus, Loader2, Download } from 'lucide-react';
+import { api } from '@/trpc/react';
+import { AddSupplierModal } from '../_components/AddSupplierModal';
+import { useModalKeyboardShortcuts } from '@/hooks/useModalKeyboardShortcuts';
+import { exportSuppliers } from '@/lib/csv-export';
 
 /**
  * Supplier Management Page - Linear/Notion Style
@@ -21,7 +24,13 @@ interface Supplier {
 }
 
 export default function SuppliersPage() {
-  const { data: suppliers = [], isLoading, error } = trpc.financial.procurement.listSuppliers.useQuery({ status: 'all' });
+  const [showAddSupplier, setShowAddSupplier] = useState(false);
+  const { data: suppliers = [], isLoading, error, refetch } = api.financial.procurement.listSuppliers.useQuery({ status: 'all' });
+
+  // Keyboard shortcuts
+  useModalKeyboardShortcuts({
+    onSupplier: () => setShowAddSupplier(true),
+  });
   const totalSpend = suppliers.reduce((sum, s) => sum + s.totalSpend, 0);
   const avgRating = suppliers.reduce((sum, s) => sum + s.rating, 0) / suppliers.length;
 
@@ -32,7 +41,10 @@ export default function SuppliersPage() {
       {!isLoading && !error && (
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="flex justify-between items-center">
         <div><h1 className="text-4xl font-bold text-gray-900">Suppliers</h1><p className="text-lg text-gray-600 mt-2">Manage vendor relationships</p></div>
-        <button className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"><Plus className="w-5 h-5" />Add Supplier</button>
+        <div className="flex gap-3">
+          <button onClick={() => exportSuppliers(suppliers)} disabled={suppliers.length === 0} className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"><Download className="w-5 h-5" />Export</button>
+          <button onClick={() => setShowAddSupplier(true)} className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"><Plus className="w-5 h-5" />Add Supplier</button>
+        </div>
       </motion.div>
       )}
 
@@ -54,6 +66,12 @@ export default function SuppliersPage() {
         </AnimatePresence>
       </div>
       )}
+
+      <AddSupplierModal
+        isOpen={showAddSupplier}
+        onClose={() => setShowAddSupplier(false)}
+        onSuccess={() => refetch()}
+      />
     </div>
   );
 }

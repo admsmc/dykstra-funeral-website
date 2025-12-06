@@ -1,7 +1,7 @@
 import { Effect, Layer } from 'effect';
 import { ReferralSource, type ReferralSourceId, type ReferralSourceType, NotFoundError } from '@dykstra/domain';
 import { ReferralSourceRepository, type ReferralSourceRepositoryService, PersistenceError } from '@dykstra/application';
-import { ReferralSourceType as PrismaReferralSourceType } from '@prisma/client';
+import { type ReferralSourceType as PrismaReferralSourceType } from '@prisma/client';
 import { prisma } from './prisma-client';
 
 /**

@@ -1,9 +1,9 @@
 import { Effect, Layer } from 'effect';
-import { Contract, type ContractId, Money, NotFoundError } from '@dykstra/domain';
+import { Contract, type ContractId, type Money, NotFoundError } from '@dykstra/domain';
 import { ContractRepository } from '@dykstra/application';
 import { PersistenceError } from '@dykstra/application';
 import type { ContractStatus } from '@dykstra/shared';
-import { ContractStatus as PrismaContractStatus } from '@prisma/client';
+import { type ContractStatus as PrismaContractStatus } from '@prisma/client';
 import { prisma } from './prisma-client';
 
 /**

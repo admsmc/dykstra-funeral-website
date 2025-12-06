@@ -6,6 +6,7 @@ import { User, Calendar, DollarSign, FileText, Image, Clock, MessageSquare, User
 import { CaseStatusChangeModal } from "@/components/modals/CaseStatusChangeModal";
 import { ArchiveCaseModal } from "@/components/modals/ArchiveCaseModal";
 import { CaseDetailSkeleton } from "@/components/skeletons/CaseSkeletons";
+import { useToast } from "@/components/toast";
 import {
   useCaseDetail,
   useTabState,
@@ -36,10 +37,11 @@ export default function StaffCaseDetailPage() {
   const caseId = params.id as string;
 
   // Feature hooks
+  const toast = useToast();
   const { viewModel, isLoading, error } = useCaseDetail(caseId);
   const { activeTab, setActiveTab } = useTabState();
-  const notesHook = useInternalNotes(caseId);
-  const invitationsHook = useFamilyInvitations(caseId);
+  const notesHook = useInternalNotes(caseId, toast);
+  const invitationsHook = useFamilyInvitations(caseId, toast);
   
   // Modal states
   const [showStatusModal, setShowStatusModal] = useState(false);
@@ -98,8 +100,8 @@ export default function StaffCaseDetailPage() {
               isLoading={invitationsHook.isLoading}
               statusFilter={invitationsHook.statusFilter}
               onStatusFilterChange={invitationsHook.setStatusFilter}
-              onResend={invitationsHook.resendInvitation}
-              onRevoke={invitationsHook.revokeInvitation}
+              onResend={(businessKey) => invitationsHook.resendInvitation({ businessKey })}
+              onRevoke={(businessKey) => invitationsHook.revokeInvitation({ businessKey })}
               isResending={invitationsHook.isResending}
               isRevoking={invitationsHook.isRevoking}
             />

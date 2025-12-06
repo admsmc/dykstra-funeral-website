@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { trpc } from '@/lib/trpc-client';
+import { api } from '@/trpc/react';
 import {
   Users,
   Mail,
@@ -45,13 +45,13 @@ export default function FamiliesPage() {
   const [bulkTag, setBulkTag] = useState('');
 
   // Fetch families with real API
-  const { data: familiesData, isLoading, refetch } = trpc.familyHierarchy.searchFamilies.useQuery({
+  const { data: familiesData, isLoading, refetch } = api.familyHierarchy.searchFamilies.useQuery({
     searchQuery: searchQuery || undefined,
     limit: 50,
   });
 
   // Fetch duplicate contacts
-  const { data: duplicates, isLoading: duplicatesLoading } = trpc.contact.findDuplicates.useQuery(
+  const { data: duplicates, isLoading: duplicatesLoading } = api.contact.findDuplicates.useQuery(
     { threshold: 0.8 },
     { enabled: showDuplicates }
   );
@@ -59,7 +59,7 @@ export default function FamiliesPage() {
   const families = familiesData?.families || [];
 
   // Bulk tag mutation
-  const bulkTagMutation = trpc.contact.bulkUpdate.useMutation({
+  const bulkTagMutation = api.contact.bulkUpdate.useMutation({
     onSuccess: () => {
       toast.success(`Tagged ${selectedFamilies.size} families`);
       setSelectedFamilies(new Set());
@@ -72,7 +72,7 @@ export default function FamiliesPage() {
   });
 
   // Bulk delete mutation
-  const bulkDeleteMutation = trpc.contact.bulkDelete.useMutation({
+  const bulkDeleteMutation = api.contact.bulkDelete.useMutation({
     onSuccess: () => {
       toast.success(`Deleted ${selectedFamilies.size} families`);
       setSelectedFamilies(new Set());
@@ -240,7 +240,7 @@ export default function FamiliesPage() {
                 />
                 <button
                   onClick={handleBulkTag}
-                  disabled={!bulkTag.trim() || bulkTagMutation.isLoading}
+                  disabled={!bulkTag.trim() || bulkTagMutation.isPending}
                   className="px-3 py-2 bg-[--sage] text-white rounded-lg hover:bg-opacity-90 transition-all flex items-center gap-1 text-sm disabled:opacity-50"
                 >
                   <Tag className="w-4 h-4" />
@@ -258,7 +258,7 @@ export default function FamiliesPage() {
               
               <button
                 onClick={handleBulkDelete}
-                disabled={bulkDeleteMutation.isLoading}
+                disabled={bulkDeleteMutation.isPending}
                 className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all flex items-center gap-1 text-sm disabled:opacity-50"
               >
                 <Trash2 className="w-4 h-4" />

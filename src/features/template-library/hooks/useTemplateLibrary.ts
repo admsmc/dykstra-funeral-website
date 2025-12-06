@@ -97,7 +97,7 @@ export function useTemplateRollback(onSuccess: () => void) {
   });
 
   const rollback = async (params: RollbackParams) => {
-    await mutation.mutateAsync(params);
+    await mutation.mutateAsync(params as any);
   };
 
   return {

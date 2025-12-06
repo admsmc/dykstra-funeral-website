@@ -31,16 +31,16 @@ export default function CeremonyPlanningPage({ params }: PageProps) {
 
   // Sync local state with arrangement data
   useEffect(() => {
-    if (arrangement?.ceremonyDetails) {
+    if (arrangement?.ceremony) {
       setCeremonyDetails({
-        date: arrangement.ceremonyDetails.date
-          ? new Date(arrangement.ceremonyDetails.date)
+        date: arrangement.ceremony.date
+          ? new Date(arrangement.ceremony.date)
           : new Date(),
-        location: arrangement.ceremonyDetails.location ?? "",
-        officiant: arrangement.ceremonyDetails.officiant ?? "",
-        music: arrangement.ceremonyDetails.music ?? [],
-        readings: arrangement.ceremonyDetails.readings ?? [],
-        specialRequests: arrangement.ceremonyDetails.specialRequests ?? "",
+        location: arrangement.ceremony.location ?? "",
+        officiant: arrangement.ceremony.officiant ?? "",
+        music: arrangement.ceremony.musicSelections ?? [],
+        readings: arrangement.ceremony.readings ?? [],
+        specialRequests: arrangement.ceremony.specialRequests ?? "",
       });
     }
   }, [arrangement]);
@@ -56,16 +56,9 @@ export default function CeremonyPlanningPage({ params }: PageProps) {
   const handleSave = (isComplete: boolean) => {
     saveMutation.mutate({
       caseId,
-      serviceType: arrangement?.serviceType ?? "",
-      products:
-        arrangement?.products
-          ?.filter((p: any) => p.selected)
-          .map((p: any) => ({
-            productId: p.id,
-            selected: true,
-          })) ?? [],
-      ceremonyDetails,
-      isComplete,
+      serviceType: arrangement?.serviceType ?? undefined,
+      products: arrangement?.products?.filter((p: any) => p.selected) ?? [],
+      ceremony: ceremonyDetails,
     });
   };
 
@@ -93,8 +86,24 @@ export default function CeremonyPlanningPage({ params }: PageProps) {
         {/* Ceremony Planner Component */}
         <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
           <CeremonyPlanner
-            ceremonyDetails={ceremonyDetails}
-            onUpdate={setCeremonyDetails}
+            initialDetails={{
+              date: ceremonyDetails.date.toISOString().split('T')[0],
+              location: ceremonyDetails.location,
+              officiant: ceremonyDetails.officiant,
+              musicSelections: ceremonyDetails.music,
+              readings: ceremonyDetails.readings,
+              specialRequests: ceremonyDetails.specialRequests,
+            }}
+            onChange={(details) => {
+              setCeremonyDetails({
+                date: details.date ? new Date(details.date) : new Date(),
+                location: details.location ?? '',
+                officiant: details.officiant ?? '',
+                music: details.musicSelections,
+                readings: details.readings,
+                specialRequests: details.specialRequests ?? '',
+              });
+            }}
           />
         </div>
 

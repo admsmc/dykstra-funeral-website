@@ -200,10 +200,10 @@ export function ContactProfileHeader({
             />
             <button
               onClick={handleAddTag}
-              disabled={addTagMutation.isLoading}
+              disabled={addTagMutation.isPending}
               className="px-4 py-2 bg-[--sage] text-white rounded-lg hover:bg-opacity-90 transition-all text-sm disabled:opacity-50"
             >
-              {addTagMutation.isLoading ? 'Adding...' : 'Add'}
+              {addTagMutation.isPending ? 'Adding...' : 'Add'}
             </button>
             <button
               onClick={() => {
@@ -230,7 +230,7 @@ export function ContactProfileHeader({
                 {tag}
                 <button
                   onClick={() => handleRemoveTag(tag)}
-                  disabled={removeTagMutation.isLoading}
+                  disabled={removeTagMutation.isPending}
                   className="opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
                 >
                   <X className="w-3 h-3 hover:text-red-600" />

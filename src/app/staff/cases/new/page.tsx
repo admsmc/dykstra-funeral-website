@@ -54,7 +54,7 @@ export default function NewCasePage() {
   // Optimistic mutation using useOptimisticMutation hook
   const { mutate: createCase, isOptimistic } = useOptimisticMutation({
     mutationFn: async (variables: { decedentName: string; type: string }) => {
-      return createCaseMutation.mutateAsync(variables);
+      return createCaseMutation.mutateAsync(variables as any);
     },
     onOptimisticUpdate: async (newCase) => {
       // Cancel outgoing refetches
@@ -70,12 +70,12 @@ export default function NewCasePage() {
           if (!old) return old;
           
           const optimisticCase = {
-            id: `temp-${Date.now()}`,
+            id: `temp-${Date.now()}` as any,
             businessKey: `temp-${Date.now()}`,
             version: 1,
             decedentName: newCase.decedentName,
-            type: newCase.type,
-            status: "INQUIRY" as const,
+            type: newCase.type as any,
+            status: "inquiry" as const,
             serviceType: null,
             serviceDate: null,
             createdAt: new Date(),
@@ -128,13 +128,12 @@ export default function NewCasePage() {
   return (
     <div className="max-w-2xl space-y-6">
       {/* Success Celebration */}
-      {showSuccess && (
-        <SuccessCelebration
-          message="Case created successfully!"
-          submessage="Redirecting to case details..."
-          onComplete={() => setShowSuccess(false)}
-        />
-      )}
+      <SuccessCelebration
+        show={showSuccess}
+        message="Case created successfully!"
+        submessage="Redirecting to case details..."
+        onComplete={() => setShowSuccess(false)}
+      />
       {/* Header */}
       <div>
         <Link
@@ -192,7 +191,7 @@ export default function NewCasePage() {
               variant="gradient"
               emphasis="high"
               icon={<Save className="w-5 h-5" />}
-              isLoading={isOptimistic}
+              loading={isOptimistic}
             >
               {isOptimistic ? "Creating..." : "Create Case"}
             </Button>

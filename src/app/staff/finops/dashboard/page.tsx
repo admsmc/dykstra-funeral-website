@@ -1,8 +1,9 @@
 'use client';
 
-import { DollarSign, TrendingUp, TrendingDown, Wallet, FileText, Calculator } from 'lucide-react';
+import { DollarSign, TrendingUp, TrendingDown, Wallet, FileText, Calculator, BarChart3 } from 'lucide-react';
 import Link from 'next/link';
-import { RevenueTrendChart } from '@/components/charts/RevenueTrendChart';
+import { trpc } from '@/lib/trpc/client';
+import { FinancialTrendChart } from '@/components/charts/FinancialTrendChart';
 import { ExpenseBreakdownChart } from '@/components/charts/ExpenseBreakdownChart';
 import { PeriodCloseValidationWidget } from '@/components/widgets/PeriodCloseValidationWidget';
 import { OverdueInvoicesWidget } from '@/components/widgets/OverdueInvoicesWidget';
@@ -19,32 +20,53 @@ import { BatchPaymentStatusWidget } from '@/components/widgets/BatchPaymentStatu
  */
 
 export default function FinancialDashboardPage() {
-  // Mock KPI data (in production, fetch from tRPC)
-  const kpis = {
+  const currentPeriod = new Date().toISOString().substring(0, 7); // '2024-12'
+  const funeralHomeId = 'fh-001';
+
+  // Fetch real KPIs from backend
+  const { data: kpisData, isLoading: kpisLoading } = trpc.financial.dashboards.getKPIs.useQuery({
+    funeralHomeId,
+    period: currentPeriod,
+  });
+
+  // Mock previous month data for comparison (in production, fetch from backend)
+  const mockPrevious = {
+    revenue: 142000,
+    expenses: 125000,
+    profit: 17000,
+    arBalance: 268000,
+  };
+
+  const kpis = kpisData ? {
     revenue: {
-      current: 178000,
-      previous: 142000,
+      current: kpisData.revenue,
+      previous: mockPrevious.revenue,
       label: 'Revenue',
       description: 'Current month',
     },
     expenses: {
-      current: 140000,
-      previous: 125000,
+      current: kpisData.expenses,
+      previous: mockPrevious.expenses,
       label: 'Expenses',
       description: 'Current month',
     },
     profit: {
-      current: 38000,
-      previous: 17000,
+      current: kpisData.netIncome,
+      previous: mockPrevious.profit,
       label: 'Net Profit',
       description: 'Current month',
     },
     arBalance: {
-      current: 245000,
-      previous: 268000,
+      current: kpisData.accountsReceivable,
+      previous: mockPrevious.arBalance,
       label: 'AR Balance',
       description: 'Outstanding receivables',
     },
+  } : {
+    revenue: { current: 178000, previous: 142000, label: 'Revenue', description: 'Current month' },
+    expenses: { current: 140000, previous: 125000, label: 'Expenses', description: 'Current month' },
+    profit: { current: 38000, previous: 17000, label: 'Net Profit', description: 'Current month' },
+    arBalance: { current: 245000, previous: 268000, label: 'AR Balance', description: 'Outstanding receivables' },
   };
 
   // Calculate change percentages
@@ -78,8 +100,8 @@ export default function FinancialDashboardPage() {
           </p>
         </div>
 
-        {/* KPI Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {/* Primary KPI Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
           {/* Revenue */}
           <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
             <div className="flex items-start justify-between mb-4">
@@ -169,9 +191,91 @@ export default function FinancialDashboardPage() {
           </div>
         </div>
 
+        {/* Secondary KPI Grid (Margins & Balances) */}
+        {kpisData && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {/* Gross Margin */}
+            <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+              <div className="flex items-start justify-between mb-4">
+                <div className="p-3 bg-purple-100 rounded-lg">
+                  <BarChart3 className="w-6 h-6 text-purple-600" />
+                </div>
+              </div>
+              <h3 className="text-sm font-medium text-gray-600 mb-1">
+                Gross Margin
+              </h3>
+              <div className="text-2xl font-bold text-gray-900 mb-1">
+                {(kpisData.grossMargin * 100).toFixed(1)}%
+              </div>
+              <p className="text-xs text-gray-500">
+                Profitability ratio
+              </p>
+            </div>
+
+            {/* Operating Margin */}
+            <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+              <div className="flex items-start justify-between mb-4">
+                <div className="p-3 bg-indigo-100 rounded-lg">
+                  <BarChart3 className="w-6 h-6 text-indigo-600" />
+                </div>
+              </div>
+              <h3 className="text-sm font-medium text-gray-600 mb-1">
+                Operating Margin
+              </h3>
+              <div className="text-2xl font-bold text-gray-900 mb-1">
+                {(kpisData.operatingMargin * 100).toFixed(1)}%
+              </div>
+              <p className="text-xs text-gray-500">
+                Operating efficiency
+              </p>
+            </div>
+
+            {/* AP Balance */}
+            <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+              <div className="flex items-start justify-between mb-4">
+                <div className="p-3 bg-orange-100 rounded-lg">
+                  <Wallet className="w-6 h-6 text-orange-600" />
+                </div>
+              </div>
+              <h3 className="text-sm font-medium text-gray-600 mb-1">
+                AP Balance
+              </h3>
+              <div className="text-2xl font-bold text-gray-900 mb-1">
+                {formatCurrency(kpisData.accountsPayable)}
+              </div>
+              <p className="text-xs text-gray-500">
+                Outstanding payables
+              </p>
+            </div>
+
+            {/* Cash on Hand */}
+            <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+              <div className="flex items-start justify-between mb-4">
+                <div className="p-3 bg-emerald-100 rounded-lg">
+                  <DollarSign className="w-6 h-6 text-emerald-600" />
+                </div>
+              </div>
+              <h3 className="text-sm font-medium text-gray-600 mb-1">
+                Cash on Hand
+              </h3>
+              <div className="text-2xl font-bold text-gray-900 mb-1">
+                {formatCurrency(kpisData.cashOnHand)}
+              </div>
+              <p className="text-xs text-gray-500">
+                Available liquidity
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Loading State */}
+        {kpisLoading && (
+          <div className="text-center py-8 text-gray-500">Loading financial data...</div>
+        )}
+
         {/* Charts Row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          <RevenueTrendChart />
+          <FinancialTrendChart funeralHomeId={funeralHomeId} />
           <ExpenseBreakdownChart />
         </div>
 

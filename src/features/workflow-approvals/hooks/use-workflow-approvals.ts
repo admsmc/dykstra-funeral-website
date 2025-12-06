@@ -1,11 +1,52 @@
 import { useMemo } from 'react';
 import { trpc } from '@/lib/trpc-client';
-import type { ToastInstance } from '@/components/toast';
 import {
   WorkflowViewModel,
   PendingReviewViewModel,
 } from '../view-models/workflow-view-model';
+import type {
+  Workflow,
+  WorkflowStage,
+  Review,
+  PendingReview,
+  WorkflowStageStatus,
+} from '../types';
+
+type ToastLike = {
+  success: (message: string, duration?: number) => void;
+  error: (message: string, duration?: number) => void;
+};
 import type { ReviewDecision } from '../types';
+
+function mapPrismaWorkflowToWorkflow(raw: any): Workflow {
+  const stages: WorkflowStage[] = (raw.stages ?? []).map((stage: any) => {
+    const reviews: Review[] = (stage.reviews ?? []).map((r: any) => ({
+      id: r.id,
+      reviewerId: r.reviewerId,
+      decision: r.decision as ReviewDecision | null,
+      notes: r.notes,
+      reviewedAt: r.reviewedAt,
+    }));
+
+    return {
+      id: stage.id,
+      stageOrder: stage.stageOrder,
+      stageName: stage.stageName,
+      status: (stage.status as WorkflowStageStatus) ?? 'pending',
+      requiredReviewers: stage.requiredReviewers ?? reviews.length,
+      reviews,
+    };
+  });
+
+  return {
+    id: raw.id,
+    workflowName: raw.workflowName ?? 'Template Approval',
+    templateBusinessKey: raw.templateBusinessKey,
+    templateVersion: raw.templateVersion,
+    createdAt: raw.createdAt,
+    stages,
+  };
+}
 
 export function useWorkflowApprovals(currentUserId: string) {
   // Queries
@@ -19,12 +60,25 @@ export function useWorkflowApprovals(currentUserId: string) {
 
   // Transform to ViewModels
   const activeWorkflows = useMemo(
-    () => activeWorkflowsQuery.data?.map((w) => new WorkflowViewModel(w)) ?? [],
+    () =>
+      activeWorkflowsQuery.data?.map((w) => new WorkflowViewModel(mapPrismaWorkflowToWorkflow(w))) ?? [],
     [activeWorkflowsQuery.data]
   );
 
   const pendingReviews = useMemo(
-    () => pendingReviewsQuery.data?.map((r) => new PendingReviewViewModel(r)) ?? [],
+    () =>
+      pendingReviewsQuery.data?.map((r) => {
+        const workflow = mapPrismaWorkflowToWorkflow(r.stage.workflow);
+        const pending: PendingReview = {
+          id: r.id,
+          stage: {
+            stageOrder: r.stage.stageOrder,
+            stageName: r.stage.stageName,
+            workflow,
+          },
+        };
+        return new PendingReviewViewModel(pending);
+      }) ?? [],
     [pendingReviewsQuery.data]
   );
 
@@ -47,7 +101,10 @@ export function useWorkflowDetail(workflowId: string | null) {
   );
 
   const workflow = useMemo(
-    () => workflowQuery.data ? new WorkflowViewModel(workflowQuery.data) : null,
+    () =>
+      workflowQuery.data
+        ? new WorkflowViewModel(mapPrismaWorkflowToWorkflow(workflowQuery.data))
+        : null,
     [workflowQuery.data]
   );
 
@@ -58,7 +115,7 @@ export function useWorkflowDetail(workflowId: string | null) {
   };
 }
 
-export function useSubmitReview(toast: ToastInstance, onSuccess?: () => void) {
+export function useSubmitReview(toast: ToastLike, onSuccess?: () => void) {
   const submitReviewMutation = trpc.templateApproval.submitReview.useMutation({
     onSuccess: () => {
       toast.success('Review submitted successfully');

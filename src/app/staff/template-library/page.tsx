@@ -66,15 +66,15 @@ export default function TemplateLibraryPage() {
       name: historyTemplate.name,
       category: rawVersion.metadata.category,
       status: "draft",
-      funeralHomeId: rawVersion.metadata.funeralHomeId,
+      funeralHomeId: rawVersion.metadata.funeralHomeId ?? null,
       htmlTemplate: rawVersion.content.htmlTemplate,
       cssStyles: rawVersion.content.cssStyles,
       pageSize: rawVersion.settings.pageSize,
       orientation: rawVersion.settings.orientation,
       margins: rawVersion.settings.margins,
-      printQuality: rawVersion.settings.printQuality,
+      printQuality: String(rawVersion.settings.printQuality),
       existingTemplateId: historyTemplate.id,
-      versionNote: `Rolled back to version ${version.version}`,
+      versionNote: "Rolled back from template history",
       createdBy: "current-user", // TODO: Get from auth
     });
   };

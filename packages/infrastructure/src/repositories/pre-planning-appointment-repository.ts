@@ -1,7 +1,7 @@
 import { Effect } from 'effect';
-import { PrePlanningAppointment, AppointmentId } from '@dykstra/domain';
+import { PrePlanningAppointment, type AppointmentId } from '@dykstra/domain';
 import {
-  PrePlanningAppointmentRepository,
+  type PrePlanningAppointmentRepository,
   RepositoryError,
   AppointmentNotFoundError,
 } from '@dykstra/application';

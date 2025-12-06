@@ -34,10 +34,12 @@ export default function TasksPage() {
   const [searchQuery, setSearchQuery] = useState('');
 
   // Fetch tasks from API
-  const { data: tasks = [], isLoading, error } = trpc.task.list.useQuery({
+  const { data: tasksData = [], isLoading, error } = trpc.task.list.useQuery({
     status: 'all',
     priority: 'all',
   });
+
+  const tasks = tasksData as Task[];
 
   // Client-side filtering for search
   const filteredTasks = tasks.filter(task => {

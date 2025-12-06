@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Book, TrendingUp, DollarSign, FileText, Calendar, Download, Plus, Search, CheckCircle2, XCircle, AlertCircle, Building2, Link2, Sparkles, X, Save, Upload, Loader2 } from 'lucide-react';
 import { BankReconciliationWorkspace } from '@/components/financial/BankReconciliationWorkspace';
 import { JournalEntryModal } from '@/components/financial/JournalEntryModal';
-import { trpc } from '@/lib/trpc-client';
+import { api } from '@/trpc/react';
 import { toast } from 'sonner';
 
 /**
@@ -76,7 +76,7 @@ export default function FinOpsPage() {
   const currentPeriod = useMemo(() => new Date(), []);
   
   // Fetch trial balance from API
-  const { data: trialBalanceData, isLoading: loadingTrialBalance, error: trialBalanceError } = trpc.financial.gl.getTrialBalance.useQuery(
+  const { data: trialBalanceData, isLoading: loadingTrialBalance, error: trialBalanceError } = api.financial.gl.getTrialBalance.useQuery(
     {
       period: currentPeriod,
       funeralHomeId: 'default',
@@ -87,7 +87,7 @@ export default function FinOpsPage() {
   );
   
   // Fetch bank reconciliation data
-  const { data: bankTransactionsData, isLoading: loadingBankTxs } = trpc.financial.bankRec.getBankTransactions.useQuery(
+  const { data: bankTransactionsData, isLoading: loadingBankTxs } = api.financial.bankRec.getBankTransactions.useQuery(
     {
       accountId: 'primary-checking', // Default account
       startDate: bankRecStartDate,
@@ -99,7 +99,7 @@ export default function FinOpsPage() {
     }
   );
   
-  const { data: glEntriesData, isLoading: loadingGLEntries } = trpc.financial.bankRec.getGLEntries.useQuery(
+  const { data: glEntriesData, isLoading: loadingGLEntries } = api.financial.bankRec.getGLEntries.useQuery(
     {
       accountId: 'primary-checking',
       startDate: bankRecStartDate,
@@ -111,7 +111,7 @@ export default function FinOpsPage() {
     }
   );
   
-  const { data: matchSuggestionsData } = trpc.financial.bankRec.getMatchSuggestions.useQuery(
+  const { data: matchSuggestionsData } = api.financial.bankRec.getMatchSuggestions.useQuery(
     {
       accountId: 'primary-checking',
       threshold: 0.8,

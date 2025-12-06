@@ -1,9 +1,9 @@
 import { Effect, Layer } from 'effect';
-import { Payment, type PaymentId, Money, NotFoundError } from '@dykstra/domain';
+import { Payment, type PaymentId, type Money, NotFoundError } from '@dykstra/domain';
 import { PaymentRepository } from '@dykstra/application';
 import { PersistenceError } from '@dykstra/application';
 import type { PaymentMethod, PaymentStatus } from '@dykstra/shared';
-import { PaymentMethod as PrismaPaymentMethod, PaymentStatus as PrismaPaymentStatus } from '@prisma/client';
+import { type PaymentMethod as PrismaPaymentMethod, type PaymentStatus as PrismaPaymentStatus } from '@prisma/client';
 import { prisma } from './prisma-client';
 
 /**

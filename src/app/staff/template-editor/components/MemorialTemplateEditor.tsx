@@ -296,7 +296,7 @@ export const MemorialTemplateEditor: React.FC<TemplateEditorProps> = ({
 
     const templateData: TemplateData = {
       htmlStructure: html,
-      cssStyles: css,
+      cssStyles: css || '',
       componentTree: editor.getComponents(),
       dataBindings: extractDataBindings(html),
     };
@@ -311,7 +311,7 @@ export const MemorialTemplateEditor: React.FC<TemplateEditorProps> = ({
     const html = editor.getHtml();
     const css = editor.getCss();
 
-    onPreview(html, css);
+    onPreview(html, css || '');
   };
 
   // Debounced preview trigger
@@ -330,7 +330,7 @@ export const MemorialTemplateEditor: React.FC<TemplateEditorProps> = ({
 
       const html = editor.getHtml();
       const css = editor.getCss();
-      onPreview(html, css);
+      onPreview(html, css || '');
     }, autoPreviewDelay);
   }, [autoPreview, autoPreviewDelay, onPreview]);
 

@@ -312,7 +312,7 @@ export default function InvoiceManagementPage() {
                                 <DollarSign className="w-4 h-4" />
                               </button>
                             )}
-                            {invoice.status !== 'void' && invoice.status !== 'paid' && (
+                            {invoice.status !== 'paid' && (
                               <button
                                 onClick={() => handleVoid(invoice.id, invoice.invoiceNumber)}
                                 disabled={voidInvoice.isPending}

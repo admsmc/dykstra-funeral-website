@@ -69,7 +69,7 @@ export interface FamilyMember {
   state?: string | null;
   zipCode?: string | null;
   type: 'primary' | 'secondary' | 'professional' | 'referral';
-  tags: string[];
+  tags: readonly string[];
 }
 
 export interface FamilyRelationship {
@@ -77,7 +77,7 @@ export interface FamilyRelationship {
   fromMemberId: string;
   toMemberId: string;
   type: string;
-  inverseType: string;
+  inverseType: string | null;
   isPrimaryContact: boolean;
   decedentId?: string | null;
   notes?: string | null;

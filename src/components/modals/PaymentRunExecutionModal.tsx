@@ -42,7 +42,7 @@ interface PaymentRunExecutionModalProps {
   onSuccess?: (runId: string) => void;
 }
 
-type PaymentMethod = 'ACH' | 'CHECK' | 'WIRE';
+type PaymentMethod = 'ach' | 'check' | 'wire';
 
 export function PaymentRunExecutionModal({
   open,
@@ -54,16 +54,17 @@ export function PaymentRunExecutionModal({
   netPaymentAmount,
   onSuccess,
 }: PaymentRunExecutionModalProps) {
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('ACH');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('ach');
   const [showSuccess, setShowSuccess] = useState(false);
   const [runId, setRunId] = useState<string>('');
 
   const executePaymentRun = api.financial.ap.executePaymentRun.useMutation({
     onSuccess: (data) => {
-      setRunId(data.runId);
+      // executeAPPaymentRun returns ExecuteAPPaymentRunResult with paymentRunId
+      setRunId(data.paymentRunId);
       setShowSuccess(true);
       setTimeout(() => {
-        onSuccess?.(data.runId);
+        onSuccess?.(data.paymentRunId);
         onOpenChange(false);
         setShowSuccess(false);
       }, 2000);
@@ -71,10 +72,12 @@ export function PaymentRunExecutionModal({
   });
 
   const handleExecute = () => {
+    // Generate a temporary payment run ID
+    const paymentRunId = `pr-${Date.now()}`;
+    
     executePaymentRun.mutate({
+      paymentRunId,
       funeralHomeId: 'fh-001', // TODO: Get from auth context
-      billIds: bills.map(b => b.billId),
-      paymentDate: new Date(paymentDate),
       paymentMethod,
     });
   };
@@ -162,40 +165,40 @@ export function PaymentRunExecutionModal({
             </label>
             <div className="grid grid-cols-3 gap-3">
               <button
-                onClick={() => setPaymentMethod('ACH')}
+                onClick={() => setPaymentMethod('ach')}
                 className={`p-4 border-2 rounded-lg transition-all ${
-                  paymentMethod === 'ACH'
+                  paymentMethod === 'ach'
                     ? 'border-[--navy] bg-blue-50'
                     : 'border-gray-300 hover:border-gray-400'
                 }`}
               >
-                <Building2 className={`w-6 h-6 mx-auto mb-2 ${paymentMethod === 'ACH' ? 'text-[--navy]' : 'text-gray-500'}`} />
+                <Building2 className={`w-6 h-6 mx-auto mb-2 ${paymentMethod === 'ach' ? 'text-[--navy]' : 'text-gray-500'}`} />
                 <div className="text-sm font-semibold text-gray-900">ACH</div>
                 <div className="text-xs text-gray-500 mt-1">1-2 days</div>
               </button>
 
               <button
-                onClick={() => setPaymentMethod('CHECK')}
+                onClick={() => setPaymentMethod('check')}
                 className={`p-4 border-2 rounded-lg transition-all ${
-                  paymentMethod === 'CHECK'
+                  paymentMethod === 'check'
                     ? 'border-[--navy] bg-blue-50'
                     : 'border-gray-300 hover:border-gray-400'
                 }`}
               >
-                <CreditCard className={`w-6 h-6 mx-auto mb-2 ${paymentMethod === 'CHECK' ? 'text-[--navy]' : 'text-gray-500'}`} />
+                <CreditCard className={`w-6 h-6 mx-auto mb-2 ${paymentMethod === 'check' ? 'text-[--navy]' : 'text-gray-500'}`} />
                 <div className="text-sm font-semibold text-gray-900">Check</div>
                 <div className="text-xs text-gray-500 mt-1">Print now</div>
               </button>
 
               <button
-                onClick={() => setPaymentMethod('WIRE')}
+                onClick={() => setPaymentMethod('wire')}
                 className={`p-4 border-2 rounded-lg transition-all ${
-                  paymentMethod === 'WIRE'
+                  paymentMethod === 'wire'
                     ? 'border-[--navy] bg-blue-50'
                     : 'border-gray-300 hover:border-gray-400'
                 }`}
               >
-                <Building2 className={`w-6 h-6 mx-auto mb-2 ${paymentMethod === 'WIRE' ? 'text-[--navy]' : 'text-gray-500'}`} />
+                <Building2 className={`w-6 h-6 mx-auto mb-2 ${paymentMethod === 'wire' ? 'text-[--navy]' : 'text-gray-500'}`} />
                 <div className="text-sm font-semibold text-gray-900">Wire</div>
                 <div className="text-xs text-gray-500 mt-1">Same day</div>
               </button>

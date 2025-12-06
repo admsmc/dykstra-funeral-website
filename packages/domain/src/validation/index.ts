@@ -39,3 +39,24 @@ export * from './contract-schemas';
 
 // Task Management Schemas
 export * from './task-schemas';
+
+// Lead Management Schemas (CRM)
+export * from './lead-schemas';
+
+// Employee Management Schemas (HR)
+export * from './employee-schemas';
+
+// Communication Schemas (Email/SMS)
+export * from './communication-schemas';
+
+// Insurance Schemas
+export * from './insurance-schemas';
+
+// Supplier/Vendor Schemas
+export * from './supplier-schemas';
+
+// Inventory Management Schemas
+export * from './inventory-schemas';
+
+// Timesheet Management Schemas
+export * from './timesheet-schemas';

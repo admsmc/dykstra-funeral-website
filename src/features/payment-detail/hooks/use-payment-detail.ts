@@ -16,7 +16,7 @@ export function usePaymentDetail(paymentId: string) {
   const history = useMemo(
     () =>
       data?.payment && data?.history
-        ? new PaymentHistoryViewModel(data.history, data.payment)
+        ? new PaymentHistoryViewModel([...data.history], data.payment)
         : null,
     [data?.payment, data?.history]
   );

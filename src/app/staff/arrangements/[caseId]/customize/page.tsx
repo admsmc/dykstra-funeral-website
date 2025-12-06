@@ -29,9 +29,7 @@ export default function ServiceCustomizerPage({ params }: PageProps) {
   // Sync local state with arrangement data
   useEffect(() => {
     if (arrangement) {
-      setSelectedServices(
-        arrangement.services?.filter((s: any) => s.selected).map((s: any) => s.id) ?? []
-      );
+      // Products are already returned as selected items with selected=true
       setSelectedProducts(
         arrangement.products?.filter((p: any) => p.selected).map((p: any) => p.id) ?? []
       );
@@ -75,22 +73,22 @@ export default function ServiceCustomizerPage({ params }: PageProps) {
   };
 
   const handleSave = () => {
+    // Get full product objects from catalog
+    const productsToSave = catalog?.products
+      ?.filter((p: any) => selectedProducts.includes(p.id))
+      .map((p: any) => ({ ...p, selected: true })) ?? [];
+    
+    // Convert ceremony date string to Date if present
+    const ceremony = arrangement?.ceremony ? {
+      ...arrangement.ceremony,
+      date: arrangement.ceremony.date ? new Date(arrangement.ceremony.date) : null,
+    } : undefined;
+    
     saveMutation.mutate({
       caseId,
-      serviceType: arrangement?.serviceType ?? "",
-      products: selectedProducts.map((id) => ({
-        productId: id,
-        selected: true,
-      })),
-      ceremonyDetails: arrangement?.ceremonyDetails ?? {
-        date: new Date(),
-        location: "",
-        officiant: "",
-        music: [],
-        readings: [],
-        specialRequests: "",
-      },
-      isComplete: false,
+      serviceType: arrangement?.serviceType ?? undefined,
+      products: productsToSave,
+      ceremony,
     });
   };
 
@@ -120,33 +118,37 @@ export default function ServiceCustomizerPage({ params }: PageProps) {
           {/* Left column: Service customizer (2/3 width) */}
           <div className="lg:col-span-2">
             <ServiceCustomizer
-              services={catalog?.services ?? []}
-              products={catalog?.products ?? []}
-              selectedServices={selectedServices}
-              selectedProducts={selectedProducts}
-              onServiceToggle={handleServiceToggle}
-              onProductToggle={handleProductToggle}
+              availableServices={catalog?.services ?? []}
+              availableProducts={catalog?.products ?? []}
+              selectedServiceIds={selectedServices}
+              selectedProductIds={selectedProducts}
+              onToggleService={handleServiceToggle}
+              onToggleProduct={handleProductToggle}
             />
           </div>
 
           {/* Right column: Pricing calculator (1/3 width, sticky) */}
           <div className="lg:col-span-1">
             <PricingCalculator
-              services={
-                catalog?.services
+              items={[
+                ...(catalog?.services
                   ?.filter((s: any) => selectedServices.includes(s.id))
-                  .map((s: any) => ({ name: s.name, price: s.price })) ?? []
-              }
-              products={
-                catalog?.products
+                  .map((s: any) => ({
+                    id: s.id,
+                    name: s.name,
+                    price: s.price,
+                    category: "service" as const,
+                  })) ?? []),
+                ...(catalog?.products
                   ?.filter((p: any) => selectedProducts.includes(p.id))
-                  .map((p: any) => ({ name: p.name, price: p.price })) ?? []
-              }
-              total={pricing?.total ?? 0}
-              budgetGuidance={{
-                min: 5000,
-                max: 15000,
-              }}
+                  .map((p: any) => ({
+                    id: p.id,
+                    name: p.name,
+                    price: p.price,
+                    category: "product" as const,
+                  })) ?? []),
+              ]}
+              budgetMax={15000}
             />
           </div>
         </div>

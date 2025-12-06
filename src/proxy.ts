@@ -14,7 +14,7 @@ const isProtected = createRouteMatcher([
   '/portal(.*)'
 ]);
 
-export default clerkMiddleware((auth, req) => {
+export default clerkMiddleware(async (auth, req) => {
   // WORKAROUND: Skip auth checks during E2E tests
   // This allows Playwright tests to access protected routes without full Clerk session
   // Manual authentication testing should be done separately
@@ -31,7 +31,7 @@ export default clerkMiddleware((auth, req) => {
   }
   
   if (isProtected(req)) {
-    const { userId } = auth();
+    const { userId } = await auth();
     
     if (!userId) {
       const signInUrl = new URL('/sign-in', req.url);

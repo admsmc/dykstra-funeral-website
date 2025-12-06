@@ -1,7 +1,11 @@
 import { trpc } from "@/lib/trpc-client";
-import type { ToastInstance } from "@/components/toast";
 
-export function useInternalNotes(caseId: string, toast: ToastInstance) {
+type ToastLike = {
+  success: (message: string, duration?: number) => void;
+  error: (message: string, duration?: number) => void;
+};
+
+export function useInternalNotes(caseId: string, toast: ToastLike) {
   const query = trpc.note.listByCaseId.useQuery({ caseId });
 
   const createMutation = trpc.note.create.useMutation({
@@ -40,8 +44,8 @@ export function useInternalNotes(caseId: string, toast: ToastInstance) {
     createNote: createMutation.mutate,
     updateNote: updateMutation.mutate,
     deleteNote: deleteMutation.mutate,
-    isCreating: createMutation.isLoading,
-    isUpdating: updateMutation.isLoading,
-    isDeleting: deleteMutation.isLoading,
+    isCreating: createMutation.isPending,
+    isUpdating: updateMutation.isPending,
+    isDeleting: deleteMutation.isPending,
   };
 }

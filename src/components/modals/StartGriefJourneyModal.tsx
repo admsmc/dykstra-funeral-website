@@ -141,18 +141,18 @@ export function StartGriefJourneyModal({
               <button
                 type="button"
                 onClick={onClose}
-                disabled={startJourneyMutation.isLoading}
+                disabled={startJourneyMutation.isPending}
                 className="flex-1 px-4 py-2 border-2 border-[--sage] text-[--navy] rounded-lg hover:bg-[--cream] transition-all disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                disabled={startJourneyMutation.isLoading}
+                disabled={startJourneyMutation.isPending}
                 className="flex-1 px-4 py-2 bg-[--sage] text-white rounded-lg hover:bg-opacity-90 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 <Heart className="w-4 h-4" />
-                {startJourneyMutation.isLoading ? 'Starting...' : 'Start Journey'}
+                {startJourneyMutation.isPending ? 'Starting...' : 'Start Journey'}
               </button>
             </div>
           </form>

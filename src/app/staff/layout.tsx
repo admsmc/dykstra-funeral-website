@@ -34,6 +34,7 @@ import {
   Mail,
   MessageSquare,
   Send,
+  BookOpen,
 } from "lucide-react";
 import { useState } from "react";
 import { FloatingAssistant } from "@/components/ai/FloatingAssistant";
@@ -159,6 +160,14 @@ const workspaces: NavSection[] = [
         roles: ["accountant", "admin"],
       },
       {
+        label: "GL Management",
+        href: "/staff/finops/gl",
+        icon: <BookOpen className="w-5 h-5" />,
+        description: "Chart of accounts & journal entries",
+        badge: "New",
+        roles: ["accountant", "admin"],
+      },
+      {
         label: "Journal Entries",
         href: "/staff/finops/journal-entry",
         icon: <FileText className="w-5 h-5" />,
@@ -168,7 +177,7 @@ const workspaces: NavSection[] = [
       },
       {
         label: "AR Aging",
-        href: "/staff/finops/ar",
+        href: "/staff/finops/ar-aging",
         icon: <TrendingUp className="w-5 h-5" />,
         description: "Accounts receivable aging",
         badge: "New",
@@ -223,10 +232,34 @@ const workspaces: NavSection[] = [
         roles: ["accountant", "admin"],
       },
       {
+        label: "Bank Reconciliation",
+        href: "/staff/finops/bank-rec",
+        icon: <CheckSquare className="w-5 h-5" />,
+        description: "Reconcile bank accounts",
+        badge: "New",
+        roles: ["accountant", "admin"],
+      },
+      {
         label: "Period Close",
         href: "/staff/finops/period-close",
         icon: <Lock className="w-5 h-5" />,
         description: "Month-end close workflow",
+        badge: "New",
+        roles: ["accountant", "admin"],
+      },
+      {
+        label: "Budget Management",
+        href: "/staff/finops/budget",
+        icon: <DollarSign className="w-5 h-5" />,
+        description: "Budget vs. actual analysis",
+        badge: "New",
+        roles: ["accountant", "admin"],
+      },
+      {
+        label: "Fixed Assets",
+        href: "/staff/finops/fixed-assets",
+        icon: <TrendingUp className="w-5 h-5" />,
+        description: "Asset register & depreciation",
         badge: "New",
         roles: ["accountant", "admin"],
       },

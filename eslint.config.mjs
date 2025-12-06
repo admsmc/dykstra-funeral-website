@@ -3,6 +3,7 @@ import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
 import effectPlugin from "@effect/eslint-plugin";
 import importPlugin from "eslint-plugin-import";
+import localPlugin from "./eslint-plugin-local.mjs";
 
 const eslintConfig = defineConfig([
   ...nextVitals,
@@ -17,6 +18,7 @@ const eslintConfig = defineConfig([
     plugins: {
       "@effect": effectPlugin,
       "import": importPlugin,
+      "local": localPlugin,
     },
     rules: {
       // Effect-specific rules
@@ -43,12 +45,16 @@ const eslintConfig = defineConfig([
       ],
       "@typescript-eslint/no-unused-vars": [
         "warn",
-        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_", caughtErrorsIgnorePattern: "^_" }
       ],
       
       // Catch common mistakes
       "@typescript-eslint/no-floating-promises": "error",
       "@typescript-eslint/await-thenable": "error",
+      
+      // Mock data detection rules (custom plugin)
+      "local/no-mock-data-in-pages": "error",
+      "local/require-api-usage-in-pages": "warn",
     },
   },
   // Domain package overrides (Effect patterns)
@@ -71,6 +77,7 @@ const eslintConfig = defineConfig([
     files: ["packages/api/**/*.ts"],
     rules: {
       "@typescript-eslint/no-explicit-any": "off", // tRPC/Effect type conversions
+      "local/no-mock-data-in-routers": "warn", // Warn about mock data in routers (acceptable during dev)
     },
   },
   // Override default ignores of eslint-config-next.

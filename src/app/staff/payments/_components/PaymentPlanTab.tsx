@@ -47,11 +47,7 @@ export default function PaymentPlanTab() {
   const [selectedCaseId, setSelectedCaseId] = useState<string>("");
 
   // Fetch payment plans (in production, this would filter by caseId)
-  // For MVP, showing all plans
-  const { data: plans, isLoading } = trpc.payment.getPaymentPlans?.useQuery(
-    { caseId: selectedCaseId || undefined },
-    { enabled: false } // Disable for MVP since endpoint doesn't exist yet
-  );
+  // For MVP, this tab renders mockPlans only; API wiring will be added later.
 
   // Mock data for MVP demonstration
   const mockPlans: PaymentPlan[] = [

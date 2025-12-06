@@ -4,7 +4,7 @@
  * Common transition presets and easing curves for consistent animations.
  */
 
-import { Transition } from 'framer-motion';
+import { type Transition } from 'framer-motion';
 
 // ============================================================================
 // TRANSITION PRESETS

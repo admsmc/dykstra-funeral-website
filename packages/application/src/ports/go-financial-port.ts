@@ -228,6 +228,24 @@ export interface GoAPPaymentRunExecution {
   readonly executedAt: Date;
 }
 
+export interface GoFinancialKPIs {
+  readonly revenue: number;
+  readonly expenses: number;
+  readonly netIncome: number;
+  readonly grossMargin: number;
+  readonly operatingMargin: number;
+  readonly accountsReceivable: number;
+  readonly accountsPayable: number;
+  readonly cashOnHand: number;
+}
+
+export interface GoFinancialTrendPoint {
+  readonly period: string;
+  readonly revenue: number;
+  readonly expenses: number;
+  readonly netIncome: number;
+}
+
 // Commands
 export interface CreateJournalEntryCommand {
   readonly entryDate: Date;
@@ -420,6 +438,55 @@ export interface GoFinancialPortService {
     accountIds: readonly string[],
     asOfDate?: Date
   ) => Effect.Effect<readonly GoAccountBalance[], NetworkError>;
+  
+  /**
+   * Create GL account
+   * 
+   * Backend operation:
+   * 1. Validates account number is unique
+   * 2. Creates GL account
+   * 3. Emits GLAccountCreated event
+   */
+  readonly createGLAccount: (
+    command: {
+      accountNumber: string;
+      name: string;
+      accountType: GoGLAccount['type'];
+      parentAccountId?: string;
+      funeralHomeId: string;
+    }
+  ) => Effect.Effect<GoGLAccount, NetworkError>;
+  
+  /**
+   * Update GL account
+   * 
+   * Backend operation:
+   * 1. Validates account exists
+   * 2. Updates account details
+   * 3. Emits GLAccountUpdated event
+   */
+  readonly updateGLAccount: (
+    accountId: string,
+    updates: {
+      name?: string;
+      accountType?: GoGLAccount['type'];
+      parentAccountId?: string | null;
+    }
+  ) => Effect.Effect<GoGLAccount, NotFoundError | NetworkError>;
+  
+  /**
+   * Deactivate GL account
+   * 
+   * Backend operation:
+   * 1. Validates account exists
+   * 2. Validates account has zero balance
+   * 3. Deactivates account (soft delete)
+   * 4. Emits GLAccountDeactivated event
+   */
+  readonly deactivateGLAccount: (
+    accountId: string,
+    reason: string
+  ) => Effect.Effect<void, NotFoundError | NetworkError>;
   
   // Accounts Receivable Operations
   
@@ -636,6 +703,31 @@ export interface GoFinancialPortService {
       bankId?: string;
     }
   ) => Effect.Effect<GoAPPaymentRunExecution, NetworkError>;
+  
+  /**
+   * Get financial KPIs for dashboard
+   * 
+   * Backend operation:
+   * 1. Queries key financial metrics
+   * 2. Returns revenue, expenses, margins, receivables, payables, cash
+   */
+  readonly getFinancialKPIs: (
+    funeralHomeId: string,
+    period: string
+  ) => Effect.Effect<GoFinancialKPIs, NetworkError>;
+  
+  /**
+   * Get financial trends over time
+   * 
+   * Backend operation:
+   * 1. Queries financial data across multiple periods
+   * 2. Returns time series for charting
+   */
+  readonly getFinancialTrends: (
+    funeralHomeId: string,
+    fromPeriod: string,
+    toPeriod: string
+  ) => Effect.Effect<readonly GoFinancialTrendPoint[], NetworkError>;
 }
 
 export interface GoThreeWayMatchStatus {

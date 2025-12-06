@@ -1,7 +1,7 @@
 "use client";
 
 import { trpc } from "@/lib/trpc-client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
@@ -17,9 +17,15 @@ import {
   Search,
 } from "lucide-react";
 import { toast } from "sonner";
-import { contractTemplateSchema, CONTRACT_SERVICE_TYPES, type ContractTemplateForm } from "@dykstra/domain/validation";
+import { contractTemplateSchema, CONTRACT_SERVICE_TYPES } from "@dykstra/domain/validation";
+import type { z } from "zod";
 import { Form } from "@dykstra/ui";
 import { FormInput, FormTextarea, FormSelect, FormCheckbox } from "@dykstra/ui";
+
+// Use the Zod-inferred type, but guarantee that `variables` is always a concrete string[] for form helpers.
+type ContractTemplateForm = z.infer<typeof contractTemplateSchema> & {
+  variables: string[];
+};
 
 /**
  * Contract Templates Management
@@ -225,8 +231,6 @@ export default function ContractTemplatesPage() {
                           </span>
                         </span>
                         <span>•</span>
-                        <span>Version: {template.version}</span>
-                        <span>•</span>
                         <span>
                           Created by: {template.creator.name}
                         </span>
@@ -257,7 +261,7 @@ export default function ContractTemplatesPage() {
                       {template.serviceType && !template.isDefault && template.isActive && (
                         <button
                           onClick={() => handleSetDefault(template.id, template.serviceType!)}
-                          disabled={updateMutation.isLoading}
+                          disabled={updateMutation.isPending}
                           className="p-2 text-gray-600 hover:text-yellow-600 hover:bg-yellow-50 rounded-lg transition disabled:opacity-50"
                           title="Set as default"
                         >
@@ -267,7 +271,7 @@ export default function ContractTemplatesPage() {
                       
                       <button
                         onClick={() => handleToggleActive(template.id, template.isActive)}
-                        disabled={updateMutation.isLoading}
+                        disabled={updateMutation.isPending}
                         className={`px-3 py-1.5 text-xs font-medium rounded-lg transition disabled:opacity-50 ${
                           template.isActive
                             ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -287,7 +291,7 @@ export default function ContractTemplatesPage() {
                       
                       <button
                         onClick={() => handleDelete(template.id, template.name)}
-                        disabled={deleteMutation.isLoading}
+                        disabled={deleteMutation.isPending}
                         className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition disabled:opacity-50"
                         title="Delete"
                       >
@@ -329,7 +333,8 @@ function TemplateForm({
 
   // Initialize form with react-hook-form + domain validation
   const form = useForm<ContractTemplateForm>({
-    resolver: zodResolver(contractTemplateSchema),
+    // Cast resolver to avoid a known generic mismatch between react-hook-form and Zod defaults.
+    resolver: zodResolver(contractTemplateSchema) as any,
     defaultValues: {
       name: '',
       description: '',
@@ -337,39 +342,46 @@ function TemplateForm({
       content: '',
       variables: [],
       isDefault: false,
-    },
+    } as ContractTemplateForm,
   });
 
   // Array field for variables
   const { fields, append, remove } = useFieldArray({
-    control: form.control,
-    name: "variables",
+    // Cast control to any to work around react-hook-form's strict FieldArrayPath constraint
+    // with our Zod-inferred form type.
+    control: form.control as any,
+    name: "variables" as const,
   });
 
-  // Watch serviceType and content for conditional rendering
+  // Watch serviceType, content, and variables for conditional rendering
   const serviceType = form.watch("serviceType");
   const content = form.watch("content");
+  const variables = form.watch("variables") ?? [];
 
   // Fetch existing template if editing
-  const { data: existingTemplate } = trpc.contract.getTemplates.useQuery(
+  const { data: existingTemplates } = trpc.contract.getTemplates.useQuery(
     { activeOnly: false },
     {
       enabled: !!templateId,
-      onSuccess: (templates) => {
-        const template = templates.find((t) => t.id === templateId);
-        if (template) {
-          form.reset({
-            name: template.name,
-            description: template.description || '',
-            serviceType: template.serviceType || '',
-            content: template.content,
-            variables: (template.variables as string[]) || [],
-            isDefault: template.isDefault,
-          });
-        }
-      },
     }
   );
+
+  // When templates load and we have a templateId, hydrate the form with existing values
+  useEffect(() => {
+    if (!templateId || !existingTemplates) return;
+
+    const template = existingTemplates.find((t) => t.id === templateId);
+    if (!template) return;
+
+    form.reset({
+      name: template.name,
+      description: template.description || '',
+      serviceType: template.serviceType || '',
+      content: template.content,
+      variables: (template.variables as string[]) || [],
+      isDefault: template.isDefault,
+    });
+  }, [templateId, existingTemplates, form]);
 
   // Save mutation
   const saveMutation = trpc.contract.saveTemplate.useMutation({
@@ -418,7 +430,9 @@ function TemplateForm({
 
   const addVariable = () => {
     const trimmed = newVariable.trim();
-    if (trimmed && !fields.some(f => f.value === trimmed)) {
+    const currentVariables = form.getValues("variables") ?? [];
+
+    if (trimmed && !currentVariables.includes(trimmed)) {
       append(trimmed);
       setNewVariable('');
     }
@@ -488,21 +502,24 @@ function TemplateForm({
           </div>
           {fields.length > 0 && (
             <div className="flex flex-wrap gap-2">
-              {fields.map((field, index) => (
-                <div
-                  key={field.id}
-                  className="inline-flex items-center gap-2 px-3 py-1 bg-gray-100 text-gray-700 rounded-lg"
-                >
-                  <code className="text-sm font-mono">{`{{${field.value}}}`}</code>
-                  <button
-                    type="button"
-                    onClick={() => remove(index)}
-                    className="text-gray-500 hover:text-red-600"
+              {fields.map((field, index) => {
+                const variable = variables[index] ?? '';
+                return (
+                  <div
+                    key={field.id}
+                    className="inline-flex items-center gap-2 px-3 py-1 bg-gray-100 text-gray-700 rounded-lg"
                   >
-                    <Trash2 className="w-3 h-3" />
-                  </button>
-                </div>
-              ))}
+                    <code className="text-sm font-mono">{`{{${variable}}}`}</code>
+                    <button
+                      type="button"
+                      onClick={() => remove(index)}
+                      className="text-gray-500 hover:text-red-600"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
@@ -553,10 +570,10 @@ function TemplateForm({
         <div className="flex items-center gap-3 pt-4 border-t border-gray-200">
           <button
             type="submit"
-            disabled={saveMutation.isLoading || updateMutation.isLoading}
+            disabled={saveMutation.isPending || updateMutation.isPending}
             className="px-6 py-2 bg-[--navy] text-white rounded-lg hover:bg-[--sage] transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {saveMutation.isLoading || updateMutation.isLoading ? 'Saving...' : templateId ? 'Update Template' : 'Create Template'}
+            {saveMutation.isPending || updateMutation.isPending ? 'Saving...' : templateId ? 'Update Template' : 'Create Template'}
           </button>
           <button
             type="button"

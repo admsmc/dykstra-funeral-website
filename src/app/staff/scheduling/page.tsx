@@ -24,7 +24,7 @@ interface Shift {
   startTime: string;
   endTime: string;
   type: 'regular' | 'on-call' | 'service';
-  location?: string;
+  location?: string | null;
 }
 
 

@@ -47,7 +47,6 @@ export default function StaffPaymentsPage() {
   const [optimisticPayments, setOptimisticPayments] = useState<PaymentRow[]>([]);
   const [searchFilters, setSearchFilters] = useState<any>(null);
   const [selectedPayments, setSelectedPayments] = useState<PaymentRow[]>([]);
-  const [rowSelection, setRowSelection] = useState({});
 
   // Fetch payment statistics
   const { data: stats, isLoading: statsLoading } = trpc.payment.getStats.useQuery({
@@ -108,19 +107,22 @@ export default function StaffPaymentsPage() {
     });
   }
 
+  // Calculate active filter count
+  const activeFilterCount = (
+    (statusFilter !== "all" ? 1 : 0) +
+    (methodFilter !== "all" ? 1 : 0) +
+    (searchFilters?.dateFrom ? 1 : 0) +
+    (searchFilters?.dateTo ? 1 : 0) +
+    (searchFilters?.amountMin !== undefined ? 1 : 0) +
+    (searchFilters?.amountMax !== undefined ? 1 : 0)
+  );
+
   // Format currency
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
     }).format(amount);
-  };
-
-  // Handle row selection change
-  const handleRowSelectionChange = (newSelection: Record<string, boolean>) => {
-    setRowSelection(newSelection);
-    const selectedRows = payments.filter((_, index) => newSelection[index]);
-    setSelectedPayments(selectedRows);
   };
 
   // Export selected payments to CSV
@@ -318,16 +320,15 @@ export default function StaffPaymentsPage() {
     <DashboardLayout
       title="Payments"
       subtitle="Payment processing and reconciliation"
-      actionButtons={[
+      actions={
         <button
-          key="record-payment"
           className="inline-flex items-center gap-2 px-4 py-2 bg-[--navy] text-white rounded-lg hover:bg-opacity-90 transition"
           onClick={() => setIsManualPaymentModalOpen(true)}
         >
           <Plus className="w-4 h-4" />
           Record Payment
-        </button>,
-      ]}
+        </button>
+      }
     >
       {/* Tab Navigation */}
       <div className="border-b border-gray-200">
@@ -448,7 +449,6 @@ export default function StaffPaymentsPage() {
               selectedPayments={selectedPayments}
               onClearSelection={() => {
                 setSelectedPayments([]);
-                setRowSelection({});
               }}
               onExportSelected={exportSelectedToCSV}
               onBatchRefund={handleBatchRefund}
@@ -465,8 +465,6 @@ export default function StaffPaymentsPage() {
                 pageSize={25}
                 exportFilename="payments"
                 enableRowSelection={true}
-                rowSelection={rowSelection}
-                onRowSelectionChange={handleRowSelectionChange}
                 emptyState={
                   <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}

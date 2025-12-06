@@ -31,7 +31,7 @@ const initGraphClient = async (accessToken: string) => {
         },
       });
       return graphClient;
-    } catch (error) {
+    } catch (_error) {
       console.warn('Microsoft Graph SDK not available - using mock implementation');
       return null;
     }

@@ -87,7 +87,7 @@ export const SendGridMarketingAdapter: EmailMarketingServicePort = {
             successCount: results.length,
             failureCount: 0,
           };
-        } catch (bulkError) {
+        } catch (_bulkError) {
           // If bulk send fails, try individual sends for more granular reporting
           let successCount = 0;
           let failureCount = 0;

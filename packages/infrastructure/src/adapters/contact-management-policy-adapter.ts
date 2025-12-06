@@ -1,6 +1,6 @@
 import { Effect } from 'effect';
 import { ContactManagementPolicy, NotFoundError } from '@dykstra/domain';
-import { ContactManagementPolicyRepositoryService, PersistenceError } from '@dykstra/application';
+import { type ContactManagementPolicyRepositoryService, PersistenceError } from '@dykstra/application';
 import { randomUUID } from 'crypto';
 
 /**

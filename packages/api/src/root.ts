@@ -44,6 +44,10 @@ import { prepRoomRouter } from './routers/prep-room.router';
 import { shipmentRouter } from './routers/shipment.router';
 import { memorialRouter } from './routers/memorial.router';
 import { communicationRouter } from './routers/communication.router';
+import { procurementRouter } from './routers/procurement.router';
+import { refundsRouter } from './routers/refunds.router';
+import { analyticsRouter } from './routers/analytics.router';
+import { appointmentsRouter } from './routers/appointments.router';
 
 /**
  * Root application router
@@ -120,6 +124,14 @@ export const appRouter = router({
   memorial: memorialRouter,
   // Communication (Email & SMS) - Staff Portal Router 6
   communication: communicationRouter,
+  // Procurement (Vendors & POs) - Staff Portal Router 7
+  procurement: procurementRouter,
+  // Refunds Management
+  refunds: refundsRouter,
+  // Analytics & Dashboard Metrics
+  analytics: analyticsRouter,
+  // Appointment Scheduling (Pre-planning, arrangements, etc.)
+  appointments: appointmentsRouter,
 });
 
 /**

@@ -30,7 +30,7 @@ const initGmailClient = async (accessToken: string) => {
       oauth2Client.setCredentials({ access_token: accessToken });
       gmailClient = google.gmail({ version: 'v1', auth: oauth2Client });
       return gmailClient;
-    } catch (error) {
+    } catch (_error) {
       console.warn('Google APIs not available - using mock implementation');
       return null;
     }

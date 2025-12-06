@@ -260,6 +260,74 @@ export const GoFinancialAdapter: GoFinancialPortService = {
       catch: (error) => new NetworkError('Failed to get account balances', error as Error)
     }),
   
+  createGLAccount: (command) =>
+    Effect.tryPromise({
+      try: async () => {
+        const res = await goClient.POST('/v1/financial/gl-accounts', {
+          body: {
+            account_number: command.accountNumber,
+            name: command.name,
+            account_type: command.accountType,
+            parent_account_id: command.parentAccountId,
+            funeral_home_id: command.funeralHomeId,
+          }
+        });
+        
+        return mapToGoGLAccount(unwrapResponse(res));
+      },
+      catch: (error) => new NetworkError('Failed to create GL account', error as Error)
+    }),
+  
+  updateGLAccount: (accountId, updates) =>
+    Effect.tryPromise({
+      try: async () => {
+        const res = await goClient.PATCH('/v1/financial/gl-accounts/{id}', {
+          params: { path: { id: accountId } },
+          body: {
+            name: updates.name,
+            account_type: updates.accountType,
+            parent_account_id: updates.parentAccountId,
+          }
+        });
+        
+        if (res.error) {
+          if (res.response?.status === 404) {
+            throw new NotFoundError({ message: 'GLAccount not found', entityType: 'GLAccount', entityId: accountId });
+          }
+          throw new Error(res.error.message);
+        }
+        
+        return mapToGoGLAccount(res.data);
+      },
+      catch: (error) => {
+        if (error instanceof NotFoundError) return error;
+        return new NetworkError('Failed to update GL account', error as Error);
+      }
+    }),
+  
+  deactivateGLAccount: (accountId, reason) =>
+    Effect.tryPromise({
+      try: async () => {
+        const res = await goClient.POST('/v1/financial/gl-accounts/{id}/deactivate', {
+          params: { path: { id: accountId } },
+          body: { reason }
+        });
+        
+        if (res.error) {
+          if (res.response?.status === 404) {
+            throw new NotFoundError({ message: 'GLAccount not found', entityType: 'GLAccount', entityId: accountId });
+          }
+          throw new Error(res.error.message);
+        }
+        
+        unwrapResponse(res);
+      },
+      catch: (error) => {
+        if (error instanceof NotFoundError) return error;
+        return new NetworkError('Failed to deactivate GL account', error as Error);
+      }
+    }),
+  
   // Accounts Receivable Operations
   createInvoice: (command: CreateInvoiceCommand) =>
     Effect.tryPromise({
@@ -632,6 +700,57 @@ export const GoFinancialAdapter: GoFinancialPortService = {
         };
       },
       catch: (error) => new NetworkError('Failed to execute AP payment run', error as Error)
+    }),
+  
+  getFinancialKPIs: (funeralHomeId: string, period: string) =>
+    Effect.tryPromise({
+      try: async () => {
+        const res = await goClient.GET('/v1/financial/kpis', {
+          params: {
+            query: {
+              funeral_home_id: funeralHomeId,
+              period,
+            }
+          }
+        });
+        
+        const data = unwrapResponse(res);
+        return {
+          revenue: data.revenue,
+          expenses: data.expenses,
+          netIncome: data.net_income,
+          grossMargin: data.gross_margin,
+          operatingMargin: data.operating_margin,
+          accountsReceivable: data.accounts_receivable,
+          accountsPayable: data.accounts_payable,
+          cashOnHand: data.cash_on_hand,
+        };
+      },
+      catch: (error) => new NetworkError('Failed to get financial KPIs', error as Error)
+    }),
+  
+  getFinancialTrends: (funeralHomeId: string, fromPeriod: string, toPeriod: string) =>
+    Effect.tryPromise({
+      try: async () => {
+        const res = await goClient.GET('/v1/financial/trends', {
+          params: {
+            query: {
+              funeral_home_id: funeralHomeId,
+              from_period: fromPeriod,
+              to_period: toPeriod,
+            }
+          }
+        });
+        
+        const data = unwrapResponse(res);
+        return (data.series || []).map((point: any) => ({
+          period: point.period,
+          revenue: point.revenue,
+          expenses: point.expenses,
+          netIncome: point.net_income,
+        }));
+      },
+      catch: (error) => new NetworkError('Failed to get financial trends', error as Error)
     }),
 };
 

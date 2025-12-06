@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Users, Phone, Mail, Calendar, ArrowRight, Plus, Search, Filter, Loader2 } from 'lucide-react';
-import { trpc } from '@/lib/trpc-client';
+import { api } from '@/trpc/react';
 import { toast } from 'sonner';
+import NewLeadModal from './_components/NewLeadModal';
 
 /**
  * Lead Management Page - Linear/Notion Style
@@ -40,9 +41,10 @@ const STATUSES = [
 export default function LeadsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [sourceFilter, setSourceFilter] = useState<string>('all');
+  const [isNewLeadModalOpen, setIsNewLeadModalOpen] = useState(false);
 
   // Fetch leads from API
-  const { data: leadsData, isLoading, error, refetch } = trpc.lead.list.useQuery({});
+  const { data: leadsData, isLoading, error, refetch } = api.lead.list.useQuery({});
   
   // Map API data to UI format
   const allLeads: Lead[] = (leadsData?.items || []).map((lead: any) => ({
@@ -121,7 +123,10 @@ export default function LeadsPage() {
           </select>
         </div>
 
-        <button className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition text-sm font-medium">
+        <button 
+          onClick={() => setIsNewLeadModalOpen(true)}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition text-sm font-medium"
+        >
           <Plus className="w-4 h-4" />
           New Lead
         </button>
@@ -161,6 +166,16 @@ export default function LeadsPage() {
           ))}
         </motion.div>
       )}
+      
+      {/* New Lead Modal */}
+      <NewLeadModal
+        isOpen={isNewLeadModalOpen}
+        onClose={() => setIsNewLeadModalOpen(false)}
+        onSuccess={() => {
+          refetch();
+          setIsNewLeadModalOpen(false);
+        }}
+      />
     </div>
   );
 }

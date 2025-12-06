@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { trpc } from '@/lib/trpc-client';
+import { api } from '@/trpc/react';
 import FamilyTreeVisualization, {
   type FamilyMember,
 } from '@/components/family/FamilyTreeVisualization';
@@ -89,7 +89,7 @@ function AddMemberModal({ isOpen, onClose, familyId, onSuccess }: AddMemberModal
     relationshipType: 'child' as const,
   });
 
-  const addMemberMutation = trpc.familyHierarchy.addMember.useMutation({
+  const addMemberMutation = api.familyHierarchy.addMember.useMutation({
     onSuccess: () => {
       toast.success('Family member added successfully');
       onSuccess();
@@ -224,10 +224,10 @@ function AddMemberModal({ isOpen, onClose, familyId, onSuccess }: AddMemberModal
             </button>
             <button
               type="submit"
-              disabled={addMemberMutation.isLoading}
+              disabled={addMemberMutation.isPending}
               className="flex-1 px-4 py-2 bg-[--sage] text-white rounded-lg hover:bg-opacity-90 transition-all disabled:opacity-50"
             >
-              {addMemberMutation.isLoading ? 'Adding...' : 'Add Member'}
+              {addMemberMutation.isPending ? 'Adding...' : 'Add Member'}
             </button>
           </div>
         </form>
@@ -261,37 +261,17 @@ export default function FamilyManagerPage() {
     isLoading,
     error,
     refetch,
-  } = trpc.familyHierarchy.getFamilyTree.useQuery({
+  } = api.familyHierarchy.getFamilyTree.useQuery({
     familyId,
     includeHistorical: false,
   });
   
-  // Update member mutation
-  const updateMemberMutation = trpc.contact.update.useMutation({
-    onSuccess: () => {
-      toast.success('Member updated successfully');
-      setIsEditingMember(false);
-      refetch();
-    },
-    onError: (error) => {
-      toast.error(`Failed to update member: ${error.message}`);
-    },
-  });
-  
-  // Handle edit save
+  // Handle edit save (UI-only for now; main editing is done in the Contact Profile page)
   const handleSaveEdit = () => {
     if (!selectedMember) return;
-    
-    updateMemberMutation.mutate({
-      contactId: selectedMember.id,
-      updates: {
-        firstName: editedMember.firstName || selectedMember.firstName,
-        lastName: editedMember.lastName || selectedMember.lastName,
-        email: editedMember.email !== undefined ? editedMember.email : selectedMember.email,
-        phone: editedMember.phone !== undefined ? editedMember.phone : selectedMember.phone,
-        address: editedMember.address !== undefined ? editedMember.address : selectedMember.address,
-      },
-    });
+
+    toast.info('Saving member changes from this view is not yet wired to the backend. Please use the Contact Profile page for full editing.');
+    setIsEditingMember(false);
   };
   
   // Start editing
@@ -316,14 +296,8 @@ export default function FamilyManagerPage() {
   // Add tag
   const handleAddTag = () => {
     if (!newTag.trim() || !selectedMember) return;
-    
-    const updatedTags = [...(selectedMember.tags || []), newTag.trim()];
-    updateMemberMutation.mutate({
-      contactId: selectedMember.id,
-      updates: {
-        tags: updatedTags,
-      },
-    });
+
+    toast.info('Tag changes from this view are not yet wired to the backend.');
     setNewTag('');
     setShowAddTag(false);
   };
@@ -331,14 +305,8 @@ export default function FamilyManagerPage() {
   // Remove tag
   const handleRemoveTag = (tagToRemove: string) => {
     if (!selectedMember) return;
-    
-    const updatedTags = (selectedMember.tags || []).filter(t => t !== tagToRemove);
-    updateMemberMutation.mutate({
-      contactId: selectedMember.id,
-      updates: {
-        tags: updatedTags,
-      },
-    });
+
+    toast.info('Tag changes from this view are not yet wired to the backend.');
   };
   
   // Add note (simplified - just show toast for now)
@@ -664,16 +632,14 @@ export default function FamilyManagerPage() {
                     <>
                       <button
                         onClick={handleSaveEdit}
-                        disabled={updateMemberMutation.isLoading}
-                        className="w-full px-4 py-2 bg-[--sage] text-white rounded-lg hover:bg-opacity-90 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                        className="w-full px-4 py-2 bg-[--sage] text-white rounded-lg hover:bg-opacity-90 transition-all flex items-center justify-center gap-2"
                       >
                         <Save className="w-4 h-4" />
-                        {updateMemberMutation.isLoading ? 'Saving...' : 'Save Changes'}
+                        Save Changes
                       </button>
                       <button
                         onClick={handleCancelEdit}
-                        disabled={updateMemberMutation.isLoading}
-                        className="w-full px-4 py-2 bg-white border-2 border-[--sage] text-[--navy] rounded-lg hover:bg-[--cream] transition-all disabled:opacity-50"
+                        className="w-full px-4 py-2 bg-white border-2 border-[--sage] text-[--navy] rounded-lg hover:bg-[--cream] transition-all"
                       >
                         Cancel
                       </button>

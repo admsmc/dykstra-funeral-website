@@ -7,10 +7,10 @@ import {
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import {
-  StoragePortService,
+  type StoragePortService,
   StorageError,
-  FileUpload,
-  UploadResult,
+  type FileUpload,
+  type UploadResult,
 } from "@dykstra/application";
 
 /**

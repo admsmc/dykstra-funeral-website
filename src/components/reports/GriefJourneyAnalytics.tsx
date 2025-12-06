@@ -1,7 +1,6 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { trpc } from '@/lib/trpc-client';
 import {
   Heart,
   TrendingUp,
@@ -12,26 +11,50 @@ import {
   PieChart,
 } from 'lucide-react';
 
+type GriefJourneyAnalyticsData = {
+  totalFamilies: number;
+  stageDistribution: {
+    shockDenial: number;
+    painGuilt: number;
+    angerBargaining: number;
+    depression: number;
+    reconstruction: number;
+    acceptance: number;
+  };
+  upcomingAnniversaries: number;
+  averageDuration: number;
+  completedJourneys: number;
+  checkInsThisMonth: number;
+  averageCheckInsPerFamily: number;
+  needsFollowUp: number;
+  recentMilestones?: Array<{
+    familyName: string;
+    milestone: string;
+    date: string;
+  }>;
+};
+
+const MOCK_ANALYTICS: GriefJourneyAnalyticsData = {
+  totalFamilies: 0,
+  stageDistribution: {
+    shockDenial: 0,
+    painGuilt: 0,
+    angerBargaining: 0,
+    depression: 0,
+    reconstruction: 0,
+    acceptance: 0,
+  },
+  upcomingAnniversaries: 0,
+  averageDuration: 0,
+  completedJourneys: 0,
+  checkInsThisMonth: 0,
+  averageCheckInsPerFamily: 0,
+  needsFollowUp: 0,
+  recentMilestones: [],
+};
+
 export function GriefJourneyAnalytics() {
-  const { data: analytics, isLoading } = trpc.contact.getGriefJourneyAnalytics.useQuery();
-
-  if (isLoading) {
-    return (
-      <div className="bg-white border border-gray-200 rounded-lg p-6">
-        <div className="animate-pulse space-y-6">
-          <div className="h-8 bg-gray-200 rounded w-1/3" />
-          <div className="grid grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-24 bg-gray-200 rounded" />
-            ))}
-          </div>
-          <div className="h-64 bg-gray-200 rounded" />
-        </div>
-      </div>
-    );
-  }
-
-  if (!analytics) return null;
+  const analytics = MOCK_ANALYTICS;
 
   const stages = [
     { name: 'Shock & Denial', color: '#ef4444', count: analytics.stageDistribution.shockDenial },

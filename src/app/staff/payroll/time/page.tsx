@@ -2,8 +2,14 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Clock, Calendar, CheckCircle2, AlertCircle, TrendingUp, Plus, Loader2 } from 'lucide-react';
+import { Clock, Calendar, CheckCircle2, AlertCircle, TrendingUp, Plus, Loader2, Download } from 'lucide-react';
 import { trpc } from '@/lib/trpc';
+import { ApproveTimesheetModal } from '../_components/ApproveTimesheetModal';
+import { CreateTimeEntryModal } from '../_components/CreateTimeEntryModal';
+import { RequestPTOModal } from '../_components/RequestPTOModal';
+import { useModalKeyboardShortcuts } from '@/hooks/useModalKeyboardShortcuts';
+import { toast } from 'sonner';
+import { exportTimesheets } from '@/lib/csv-export';
 
 /**
  * Time Tracking Page - Linear/Notion Style
@@ -35,10 +41,65 @@ interface TimeEntry {
 
 export default function TimeTrackingPage() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [showApproveModal, setShowApproveModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showPTOModal, setShowPTOModal] = useState(false);
+
+  // Keyboard shortcuts
+  useModalKeyboardShortcuts({
+    onApprove: () => setShowApproveModal(true),
+  });
 
   // Fetch time entries from API
-  const { data: entries = [], isLoading, error } = trpc.timesheet.list.useQuery({
+  const { data: entriesData = [], isLoading, error, refetch } = trpc.timesheet.list.useQuery({
     status: 'all',
+  });
+
+  // Normalize entries to include draft/submitted/approved statuses
+  const entries = entriesData as TimeEntry[];
+
+  // Create time entry mutation
+  const createMutation = trpc.timesheet.create.useMutation({
+    onSuccess: () => {
+      toast.success('Time entry created successfully');
+      refetch();
+      setShowCreateModal(false);
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to create time entry');
+    },
+  });
+
+  // Submit timesheet mutation
+  const submitMutation = trpc.timesheet.submit.useMutation({
+    onSuccess: () => {
+      toast.success('Timesheet submitted for approval');
+      refetch();
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to submit timesheet');
+    },
+  });
+
+  const handleSubmitTimesheet = () => {
+    const draftEntries = entries.filter(e => e.status === 'draft');
+    if (draftEntries.length === 0) {
+      toast.error('No draft entries to submit');
+      return;
+    }
+    const entryIds = draftEntries.map((e) => e.id);
+    submitMutation.mutate({ entryIds });
+  };
+
+  // Request PTO mutation
+  const requestPTOMutation = trpc.timesheet.requestPTO.useMutation({
+    onSuccess: () => {
+      toast.success('PTO request submitted successfully');
+      setShowPTOModal(false);
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to submit PTO request');
+    },
   });
 
   // Calculate totals
@@ -141,10 +202,31 @@ export default function TimeTrackingPage() {
       >
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-gray-900">This Week</h2>
-          <button className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium">
-            <Plus className="w-4 h-4" />
-            Add Entry
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => exportTimesheets(entries)}
+              disabled={entries.length === 0}
+              className="inline-flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium disabled:opacity-50"
+            >
+              <Download className="w-4 h-4" />
+              Export
+            </button>
+            <button
+              onClick={() => setShowApproveModal(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+              disabled={entries.length === 0}
+            >
+              <CheckCircle2 className="w-4 h-4" />
+              Approve Timesheet
+            </button>
+            <button 
+              onClick={() => setShowCreateModal(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium"
+            >
+              <Plus className="w-4 h-4" />
+              Add Entry
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-7 gap-3">
@@ -207,14 +289,58 @@ export default function TimeTrackingPage() {
         transition={{ delay: 0.8 }}
         className="flex gap-3"
       >
-        <button className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium">
+        <button 
+          onClick={handleSubmitTimesheet}
+          disabled={submitMutation.isPending || entries.filter(e => e.status === 'draft').length === 0}
+          className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
+        >
+          {submitMutation.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
           Submit Timesheet
         </button>
-        <button className="px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
+        <button 
+          onClick={() => setShowPTOModal(true)}
+          className="px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+        >
           Request PTO
         </button>
       </motion.div>
       )}
+
+      <ApproveTimesheetModal
+        isOpen={showApproveModal}
+        onClose={() => setShowApproveModal(false)}
+        onSuccess={() => refetch()}
+        timesheetId="current-week"
+        employeeName="Current User"
+        entries={entries}
+      />
+
+      <CreateTimeEntryModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSubmit={(data) => {
+          createMutation.mutate({
+            ...data,
+          });
+        }}
+        isSubmitting={createMutation.isPending}
+        selectedDate={selectedDate || undefined}
+      />
+
+      <RequestPTOModal
+        isOpen={showPTOModal}
+        onClose={() => setShowPTOModal(false)}
+        onSubmit={(data) => {
+          requestPTOMutation.mutate({
+            startDate: data.startDate,
+            endDate: data.endDate,
+            hours: data.hours,
+            ptoType: data.ptoType as 'vacation' | 'sick' | 'personal',
+            notes: data.reason,
+          });
+        }}
+        isSubmitting={requestPTOMutation.isPending}
+      />
     </div>
   );
 }

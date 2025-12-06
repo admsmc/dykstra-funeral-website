@@ -5,18 +5,107 @@
 
 Pages directory cannot be found at /Users/andrewmathers/projects/dykstra-funeral-website/packages/api/pages or /Users/andrewmathers/projects/dykstra-funeral-website/packages/api/src/pages. If using a custom path, please configure with the `no-html-link-for-pages` rule in your eslint config file.
 [0m[0m
-[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/api/src/routers/invitation.router.ts[24m[0m
-[0m  [2m3:1[22m  [33mwarning[39m  Imports "CaseMemberRole" are only used as type  [2m@typescript-eslint/consistent-type-imports[22m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/api/src/routers/analytics.router.ts[24m[0m
+[0m   [2m24:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock dashboard metrics - will be replaced with real aggregat..."  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m112:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock staff performance"                                           [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m157:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock communication metrics"                                       [2mlocal/no-mock-data-in-routers[22m[0m
 [0m[0m
-[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/api/src/routers/template-analytics.ts[24m[0m
-[0m   [2m65:16[22m  [33mwarning[39m  'error' is defined but never used  [2m@typescript-eslint/no-unused-vars[22m[0m
-[0m  [2m117:16[22m  [33mwarning[39m  'error' is defined but never used  [2m@typescript-eslint/no-unused-vars[22m[0m
-[0m  [2m155:16[22m  [33mwarning[39m  'error' is defined but never used  [2m@typescript-eslint/no-unused-vars[22m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/api/src/routers/appointment.router.ts[24m[0m
+[0m  [2m133:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will be replaced with Go backend integ..."  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m154:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will be replaced with Go backend integ..."  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m196:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation"                                              [2mlocal/no-mock-data-in-routers[22m[0m
 [0m[0m
-[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/api/src/routers/template-approval.ts[24m[0m
-[0m  [2m276:16[22m  [33mwarning[39m  'error' is defined but never used  [2m@typescript-eslint/no-unused-vars[22m[0m
-[0m  [2m316:16[22m  [33mwarning[39m  'error' is defined but never used  [2m@typescript-eslint/no-unused-vars[22m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/api/src/routers/appointments.router.ts[24m[0m
+[0m   [2m25:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock appointments - will be replaced with real query"  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m102:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock single appointment"                               [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m179:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock update - will be replaced with real update"       [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m198:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock status update"                                    [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m219:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock cancel"                                           [2mlocal/no-mock-data-in-routers[22m[0m
 [0m[0m
-[0m[33m[1m✖ 6 problems (0 errors, 6 warnings)[22m[39m[0m
-[0m[33m[1m[22m[39m[33m[1m  0 errors and 1 warning potentially fixable with the `--fix` option.[22m[39m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/api/src/routers/case.router.ts[24m[0m
+[0m  [2m463:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "For now, return mock data structure"       [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m569:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "For now, return mock audit log structure"  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m619:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "For now, return mock attachment result"    [2mlocal/no-mock-data-in-routers[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/api/src/routers/contract.router.ts[24m[0m
+[0m  [2m360:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "For now, return mock contract creation result"  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m395:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "For now, return mock line item result"          [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m424:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "For now, return mock removal result"            [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m534:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "For now, return mock signature record result"   [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m565:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "For now, return mock PDF generation result"     [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m631:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "For now, return mock cancellation result"       [2mlocal/no-mock-data-in-routers[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/api/src/routers/financial.router.ts[24m[0m
+[0m  [2m803:9[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock invoice creation"                          [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m832:9[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock void operation"                            [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m912:9[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will wire to Go backend"  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m940:9[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will wire to Go backend"  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/api/src/routers/inventory.router.ts[24m[0m
+[0m  [2m145:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will be replaced with Go backend integ..."  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m169:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will be replaced with Go backend integ..."  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m184:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation"                                              [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m208:5[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will be replaced with Go backend integ..."  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m227:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will be replaced with Go backend integ..."  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m266:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will be replaced with Go backend integ..."  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/api/src/routers/memorial.router.ts[24m[0m
+[0m   [2m19:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock data - will integrate with Go backend"           [2mlocal/no-mock-data-in-routers[22m[0m
+[0m   [2m41:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock data - will integrate with storage backend"      [2mlocal/no-mock-data-in-routers[22m[0m
+[0m   [2m80:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock mutation - will integrate with storage backend"  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m   [2m97:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock data"                                            [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m126:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock mutation - will integrate with Go backend"       [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m142:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock data"                                            [2mlocal/no-mock-data-in-routers[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/api/src/routers/payroll.router.ts[24m[0m
+[0m   [2m78:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will be replaced with Go backend integ..."  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m138:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will be replaced with Go backend integ..."  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m197:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will be replaced with Go backend integ..."  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m216:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will be replaced with Go backend integ..."  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m231:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will be replaced with Go backend integ..."  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m248:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will be replaced with Go backend integ..."  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m267:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will be replaced with Go backend integ..."  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/api/src/routers/prep-room.router.ts[24m[0m
+[0m  [2m125:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will be replaced with Go backend integ..."  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m145:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will be replaced with Go backend integ..."  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m165:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will be replaced with Go backend integ..."  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m186:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will be replaced with Go backend integ..."  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m210:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will be replaced with Go backend integ..."  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/api/src/routers/procurement.router.ts[24m[0m
+[0m   [2m75:9[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will be replaced with Go backend integ..."  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m163:9[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation"                                              [2mlocal/no-mock-data-in-routers[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/api/src/routers/refunds.router.ts[24m[0m
+[0m   [2m98:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation"  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m122:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation"  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/api/src/routers/scheduling.router.ts[24m[0m
+[0m  [2m156:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will be replaced with Go backend integ..."  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m181:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will be replaced with Go backend integ..."  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m198:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will be replaced with Go backend integ..."  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m217:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will be replaced with Go backend integ..."  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m241:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will be replaced with Go backend integ..."  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m263:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will be replaced with Go backend integ..."  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/api/src/routers/shipment.router.ts[24m[0m
+[0m   [2m78:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will be replaced with Go backend integ..."  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m106:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will be replaced with Go backend integ..."  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m132:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will be replaced with Go backend integ..."  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/api/src/routers/task.router.ts[24m[0m
+[0m  [2m146:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will be replaced with Go backend integ..."  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m167:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will be replaced with Go backend integ..."  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m186:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will be replaced with Go backend integ..."  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m200:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation"                                              [2mlocal/no-mock-data-in-routers[22m[0m
+[0m[0m
+[0m[4m/Users/andrewmathers/projects/dykstra-funeral-website/packages/api/src/routers/timesheet.router.ts[24m[0m
+[0m   [2m90:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will be replaced with Go backend integ..."  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m111:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will be replaced with Go backend integ..."  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m129:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will be replaced with Go backend integ..."  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m149:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will be replaced with Go backend integ..."  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m  [2m197:7[22m  [33mwarning[39m  Router returns hardcoded mock data. Replace with Prisma query for production. Comment: "Mock implementation - will be replaced with Go backend integ..."  [2mlocal/no-mock-data-in-routers[22m[0m
+[0m[0m
+[0m[33m[1m✖ 70 problems (0 errors, 70 warnings)[22m[39m[0m
 [0m[33m[1m[22m[39m[0m

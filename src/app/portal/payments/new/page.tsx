@@ -39,8 +39,8 @@ function PaymentFormContent() {
     },
   });
 
-  // Process payment mutation
-  const processPayment = trpc.payment.processPayment.useMutation({
+  // Process payment mutation using Stripe
+  const processPayment = trpc.stripe.createPaymentIntent.useMutation({
     onSuccess: (data) => {
       // In production, this would:
       // 1. Load Stripe.js
@@ -49,7 +49,7 @@ function PaymentFormContent() {
       // 4. Handle 3D Secure if needed
       // 5. Show success/receipt page
       console.log('Payment intent created:', data.clientSecret);
-      alert('Payment flow would continue with Stripe Elements');
+      alert(`Payment flow ready! ClientSecret: ${data.clientSecret.substring(0, 20)}...`);
       form.reset();
     },
     onError: (error) => {
@@ -65,12 +65,10 @@ function PaymentFormContent() {
     }
 
     processPayment.mutate({
-      id: crypto.randomUUID(),
       caseId,
       amount: data.amount,
-      method: 'credit_card',
-      notes: data.notes,
-      createdBy: 'current-user-id', // From auth context
+      currency: 'usd',
+      description: data.notes || `Payment for case ${caseId}`,
     });
   });
 
@@ -96,13 +94,17 @@ function PaymentFormContent() {
           {/* Amount */}
           <section className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-2xl font-serif text-[--navy] mb-4">Payment Amount</h2>
-            <FormCurrencyInput
-              name="amount"
-              label="Amount ($)"
-              placeholder="0.00"
-              min={0.01}
-              required
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Amount ($) <span className="text-red-600">*</span>
+              </label>
+              <FormCurrencyInput
+                name="amount"
+                placeholder="0.00"
+                min={0.01}
+                required
+              />
+            </div>
           </section>
 
         {/* Payment Method (Stripe Elements Placeholder) */}

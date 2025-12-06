@@ -86,8 +86,6 @@ export function CaseStatusChangeModal({
       caseId,
       status: newStatus as any,
       reason: reason.trim() || undefined,
-      notifyFamily,
-      notifyStaff,
     });
   };
 

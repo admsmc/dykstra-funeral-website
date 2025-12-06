@@ -20,7 +20,8 @@ export function exportToCSV<TData>(
       if (typeof col.header === 'string') return col.header;
       if (typeof col.header === 'function') {
         // For function headers, use accessorKey or id as fallback
-        return (col.accessorKey as string) || col.id || 'Column';
+        const anyCol = col as any;
+        return (anyCol.accessorKey as string) || anyCol.id || 'Column';
       }
       return 'Column';
     });
@@ -30,7 +31,8 @@ export function exportToCSV<TData>(
     columns
       .filter((col) => col.id !== 'select' && col.id !== 'actions')
       .map((col) => {
-        const accessor = col.accessorKey as keyof TData;
+        const anyCol = col as any;
+        const accessor = anyCol.accessorKey as keyof TData | undefined;
         if (accessor && row[accessor] !== undefined) {
           const value = row[accessor];
           // Handle dates

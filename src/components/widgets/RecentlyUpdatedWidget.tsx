@@ -1,37 +1,24 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { trpc } from '@/lib/trpc-client';
 import { Clock, User, Mail, Phone, Tag, Heart, Edit2 } from 'lucide-react';
 import Link from 'next/link';
-import { formatDistanceToNow } from 'date-fns';
+
+type RecentContact = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  updatedAt: string;
+  changeType: string;
+  changeSummary: string;
+  updatedBy?: string;
+};
+
+const MOCK_RECENT_CONTACTS: RecentContact[] = [];
 
 export function RecentlyUpdatedWidget() {
-  // Fetch recently updated contacts
-  const { data: recentContacts, isLoading } = trpc.contact.getRecentlyUpdated.useQuery({
-    limit: 5,
-  });
-
-  if (isLoading) {
-    return (
-      <div className="bg-white border border-gray-200 rounded-lg p-6">
-        <div className="animate-pulse space-y-4">
-          <div className="h-6 bg-gray-200 rounded w-1/2" />
-          <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-gray-200 rounded-full" />
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-gray-200 rounded w-3/4" />
-                  <div className="h-3 bg-gray-200 rounded w-1/2" />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Local placeholder data; backend endpoint not yet implemented
+  const recentContacts = MOCK_RECENT_CONTACTS;
 
   if (!recentContacts || recentContacts.length === 0) {
     return (
@@ -143,7 +130,7 @@ export function RecentlyUpdatedWidget() {
                       {contact.firstName} {contact.lastName}
                     </p>
                     <span className="text-xs text-[--charcoal] opacity-60 whitespace-nowrap">
-                      {formatDistanceToNow(new Date(contact.updatedAt), { addSuffix: true })}
+                      {new Date(contact.updatedAt).toLocaleDateString()}
                     </span>
                   </div>
 

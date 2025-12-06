@@ -222,6 +222,7 @@ export const FileUpload = React.forwardRef<HTMLInputElement, FileUploadProps>(
                   {/* Preview thumbnail */}
                   {file.preview ? (
                     <div className="w-16 h-16 rounded overflow-hidden flex-shrink-0 bg-gray-100">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={file.preview}
                         alt={file.name}

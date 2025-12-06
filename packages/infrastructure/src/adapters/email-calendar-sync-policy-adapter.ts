@@ -1,6 +1,6 @@
 import { Effect } from 'effect';
 import { EmailCalendarSyncPolicy, NotFoundError } from '@dykstra/domain';
-import { EmailCalendarSyncPolicyRepositoryService, PersistenceError } from '@dykstra/application';
+import { type EmailCalendarSyncPolicyRepositoryService, PersistenceError } from '@dykstra/application';
 import { randomUUID } from 'crypto';
 
 /**

@@ -1,7 +1,7 @@
 import { Effect, Layer } from 'effect';
 import { Interaction, type InteractionId, type InteractionType, type InteractionDirection, NotFoundError } from '@dykstra/domain';
 import { InteractionRepository, type InteractionRepositoryService, PersistenceError } from '@dykstra/application';
-import { InteractionType as PrismaInteractionType, InteractionDirection as PrismaInteractionDirection } from '@prisma/client';
+import { type InteractionType as PrismaInteractionType, type InteractionDirection as PrismaInteractionDirection } from '@prisma/client';
 import { prisma } from './prisma-client';
 
 /**

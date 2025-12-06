@@ -13,10 +13,12 @@ import {
 import { DashboardLayout } from '@/components/layouts/DashboardLayout';
 import { PageSection } from '@/components/layouts/PageSection';
 import { DashboardSkeleton } from '@/components/skeletons/DashboardSkeleton';
+import { useToast } from '@/components/toast';
 
 export default function TemplateWorkflowsPage() {
   const [selectedWorkflowId, setSelectedWorkflowId] = useState<string | null>(null);
   const currentUserId = 'current-user'; // TODO: Get from auth context
+  const toast = useToast();
 
   const { activeWorkflows, pendingReviews, isLoading, refetchWorkflows, refetchPendingReviews } =
     useWorkflowApprovals(currentUserId);
@@ -24,7 +26,7 @@ export default function TemplateWorkflowsPage() {
   const { workflow: selectedWorkflow, refetch: refetchWorkflow } =
     useWorkflowDetail(selectedWorkflowId);
 
-  const { submitReview } = useSubmitReview(() => {
+  const { submitReview } = useSubmitReview(toast, () => {
     void refetchWorkflows();
     void refetchPendingReviews();
     void refetchWorkflow();

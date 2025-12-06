@@ -1,7 +1,7 @@
 import { Effect } from 'effect';
 import { LeadScoringPolicy } from '@dykstra/domain';
 import {
-  LeadScoringPolicyRepository,
+  type LeadScoringPolicyRepository,
   NotFoundError,
   PersistenceError,
 } from '@dykstra/application';

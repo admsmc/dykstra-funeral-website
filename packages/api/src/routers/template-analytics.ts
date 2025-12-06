@@ -62,7 +62,7 @@ export const templateAnalyticsRouter = router({
           avgDurationMs: avgDuration._avg.durationMs || 0,
           avgPdfSizeBytes: avgSize._avg.pdfSizeBytes || 0,
         };
-      } catch (error) {
+      } catch (_error) {
         // Return empty stats if no data or error
         return {
           totalGenerations: 0,
@@ -114,7 +114,7 @@ export const templateAnalyticsRouter = router({
           usageCount: r._count.id,
           avgDurationMs: r._avg.durationMs || 0,
         }));
-      } catch (error) {
+      } catch (_error) {
         return [];
       }
     }),
@@ -152,7 +152,7 @@ export const templateAnalyticsRouter = router({
           count: r._count.id,
           avgDurationMs: r._avg.durationMs || 0,
         }));
-      } catch (error) {
+      } catch (_error) {
         return [];
       }
     }),

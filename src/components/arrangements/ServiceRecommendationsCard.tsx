@@ -6,27 +6,29 @@ import { CheckCircle, DollarSign, Package, Sparkles } from "lucide-react";
 interface Service {
   id: string;
   name: string;
-  description: string;
+  description: string | null;
   price: number;
 }
 
 interface Product {
   id: string;
   name: string;
-  type: string;
+  category?: string; // Optional to support both 'type' and 'category'
+  type?: string;     // Optional for backward compatibility
   price: number;
 }
 
 interface Arrangement {
   name: string;
   description: string;
-  requiredServices: Service[];
-  recommendedServices: Service[];
+  requiredServices: readonly Service[];
+  recommendedServices: readonly Service[];
   suggestedProducts: {
-    caskets?: Product[];
-    urns?: Product[];
-    flowers?: Product[];
-    other?: Product[];
+    caskets?: readonly Product[];
+    urns?: readonly Product[];
+    flowers?: readonly Product[];
+    memorialCards?: readonly Product[];
+    other?: readonly Product[];
   };
   costEstimate: {
     requiredServicesTotal: number;
@@ -163,7 +165,7 @@ export default function ServiceRecommendationsCard({
                   <div className="flex-1">
                     <p className="font-medium text-gray-900">{product.name}</p>
                     <p className="text-xs text-gray-600 capitalize">
-                      {product.type}
+                      {(product.category || product.type || '').toLowerCase().replace('_', ' ')}
                     </p>
                   </div>
                   <span className="font-medium text-gray-700 ml-4">

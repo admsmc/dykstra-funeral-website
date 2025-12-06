@@ -1,4 +1,4 @@
-import { Effect, Context, Data } from 'effect';
+import { type Effect, Context, Data } from 'effect';
 import type { InvoiceData, ServiceProgramData } from '@dykstra/domain';
 
 /**

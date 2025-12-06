@@ -291,7 +291,7 @@ export function MergeContactsModal({
             {step === 'confirm' && (
               <button
                 onClick={() => setStep('preview')}
-                disabled={mergeMutation.isLoading}
+                disabled={mergeMutation.isPending}
                 className="flex-1 px-4 py-2 border-2 border-[--sage] text-[--navy] rounded-lg hover:bg-[--cream] transition-all disabled:opacity-50"
               >
                 Back
@@ -299,18 +299,18 @@ export function MergeContactsModal({
             )}
             <button
               onClick={onClose}
-              disabled={mergeMutation.isLoading}
+              disabled={mergeMutation.isPending}
               className="flex-1 px-4 py-2 border-2 border-gray-300 text-[--navy] rounded-lg hover:bg-gray-50 transition-all disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               onClick={handleMerge}
-              disabled={mergeMutation.isLoading}
+              disabled={mergeMutation.isPending}
               className="flex-1 px-4 py-2 bg-[--sage] text-white rounded-lg hover:bg-opacity-90 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
             >
               <GitMerge className="w-4 h-4" />
-              {mergeMutation.isLoading
+              {mergeMutation.isPending
                 ? 'Merging...'
                 : step === 'preview'
                 ? 'Continue'

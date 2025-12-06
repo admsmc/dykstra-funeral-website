@@ -54,7 +54,7 @@ export default function TemplateSearchBar({
     await new Promise((resolve) => setTimeout(resolve, 200));
 
     // Mock results
-    const mockResults: Template[] = [
+    const mockResults = [
       {
         id: "tpl-1",
         name: "Welcome Email",
@@ -80,7 +80,7 @@ export default function TemplateSearchBar({
       t.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    setResults(mockResults);
+    setResults(mockResults as Template[]);
     setIsLoading(false);
     setSelectedIndex(0);
   };

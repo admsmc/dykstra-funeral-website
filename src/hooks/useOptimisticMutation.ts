@@ -17,8 +17,9 @@ export interface UseOptimisticMutationOptions<TData, TVariables, TError = Error>
 
   /**
    * Called when mutation succeeds with server response
+   * Receives both the server data and original variables.
    */
-  onSuccess?: (data: TData) => void;
+  onSuccess?: (data: TData, variables: TVariables) => void;
 
   /**
    * Called when mutation fails
@@ -107,7 +108,7 @@ export function useOptimisticMutation<TData, TVariables, TError = Error>(
         if (isMountedRef.current) {
           setIsOptimistic(false);
           setIsLoading(false);
-          onSuccess?.(data);
+          onSuccess?.(data, variables);
         }
       } catch (error) {
         // Rollback optimistic update on error

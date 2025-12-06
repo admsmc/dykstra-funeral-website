@@ -26,11 +26,30 @@ import {
   generateRevenueByServiceType,
   // Budget Variance
   generateBudgetVarianceReport,
+  // Budget Management
+  getBudgetVariance,
+  updateBudgetAccount,
+  // Dashboard
+  getFinancialKPIs,
+  getFinancialTrends,
+  // Fixed Assets
+  registerAsset,
+  getAssetRegister,
+  getAssetDetails,
+  getDepreciationSchedule,
+  disposeAsset,
+  runDepreciation,
   // GL Operations
   getGLTrialBalance,
   getAccountHistory,
   getFinancialStatement,
   postJournalEntry,
+  getChartOfAccounts,
+  createGLAccount,
+  updateGLAccount,
+  deactivateGLAccount,
+  getAccountBalances,
+  reverseJournalEntry,
   // AP Operations
   listVendorBills,
   groupVendorBillsByVendor,
@@ -487,6 +506,148 @@ export const financialRouter = router({
           totalDebits: entry.totalDebit,
           totalCredits: entry.totalCredit,
         };
+      }),
+
+    /**
+     * Get chart of accounts
+     * 
+     * Returns all GL accounts with hierarchy.
+     */
+    getChartOfAccounts: staffProcedure
+      .input(
+        z.object({
+          funeralHomeId: z.string(),
+          includeInactive: z.boolean().default(false),
+        })
+      )
+      .query(async ({ input }) => {
+        return await runEffect(
+          getChartOfAccounts({
+            funeralHomeId: input.funeralHomeId,
+            includeInactive: input.includeInactive,
+          })
+        );
+      }),
+
+    /**
+     * Create GL account
+     * 
+     * Creates a new general ledger account.
+     */
+    createAccount: staffProcedure
+      .input(
+        z.object({
+          accountNumber: z.string().regex(/^\d{4,}$/, 'Must be 4+ digits'),
+          name: z.string().min(3).max(100),
+          accountType: z.enum(['asset', 'liability', 'equity', 'revenue', 'expense']),
+          parentAccountId: z.string().optional(),
+          funeralHomeId: z.string(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        return await runEffect(
+          createGLAccount({
+            accountNumber: input.accountNumber,
+            name: input.name,
+            accountType: input.accountType,
+            parentAccountId: input.parentAccountId,
+            funeralHomeId: input.funeralHomeId,
+          })
+        );
+      }),
+
+    /**
+     * Update GL account
+     * 
+     * Updates an existing GL account.
+     */
+    updateAccount: staffProcedure
+      .input(
+        z.object({
+          accountId: z.string(),
+          name: z.string().min(3).max(100).optional(),
+          accountType: z.enum(['asset', 'liability', 'equity', 'revenue', 'expense']).optional(),
+          parentAccountId: z.string().nullable().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        return await runEffect(
+          updateGLAccount({
+            accountId: input.accountId,
+            name: input.name,
+            accountType: input.accountType,
+            parentAccountId: input.parentAccountId,
+          })
+        );
+      }),
+
+    /**
+     * Deactivate GL account
+     * 
+     * Deactivates a GL account (soft delete).
+     */
+    deactivateAccount: staffProcedure
+      .input(
+        z.object({
+          accountId: z.string(),
+          reason: z.string().min(1).max(500),
+        })
+      )
+      .mutation(async ({ input }) => {
+        return await runEffect(
+          deactivateGLAccount({
+            accountId: input.accountId,
+            reason: input.reason,
+          })
+        );
+      }),
+
+    /**
+     * Get account balances
+     * 
+     * Returns current balances for all accounts.
+     */
+    getAccountBalances: staffProcedure
+      .input(
+        z.object({
+          funeralHomeId: z.string(),
+          accountIds: z.array(z.string()).optional(),
+          asOfDate: z.date().optional(),
+        })
+      )
+      .query(async ({ input }) => {
+        return await runEffect(
+          getAccountBalances({
+            funeralHomeId: input.funeralHomeId,
+            accountIds: input.accountIds,
+            asOfDate: input.asOfDate,
+          })
+        );
+      }),
+
+    /**
+     * Reverse journal entry
+     * 
+     * Creates a reversal entry for an existing journal entry.
+     */
+    reverseJournalEntry: staffProcedure
+      .input(
+        z.object({
+          journalEntryId: z.string(),
+          reversalDate: z.date(),
+          reversalReason: z.string().min(1).max(500),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        return await runEffect(
+          reverseJournalEntry({
+            journalEntryId: input.journalEntryId,
+            reversalDate: input.reversalDate,
+            reversalReason: input.reversalReason,
+            reversedBy: ctx.user.id,
+            funeralHomeId: 'default', // Get from context
+          })
+        );
       }),
   }),
 
@@ -1059,6 +1220,227 @@ export const financialRouter = router({
       .query(async ({ input }) => {
         return await runEffect(
           generateBudgetVarianceReport({
+            period: input.period,
+          })
+        );
+      }),
+  }),
+
+  /**
+   * ═══════════════════════════════════════════════════════
+   * BUDGET MANAGEMENT
+   * ═══════════════════════════════════════════════════════
+   */
+  budget: router({
+    /**
+     * Get budget variance
+     * 
+     * Compare actual vs budget with variance analysis.
+     */
+    getVariance: staffProcedure
+      .input(
+        z.object({
+          period: z.date(),
+          funeralHomeId: z.string(),
+        })
+      )
+      .query(async ({ input }) => {
+        return await runEffect(
+          getBudgetVariance({
+            period: input.period,
+            funeralHomeId: input.funeralHomeId,
+          })
+        );
+      }),
+
+    /**
+     * Update budget account
+     * 
+     * Update budget amounts for account across periods.
+     */
+    updateAccount: staffProcedure
+      .input(
+        z.object({
+          budgetId: z.string(),
+          accountId: z.string(),
+          periods: z.array(
+            z.object({
+              period: z.string(),
+              amount: z.number().nonnegative(),
+            })
+          ).min(1),
+        })
+      )
+      .mutation(async ({ input }) => {
+        return await runEffect(
+          updateBudgetAccount({
+            budgetId: input.budgetId,
+            accountId: input.accountId,
+            periods: input.periods,
+          })
+        );
+      }),
+  }),
+
+  /**
+   * ═══════════════════════════════════════════════════════
+   * DASHBOARDS
+   * ═══════════════════════════════════════════════════════
+   */
+  dashboards: router({
+    /**
+     * Financial KPIs for dashboard cards
+     */
+    getKPIs: staffProcedure
+      .input(
+        z.object({
+          funeralHomeId: z.string(),
+          period: z.string(), // e.g., '2024-12'
+        })
+      )
+      .query(async ({ input }) => {
+        return await runEffect(
+          getFinancialKPIs({ funeralHomeId: input.funeralHomeId, period: input.period })
+        );
+      }),
+
+    /**
+     * Financial trends for time-series charts
+     */
+    getTrends: staffProcedure
+      .input(
+        z.object({
+          funeralHomeId: z.string(),
+          fromPeriod: z.string(), // '2024-01'
+          toPeriod: z.string(),   // '2024-12'
+        })
+      )
+      .query(async ({ input }) => {
+        return await runEffect(
+          getFinancialTrends({
+            funeralHomeId: input.funeralHomeId,
+            fromPeriod: input.fromPeriod,
+            toPeriod: input.toPeriod,
+          })
+        );
+      }),
+  }),
+
+  /**
+   * ═══════════════════════════════════════════════════════
+   * FIXED ASSETS
+   * ═══════════════════════════════════════════════════════
+   */
+  fixedAssets: router({
+    /**
+     * Register new fixed asset
+     */
+    register: staffProcedure
+      .input(
+        z.object({
+          assetNumber: z.string(),
+          description: z.string(),
+          category: z.string(),
+          acquisitionDate: z.date(),
+          acquisitionCost: z.number().positive(),
+          salvageValue: z.number().nonnegative(),
+          usefulLifeYears: z.number().positive(),
+          depreciationMethod: z.enum(['straight_line', 'declining_balance', 'units_of_production']),
+        })
+      )
+      .mutation(async ({ input }) => {
+        return await runEffect(
+          registerAsset({
+            assetNumber: input.assetNumber,
+            description: input.description,
+            category: input.category,
+            acquisitionDate: input.acquisitionDate,
+            acquisitionCost: input.acquisitionCost,
+            salvageValue: input.salvageValue,
+            usefulLifeYears: input.usefulLifeYears,
+            depreciationMethod: input.depreciationMethod,
+          })
+        );
+      }),
+
+    /**
+     * Get asset register (list of all assets)
+     */
+    getRegister: staffProcedure
+      .input(
+        z.object({
+          category: z.string().optional(),
+          status: z.enum(['active', 'disposed', 'fully_depreciated']).optional(),
+        })
+      )
+      .query(async ({ input }) => {
+        return await runEffect(
+          getAssetRegister({
+            category: input.category,
+            status: input.status,
+          })
+        );
+      }),
+
+    /**
+     * Get asset details by ID
+     */
+    getDetails: staffProcedure
+      .input(
+        z.object({
+          assetId: z.string(),
+        })
+      )
+      .query(async ({ input }) => {
+        return await runEffect(getAssetDetails(input.assetId));
+      }),
+
+    /**
+     * Get depreciation schedule for asset
+     */
+    getDepreciationSchedule: staffProcedure
+      .input(
+        z.object({
+          assetId: z.string(),
+        })
+      )
+      .query(async ({ input }) => {
+        return await runEffect(getDepreciationSchedule(input.assetId));
+      }),
+
+    /**
+     * Dispose asset
+     */
+    dispose: staffProcedure
+      .input(
+        z.object({
+          assetId: z.string(),
+          disposalDate: z.date(),
+          disposalAmount: z.number().nonnegative(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        return await runEffect(
+          disposeAsset({
+            assetId: input.assetId,
+            disposalDate: input.disposalDate,
+            disposalAmount: input.disposalAmount,
+          })
+        );
+      }),
+
+    /**
+     * Run monthly depreciation
+     */
+    runDepreciation: staffProcedure
+      .input(
+        z.object({
+          period: z.date(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        return await runEffect(
+          runDepreciation({
             period: input.period,
           })
         );

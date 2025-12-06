@@ -172,7 +172,7 @@ export default function AppointmentsPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {DIRECTORS.map((director, index) => (
-            <DirectorAvailability key={director} director={director} date={selectedDate} delay={0.55 + index * 0.05} />
+            <DirectorAvailability key={director} director={director} date={selectedDate} appointments={allAppointments} delay={0.55 + index * 0.05} />
           ))}
         </div>
       </motion.div>
@@ -307,9 +307,9 @@ function AppointmentCard({ appointment, index }: { appointment: Appointment; ind
   );
 }
 
-function DirectorAvailability({ director, date, delay }: any) {
-  // Mock availability - in real app, this would come from backend
-  const appointments = MOCK_APPOINTMENTS.filter(a => a.director === director && a.date === date && a.status === 'scheduled');
+function DirectorAvailability({ director, date, appointments: allAppointments, delay }: any) {
+  // Filter appointments for this director and date
+  const appointments = allAppointments.filter((a: Appointment) => a.director === director && a.date === date && a.status === 'scheduled');
   const availableSlots = 8 - appointments.length;
 
   return (

@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { BarChart3, TrendingUp, DollarSign, Users, Calendar, Download, Filter, Loader2, AlertCircle } from 'lucide-react';
-import { trpc } from '@/lib/trpc-client';
+import { api } from '@/trpc/react';
 import { toast } from 'sonner';
 
 /**
@@ -55,27 +55,27 @@ export default function AnalyticsPage() {
   }, [period]);
 
   // Fetch revenue by service type
-  const { data: revenueData, isLoading: loadingRevenue, error: revenueError } = trpc.financial.reports.revenueByServiceType.useQuery({
+  const { data: revenueData, isLoading: loadingRevenue, error: revenueError } = api.financial.reports.revenueByServiceType.useQuery({
     startDate: dateRange.startDate,
     endDate: dateRange.endDate,
     funeralHomeId: 'default',
   });
 
   // Fetch budget variance
-  const { data: budgetData, isLoading: loadingBudget } = trpc.financial.reports.budgetVariance.useQuery({
+  const { data: budgetData, isLoading: loadingBudget } = api.financial.reports.budgetVariance.useQuery({
     period: new Date(),
     funeralHomeId: 'default',
   });
 
   // Transform real API data to metrics
   const metrics = useMemo(() => {
-    if (!revenueData || !revenueData.breakdowns) {
+    if (!revenueData || !revenueData.serviceTypes) {
       return [];
     }
     
     // Calculate total revenue from service type breakdowns
-    const totalRevenue = revenueData.breakdowns.reduce((sum, b) => sum + b.revenue, 0);
-    const totalCases = revenueData.breakdowns.reduce((sum, b) => sum + b.caseCount, 0);
+    const totalRevenue = revenueData.serviceTypes.reduce((sum, st) => sum + st.totalRevenue, 0);
+    const totalCases = revenueData.serviceTypes.reduce((sum, st) => sum + st.serviceCount, 0);
     const avgCaseValue = totalCases > 0 ? totalRevenue / totalCases : 0;
     
     // For now, show static change percentages (would need historical data for real comparison)
@@ -100,7 +100,7 @@ export default function AnalyticsPage() {
       },
       { 
         label: 'Service Types', 
-        value: revenueData.breakdowns.length.toString(), 
+        value: revenueData.serviceTypes.length.toString(), 
         change: '+0%', 
         trend: 'up' as const 
       },
@@ -108,16 +108,16 @@ export default function AnalyticsPage() {
   }, [revenueData]);
 
   const caseData = useMemo(() => {
-    if (!revenueData || !revenueData.breakdowns) {
+    if (!revenueData || !revenueData.serviceTypes) {
       return [];
     }
     
     // Transform revenue breakdowns to chart data
     // Group by service type for display
-    return revenueData.breakdowns.map(breakdown => ({
-      month: breakdown.serviceType.substring(0, 3), // Abbreviate service type names
-      cases: breakdown.caseCount,
-      revenue: breakdown.revenue,
+    return revenueData.serviceTypes.map(st => ({
+      month: st.serviceType.substring(0, 3), // Abbreviate service type names
+      cases: st.serviceCount,
+      revenue: st.totalRevenue,
     })).slice(0, 6); // Show top 6 service types
   }, [revenueData]);
 

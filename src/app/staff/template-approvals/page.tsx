@@ -64,8 +64,8 @@ export default function TemplateApprovalsPage() {
   };
 
   // Convert ViewModel back to raw data for component callbacks
-  const selectedViewModel = selectedTemplate
-    ? templates.find((t) => t.id === selectedTemplate.metadata.id)
+  const selectedViewModel: ApprovalTemplateViewModel | null = selectedTemplate
+    ? templates.find((t) => t.id === selectedTemplate.metadata.id) ?? null
     : null;
 
   if (isLoading) {

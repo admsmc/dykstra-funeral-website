@@ -2,13 +2,32 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { PrismaClient } from "@prisma/client";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-  apiVersion: "2025-11-17.clover",
-  typescript: true,
-});
+type PaymentStatus = "SUCCEEDED" | "FAILED" | "CANCELLED" | "PROCESSING";
 
-const prisma = new PrismaClient();
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || "";
+let prisma: PrismaClient | null = null;
+const getPrisma = (): PrismaClient => {
+  if (!prisma) {
+    prisma = new PrismaClient();
+  }
+  return prisma;
+};
+
+const stripeSecretKey: string | undefined = process.env.STRIPE_SECRET_KEY;
+const stripe: Stripe | null = stripeSecretKey
+  ? new Stripe(stripeSecretKey, {
+      apiVersion: "2025-11-17.clover",
+      typescript: true,
+    })
+  : null;
+
+const webhookSecret: string | undefined = process.env.STRIPE_WEBHOOK_SECRET;
+
+function isStripeConfigured(
+  client: Stripe | null,
+  secretKey: string | undefined,
+): client is Stripe {
+  return Boolean(client && secretKey);
+}
 
 /**
  * Stripe Webhook Handler
@@ -19,6 +38,14 @@ const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || "";
  */
 export async function POST(req: NextRequest) {
   try {
+    if (!isStripeConfigured(stripe, stripeSecretKey)) {
+      console.error("[Stripe Webhook] STRIPE_SECRET_KEY not configured");
+      return NextResponse.json(
+        { error: "Stripe is not configured" },
+        { status: 500 }
+      );
+    }
+
     // Get raw body as text for signature verification
     const body = await req.text();
     const signature = req.headers.get("stripe-signature");
@@ -93,7 +120,7 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
 
   try {
     // Find existing payment record by Stripe payment intent ID
-    const existingPayment = await prisma.payment.findFirst({
+    const existingPayment = await getPrisma().payment.findFirst({
       where: {
         stripePaymentIntentId: paymentIntent.id,
         isCurrent: true,
@@ -105,13 +132,18 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
       return;
     }
 
+    const paymentMethodId =
+      typeof paymentIntent.payment_method === "string"
+        ? paymentIntent.payment_method
+        : paymentIntent.payment_method?.id ?? null;
+
     // Update payment status to SUCCEEDED (SCD2 pattern)
-    await prisma.payment.update({
+    await getPrisma().payment.update({
       where: { id: existingPayment.id },
       data: {
-        status: "SUCCEEDED",
-        notes: `Payment succeeded via Stripe (${paymentIntent.payment_method})`,
-        stripePaymentMethodId: paymentIntent.payment_method as string,
+        status: "SUCCEEDED" satisfies PaymentStatus,
+        notes: `Payment succeeded via Stripe (${paymentMethodId ?? "unknown method"})`,
+        stripePaymentMethodId: paymentMethodId,
         updatedAt: new Date(),
       },
     });
@@ -130,7 +162,7 @@ async function handlePaymentIntentFailed(paymentIntent: Stripe.PaymentIntent) {
   console.log(`[Stripe Webhook] Payment failed: ${paymentIntent.id}`);
 
   try {
-    const existingPayment = await prisma.payment.findFirst({
+    const existingPayment = await getPrisma().payment.findFirst({
       where: {
         stripePaymentIntentId: paymentIntent.id,
         isCurrent: true,
@@ -145,10 +177,10 @@ async function handlePaymentIntentFailed(paymentIntent: Stripe.PaymentIntent) {
     // Get failure reason from last_payment_error
     const failureReason = paymentIntent.last_payment_error?.message || "Payment failed";
 
-    await prisma.payment.update({
+    await getPrisma().payment.update({
       where: { id: existingPayment.id },
       data: {
-        status: "FAILED",
+        status: "FAILED" satisfies PaymentStatus,
         failureReason,
         notes: `Payment failed: ${failureReason}`,
         updatedAt: new Date(),
@@ -169,7 +201,7 @@ async function handlePaymentIntentCanceled(paymentIntent: Stripe.PaymentIntent) 
   console.log(`[Stripe Webhook] Payment canceled: ${paymentIntent.id}`);
 
   try {
-    const existingPayment = await prisma.payment.findFirst({
+    const existingPayment = await getPrisma().payment.findFirst({
       where: {
         stripePaymentIntentId: paymentIntent.id,
         isCurrent: true,
@@ -181,10 +213,10 @@ async function handlePaymentIntentCanceled(paymentIntent: Stripe.PaymentIntent) 
       return;
     }
 
-    await prisma.payment.update({
+    await getPrisma().payment.update({
       where: { id: existingPayment.id },
       data: {
-        status: "CANCELLED",
+        status: "CANCELLED" satisfies PaymentStatus,
         notes: "Payment canceled by user or system",
         updatedAt: new Date(),
       },
@@ -204,7 +236,7 @@ async function handlePaymentIntentProcessing(paymentIntent: Stripe.PaymentIntent
   console.log(`[Stripe Webhook] Payment processing: ${paymentIntent.id}`);
 
   try {
-    const existingPayment = await prisma.payment.findFirst({
+    const existingPayment = await getPrisma().payment.findFirst({
       where: {
         stripePaymentIntentId: paymentIntent.id,
         isCurrent: true,
@@ -216,10 +248,10 @@ async function handlePaymentIntentProcessing(paymentIntent: Stripe.PaymentIntent
       return;
     }
 
-    await prisma.payment.update({
+    await getPrisma().payment.update({
       where: { id: existingPayment.id },
       data: {
-        status: "PROCESSING",
+        status: "PROCESSING" satisfies PaymentStatus,
         notes: "Payment is being processed by Stripe",
         updatedAt: new Date(),
       },

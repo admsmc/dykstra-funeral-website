@@ -1,7 +1,7 @@
 import { Effect, Layer } from 'effect';
 import { Lead, type LeadId, type LeadStatus, type LeadSource, type LeadType, NotFoundError } from '@dykstra/domain';
 import { LeadRepository, type LeadRepositoryService, PersistenceError } from '@dykstra/application';
-import { LeadStatus as PrismaLeadStatus, LeadSource as PrismaLeadSource, LeadType as PrismaLeadType } from '@prisma/client';
+import { type LeadStatus as PrismaLeadStatus, type LeadSource as PrismaLeadSource, type LeadType as PrismaLeadType } from '@prisma/client';
 import { prisma } from './prisma-client';
 
 /**

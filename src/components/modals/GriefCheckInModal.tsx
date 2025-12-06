@@ -216,18 +216,18 @@ export function GriefCheckInModal({
               <button
                 type="button"
                 onClick={onClose}
-                disabled={recordCheckInMutation.isLoading}
+                disabled={recordCheckInMutation.isPending}
                 className="flex-1 px-4 py-2 border-2 border-[--sage] text-[--navy] rounded-lg hover:bg-[--cream] transition-all disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                disabled={recordCheckInMutation.isLoading}
+                disabled={recordCheckInMutation.isPending}
                 className="flex-1 px-4 py-2 bg-[--sage] text-white rounded-lg hover:bg-opacity-90 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 <MessageCircle className="w-4 h-4" />
-                {recordCheckInMutation.isLoading ? 'Recording...' : 'Record Check-In'}
+                {recordCheckInMutation.isPending ? 'Recording...' : 'Record Check-In'}
               </button>
             </div>
           </form>

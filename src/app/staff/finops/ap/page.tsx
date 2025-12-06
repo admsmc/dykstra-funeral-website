@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Receipt, CheckCircle2, AlertCircle, DollarSign, FileCheck, XCircle, Loader2 } from 'lucide-react';
-import { trpc } from '@/lib/trpc-client';
+import { api } from '@/trpc/react';
 import { toast } from 'sonner';
 
 /**
@@ -27,7 +27,7 @@ export default function AccountsPayablePage() {
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'approved' | 'paid'>('all');
 
   // Fetch payables from API
-  const { data: payablesData, isLoading, error } = trpc.financial.ap.getPayablesByVendor.useQuery({
+  const { data: payablesData, isLoading, error } = api.financial.ap.getPayablesByVendor.useQuery({
     funeralHomeId: 'default',
     status: statusFilter === 'all' ? 'all' : statusFilter,
   });

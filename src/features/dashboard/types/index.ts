@@ -25,8 +25,8 @@ export type RecentPayment = {
     decedentName: string;
   };
   method: string;
-  status: 'SUCCEEDED' | 'PENDING' | 'FAILED';
-  amount: number;
+  status: string;
+  amount: number | string;
   createdAt: Date;
 };
 

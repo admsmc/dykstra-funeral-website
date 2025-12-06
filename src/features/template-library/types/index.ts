@@ -24,7 +24,7 @@ export interface RollbackParams {
   pageSize: string;
   orientation: string;
   margins: any;
-  printQuality: string;
+  printQuality: string | number;
   existingTemplateId: string;
   versionNote: string;
   createdBy: string;

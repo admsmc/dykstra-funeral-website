@@ -19,7 +19,7 @@ import {
   ChevronDown,
   CheckCircle2,
 } from 'lucide-react';
-import { trpc } from '@/lib/trpc-client';
+import { api } from '@/trpc/react';
 import { toast } from 'sonner';
 
 type ReportType =
@@ -121,7 +121,7 @@ export default function FinancialReportsPage() {
 
   // Fetch appropriate data based on selected report
   const { data: incomeStatementData, isLoading: loadingIncome } =
-    trpc.financial.gl.getFinancialStatement.useQuery(
+    api.financial.gl.getFinancialStatement.useQuery(
       {
         type: 'income_statement',
         startDate: new Date(startDate),
@@ -132,7 +132,7 @@ export default function FinancialReportsPage() {
     );
 
   const { data: balanceSheetData, isLoading: loadingBalanceSheet } =
-    trpc.financial.gl.getFinancialStatement.useQuery(
+    api.financial.gl.getFinancialStatement.useQuery(
       {
         type: 'balance_sheet',
         endDate: new Date(endDate),
@@ -142,7 +142,7 @@ export default function FinancialReportsPage() {
     );
 
   const { data: cashFlowData, isLoading: loadingCashFlow } =
-    trpc.financial.gl.getFinancialStatement.useQuery(
+    api.financial.gl.getFinancialStatement.useQuery(
       {
         type: 'cash_flow',
         startDate: new Date(startDate),
@@ -152,7 +152,7 @@ export default function FinancialReportsPage() {
       { enabled: selectedReport === 'cash_flow' }
     );
 
-  const { data: arAgingData, isLoading: loadingARAging } = trpc.financial.ar.getAgingReport.useQuery(
+  const { data: arAgingData, isLoading: loadingARAging } = api.financial.ar.getAgingReport.useQuery(
     {
       asOfDate: new Date(endDate),
       funeralHomeId: 'default',
@@ -161,7 +161,7 @@ export default function FinancialReportsPage() {
   );
 
   const { data: apPayablesData, isLoading: loadingAPAging } =
-    trpc.financial.ap.getPayablesByVendor.useQuery(
+    api.financial.ap.getPayablesByVendor.useQuery(
       {
         asOfDate: new Date(endDate),
         funeralHomeId: 'default',
@@ -171,7 +171,7 @@ export default function FinancialReportsPage() {
     );
 
   const { data: budgetVarianceData, isLoading: loadingBudget } =
-    trpc.financial.reports.budgetVariance.useQuery(
+    api.financial.reports.budgetVariance.useQuery(
       {
         period: new Date(endDate),
         funeralHomeId: 'default',
@@ -180,7 +180,7 @@ export default function FinancialReportsPage() {
     );
 
   const { data: revenueByServiceData, isLoading: loadingRevenue } =
-    trpc.financial.reports.revenueByServiceType.useQuery(
+    api.financial.reports.revenueByServiceType.useQuery(
       {
         startDate: new Date(startDate),
         endDate: new Date(endDate),

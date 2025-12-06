@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from 'framer-motion';
-import { listItemAnimations } from '@dykstra/ui';
+import { listItemVariants } from '@dykstra/ui';
 import { ReactNode } from 'react';
 
 export interface AnimatedListProps {
@@ -30,7 +30,7 @@ export function AnimatedList({ children, className }: AnimatedListProps) {
           custom={index}
           initial="hidden"
           animate="visible"
-          variants={listItemAnimations}
+          variants={listItemVariants}
         >
           {child}
         </motion.div>

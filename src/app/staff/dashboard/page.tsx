@@ -3,6 +3,7 @@
 import { DashboardLayout } from "@/components/layouts/DashboardLayout";
 import { DashboardSkeleton } from "@/components/skeletons/DashboardSkeleton";
 import { ErrorDisplay, PredictiveSearch } from "@dykstra/ui";
+import { useState } from "react";
 import {
   DashboardStats,
   RecentActivity,
@@ -19,6 +20,14 @@ import { OverdueInvoicesWidget } from "@/components/widgets/OverdueInvoicesWidge
 export default function StaffDashboardPage() {
   const { stats, isLoading, error } = useDashboardStats();
   const router = useRouter();
+  const [searchValue, setSearchValue] = useState('');
+
+  // Normalize tRPC errors (or other error shapes) to a standard Error instance for ErrorDisplay
+  const normalizedError = error
+    ? error instanceof Error
+      ? error
+      : new Error((error as any).message ?? 'Unknown error')
+    : null;
 
   const handleSearch = (query: string) => {
     // Route to appropriate page based on query
@@ -35,7 +44,7 @@ export default function StaffDashboardPage() {
   };
 
   if (isLoading) return <DashboardSkeleton statsCount={4} showChart={false} />;
-  if (error) return <ErrorDisplay error={error} title="Error loading dashboard" />;
+  if (normalizedError) return <ErrorDisplay error={normalizedError} title="Error loading dashboard" />;
   if (!stats) return <div className="p-8 text-center text-gray-500">No data available</div>;
 
   return (
@@ -47,12 +56,14 @@ export default function StaffDashboardPage() {
       <div className="mb-6">
         <PredictiveSearch
           placeholder="Search cases, contracts, families, payments..."
-          onSearch={handleSearch}
-          suggestions={[
-            { text: 'Recent cases', category: 'trending' },
-            { text: 'Pending payments', category: 'trending' },
-            { text: 'Active contracts', category: 'trending' },
+          value={searchValue}
+          onChange={setSearchValue}
+          results={[
+            { id: 'recent-cases', title: 'Recent cases', type: 'trending' },
+            { id: 'pending-payments', title: 'Pending payments', type: 'trending' },
+            { id: 'active-contracts', title: 'Active contracts', type: 'trending' },
           ]}
+          onSelectResult={(result) => handleSearch(result.title)}
         />
       </div>
       

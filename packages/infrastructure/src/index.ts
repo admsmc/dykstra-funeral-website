@@ -32,6 +32,9 @@ export * from './adapters/email/sendgrid-marketing-adapter';
 export * from './adapters/sms/twilio-sms-adapter';
 export * from './adapters/contact-management-policy-adapter';
 export * from './adapters/email-calendar-sync-policy-adapter';
+export * from './adapters/payment-management-policy-adapter';
+export * from './adapters/payment-management-policy-seeder';
+export * from './init';
 
 // Email Sync Adapters (provider-specific, not in main layer)
 export * from './adapters/email-sync/microsoft-graph-adapter';
@@ -65,6 +68,7 @@ export * from './adapters/documents/puppeteer-adapter'; // Week 7: Puppeteer
 export * from './adapters/documents/handlebars-adapter'; // Week 8: Handlebars
 
 // Combined infrastructure layer
+
 import { Layer } from 'effect';
 import { PrismaCaseRepository } from './database/prisma-case-repository';
 import { PrismaContractRepository } from './database/prisma-contract-repository';
@@ -92,6 +96,7 @@ import { TwilioSMSAdapter } from './adapters/sms/twilio-sms-adapter';
 import { GooglePlacesAdapter } from './adapters/validation/google-places-adapter';
 import { TwilioPhoneAdapter } from './adapters/validation/twilio-phone-adapter';
 import { ClearbitEnrichmentAdapter } from './adapters/enrichment/clearbit-enrichment-adapter';
+import { PaymentManagementPolicyAdapter } from './adapters/payment-management-policy-adapter';
 import { StorageAdapterLive } from './storage/storage-adapter';
 import {
   GoContractAdapter,
@@ -144,6 +149,7 @@ import {
   PhoneValidation,
   ContactEnrichment,
   PrePlanningAppointmentRepositoryTag,
+  PaymentManagementPolicyRepository,
   GoContractPort,
   GoInventoryPort,
   GoPayrollPort,
@@ -226,6 +232,9 @@ export const InfrastructureLayer = Layer.mergeAll(
   
   // Pre-Planning Appointment Repository (Scenario 6)
   Layer.succeed(PrePlanningAppointmentRepositoryTag, PrismaPrePlanningAppointmentRepository),
+  
+  // Policy Repositories (in-memory for development)
+  Layer.succeed(PaymentManagementPolicyRepository, PaymentManagementPolicyAdapter()),
   
   // CRM Adapters
   Layer.succeed(EmailMarketingService, SendGridMarketingAdapter),

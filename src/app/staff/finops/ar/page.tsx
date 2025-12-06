@@ -1,9 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { Calendar, FileText, Download, Filter, Search, AlertTriangle, TrendingUp } from 'lucide-react';
+import { Calendar, FileText, Download, Filter, Search, AlertTriangle, TrendingUp, Plus } from 'lucide-react';
 import { api } from '@/trpc/react';
 import { CardGridSkeleton } from '@/components/skeletons/FinancialSkeletons';
+import { RecordInsuranceClaimModal } from '../_components/RecordInsuranceClaimModal';
+import { useModalKeyboardShortcuts } from '@/hooks/useModalKeyboardShortcuts';
+import { exportPayments } from '@/lib/csv-export';
 
 /**
  * AR Aging Report Page
@@ -25,27 +28,32 @@ export default function ARAgingReportPage() {
   const [sortField, setSortField] = useState<SortField>('daysOverdue');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [selectedBucket, setSelectedBucket] = useState<string>('all');
+  const [showInsuranceModal, setShowInsuranceModal] = useState(false);
 
-  // tRPC query
-  const { data: reportData, isLoading, error } = api.financial.ar.getAgingReport.useQuery({
-    asOfDate: new Date(asOfDate),
+  // Keyboard shortcuts
+  useModalKeyboardShortcuts({
+    onInsurance: () => setShowInsuranceModal(true),
+  });
+
+  // Fetch invoices from API
+  const { data: apiInvoices = [], isLoading, error } = api.financial.ar.listInvoices.useQuery({
+    status: 'all',
     funeralHomeId: 'fh-001', // TODO: Get from auth context
   });
 
-  // Mock invoice data since the endpoint returns structured aging data
-  // In production, this would come from the API
-  const mockInvoices = [
-    { id: '1', invoiceNumber: 'INV-2024-001', customerName: 'Smith Family', caseNumber: 'CASE-001', invoiceDate: '2024-11-15', dueDate: '2024-12-15', totalAmount: 8500, paidAmount: 0, balance: 8500, daysOverdue: 0, bucket: 'current' },
-    { id: '2', invoiceNumber: 'INV-2024-002', customerName: 'Johnson Family', caseNumber: 'CASE-002', invoiceDate: '2024-10-20', dueDate: '2024-11-20', totalAmount: 12000, paidAmount: 5000, balance: 7000, daysOverdue: 15, bucket: '0-30' },
-    { id: '3', invoiceNumber: 'INV-2024-003', customerName: 'Williams Estate', caseNumber: 'CASE-003', invoiceDate: '2024-09-10', dueDate: '2024-10-10', totalAmount: 6500, paidAmount: 1000, balance: 5500, daysOverdue: 56, bucket: '31-60' },
-    { id: '4', invoiceNumber: 'INV-2024-004', customerName: 'Brown Family', caseNumber: 'CASE-004', invoiceDate: '2024-08-15', dueDate: '2024-09-15', totalAmount: 9200, paidAmount: 2000, balance: 7200, daysOverdue: 81, bucket: '61-90' },
-    { id: '5', invoiceNumber: 'INV-2024-005', customerName: 'Davis Family', caseNumber: 'CASE-005', invoiceDate: '2024-06-20', dueDate: '2024-07-20', totalAmount: 15000, paidAmount: 0, balance: 15000, daysOverdue: 138, bucket: '90+' },
-    { id: '6', invoiceNumber: 'INV-2024-006', customerName: 'Miller Family', caseNumber: 'CASE-006', invoiceDate: '2024-11-25', dueDate: '2024-12-25', totalAmount: 7800, paidAmount: 0, balance: 7800, daysOverdue: 0, bucket: 'current' },
-    { id: '7', invoiceNumber: 'INV-2024-007', customerName: 'Wilson Estate', caseNumber: 'CASE-007', invoiceDate: '2024-10-05', dueDate: '2024-11-05', totalAmount: 11500, paidAmount: 11500, balance: 0, daysOverdue: 0, bucket: 'current' },
-    { id: '8', invoiceNumber: 'INV-2024-008', customerName: 'Moore Family', caseNumber: 'CASE-008', invoiceDate: '2024-10-12', dueDate: '2024-11-12', totalAmount: 5200, paidAmount: 0, balance: 5200, daysOverdue: 23, bucket: '0-30' },
-    { id: '9', invoiceNumber: 'INV-2024-009', customerName: 'Taylor Family', caseNumber: 'CASE-009', invoiceDate: '2024-09-18', dueDate: '2024-10-18', totalAmount: 8900, paidAmount: 3000, balance: 5900, daysOverdue: 48, bucket: '31-60' },
-    { id: '10', invoiceNumber: 'INV-2024-010', customerName: 'Anderson Estate', caseNumber: 'CASE-010', invoiceDate: '2024-07-05', dueDate: '2024-08-05', totalAmount: 13500, paidAmount: 0, balance: 13500, daysOverdue: 122, bucket: '90+' },
-  ];
+  // Transform API data to include aging buckets
+  const calculateBucket = (daysOverdue: number): string => {
+    if (daysOverdue === 0) return 'current';
+    if (daysOverdue <= 30) return '0-30';
+    if (daysOverdue <= 60) return '31-60';
+    if (daysOverdue <= 90) return '61-90';
+    return '90+';
+  };
+
+  const invoicesWithBuckets = apiInvoices.map(inv => ({
+    ...inv,
+    bucket: calculateBucket(inv.daysOverdue),
+  }));
 
   // Calculate aging bucket totals
   const buckets = {
@@ -56,7 +64,7 @@ export default function ARAgingReportPage() {
     '90+': { label: '90+ Days', count: 0, total: 0 },
   };
 
-  mockInvoices.forEach(invoice => {
+  invoicesWithBuckets.forEach(invoice => {
     if (invoice.balance > 0) {
       buckets[invoice.bucket as keyof typeof buckets].count++;
       buckets[invoice.bucket as keyof typeof buckets].total += invoice.balance;
@@ -64,7 +72,7 @@ export default function ARAgingReportPage() {
   });
 
   // Filter invoices
-  const filteredInvoices = mockInvoices.filter(invoice => {
+  const filteredInvoices = invoicesWithBuckets.filter(invoice => {
     // Filter by balance > 0
     if (invoice.balance === 0) return false;
 
@@ -164,14 +172,25 @@ export default function ARAgingReportPage() {
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={() => alert('Export functionality coming soon!')}
-              className="px-4 py-2 bg-[--navy] text-white rounded-lg hover:bg-opacity-90 transition-all flex items-center gap-2"
-            >
-              <Download className="w-5 h-5" />
-              Export to Excel
-            </button>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowInsuranceModal(true)}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all flex items-center gap-2"
+              >
+                <Plus className="w-5 h-5" />
+                Record Insurance Claim
+              </button>
+              <button
+                type="button"
+                onClick={() => exportPayments(filteredInvoices)}
+                disabled={filteredInvoices.length === 0}
+                className="px-4 py-2 bg-[--navy] text-white rounded-lg hover:bg-opacity-90 transition-all flex items-center gap-2 disabled:opacity-50"
+              >
+                <Download className="w-5 h-5" />
+                Export to CSV
+              </button>
+            </div>
           </div>
 
           {/* As of Date */}
@@ -376,6 +395,15 @@ export default function ARAgingReportPage() {
             </div>
           )}
         </div>
+
+        <RecordInsuranceClaimModal
+          isOpen={showInsuranceModal}
+          onClose={() => setShowInsuranceModal(false)}
+          onSuccess={() => {
+            // Optionally refetch AR data here
+            setShowInsuranceModal(false);
+          }}
+        />
       </div>
     </div>
   );

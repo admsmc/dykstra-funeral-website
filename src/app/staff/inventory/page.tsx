@@ -2,9 +2,16 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Package, AlertTriangle, TrendingUp, ArrowRight, Zap, BarChart3 } from 'lucide-react';
+import { Package, AlertTriangle, TrendingUp, ArrowRight, Zap, BarChart3, Download } from 'lucide-react';
 import { PredictiveSearch } from '@dykstra/ui';
 import { trpc } from '@/lib/trpc';
+import { TransferInventoryModal } from './_components/TransferInventoryModal';
+import { AdjustInventoryModal } from './_components/AdjustInventoryModal';
+import { CreateItemModal } from './_components/CreateItemModal';
+import { ItemDetailsModal } from './_components/ItemDetailsModal';
+import { useModalKeyboardShortcuts } from '@/hooks/useModalKeyboardShortcuts';
+import { exportInventory } from '@/lib/csv-export';
+import { toast } from 'sonner';
 
 /**
  * Inventory Management Page - Linear/Notion Style
@@ -45,11 +52,34 @@ export default function InventoryPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [showLowStockOnly, setShowLowStockOnly] = useState(false);
+  const [showTransferModal, setShowTransferModal] = useState(false);
+  const [showAdjustModal, setShowAdjustModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
+
+  // Keyboard shortcuts
+  useModalKeyboardShortcuts({
+    onTransfer: () => setShowTransferModal(true),
+  });
 
   // Fetch inventory from API
-  const { data: inventory = [], isLoading } = trpc.inventory.list.useQuery({
+  const { data: inventory = [], isLoading, refetch } = trpc.inventory.list.useQuery({
     lowStockOnly: showLowStockOnly,
     category: selectedCategory !== 'all' ? selectedCategory : undefined,
+  });
+
+  // Adjust inventory mutation
+  const adjustMutation = trpc.inventory.adjust.useMutation({
+    onSuccess: () => {
+      toast.success('Inventory adjusted successfully');
+      refetch();
+      setShowAdjustModal(false);
+      setSelectedItem(null);
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to adjust inventory');
+    },
   });
 
   // Filter inventory
@@ -200,6 +230,28 @@ export default function InventoryPage() {
               >
                 {showLowStockOnly ? <Zap className="w-4 h-4" /> : 'Low Stock'}
               </button>
+              <button
+                onClick={() => exportInventory(inventory)}
+                disabled={inventory.length === 0}
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2 disabled:opacity-50"
+              >
+                <Download className="w-4 h-4" />
+                Export
+              </button>
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2"
+              >
+                <Package className="w-4 h-4" />
+                New Item
+              </button>
+              <button
+                onClick={() => setShowTransferModal(true)}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2"
+              >
+                <ArrowRight className="w-4 h-4" />
+                Transfer
+              </button>
             </div>
           </div>
         </motion.div>
@@ -230,11 +282,54 @@ export default function InventoryPage() {
               </motion.div>
             ) : (
               filteredInventory.map((item, index) => (
-                <InventoryCard key={item.id} item={item} index={index} />
+                <InventoryCard 
+                  key={item.id} 
+                  item={item} 
+                  index={index}
+                  onAdjust={() => {
+                    setSelectedItem(item);
+                    setShowAdjustModal(true);
+                  }}
+                  onViewDetails={() => {
+                    setSelectedItem(item);
+                    setShowDetailsModal(true);
+                  }}
+                />
               ))
             )}
           </AnimatePresence>
         </div>
+
+        <TransferInventoryModal
+          isOpen={showTransferModal}
+          onClose={() => setShowTransferModal(false)}
+          onSuccess={() => refetch()}
+        />
+
+        <AdjustInventoryModal
+          isOpen={showAdjustModal}
+          onClose={() => {
+            setShowAdjustModal(false);
+            setSelectedItem(null);
+          }}
+          onSuccess={() => refetch()}
+          item={selectedItem || undefined}
+        />
+
+        <CreateItemModal
+          isOpen={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+          onSuccess={() => refetch()}
+        />
+
+        <ItemDetailsModal
+          isOpen={showDetailsModal}
+          onClose={() => {
+            setShowDetailsModal(false);
+            setSelectedItem(null);
+          }}
+          item={selectedItem}
+        />
     </div>
   );
 }
@@ -288,7 +383,17 @@ function StatsCard({
 }
 
 // Individual Inventory Card - Modern card-based design
-function InventoryCard({ item, index }: { item: InventoryItem; index: number }) {
+function InventoryCard({ 
+  item, 
+  index,
+  onAdjust,
+  onViewDetails
+}: { 
+  item: InventoryItem; 
+  index: number;
+  onAdjust?: () => void;
+  onViewDetails?: () => void;
+}) {
   const totalAvailable = item.locations.reduce((sum, loc) => sum + loc.quantityAvailable, 0);
   const totalOnHand = item.locations.reduce((sum, loc) => sum + loc.quantityOnHand, 0);
   const totalReserved = item.locations.reduce((sum, loc) => sum + loc.quantityReserved, 0);
@@ -356,13 +461,21 @@ function InventoryCard({ item, index }: { item: InventoryItem; index: number }) 
           <div className="text-sm text-gray-600">
             Reorder at <span className="font-medium text-gray-900">{item.reorderPoint}</span> units
           </div>
-          <button
-            className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium"
-            onClick={() => alert(`View details for ${item.description}`)}
-          >
-            View Details
-            <ArrowRight className="w-4 h-4" />
-          </button>
+          <div className="flex gap-2">
+            <button
+              className="inline-flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
+              onClick={onAdjust}
+            >
+              Adjust
+            </button>
+            <button
+              className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium"
+              onClick={onViewDetails}
+            >
+              View Details
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
     </motion.div>

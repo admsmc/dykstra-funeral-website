@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { DollarSign, Users, Calendar, FileText, Download, Play, CheckCircle, Loader2 } from 'lucide-react';
 import { trpc } from '@/lib/trpc';
+import { RunPayrollModal } from './_components/RunPayrollModal';
+import { useModalKeyboardShortcuts } from '@/hooks/useModalKeyboardShortcuts';
 
 /**
  * Payroll Management Page - Linear/Notion Style
@@ -37,8 +39,15 @@ interface Employee {
 }
 
 export default function PayrollPage() {
+  const [showRunPayrollModal, setShowRunPayrollModal] = useState(false);
+
+  // Keyboard shortcuts
+  useModalKeyboardShortcuts({
+    onRunPayroll: () => setShowRunPayrollModal(true),
+  });
+  
   // Fetch payroll runs from API
-  const { data: payrollRuns = [], isLoading, error } = trpc.payroll.list.useQuery({
+  const { data: payrollRuns = [], isLoading, error, refetch } = trpc.payroll.list.useQuery({
     status: 'all',
   });
 
@@ -106,7 +115,10 @@ export default function PayrollPage() {
       >
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-gray-900">Payroll Runs</h2>
-          <button className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition text-sm font-medium">
+          <button
+            onClick={() => setShowRunPayrollModal(true)}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition text-sm font-medium"
+          >
             <Play className="w-4 h-4" />
             Run Payroll
           </button>
@@ -197,6 +209,12 @@ export default function PayrollPage() {
         </div>
       </motion.div>
       )}
+
+      <RunPayrollModal
+        isOpen={showRunPayrollModal}
+        onClose={() => setShowRunPayrollModal(false)}
+        onSuccess={() => refetch()}
+      />
     </div>
   );
 }

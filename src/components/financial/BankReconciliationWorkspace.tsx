@@ -215,15 +215,15 @@ export function BankReconciliationWorkspace({
                 </button>
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  disabled={importStatementMutation.isLoading}
+                  disabled={importStatementMutation.isPending}
                   className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition text-sm font-medium disabled:opacity-50"
                 >
-                  {importStatementMutation.isLoading ? (
+                  {importStatementMutation.isPending ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
                     <Upload className="w-4 h-4" />
                   )}
-                  {importStatementMutation.isLoading ? 'Importing...' : 'Import Bank File'}
+                  {importStatementMutation.isPending ? 'Importing...' : 'Import Bank File'}
                 </button>
                 <input
                   ref={fileInputRef}

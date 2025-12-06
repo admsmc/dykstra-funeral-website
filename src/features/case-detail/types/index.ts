@@ -7,7 +7,7 @@ export type TabType = "overview" | "families" | "arrangements" | "contract" | "p
 export interface CaseDetailData {
   case: {
     id: string;
-    businessKey: string;
+    businessKey?: string;
     decedentName: string;
     type: string;
     status: string;

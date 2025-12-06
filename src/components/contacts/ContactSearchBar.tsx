@@ -29,7 +29,6 @@ export function ContactSearchBar({
     { query, limit: 5 },
     {
       enabled: query.length >= 2,
-      keepPreviousData: true,
     }
   );
 

@@ -1,5 +1,5 @@
 import { Effect } from 'effect';
-import { Vehicle, VehicleId, VehicleStatus } from '@dykstra/domain';
+import { Vehicle, type VehicleId, type VehicleStatus } from '@dykstra/domain';
 import type { VehicleRepositoryService } from '@dykstra/application';
 import { VehicleNotFoundError, VehicleRepositoryError } from '@dykstra/application';
 import { prisma } from '../../database/prisma-client';

@@ -14,11 +14,11 @@ export interface TemplateData {
 export interface SaveTemplateParams {
   businessKey: string;
   name: string;
-  category: string;
+  category: 'service_program' | 'prayer_card' | 'bookmark' | 'memorial_folder';
   htmlTemplate: string;
   cssStyles: string;
-  pageSize: string;
-  orientation: string;
+  pageSize: 'letter' | 'a4' | 'legal' | '4x6' | '5x7';
+  orientation: 'portrait' | 'landscape';
   createdBy: string;
 }
 

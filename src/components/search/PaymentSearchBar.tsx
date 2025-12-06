@@ -113,7 +113,6 @@ export default function PaymentSearchBar({ onFiltersChange }: PaymentSearchBarPr
     },
     {
       enabled: isOpen || searchQuery.length > 0,
-      keepPreviousData: true,
     }
   );
 

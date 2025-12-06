@@ -121,14 +121,14 @@ export function ContactInfoCard({ contact, onRefresh }: ContactInfoCardProps) {
           <div className="flex gap-2">
             <button
               onClick={handleSave}
-              disabled={updateInfoMutation.isLoading}
+              disabled={updateInfoMutation.isPending}
               className="p-2 bg-[--sage] text-white rounded-lg hover:bg-opacity-90 transition-colors disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
             </button>
             <button
               onClick={handleCancel}
-              disabled={updateInfoMutation.isLoading}
+              disabled={updateInfoMutation.isPending}
               className="p-2 hover:bg-[--cream] rounded-lg transition-colors disabled:opacity-50"
             >
               <X className="w-4 h-4" />
@@ -158,7 +158,7 @@ export function ContactInfoCard({ contact, onRefresh }: ContactInfoCardProps) {
               {contact.email && (
                 <button
                   onClick={toggleEmailOptIn}
-                  disabled={updateOptInsMutation.isLoading}
+                  disabled={updateOptInsMutation.isPending}
                   className="flex items-center gap-1 text-xs text-[--sage] hover:underline disabled:opacity-50"
                 >
                   {contact.emailOptIn ? (
@@ -198,7 +198,7 @@ export function ContactInfoCard({ contact, onRefresh }: ContactInfoCardProps) {
               {contact.phone && (
                 <button
                   onClick={toggleSMSOptIn}
-                  disabled={updateOptInsMutation.isLoading}
+                  disabled={updateOptInsMutation.isPending}
                   className="flex items-center gap-1 text-xs text-[--sage] hover:underline disabled:opacity-50"
                 >
                   {contact.smsOptIn ? (
@@ -320,7 +320,7 @@ export function ContactInfoCard({ contact, onRefresh }: ContactInfoCardProps) {
                   markDoNotContactMutation.mutate({ contactId: contact.id });
                 }
               }}
-              disabled={markDoNotContactMutation.isLoading}
+              disabled={markDoNotContactMutation.isPending}
               className="w-full px-4 py-2 border-2 border-red-600 text-red-600 rounded-lg hover:bg-red-50 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
             >
               <AlertTriangle className="w-4 h-4" />

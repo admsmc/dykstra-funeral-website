@@ -78,20 +78,20 @@ export class ApprovalTemplateViewModel extends BaseViewModel {
 }
 
 export class HistoryVersionViewModel extends BaseViewModel {
-  constructor(private version: MemorialTemplate) {
+  constructor(private template: MemorialTemplate) {
     super();
   }
 
   get id() {
-    return this.version.metadata.id;
+    return this.template.metadata.id;
   }
 
   get version() {
-    return this.version.temporal.version;
+    return this.template.temporal.version;
   }
 
   get status() {
-    return this.version.metadata.status;
+    return this.template.metadata.status;
   }
 
   get statusBadgeConfig() {
@@ -102,34 +102,34 @@ export class HistoryVersionViewModel extends BaseViewModel {
     };
 
     return {
-      bg: colors[this.version.metadata.status] || "#999",
+      bg: colors[this.template.metadata.status] || "#999",
       text: "white",
     };
   }
 
   get validFrom() {
-    return this.version.temporal.validFrom;
+    return this.template.temporal.validFrom;
   }
 
   get validTo() {
-    return this.version.temporal.validTo;
+    return this.template.temporal.validTo;
   }
 
   get formattedValidFrom() {
-    return this.formatDate(this.version.temporal.validFrom);
+    return this.formatDate(this.template.temporal.validFrom);
   }
 
   get formattedValidTo() {
-    return this.version.temporal.validTo
-      ? this.formatDate(this.version.temporal.validTo)
+    return this.template.temporal.validTo
+      ? this.formatDate(this.template.temporal.validTo)
       : "Present";
   }
 
   get changeReason() {
-    return this.version.temporal.changeReason;
+    return this.template.temporal.changeReason;
   }
 
   get hasChangeReason() {
-    return !!this.version.temporal.changeReason;
+    return !!this.template.temporal.changeReason;
   }
 }

@@ -202,7 +202,7 @@ export default function PhotoGalleryPage({
             type="file"
             multiple
             accept="image/*"
-            onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => handleFileSelect(e.target.files)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFileSelect(e.target.files)}
             className="hidden"
             id="file-upload"
           />

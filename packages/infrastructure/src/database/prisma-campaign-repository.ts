@@ -1,7 +1,7 @@
 import { Effect, Layer } from 'effect';
 import { Campaign, type CampaignId, type CampaignStatus, type CampaignType, NotFoundError } from '@dykstra/domain';
 import { CampaignRepository, type CampaignRepositoryService, PersistenceError } from '@dykstra/application';
-import { CampaignStatus as PrismaCampaignStatus, CampaignType as PrismaCampaignType } from '@prisma/client';
+import { type CampaignStatus as PrismaCampaignStatus, type CampaignType as PrismaCampaignType } from '@prisma/client';
 import { prisma } from './prisma-client';
 
 /**

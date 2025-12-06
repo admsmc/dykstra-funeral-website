@@ -6,7 +6,7 @@ import type {
   PurchaseOrderData,
   PaymentReceiptData,
 } from '@dykstra/application';
-import { InvoiceData } from '@dykstra/domain';
+import { type InvoiceData } from '@dykstra/domain';
 import { InvoiceTemplate } from './templates/business/invoice-template';
 import { PurchaseOrderTemplate } from './templates/business/purchase-order-template';
 import { PaymentReceiptTemplate } from './templates/business/payment-receipt-template';

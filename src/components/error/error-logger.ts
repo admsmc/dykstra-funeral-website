@@ -20,7 +20,7 @@ export function logError(error: Error, errorInfo?: React.ErrorInfo): void {
   const errorLog: ErrorLog = {
     message: error.message,
     stack: error.stack,
-    componentStack: errorInfo?.componentStack,
+    componentStack: errorInfo?.componentStack ?? undefined,
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
   };

@@ -104,18 +104,18 @@ export function DeleteContactModal({
           <div className="flex gap-3">
             <button
               onClick={onClose}
-              disabled={deleteMutation.isLoading}
+              disabled={deleteMutation.isPending}
               className="flex-1 px-4 py-2 border-2 border-[--sage] text-[--navy] rounded-lg hover:bg-[--cream] transition-all disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               onClick={handleDelete}
-              disabled={deleteMutation.isLoading}
+              disabled={deleteMutation.isPending}
               className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
             >
               <Trash2 className="w-4 h-4" />
-              {deleteMutation.isLoading ? 'Deleting...' : 'Delete Contact'}
+              {deleteMutation.isPending ? 'Deleting...' : 'Delete Contact'}
             </button>
           </div>
         </motion.div>

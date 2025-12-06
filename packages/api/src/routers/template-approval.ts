@@ -273,7 +273,7 @@ export const templateApprovalRouter = router({
       });
 
         return workflows;
-      } catch (error) {
+      } catch (_error) {
         return [];
       }
     }),
@@ -313,7 +313,7 @@ export const templateApprovalRouter = router({
       });
 
         return reviews;
-      } catch (error) {
+      } catch (_error) {
         return [];
       }
     }),

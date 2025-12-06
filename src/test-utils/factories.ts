@@ -100,6 +100,6 @@ export function generateMockArray<T>(
   count: number
 ): T[] {
   return Array.from({ length: count }, (_, i) =>
-    factory({ id: `mock-${i + 1}` } as Partial<T>)
+    factory({ id: `mock-${i + 1}` } as unknown as Partial<T>)
   );
 }

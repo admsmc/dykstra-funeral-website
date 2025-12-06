@@ -55,6 +55,8 @@ export const contractTemplateSchema = z.object({
     .string()
     .min(1, 'Content is required')
     .min(10, 'Content must be at least 10 characters'),
+  // Variables and isDefault are always present in the form model with sensible defaults,
+  // so we model them as required fields with default values.
   variables: z.array(z.string()).default([]),
   isDefault: z.boolean().default(false),
 });

@@ -14,7 +14,6 @@ import {
 import { Input } from './input';
 import { Button } from './button';
 import { Checkbox } from './checkbox';
-import { Select } from './select';
 
 const formSchema = z.object({
   username: z.string().min(2, 'Username must be at least 2 characters').max(50),
